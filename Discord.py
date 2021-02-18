@@ -13,6 +13,7 @@ try:
         li="**"+text+"** \n\n"
         for i in search(text,num=7,stop=7,pause=0):
             li=li+i+" \n\n"
+        text=text.replace(' ','%20')
         li=li+"**Query link:**https://www.google.com/search?q="+text+"\n"
         await ctx.send(li)
     @client.command()
