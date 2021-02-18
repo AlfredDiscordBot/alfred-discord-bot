@@ -10,14 +10,14 @@ try:
     @client.command()
     async def g(ctx,*,text):        
         print(text)
-        li=""
+        li="**"+text+"** \n\n"+"https://www.google.com/search?q="+text
         for i in search(text,num=7,stop=7,pause=0):
             li=li+i+" \n\n"
         await ctx.send(li)
     @client.command()
     async def google(ctx,*,text):        
         print(text)
-        li=""
+        li="**"+text+"** \n\n"+"https://www.google.com/search?q="+text+"\n\n"
         for i in search(text,num=7,stop=7,pause=0):
             li=li+i+" \n\n"
         await ctx.send(li)
