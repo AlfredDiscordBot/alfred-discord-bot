@@ -10,16 +10,18 @@ try:
     @client.command()
     async def g(ctx,*,text):        
         print(text)
-        li="**"+text+"** \n\n"+"https://www.google.com/search?q="+text+"\n\n"
+        li="**"+text+"** \n\n"
         for i in search(text,num=7,stop=7,pause=0):
             li=li+i+" \n\n"
+        li=li+"https://www.google.com/search?q="+text+"\n"
         await ctx.send(li)
     @client.command()
     async def google(ctx,*,text):        
         print(text)
-        li="**"+text+"** \n\n"+"https://www.google.com/search?q="+text+"\n\n"
+        li="**"+text+"** \n\n"
         for i in search(text,num=7,stop=7,pause=0):
             li=li+i+" \n\n"
+        li=li+"https://www.google.com/search?q="+text+"\n"
         await ctx.send(li)
     client.remove_command("help")
     @client.group(invoke_without_command=True)
