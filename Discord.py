@@ -12,14 +12,14 @@ try:
         print(text)
         li=""
         for i in search(text,num=7,stop=7,pause=0):
-            li=li+i+" \n"
+            li=li+i+" \n\n"
         await ctx.send(li)
     @client.command()
     async def google(ctx,*,text):        
         print(text)
         li=""
         for i in search(text,num=7,stop=7,pause=0):
-            li=li+i+" \n"
+            li=li+i+" \n\n"
         await ctx.send(li)
     client.remove_command("help")
     @client.group(invoke_without_command=True)
