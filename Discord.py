@@ -28,12 +28,12 @@ try:
     client.remove_command("help")
     @client.group(invoke_without_command=True)
     async def help(ctx):
-        text="'google <text to search> \n'help to get this screen \n\nAlias: \n'g <text to search>"
+        text="'google <text to search> \n'help to get this screen \n\nAlias: \n'g <text to search> \n'h to show this message\n**Nothing inappropriate Please**"
         em=discord.Embed(title="**HELP** \n",description=text,color=ctx.author.color)
         await ctx.send(embed=em)
     @client.group(invoke_without_command=True)
     async def h(ctx):
-        text="'google <text to search> \n'help to show this message \n\nAlias: \n'g <text to search> \n'h to show this message"
+        text="'google <text to search> \n'help to show this message \n\nAlias: \n'g <text to search> \n'h to show this message\n**Nothing inappropriate Please**"
         em=discord.Embed(title="**HELP** \n",description=text,color=ctx.author.color)
         await ctx.send(embed=em)   
     client.run("ODExNTkxNjIzMjQyMTU0MDQ2.YC0bmQ.4oW1hyppcaQJpRfKFRJCiddZ5aI")
