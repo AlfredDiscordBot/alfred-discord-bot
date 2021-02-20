@@ -5,9 +5,11 @@ beautifulsoup4==4.9.3
 chardet==3.0.4
 discord==1.0.1
 discord.py==1.6.0
+docutils==0.16
 google==3.0.0
 idna==3.1
 multidict==5.1.0
 soupsieve==2.2
+statistics==1.0.3.5
 typing-extensions==3.7.4.3
 yarl==1.6.3
