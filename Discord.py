@@ -69,9 +69,9 @@ try:
         em=discord.Embed(title="Requests",description=str(number),color=ctx.author.color)
         await ctx.send(embed=em)
     def r(x):
-        return ma.radians(x)
+        return radians(x)
     def d(x):
-        return ma.degrees(x)
+        return degrees(x)
     def add(p1,p2):
         da[p1]=p2
         return "Done"
@@ -139,7 +139,7 @@ try:
         req()
         print("P"+text)
         a=eval(text)
-        ans=ma.factorial(a[0])/ma.factorial(a[0]-a[1])
+        ans=factorial(a[0])/factorial(a[0]-a[1])
         em=discord.Embed(title="P"+text+":",description=str(ans),color=ctx.author.color)
         await ctx.send(embed=em)
     @client.command()
@@ -147,7 +147,7 @@ try:
         req()
         print("c"+text)
         a=eval(text)
-        ans=ma.factorial(a[0])/(ma.factorial(a[1])*ma.factorial(a[0]-a[1]))
+        ans=factorial(a[0])/(factorial(a[1])*factorial(a[0]-a[1]))
         em=discord.Embed(title="C"+text+":",description=str(ans),color=ctx.author.color)
         await ctx.send(embed=em)
     
