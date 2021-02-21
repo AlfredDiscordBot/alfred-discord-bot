@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 from googlesearch import search
-import math as ma
-import statistics as s
+from math import *
+from statistics import *
 try:
     client=commands.Bot(command_prefix="'")
     @client.event
