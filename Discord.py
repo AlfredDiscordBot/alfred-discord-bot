@@ -150,9 +150,9 @@ try:
         await ctx.send(embed=em)
     
     te="**Commands**\n'google <text to search> \n'help to get this screen\n'c (n,r) for *combination* \n'p (n,r) for *permutation* \n**Leave space between p/c and the bracket'('** \n'meth <Expression> for any math calculation *(includes statistic)*\n'get_req for no. of requests\n"
-    te=te+"**Modules**:\n**ma** for math module\n**s** for statistics module \n\nr(angle in degree) to convert angle to radian \nd(angle in radian) to convert angle to radian\n\n"
+    te=te+"\n\nr(angle in degree) to convert angle to radian \nd(angle in radian) to convert angle to radian\n\n"
     te=te+"**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for any math calculation *(includes statistic)*\n\n"
-    te=te+"**Example**:\n'm quad('4x^2+2x-3')\n'p (10,9) \n'm ma.sin(r(45))\n'm ma.cos(pi)\n'help\n**Use small letters only**"
+    te=te+"**Example**:\n'm quad('4x^2+2x-3')\n'p (10,9) \n'm sin(r(45))\n'm cos(pi)\n'help\nlcm(_<integer seperated by comma>_)\n**Use small letters only**"
     client.remove_command("help")
     @client.group(invoke_without_command=True)
     async def help(ctx):
