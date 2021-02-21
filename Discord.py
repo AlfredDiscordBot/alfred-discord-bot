@@ -45,7 +45,6 @@ try:
     @client.command()
     async def m(ctx,*,text):
         req()
-        pi=ma.pi
         a=eval(text)
         text=text.replace("ma.","")
         text=text.replace("s.","")        
@@ -55,7 +54,6 @@ try:
     @client.command()
     async def meth(ctx,*,text):
         req()
-        pi=ma.pi
         a=eval(text)
         text=text.replace("ma.","")
         text=text.replace("s.","")        
