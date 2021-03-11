@@ -28,7 +28,7 @@ if True:
     async def wikipedia(ctx,*,text):
     	req()
     	t=str(search(text)[0].encode("utf-8"))    	
-    	em=discord.Embed(title=text,description=str(summary(t,sentences=5)),color=ctx.author.color)
+    	em=discord.Embed(title=text,description=str(summary(t,sentences=5).encode("utf-8")),color=ctx.author.color)
     	await ctx.send(embed=em)
     @client.command()
     async def check(ctx):
