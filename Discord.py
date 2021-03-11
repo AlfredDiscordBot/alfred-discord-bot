@@ -1,9 +1,13 @@
 import discord
 from discord.ext import commands
 from googlesearch import search
+from math import *
+from statistics import*
+from wikipedia import *
+import wikipedia
 import math as ma
 import statistics as s
-
+import googlesearch
 if True:
     client=commands.Bot(command_prefix="'")
     @client.event
@@ -11,7 +15,21 @@ if True:
         print("Prepared")
     censor=[] 
     da={}
-    re=[0]    
+    re=[0,"OK"]    
+    @client.command()
+    async def clear(ctx,*,text):
+    	req()
+    	await ctx.channel.purge(limit=1)
+    	if str(text)==re[1]:    		
+    		await ctx.channel.purge(limit=100000)
+    	else:
+    		await ctx.send("Wrong password")
+    @client.command(aliases=['w'])
+    async def wikipedia(ctx,*,text):
+    	req()
+    	t=str(search(text)[0].encode("utf-8"))    	
+    	em=discord.Embed(title=text,description=str(summary(t,sentences=5)),color=ctx.author.color)
+    	await ctx.send(embed=em)
     @client.command()
     async def check(ctx):
         req()
@@ -29,7 +47,7 @@ if True:
         req()
         print(text)
         li="**"+text+"** \n\n"
-        for i in search(text,num=7,stop=7,pause=0):
+        for i in googlesearch.search(text,num=7,stop=7,pause=0):
             li=li+i+" \n\n"
         text=text.replace(' ','%20')
         li=li+"**Query link:**https://www.google.com/search?q="+text+"\n"
@@ -165,7 +183,8 @@ if True:
     		await ctx.send("Unmuted "+member.mention)
     		print(member,"unmuted")
     	except:
-    		await ctx.send("Not Done")   	
+    		await ctx.send("Not Done") 
+    
     	
     te="**Commands**\n'google <text to search> \n'help to get this screen\n'c (n,r) for *combination* \n'p (n,r) for *permutation* \n**Leave space between p/c and the bracket'('** \n'meth <Expression> for any math calculation *(includes statistic)*\n'get_req for no. of requests\n"
     te=te+"**Modules**:\n**ma** for math module\n**s** for statistics module \n\nr(angle in degree) to convert angle to radian \nd(angle in radian) to convert angle to radian\n\n"
