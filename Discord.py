@@ -153,7 +153,7 @@ if True:
     @client.command(aliases=['um'])
     @commands.has_permissions(kick_members=True)
     async def unmute(ctx,member:discord.Member):
-    	m=ctx.guild.remove_role(819438829093519361)
+    	m=ctx.guild.get_role(819438829093519361)
     	await member.remove_roles(m)
     	await ctx.send(member.mention+" unmuted")
     	
