@@ -147,15 +147,25 @@ if True:
     @client.command(aliases=['mu'])
     @commands.has_permissions(kick_members=True)
     async def mute(ctx,member:discord.Member):
-    	m=ctx.guild.get_role(8819438829093519361)
-    	await member.add_roles(m)
-    	await ctx.send(member.mention+" muted")    
+    	req()
+    	try:
+    		add_role=discord.utils.get(ctx.guild.roles,name="dunce")
+    		await member.add_roles(add_role)
+    		await ctx.send("Muted "+member.mention)
+    		print(member,"muted")
+    	except:
+    		await ctx.send("Not Done")
     @client.command(aliases=['um'])
     @commands.has_permissions(kick_members=True)
     async def unmute(ctx,member:discord.Member):
-    	m=ctx.guild.get_role(819438829093519361)
-    	await member.remove_roles(m)
-    	await ctx.send(member.mention+" unmuted")
+    	req()
+    	try:
+    		add_role=discord.utils.get(ctx.guild.roles,name="dunce")
+    		await member.remove_roles(add_role)
+    		await ctx.send("Unmuted "+member.mention)
+    		print(member,"unmuted")
+    	except:
+    		await ctx.send("Not Done")   	
     	
     te="**Commands**\n'google <text to search> \n'help to get this screen\n'c (n,r) for *combination* \n'p (n,r) for *permutation* \n**Leave space between p/c and the bracket'('** \n'meth <Expression> for any math calculation *(includes statistic)*\n'get_req for no. of requests\n"
     te=te+"**Modules**:\n**ma** for math module\n**s** for statistics module \n\nr(angle in degree) to convert angle to radian \nd(angle in radian) to convert angle to radian\n\n"
