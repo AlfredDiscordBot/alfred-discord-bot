@@ -34,13 +34,17 @@ if True:
             await ctx.send("Wait or use stop")
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
 
-        ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'192',}],}
+        ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
         with youtube_dl.YoutubeDL(ydl_op) as ydl:
             ydl.download([url])
 
         for file in os.listdir("./"):
             if file.endswith(".mp3"):
                 os.rename(file,"song.mp3")
+        voice.play(discord.FFmpegPCMAudio("song.mp3"))
+    @client.command()
+    async def play(ctx):
+        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.play(discord.FFmpegPCMAudio("song.mp3"))
     @client.command()
     async def leave(ctx):
