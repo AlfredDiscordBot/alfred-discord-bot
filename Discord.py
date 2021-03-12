@@ -8,6 +8,8 @@ import wikipedia
 import math as ma
 import statistics as s
 import googlesearch
+import youtube_dl
+import os
 if True:
     client=commands.Bot(command_prefix="'")
     @client.event
@@ -15,7 +17,47 @@ if True:
         print("Prepared")
     censor=[] 
     da={}
-    re=[0,"OK"]    
+    re=[0,"OK"]
+    @client.command()
+    async def connect_music(ctx):
+        voiceChannel=discord.utils.get(ctx.guild.voice_channels,name="vc")
+        await voiceChannel.connect()
+        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+        await ctx.send("Connected")
+    @client.command()
+    async def url_song(ctx,url:str):
+        song=os.path.isfile("song.mp3")
+        try:
+             if song:
+                 os.remove("song.mp3")
+        except PermissionError:
+            await ctx.send("Wait or use stop")
+        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+
+        ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'192',}],}
+        with youtube_dl.YoutubeDL(ydl_op) as ydl:
+            ydl.download([url])
+
+        for file in os.listdir("./"):
+            if file.endswith(".mp3"):
+                os.rename(file,"song.mp3")
+        voice.play(discord.FFmpegPCMAudio("song.mp3"))
+    @client.command()
+    async def leave(ctx):
+        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+        await voice.disconnect()
+    @client.command()
+    async def pause(ctx):
+        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+        voice.pause()
+    @client.command()
+    async def resume(ctx):
+        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+        voice.resume()
+    @client.command()
+    async def stop(ctx):
+        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+        voice.stop()
     @client.command()
     async def clear(ctx,*,text):
     	req()
@@ -206,3 +248,4 @@ if True:
     client.run("ODExNTkxNjIzMjQyMTU0MDQ2.YC0bmQ.4oW1hyppcaQJpRfKFRJCiddZ5aI")
 else:
     print("Something has occured")
+
