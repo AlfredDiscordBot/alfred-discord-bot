@@ -1,4 +1,7 @@
 wikipedia==1.4.0
+ffmpeg==1.4
+ffprobe==0.5
+youtube-dl==2021.3.3
 aiohttp==3.7.3
 async-timeout==3.0.1
 attrs==20.3.0
