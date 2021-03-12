@@ -20,13 +20,14 @@ if True:
     re=[0,"OK"]
     @client.command()
     async def connect_music(ctx):
+        req()
         voiceChannel=discord.utils.get(ctx.guild.voice_channels,name="vc")
         await voiceChannel.connect()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         await ctx.send("Connected")
     @client.command()
     async def url_song(ctx,url:str):
-	req()
+        req()
         song=os.path.isfile("song.mp3")
         try:
              if song:
@@ -45,27 +46,27 @@ if True:
         voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
     @client.command()
     async def play(ctx):
-	req()
+        req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
     @client.command()
     async def leave(ctx):
-	req()
+        req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         await voice.disconnect()
     @client.command()
     async def pause(ctx):
-	req()
+        req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.pause()
     @client.command()
     async def resume(ctx):
-	req()
+        req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.resume()
     @client.command()
     async def stop(ctx):
-	req()
+        req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.stop()
     @client.command()
@@ -258,4 +259,3 @@ if True:
     client.run("ODExNTkxNjIzMjQyMTU0MDQ2.YC0bmQ.4oW1hyppcaQJpRfKFRJCiddZ5aI")
 else:
     print("Something has occured")
-
