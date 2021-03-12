@@ -41,11 +41,11 @@ if True:
         for file in os.listdir("./"):
             if file.endswith(".mp3"):
                 os.rename(file,"song.mp3")
-        voice.play(discord.FFmpegOpusAudio("song.mp3"))
+        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
     @client.command()
     async def play(ctx):
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        voice.play(discord.FFmpegOpusAudio("song.mp3"))
+        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
     @client.command()
     async def leave(ctx):
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
