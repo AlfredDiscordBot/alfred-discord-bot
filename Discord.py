@@ -26,6 +26,7 @@ if True:
         await ctx.send("Connected")
     @client.command()
     async def url_song(ctx,url:str):
+	req()
         song=os.path.isfile("song.mp3")
         try:
              if song:
@@ -44,22 +45,27 @@ if True:
         voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
     @client.command()
     async def play(ctx):
+	req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
     @client.command()
     async def leave(ctx):
+	req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         await voice.disconnect()
     @client.command()
     async def pause(ctx):
+	req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.pause()
     @client.command()
     async def resume(ctx):
+	req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.resume()
     @client.command()
     async def stop(ctx):
+	req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.stop()
     @client.command()
