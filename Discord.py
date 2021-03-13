@@ -253,11 +253,7 @@ if True:
     def req():
         re[0]=re[0]+1
     def g_req():
-        return re[0]
-    def assign(x,y):
-        try:
-            eval(x)=eval(y)
-        
+        return re[0]        
     def quad(eq):
         if "x^2" not in eq:
             return "x^2 not found, try again"
