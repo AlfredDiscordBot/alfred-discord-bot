@@ -148,7 +148,7 @@ if True:
                 os.rename(file,"song.mp3")        
         voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
     @client.command()
-    async def continue(ctx):
+    async def cont(ctx):
         req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))        
