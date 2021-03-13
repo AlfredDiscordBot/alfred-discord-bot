@@ -21,13 +21,20 @@ if True:
     da={}
     qu=['https://www.youtube.com/watch?v=SCQGnVrTsAM']
     re=[0,"OK",1,0]
-    @client.command()
+    @client.command(aliases=['cm'])
     async def connect_music(ctx,channel):
         req()
         voiceChannel=discord.utils.get(ctx.guild.voice_channels,name=channel)
         await voiceChannel.connect()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         await ctx.send("Connected")
+    @client.command(aliases=['cq'])
+    async def clear_queue(ctx):
+        qu.clear()
+        re[3]=0
+    @client.command()
+    async def remove(ctx,n):
+        qu.pop(int(n))
     @client.command()
     async def loop(ctx):
         req()
@@ -48,8 +55,10 @@ if True:
         qu.append(url)
         st=""
         await ctx.send("Added to queue")
+        num=0
         for i in qu:
-            st=st+i+"\n"
+            st=st+num+i+"\n"
+            num+=1
         if st=="":
             st="_Empty_"
         em=discord.Embed(title="Queue",description=st,color=ctx.author.color)
@@ -119,7 +128,27 @@ if True:
                 os.rename(file,"song.mp3")        
         voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
     @client.command()
-    async def play(ctx):
+    async def play(ctx,ind):
+        req()
+        re[3]=int(ind)
+        song=os.path.isfile("song.mp3")
+        try:
+             if song:
+                 os.remove("song.mp3")
+        except PermissionError:
+            await ctx.send("Wait or use stop")
+        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+        voice.stop()
+        ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
+        with youtube_dl.YoutubeDL(ydl_op) as ydl:
+            ydl.download([qu[re[3]]])
+
+        for file in os.listdir("./"):
+            if file.endswith(".mp3"):
+                os.rename(file,"song.mp3")        
+        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+    @client.command()
+    async def continue(ctx):
         req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))        
@@ -225,6 +254,10 @@ if True:
         re[0]=re[0]+1
     def g_req():
         return re[0]
+    def assign(x,y):
+        try:
+            eval(x)=eval(y)
+        
     def quad(eq):
         if "x^2" not in eq:
             return "x^2 not found, try again"
