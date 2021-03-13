@@ -17,16 +17,37 @@ if True:
         print("Prepared")
     censor=[] 
     da={}
-    re=[0,"OK"]
+    qu=['https://www.youtube.com/watch?v=SCQGnVrTsAM']
+    re=[0,"OK",1,0]
     @client.command()
-    async def connect_music(ctx):
+    async def connect_music(ctx,channel):
         req()
-        voiceChannel=discord.utils.get(ctx.guild.voice_channels,name="vc")
+        voiceChannel=discord.utils.get(ctx.guild.voice_channels,name=channel)
         await voiceChannel.connect()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         await ctx.send("Connected")
     @client.command()
-    async def url_song(ctx,url:str):
+    async def loop(ctx):
+        req()
+        st=""
+        re[2]=re[2]*-1
+        if re[2]<0:st="Off"
+        else:st="_On_"
+        await ctx.send(embed=discord.Embed(title="Loop",description=st,color=ctx.author.color))
+    @client.command(aliases=['q'])
+    async def queue(ctx,url:str):
+        req()
+        qu.append(url)
+        st=""
+        await ctx.send("Added to queue")
+        for i in qu:
+            st=st+i+"\n"
+        if st=="":
+            st="_Empty_"
+        em=discord.Embed(title="Queue",description=st,color=ctx.author.color)
+        await ctx.send(embed=em)
+    @client.command()
+    async def song(ctx,url:str):
         req()
         song=os.path.isfile("song.mp3")
         try:
@@ -42,13 +63,53 @@ if True:
 
         for file in os.listdir("./"):
             if file.endswith(".mp3"):
-                os.rename(file,"song.mp3")
+                os.rename(file,"song.mp3")        
+        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+    @client.command()
+    async def next(ctx):
+        req()
+        re[3]+=1
+        song=os.path.isfile("song.mp3")
+        try:
+             if song:
+                 os.remove("song.mp3")
+        except PermissionError:
+            await ctx.send("Wait or use stop")
+        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+        voice.stop()
+        ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
+        with youtube_dl.YoutubeDL(ydl_op) as ydl:
+            ydl.download([qu[re[3]]])
+
+        for file in os.listdir("./"):
+            if file.endswith(".mp3"):
+                os.rename(file,"song.mp3")        
+        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+    @client.command()
+    async def previous(ctx):
+        req()
+        re[3]-=1
+        song=os.path.isfile("song.mp3")
+        try:
+             if song:
+                 os.remove("song.mp3")
+        except PermissionError:
+            await ctx.send("Wait or use stop")
+        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+        voice.stop()
+        ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
+        with youtube_dl.YoutubeDL(ydl_op) as ydl:
+            ydl.download([qu[re[3]]])
+
+        for file in os.listdir("./"):
+            if file.endswith(".mp3"):
+                os.rename(file,"song.mp3")        
         voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
     @client.command()
     async def play(ctx):
         req()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))        
     @client.command()
     async def leave(ctx):
         req()
@@ -259,3 +320,4 @@ if True:
     client.run("ODExNTkxNjIzMjQyMTU0MDQ2.YC0bmQ.4oW1hyppcaQJpRfKFRJCiddZ5aI")
 else:
     print("Something has occured")
+
