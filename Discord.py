@@ -10,6 +10,8 @@ import statistics as s
 import googlesearch
 import youtube_dl
 import os
+import re as regex
+import urllib.request
 if True:
     client=commands.Bot(command_prefix="'")
     @client.event
@@ -35,8 +37,14 @@ if True:
         else:st="_On_"
         await ctx.send(embed=discord.Embed(title="Loop",description=st,color=ctx.author.color))
     @client.command(aliases=['q'])
-    async def queue(ctx,url:str):
+    async def queue(ctx,*,name):
         req()
+        name=name.replace(" ","+")
+        sear="https://www.youtube.com/results?search_query="+name
+        htm=urllib.request.urlopen(sear)
+        video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
+        url="https://www.youtube.com/watch?v="+video[0]
+        print(url)
         qu.append(url)
         st=""
         await ctx.send("Added to queue")
@@ -47,8 +55,13 @@ if True:
         em=discord.Embed(title="Queue",description=st,color=ctx.author.color)
         await ctx.send(embed=em)
     @client.command()
-    async def song(ctx,url:str):
+    async def song(ctx,*,name):
         req()
+        name=name.replace(" ","+")
+        htm=urllib.request.urlopen("https://www.youtube.com/results?search_query="+name)
+        video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
+        url="https://www.youtube.com/watch?v="+video[0]
+        print(url)
         song=os.path.isfile("song.mp3")
         try:
              if song:
@@ -320,4 +333,3 @@ if True:
     client.run("ODExNTkxNjIzMjQyMTU0MDQ2.YC0bmQ.4oW1hyppcaQJpRfKFRJCiddZ5aI")
 else:
     print("Something has occured")
-
