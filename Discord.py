@@ -21,17 +21,16 @@ if True:
     da={}
     qu=['https://www.youtube.com/watch?v=SCQGnVrTsAM']
     re=[0,"OK",1,0]
+	@client.command()
+    async def addqueue(ctx,*,text):
+        qu=qu+da[str(text)]
     @client.command(aliases=['cm'])
     async def connect_music(ctx,channel):
         req()
         voiceChannel=discord.utils.get(ctx.guild.voice_channels,name=channel)
         await voiceChannel.connect()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        await ctx.send("Connected")
-    @client.command()
-    async def addqueue(ctx,*,text):
-        ls=da[str(text)]
-        qu=qu+ls
+        await ctx.send("Connected")    
     @client.command()
     async def addplaylist(ctx,*,text):
         add(text,qu)
