@@ -7,8 +7,6 @@ chardet==3.0.4
 discord==1.0.1
 discord.py==1.6.0
 docutils==0.16
-ffmpeg==1.4
-ffprobe==0.5
 google==3.0.0
 idna==3.1
 multidict==5.1.0
