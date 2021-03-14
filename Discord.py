@@ -23,6 +23,7 @@ if True:
     re=[0,"OK",1,0]
 	@client.command()
     async def addqueue(ctx,*,text):
+        req()
         qu=qu+da[str(text)]
     @client.command(aliases=['cm'])
     async def connect_music(ctx,channel):
@@ -33,17 +34,21 @@ if True:
         await ctx.send("Connected")    
     @client.command()
     async def addplaylist(ctx,*,text):
+        req()
         add(text,qu)
         await ctx.send("Done")
     @client.command(aliases=['cq'])
     async def clearqueue(ctx):
+        req()
         qu.clear()
         re[3]=0
     @client.command()
     async def remove(ctx,n):
+        req()
         qu.pop(int(n))
     @client.command(aliases=['curr'])
     async def currentmusic(ctx):
+        req()
         await ctx.send("Current index: "+str(re[3]))
     @client.command()
     async def loop(ctx):
@@ -226,6 +231,7 @@ if True:
         await ctx.send(li)    
     @client.command(aliases=['cen'])
     async def add_censor(ctx,*,text):
+        req()
     	string=""
     	censor.append(text.lower())
     	for i in range(0,len(text)):
