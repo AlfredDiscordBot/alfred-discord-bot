@@ -233,11 +233,11 @@ if True:
     async def add_censor(ctx,*,text):
         req()
         string=""
-    	censor.append(text.lower())
+        censor.append(text.lower())
     	for i in range(0,len(text)):
     		string=string+"-"
     	em=discord.Embed(title="Added "+string+" to the list",decription="Done",color=ctx.author.color)
-    	await ctx.send(embed=em)
+        await ctx.send(embed=em)
     @client.event
     async def on_message(msg):
     	for word in censor:
