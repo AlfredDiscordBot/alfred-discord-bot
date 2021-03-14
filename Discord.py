@@ -232,7 +232,7 @@ if True:
     @client.command(aliases=['cen'])
     async def add_censor(ctx,*,text):
         req()
-    	string=""
+        string=""
     	censor.append(text.lower())
     	for i in range(0,len(text)):
     		string=string+"-"
