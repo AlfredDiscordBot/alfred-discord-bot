@@ -12,6 +12,7 @@ import youtube_dl
 import os
 import re as regex
 import urllib.request
+import ffmpeg
 if True:
     client=commands.Bot(command_prefix="'")
     @client.event
