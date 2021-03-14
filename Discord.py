@@ -77,7 +77,7 @@ if True:
         await ctx.send("Added to queue")
         num=0
         for i in qu:
-            st=st+num+i+"\n"
+            st=st+str(num)+":"+i+"\n"
             num+=1
         if st=="":
             st="_Empty_"
