@@ -28,13 +28,33 @@ if True:
         await voiceChannel.connect()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         await ctx.send("Connected")
+    @client.command()
+    async def addqueue(ctx,*,text):
+        ls=get(str(text))
+        try:
+            for i in ls:
+                a=i.find('https://www.youtube.com/watch?v=')
+                if i==-1:
+                    await ctx.send("_Not compatible_")
+                    break
+            else:
+                qu.append(ls)
+        except:
+            await ctx.send("Failed to add")
+    @client.command()
+    async def addplaylist(ctx,*,text):
+        add(text,qu)
+        await ctx.send("Done")
     @client.command(aliases=['cq'])
-    async def clear_queue(ctx):
+    async def clearqueue(ctx):
         qu.clear()
         re[3]=0
     @client.command()
     async def remove(ctx,n):
         qu.pop(int(n))
+    @client.command(aliases=['curr'])
+    async def currentmusic(ctx):
+        await ctx.send("Current index: "+str(re[3]))
     @client.command()
     async def loop(ctx):
         req()
@@ -57,7 +77,7 @@ if True:
         await ctx.send("Added to queue")
         num=0
         for i in qu:
-            st=st+str(num)+i+"\n"
+            st=st+num+i+"\n"
             num+=1
         if st=="":
             st="_Empty_"
@@ -91,6 +111,9 @@ if True:
     async def next(ctx):
         req()
         re[3]+=1
+        if re[3]>=len(qu):
+            re[3]=len(qu)-1
+            await ctx.send(embed=discord.Embed(title="Last song",description="Only "+str(len(qu))+" songs in your queue",color=ctx.author.color))                          
         song=os.path.isfile("song.mp3")
         try:
              if song:
@@ -111,6 +134,9 @@ if True:
     async def previous(ctx):
         req()
         re[3]-=1
+        if re[3]==-1:
+            re[3]=0
+            await ctx.send(embed=discord.Embed(title="First song",description="This is first in queue",color=ctx.author.color))   
         song=os.path.isfile("song.mp3")
         try:
              if song:
@@ -253,7 +279,7 @@ if True:
     def req():
         re[0]=re[0]+1
     def g_req():
-        return re[0]        
+        return re[0]
     def quad(eq):
         if "x^2" not in eq:
             return "x^2 not found, try again"
@@ -346,6 +372,9 @@ if True:
     te=te+"**Modules**:\n**ma** for math module\n**s** for statistics module \n\nr(angle in degree) to convert angle to radian \nd(angle in radian) to convert angle to radian\n\n"
     te=te+"**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for any math calculation *(includes statistic)*\n\n"
     te=te+"**Example**:\n'm quad('4x^2+2x-3')\n'p (10,9) \n'm ma.sin(r(45))\n'm ma.cos(pi)\n'help\n**Use small letters only**"
+    te=te+"\n\n\n\n **MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'song <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue 'play <index no.> to play certain song from the queue list\n"
+    te=te+"'addplaylist <Playlist name> to append the current queue to the playlist\n'addqueue <Playlist name> to add\n'clearqueue to clear the queue\n'resume,'pause\n"
+    te=te+"'currentmusic for current song's index\nI think thats pretty much it."
     client.remove_command("help")
     @client.group(invoke_without_command=True)
     async def help(ctx):
