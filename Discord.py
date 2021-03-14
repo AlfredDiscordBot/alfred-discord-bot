@@ -19,12 +19,8 @@ if True:
         print("Prepared")
     censor=[] 
     da={}
-    qu=['https://www.youtube.com/watch?v=SCQGnVrTsAM']
+    queue_song=[]
     re=[0,"OK",1,0]
-    @client.command()
-    async def addqueue(ctx,*,text):
-        req()
-        qu=qu+da[str(text)]
     @client.command(aliases=['cm'])
     async def connect_music(ctx,channel):
         req()
@@ -33,19 +29,26 @@ if True:
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         await ctx.send("Connected")    
     @client.command()
-    async def addplaylist(ctx,*,text):
+    async def addto(ctx,mode,*,text):
         req()
-        add(text,qu)
-        await ctx.send("Done")
+        if mode=="playlist":
+            add(text,queue_song)
+            await ctx.send("Done")
+        elif mode=="queue":
+            for i in range(len(get(str(text)))):
+                queue_song.append([get(str(text))[i]])
+            await ctx.send("Done")
+        else:
+            await ctx.send("Only playlist and queue")
     @client.command(aliases=['cq'])
     async def clearqueue(ctx):
         req()
-        qu.clear()
+        queue_song.clear()
         re[3]=0
     @client.command()
     async def remove(ctx,n):
         req()
-        qu.pop(int(n))
+        queue_song.pop(int(n))
     @client.command(aliases=['curr'])
     async def currentmusic(ctx):
         req()
@@ -67,11 +70,11 @@ if True:
         video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
         url="https://www.youtube.com/watch?v="+video[0]
         print(url)
-        qu.append(url)
+        queue_song.append(url)
         st=""
         await ctx.send("Added to queue")
         num=0
-        for i in qu:
+        for i in queue_song:
             st=st+str(num)+":"+i+"\n"
             num+=1
         if st=="":
@@ -106,9 +109,9 @@ if True:
     async def next(ctx):
         req()
         re[3]+=1
-        if re[3]>=len(qu):
-            re[3]=len(qu)-1
-            await ctx.send(embed=discord.Embed(title="Last song",description="Only "+str(len(qu))+" songs in your queue",color=ctx.author.color))                          
+        if re[3]>=len(queue_song):
+            re[3]=len(queue_song)-1
+            await ctx.send(embed=discord.Embed(title="Last song",description="Only "+str(len(queue_song))+" songs in your queue",color=ctx.author.color))                          
         song=os.path.isfile("song.mp3")
         try:
              if song:
@@ -119,7 +122,7 @@ if True:
         voice.stop()
         ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
         with youtube_dl.YoutubeDL(ydl_op) as ydl:
-            ydl.download([qu[re[3]]])
+            ydl.download([queue_song[re[3]]])
 
         for file in os.listdir("./"):
             if file.endswith(".mp3"):
@@ -142,7 +145,7 @@ if True:
         voice.stop()
         ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
         with youtube_dl.YoutubeDL(ydl_op) as ydl:
-            ydl.download([qu[re[3]]])
+            ydl.download([queue_song[re[3]]])
 
         for file in os.listdir("./"):
             if file.endswith(".mp3"):
@@ -162,7 +165,7 @@ if True:
         voice.stop()
         ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
         with youtube_dl.YoutubeDL(ydl_op) as ydl:
-            ydl.download([qu[re[3]]])
+            ydl.download([queue_song[re[3]]])
 
         for file in os.listdir("./"):
             if file.endswith(".mp3"):
@@ -272,6 +275,8 @@ if True:
     def de(k):
         del da[k]
         return "Done"
+    def get_q():
+        return queue_song
     def req():
         re[0]=re[0]+1
     def g_req():
