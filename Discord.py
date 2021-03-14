@@ -32,11 +32,13 @@ if True:
     async def addto(ctx,mode,*,text):
         req()
         if mode=="playlist":
-            add(text,queue_song)
+            add(text,queue_song.copy())
             await ctx.send("Done")
         elif mode=="queue":
-            for i in range(len(get(str(text)))):
-                queue_song.append([get(str(text))[i]])
+            print(len(get_elem(str(text))))
+            for i in range(0,len(get_elem(str(text)))):
+                queue_song.append(get_elem(str(text))[i])
+                await ctx.send(embed=discord.Embed(title=get_elem(str(text))[i]+" added",description="",color=ctx.author.color))
             await ctx.send("Done")
         else:
             await ctx.send("Only playlist and queue")
@@ -270,7 +272,7 @@ if True:
     def add(p1,p2):
         da[p1]=p2
         return "Done"
-    def get(k):
+    def get_elem(k):
         return da.get(k,"Not assigned yet")
     def de(k):
         del da[k]
