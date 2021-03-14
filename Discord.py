@@ -234,9 +234,9 @@ if True:
         req()
         string=""
         censor.append(text.lower())
-    	for i in range(0,len(text)):
-    		string=string+"-"
-    	em=discord.Embed(title="Added "+string+" to the list",decription="Done",color=ctx.author.color)
+        for i in range(0,len(text)):
+            string=string+"-"
+        em=discord.Embed(title="Added "+string+" to the list",decription="Done",color=ctx.author.color)
         await ctx.send(embed=em)
     @client.event
     async def on_message(msg):
