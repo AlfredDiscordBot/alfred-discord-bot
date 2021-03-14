@@ -30,17 +30,8 @@ if True:
         await ctx.send("Connected")
     @client.command()
     async def addqueue(ctx,*,text):
-        ls=get(str(text))
-        try:
-            for i in ls:
-                a=i.find('https://www.youtube.com/watch?v=')
-                if i==-1:
-                    await ctx.send("_Not compatible_")
-                    break
-            else:
-                qu.append(ls)
-        except:
-            await ctx.send("Failed to add")
+        ls=da[str(text)]
+        qu=qu+ls
     @client.command()
     async def addplaylist(ctx,*,text):
         add(text,qu)
