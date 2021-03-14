@@ -21,7 +21,7 @@ if True:
     da={}
     qu=['https://www.youtube.com/watch?v=SCQGnVrTsAM']
     re=[0,"OK",1,0]
-	@client.command()
+    @client.command()
     async def addqueue(ctx,*,text):
         req()
         qu=qu+da[str(text)]
