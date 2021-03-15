@@ -51,7 +51,7 @@ if True:
     @client.command()
     async def remove(ctx,n):
         req()
-        del da1[queue_song[n]]
+        del da1[queue_song[int(n)]]
         queue_song.pop(int(n))
     @client.command(aliases=['curr'])
     async def currentmusic(ctx):
@@ -84,7 +84,7 @@ if True:
         await ctx.send("Added to queue")
         num=0
         for i in queue_song:
-            st=st+str(num)+"."+da1[url]+":"+i+"\n"
+            st=st+str(num)+"."+da1[i]+":"+i+"\n"
             num+=1
         if st=="":st="_Empty_"
         em=discord.Embed(title="Queue",description=st,color=ctx.author.color)
