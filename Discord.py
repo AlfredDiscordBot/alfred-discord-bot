@@ -21,7 +21,7 @@ if True:
     da={}
     da1={}
     queue_song=[]
-    re=[0,"OK",1,0]
+    re=[0,"OK",1,0,-1]
     @client.command(aliases=['cm'])
     async def connect_music(ctx,channel):
         req()
@@ -38,8 +38,14 @@ if True:
         elif mode=="queue":
             print(len(get_elem(str(text))))
             for i in range(0,len(get_elem(str(text)))):
-                queue_song.append(get_elem(str(text))[i])
-                await ctx.send(embed=discord.Embed(title=get_elem(str(text))[i]+" added",description="",color=ctx.author.color))
+                link_add=get_elem(str(text))[i]
+                aa=str(urllib.request.urlopen(url).read().decode())
+                starting=aa.find("<title>")+len("<title>")
+                ending=aa.find("</title>")        
+                name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("Youtube","")
+                da1[link_add]=name_of_the_song
+                queue_song.append(link_add)
+                await ctx.send(embed=discord.Embed(title=name_of_the_song+" added",description="",color=ctx.author.color))
             await ctx.send("Done")
         else:
             await ctx.send("Only playlist and queue")
@@ -47,16 +53,18 @@ if True:
     async def clearqueue(ctx):
         req()
         queue_song.clear()
+        da1.clear()
         re[3]=0
     @client.command()
     async def remove(ctx,n):
         req()
+        await ctx.send(embed=discord.Embed(title="Removed",description=da1[queue_song[int(n)]],color=ctx.author.color))
         del da1[queue_song[int(n)]]
         queue_song.pop(int(n))
     @client.command(aliases=['curr'])
     async def currentmusic(ctx):
         req()
-        await ctx.send("Current index: "+str(re[3]))
+        await ctx.send(embed=discord.Embed(title=da1[queue_song[re[1]],description="Current index: "+str(re[3]))
     @client.command()
     async def loop(ctx):
         req()
@@ -76,7 +84,7 @@ if True:
         aa=str(urllib.request.urlopen(url).read().decode())
         starting=aa.find("<title>")+len("<title>")
         ending=aa.find("</title>")        
-        name_of_the_song=aa[starting:ending].replace("&#39;","'").replace(" - Youtube","")
+        name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("Youtube","")
         print(name_of_the_song,":",url)
         da1[url]=name_of_the_song
         queue_song.append(url)
@@ -96,6 +104,10 @@ if True:
         htm=urllib.request.urlopen("https://www.youtube.com/results?search_query="+name)
         video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
         url="https://www.youtube.com/watch?v="+video[0]
+        aa=str(urllib.request.urlopen(url).read().decode())
+        starting=aa.find("<title>")+len("<title>")
+        ending=aa.find("</title>")        
+        name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("Youtube","")
         print(url)
         song=os.path.isfile("song.mp3")
         try:
@@ -108,7 +120,7 @@ if True:
         ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
         with youtube_dl.YoutubeDL(ydl_op) as ydl:
             ydl.download([url])
-
+        await ctx.send(embed=discord.Embed(title="Song",description="Playing"+name_of_the_song,color=ctx.author.color))
         for file in os.listdir("./"):
             if file.endswith(".mp3"):
                 os.rename(file,"song.mp3")        
@@ -131,7 +143,7 @@ if True:
         ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
         with youtube_dl.YoutubeDL(ydl_op) as ydl:
             ydl.download([queue_song[re[3]]])
-
+        await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
         for file in os.listdir("./"):
             if file.endswith(".mp3"):
                 os.rename(file,"song.mp3")        
@@ -154,7 +166,7 @@ if True:
         ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
         with youtube_dl.YoutubeDL(ydl_op) as ydl:
             ydl.download([queue_song[re[3]]])
-
+        await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
         for file in os.listdir("./"):
             if file.endswith(".mp3"):
                 os.rename(file,"song.mp3")        
@@ -174,7 +186,7 @@ if True:
         ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
         with youtube_dl.YoutubeDL(ydl_op) as ydl:
             ydl.download([queue_song[re[3]]])
-
+        await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
         for file in os.listdir("./"):
             if file.endswith(".mp3"):
                 os.rename(file,"song.mp3")        
@@ -182,6 +194,7 @@ if True:
     @client.command()
     async def cont(ctx):
         req()
+        await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))        
     @client.command()
@@ -253,8 +266,21 @@ if True:
     async def on_message(msg):
     	for word in censor:
     		if word in msg.content.lower():
-    			await msg.delete()    	
+    			await msg.delete()
+    	if "?" in msg.content:
+            await ctx.send("Thog dont care")
     	await client.process_commands(msg)
+    @client.command()
+    async def thog(ctx,*,text):
+        if re[1]==text:
+            re[4]=re[4]*-1
+            if re[4]==1:
+                await ctx.send(embed=discord.Embed(title="Thog",description="Activated",color=ctx.author.color))
+            else:
+                await ctx.send(embed=discord.Embed(title="Thog",description="Deactivated",color=ctx.author.color))
+        else:
+            await ctx.channel.purge(limit=1)
+            await ctx.send("Wrong password")
     @client.command(aliases=['m'])
     async def meth(ctx,*,text):
         req()
