@@ -64,7 +64,7 @@ if True:
     @client.command(aliases=['curr'])
     async def currentmusic(ctx):
         req()
-        await ctx.send(embed=discord.Embed(title=str(da1[queue_song[re[1]]]),description="Current index: "+str(re[3]),color=ctx.author.color))
+        await ctx.send(embed=discord.Embed(title=str(da1[queue_song[re[3]]]),description="Current index: "+str(re[3]),color=ctx.author.color))
     @client.command()
     async def loop(ctx):
         req()
