@@ -74,7 +74,7 @@ if True:
         aa=str(urllib.request.urlopen(url).read().decode())
         starting=aa.find("<title>")+len("<title>")
         ending=aa.find("</title>")        
-        name_of_the_song=aa[starting:ending].replace("&#39;","'")
+        name_of_the_song=aa[starting:ending].replace("&#39;","'").replace(" - Youtube","")
         print(name_of_the_song,":",url)
         queue_song.append(url)
         st=""
