@@ -19,6 +19,7 @@ if True:
         print("Prepared")
     censor=[] 
     da={}
+    da1={}
     queue_song=[]
     re=[0,"OK",1,0]
     @client.command(aliases=['cm'])
@@ -50,6 +51,7 @@ if True:
     @client.command()
     async def remove(ctx,n):
         req()
+        del da1[queue_song[n]]
         queue_song.pop(int(n))
     @client.command(aliases=['curr'])
     async def currentmusic(ctx):
@@ -76,15 +78,15 @@ if True:
         ending=aa.find("</title>")        
         name_of_the_song=aa[starting:ending].replace("&#39;","'").replace(" - Youtube","")
         print(name_of_the_song,":",url)
+        da1[url]=name_of_the_song
         queue_song.append(url)
         st=""
         await ctx.send("Added to queue")
         num=0
         for i in queue_song:
-            st=st+str(num)+"."+name_of_the_song+":"+i+"\n"
+            st=st+str(num)+"."+da1[url]+":"+i+"\n"
             num+=1
-        if st=="":
-            st="_Empty_"
+        if st=="":st="_Empty_"
         em=discord.Embed(title="Queue",description=st,color=ctx.author.color)
         await ctx.send(embed=em)
     @client.command()
@@ -372,9 +374,7 @@ if True:
     		await ctx.send("Unmuted "+member.mention)
     		print(member,"unmuted")
     	except:
-    		await ctx.send("Not Done") 
-    
-    	
+    		await ctx.send("Not Done")     	
     te="**Commands**\n'google <text to search> \n'help to get this screen\n'c (n,r) for *combination* \n'p (n,r) for *permutation* \n**Leave space between p/c and the bracket'('** \n'meth <Expression> for any math calculation *(includes statistic)*\n'get_req for no. of requests\n"
     te=te+"**Modules**:\n**ma** for math module\n**s** for statistics module \n\nr(angle in degree) to convert angle to radian \nd(angle in radian) to convert angle to radian\n\n"
     te=te+"**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for any math calculation *(includes statistic)*\n\n"
