@@ -64,7 +64,7 @@ if True:
     @client.command(aliases=['curr'])
     async def currentmusic(ctx):
         req()
-        await ctx.send(embed=discord.Embed(title=da1[queue_song[re[1]],description="Current index: "+str(re[3]))
+        await ctx.send(embed=discord.Embed(title=str(da1[queue_song[re[1]]]),description="Current index: "+str(re[3]),color=ctx.author.color))
     @client.command()
     async def loop(ctx):
         req()
@@ -264,12 +264,12 @@ if True:
         await ctx.send(embed=em)
     @client.event
     async def on_message(msg):
-    	for word in censor:
-    		if word in msg.content.lower():
-    			await msg.delete()
-    	if "?" in msg.content:
-            await ctx.send("Thog dont care")
-    	await client.process_commands(msg)
+        for word in censor:
+            if word in msg.content.lower():
+                await msg.delete()
+        if "?" in msg.content and re[4]==1:
+            await msg.channel.send("Thog don't care!! :P")
+        await client.process_commands(msg)
     @client.command()
     async def thog(ctx,*,text):
         if re[1]==text:
