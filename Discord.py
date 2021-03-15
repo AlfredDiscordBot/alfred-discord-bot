@@ -12,8 +12,6 @@ import youtube_dl
 import os
 import re as regex
 import urllib.request
-import ffmpeg
-import ffprobe
 if True:
     client=commands.Bot(command_prefix="'")
     @client.event
@@ -73,13 +71,17 @@ if True:
         htm=urllib.request.urlopen(sear)
         video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
         url="https://www.youtube.com/watch?v="+video[0]
-        print(url)
+        aa=str(urllib.request.urlopen(url).read().decode())
+        starting=aa.find("<title>")+len("<title>")
+        ending=aa.find("</title>")        
+        name_of_the_song=aa[starting:ending].replace("&#39;","'")
+        print(name_of_the_song,":",url)
         queue_song.append(url)
         st=""
         await ctx.send("Added to queue")
         num=0
         for i in queue_song:
-            st=st+str(num)+":"+i+"\n"
+            st=st+str(num)+"."+name_of_the_song+":"+i+"\n"
             num+=1
         if st=="":
             st="_Empty_"
