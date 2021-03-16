@@ -268,7 +268,7 @@ if True:
             if word in msg.content.lower():
                 await msg.delete()
         if "?" in msg.content and re[4]==1:
-            await msg.channel.send("Thog don't care!! :P")
+            await msg.channel.send("thog dont caare")
         await client.process_commands(msg)
     @client.command()
     async def thog(ctx,*,text):
