@@ -1,4 +1,5 @@
 import discord
+import random
 from discord.ext import commands
 from googlesearch import search
 from math import *
@@ -21,46 +22,76 @@ if True:
     da={}
     da1={}
     queue_song=[]
-    re=[0,"OK",1,0,-1]
+    re=[0,"OK",1,0,-1,""]
+    @client.event
+    async def on_member_join(member):
+        await ctx.send(member.mention+" is here")
+        add_role=discord.utils.get(ctx.guild.roles,name="bois")
+        await member.add_roles(add_role)
+        await ctx.send(embed=discord.Embed(title="Welcome!!!", description="Welcome to the channel, "+member.name,color=discord.Color.from_rgb(255,255,255)))
     @client.command(aliases=['cm'])
     async def connect_music(ctx,channel):
         req()
+        re[5]=channel
         voiceChannel=discord.utils.get(ctx.guild.voice_channels,name=channel)
         await voiceChannel.connect()
         voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
         await ctx.send("Connected")    
     @client.command()
+    async def backup(ctx):
+        for i in da.keys():
+            await ctx.send(embed=discord.Embed(title="Playlist: "+i,description=get.elem(i),color=ctx.author.color))
+    @client.command()
     async def addto(ctx,mode,*,text):
         req()
-        if mode=="playlist":
+        present=1
+        voiceChannel=discord.utils.get(ctx.guild.voice_channels,name=re[5])
+        member=voiceChannel.members
+        for mem in member:
+            if str(ctx.author)==str(mem):
+                present=0
+                break
+        if mode=="playlist" and present==0:
             add(text,queue_song.copy())
             await ctx.send("Done")
-        elif mode=="queue":
+        elif mode=="queue" and present==0:
             print(len(get_elem(str(text))))
             for i in range(0,len(get_elem(str(text)))):
                 link_add=get_elem(str(text))[i]
                 aa=str(urllib.request.urlopen(link_add).read().decode())
                 starting=aa.find("<title>")+len("<title>")
                 ending=aa.find("</title>")        
-                name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("Youtube","")
+                name_of_the_song=aa[starting:ending].replace("&#39;","'").replace(" - Youtube","")
                 da1[link_add]=name_of_the_song
                 queue_song.append(link_add)
                 await ctx.send(embed=discord.Embed(title=name_of_the_song+" added",description="",color=ctx.author.color))
             await ctx.send("Done")
         else:
-            await ctx.send("Only playlist and queue")
+            if present==0:
+                await ctx.send("Only playlist and queue")
+            else:
+                await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to modify queue",color=ctx.author.color))
     @client.command(aliases=['cq'])
     async def clearqueue(ctx):
         req()
-        queue_song.clear()
-        da1.clear()
-        re[3]=0
+        mem=[(str(i.name)+"#"+str(i.discriminator)) for i in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            queue_song.clear()
+            da1.clear()
+            re[3]=0
+            await ctx.send(embed=discord.Embed(title="Cleared queue",description="_Done_",color=ctx.author.color))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to modify queue",color=ctx.author.color))
     @client.command()
-    async def remove(ctx,n):
+    async def remove(ctx,n):        
         req()
-        await ctx.send(embed=discord.Embed(title="Removed",description=da1[queue_song[int(n)]],color=ctx.author.color))
-        del da1[queue_song[int(n)]]
-        queue_song.pop(int(n))
+        mem=[(str(i.name)+"#"+str(i.discriminator)) for i in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            await ctx.send(embed=discord.Embed(title="Removed",description=da1[queue_song[int(n)]],color=ctx.author.color))
+            del da1[queue_song[int(n)]]
+            queue_song.pop(int(n))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to modify queue",color=ctx.author.color))
     @client.command(aliases=['curr'])
     async def currentmusic(ctx):
         req()
@@ -76,147 +107,226 @@ if True:
     @client.command(aliases=['q'])
     async def queue(ctx,*,name):
         req()
-        name=name.replace(" ","+")
-        sear="https://www.youtube.com/results?search_query="+name
-        htm=urllib.request.urlopen(sear)
-        video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
-        url="https://www.youtube.com/watch?v="+video[0]
-        aa=str(urllib.request.urlopen(url).read().decode())
-        starting=aa.find("<title>")+len("<title>")
-        ending=aa.find("</title>")        
-        name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("Youtube","")
-        print(name_of_the_song,":",url)
-        da1[url]=name_of_the_song
-        queue_song.append(url)
-        st=""
-        await ctx.send("Added to queue")
-        num=0
-        for i in queue_song:
-            st=st+str(num)+"."+da1[i]+":"+i+"\n"
-            num+=1
-        if st=="":st="_Empty_"
-        em=discord.Embed(title="Queue",description=st,color=ctx.author.color)
-        await ctx.send(embed=em)
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            name=name.replace(" ","+")
+            sear="https://www.youtube.com/results?search_query="+name
+            htm=urllib.request.urlopen(sear)
+            video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
+            url="https://www.youtube.com/watch?v="+video[0]
+            aa=str(urllib.request.urlopen(url).read().decode())
+            starting=aa.find("<title>")+len("<title>")
+            ending=aa.find("</title>")        
+            name_of_the_song=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","")
+            print(name_of_the_song,":",url)
+            da1[url]=name_of_the_song
+            queue_song.append(url)
+            st=""
+            await ctx.send("Added to queue")
+            num=0
+            for i in queue_song:
+                st=st+str(num)+". "+da1[i]+"\n"
+                num+=1
+            if st=="":st="_Empty_"
+            em=discord.Embed(title="Queue",description=st,color=ctx.author.color)
+            await ctx.send(embed=em)
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to modify queue",color=ctx.author.color))
+        @client.command(aliases=['sq'])
+        async def show_q(ctx):        
+            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+            if mem.count(str(ctx.author))>0:
+                num=0
+                st=""
+                for i in queue_song:
+                    st=st+str(num)+". "+da1[i]+"\n"
+                    num+=1
+                await ctx.send(embed=discord.Embed(title="Queue",description=st,color=ctx.author.color))
+            else:
+                await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to show queue",color=ctx.author.color))
+    @client.command()
+    async def show_playlist(ctx,*,key):
+        req()
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            li=da.get(key,["This Playlist does not exist"])
+            st=""
+            num=0
+            for i in li:
+                if i=="This Playlist does not exist":
+                    await ctx.send(embed=discord.Embed(title="No Playlist named "+key,description=li,color=ctx.author.color))
+                    break
+                else:
+                    aa=str(urllib.request.urlopen(i).read().decode())
+                    starting=aa.find("<title>")+len("<title>")
+                    ending=aa.find("</title>")        
+                    name_of_the_song=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","")
+                    st=st+"*"+str(num)+"*. "+name_of_the_song+"\n"
+            else:
+                await ctx.send(embed=discord.Embed(title=key,description=st,color=ctx.author.color))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to see the playlist",color=ctx.author.color))
     @client.command()
     async def song(ctx,*,name):
         req()
-        name=name.replace(" ","+")
-        htm=urllib.request.urlopen("https://www.youtube.com/results?search_query="+name)
-        video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
-        url="https://www.youtube.com/watch?v="+video[0]
-        aa=str(urllib.request.urlopen(url).read().decode())
-        starting=aa.find("<title>")+len("<title>")
-        ending=aa.find("</title>")        
-        name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("Youtube","")
-        print(url)
-        song=os.path.isfile("song.mp3")
-        try:
-             if song:
-                 os.remove("song.mp3")
-        except PermissionError:
-            await ctx.send("Wait or use stop")
-        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            name=name.replace(" ","+")
+            htm=urllib.request.urlopen("https://www.youtube.com/results?search_query="+name)
+            video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
+            url="https://www.youtube.com/watch?v="+video[0]
+            aa=str(urllib.request.urlopen(url).read().decode())
+            starting=aa.find("<title>")+len("<title>")
+            ending=aa.find("</title>")        
+            name_of_the_song=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","")
+            print(url)
+            song=os.path.isfile("song.mp3")
+            try:
+                 if song:
+                     os.remove("song.mp3")
+            except PermissionError:
+                await ctx.send("Wait or use stop")
+            voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
 
-        ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
-        with youtube_dl.YoutubeDL(ydl_op) as ydl:
-            ydl.download([url])
-        await ctx.send(embed=discord.Embed(title="Song",description="Playing"+name_of_the_song,color=ctx.author.color))
-        for file in os.listdir("./"):
-            if file.endswith(".mp3"):
-                os.rename(file,"song.mp3")        
-        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
+            with youtube_dl.YoutubeDL(ydl_op) as ydl:
+                ydl.download([url])
+            await ctx.send(embed=discord.Embed(title="Song",description="Playing "+name_of_the_song,color=ctx.author.color))
+            for file in os.listdir("./"):
+                if file.endswith(".mp3"):
+                    os.rename(file,"song.mp3")        
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play a song",color=ctx.author.color))
     @client.command()
     async def next(ctx):
         req()
-        re[3]+=1
-        if re[3]>=len(queue_song):
-            re[3]=len(queue_song)-1
-            await ctx.send(embed=discord.Embed(title="Last song",description="Only "+str(len(queue_song))+" songs in your queue",color=ctx.author.color))                          
-        song=os.path.isfile("song.mp3")
-        try:
-             if song:
-                 os.remove("song.mp3")
-        except PermissionError:
-            await ctx.send("Wait or use stop")
-        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        voice.stop()
-        ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
-        with youtube_dl.YoutubeDL(ydl_op) as ydl:
-            ydl.download([queue_song[re[3]]])
-        await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
-        for file in os.listdir("./"):
-            if file.endswith(".mp3"):
-                os.rename(file,"song.mp3")        
-        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            re[3]+=1
+            if re[3]>=len(queue_song):
+                re[3]=len(queue_song)-1
+                await ctx.send(embed=discord.Embed(title="Last song",description="Only "+str(len(queue_song))+" songs in your queue",color=ctx.author.color))                          
+            song=os.path.isfile("song.mp3")
+            try:
+                 if song:
+                     os.remove("song.mp3")
+            except PermissionError:
+                await ctx.send("Wait or use stop")
+            voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+            voice.stop()
+            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
+            with youtube_dl.YoutubeDL(ydl_op) as ydl:
+                ydl.download([queue_song[re[3]]])
+            await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
+            for file in os.listdir("./"):
+                if file.endswith(".mp3"):
+                    os.rename(file,"song.mp3")        
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the next song",color=ctx.author.color))
     @client.command()
     async def previous(ctx):
         req()
-        re[3]-=1
-        if re[3]==-1:
-            re[3]=0
-            await ctx.send(embed=discord.Embed(title="First song",description="This is first in queue",color=ctx.author.color))   
-        song=os.path.isfile("song.mp3")
-        try:
-             if song:
-                 os.remove("song.mp3")
-        except PermissionError:
-            await ctx.send("Wait or use stop")
-        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        voice.stop()
-        ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
-        with youtube_dl.YoutubeDL(ydl_op) as ydl:
-            ydl.download([queue_song[re[3]]])
-        await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
-        for file in os.listdir("./"):
-            if file.endswith(".mp3"):
-                os.rename(file,"song.mp3")        
-        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            re[3]-=1
+            if re[3]==-1:
+                re[3]=0
+                await ctx.send(embed=discord.Embed(title="First song",description="This is first in queue",color=ctx.author.color))   
+            song=os.path.isfile("song.mp3")
+            try:
+                 if song:
+                     os.remove("song.mp3")
+            except PermissionError:
+                await ctx.send("Wait or use stop")
+            voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+            voice.stop()
+            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
+            with youtube_dl.YoutubeDL(ydl_op) as ydl:
+                ydl.download([queue_song[re[3]]])
+            await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
+            for file in os.listdir("./"):
+                if file.endswith(".mp3"):
+                    os.rename(file,"song.mp3")        
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the previous song",color=ctx.author.color))
     @client.command()
     async def play(ctx,ind):
         req()
-        re[3]=int(ind)
-        song=os.path.isfile("song.mp3")
-        try:
-             if song:
-                 os.remove("song.mp3")
-        except PermissionError:
-            await ctx.send("Wait or use stop")
-        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        voice.stop()
-        ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
-        with youtube_dl.YoutubeDL(ydl_op) as ydl:
-            ydl.download([queue_song[re[3]]])
-        await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
-        for file in os.listdir("./"):
-            if file.endswith(".mp3"):
-                os.rename(file,"song.mp3")        
-        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            re[3]=int(ind)
+            song=os.path.isfile("song.mp3")
+            try:
+                 if song:
+                     os.remove("song.mp3")
+            except PermissionError:
+                await ctx.send("Wait or use stop")
+            voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+            voice.stop()
+            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'320',}],}
+            with youtube_dl.YoutubeDL(ydl_op) as ydl:
+                ydl.download([queue_song[re[3]]])
+            await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
+            for file in os.listdir("./"):
+                if file.endswith(".mp3"):
+                    os.rename(file,"song.mp3")        
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=ctx.author.color))
     @client.command()
-    async def cont(ctx):
+    async def again(ctx):
         req()
-        await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
-        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))        
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
+            voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=ctx.author.color))
     @client.command()
     async def leave(ctx):
         req()
-        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        await voice.disconnect()
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            re[5]=""
+            voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+            await voice.disconnect()
+            await ctx.send(embed=discord.Embed(title="Disconnected",description="Bye",color=ctx.author.color))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Nice try dude! Join the voice channel",color=ctx.author.color))
     @client.command()
     async def pause(ctx):
         req()
-        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        voice.pause()
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+            voice.pause()
+            await ctx.send(embed=discord.Embed(title="Pause",color=ctx.author.color))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the channel to pause the song",color=ctx.author.color))
     @client.command()
     async def resume(ctx):
         req()
-        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        voice.resume()
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+            voice.resume()
+            await ctx.send(embed=discord.Embed(title="Resume",color=ctx.author.color))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the channel to resume the song",color=ctx.author.color))
     @client.command()
     async def stop(ctx):
         req()
-        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        voice.stop()
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
+        if mem.count(str(ctx.author))>0:
+            voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+            voice.stop()
+            await ctx.send(embed=discord.Embed(title="Stop",color=ctx.author.color))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the channel to resume the song",color=ctx.author.color))
     @client.command()
     async def clear(ctx,*,text):
     	req()
@@ -277,7 +387,7 @@ if True:
             await msg.channel.send("thog dont caare")
         if "why" in msg.content and re[4]==1:
             await msg.channel.send("thog dont caare")
-        if "why" in msg.content and re[4]==1:
+        if "who" in msg.content and re[4]==1:
             await msg.channel.send("thog dont caare")
         if "where" in msg.content and re[4]==1:
             await msg.channel.send("thog dont caare")
