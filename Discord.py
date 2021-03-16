@@ -39,7 +39,7 @@ if True:
             print(len(get_elem(str(text))))
             for i in range(0,len(get_elem(str(text)))):
                 link_add=get_elem(str(text))[i]
-                aa=str(urllib.request.urlopen(url).read().decode())
+                aa=str(urllib.request.urlopen(link_add).read().decode())
                 starting=aa.find("<title>")+len("<title>")
                 ending=aa.find("</title>")        
                 name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("Youtube","")
