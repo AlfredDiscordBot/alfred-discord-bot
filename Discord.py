@@ -269,6 +269,18 @@ if True:
                 await msg.delete()
         if "?" in msg.content and re[4]==1:
             await msg.channel.send("thog dont caare")
+        if "what" in msg.content and re[4]==1:
+            await msg.channel.send("thog dont caare")
+        if "how" in msg.content and re[4]==1:
+            await msg.channel.send("thog dont caare")
+        if "when" in msg.content and re[4]==1:
+            await msg.channel.send("thog dont caare")
+        if "why" in msg.content and re[4]==1:
+            await msg.channel.send("thog dont caare")
+        if "why" in msg.content and re[4]==1:
+            await msg.channel.send("thog dont caare")
+        if "where" in msg.content and re[4]==1:
+            await msg.channel.send("thog dont caare")
         await client.process_commands(msg)
     @client.command()
     async def thog(ctx,*,text):
