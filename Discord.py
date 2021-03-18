@@ -281,7 +281,7 @@ if True:
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file,"song.mp3")        
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=192))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the next song",color=ctx.author.color))
     @client.command()
