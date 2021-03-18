@@ -607,7 +607,7 @@ if True:
         await ctx.send(embed=em)
     try:
         client.run(str(os.environ['App_key']))
-    else:
+    except:
         client.run("ODExNTkxNjIzMjQyMTU0MDQ2.YC0bmQ.4oW1hyppcaQJpRfKFRJCiddZ5aI")
 else:
     print("Something has occured")
