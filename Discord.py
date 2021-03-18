@@ -475,7 +475,7 @@ if True:
             await ctx.send(embed=em)
         else:
             await ctx.channel.purge(limit=1)
-            await ctx.send(embed=discord.Embed(title="Permission denied",description="",color=ctx.author))
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="",color=ctx.author.color))
     @client.command()
     async def get_req(ctx):
         req()
