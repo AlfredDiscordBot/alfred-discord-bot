@@ -465,7 +465,7 @@ if True:
     @client.command(aliases=['m'])
     async def meth(ctx,*,text):
         req()
-        if str(text).find("username")==-1
+        if str(text).find("username")==-1:
             pi=ma.pi
             a=eval(text)
             text=text.replace("ma.","")
