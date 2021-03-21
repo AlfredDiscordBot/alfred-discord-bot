@@ -15,7 +15,6 @@ import re as regex
 import urllib.request
 import requests
 import ffmpeg
-import ffprobe
 if True:
     client=commands.Bot(command_prefix="'")
     @client.event
