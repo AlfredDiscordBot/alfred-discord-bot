@@ -608,8 +608,6 @@ if True:
         em=discord.Embed(title="**HELP** \n",description=te,color=ctx.author.color)
         await ctx.send(embed=em)
     try:
-        client.run(str(os.environ['App_key']))
-    except:
-        client.run("ODExNTkxNjIzMjQyMTU0MDQ2.YC0bmQ.4oW1hyppcaQJpRfKFRJCiddZ5aI")
+        client.run(str(os.environ['Key']))
 else:
     print("Something has occured")
