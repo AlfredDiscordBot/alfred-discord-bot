@@ -14,6 +14,8 @@ import os
 import re as regex
 import urllib.request
 import requests
+import ffmpeg
+import ffprobe
 if True:
     client=commands.Bot(command_prefix="'")
     @client.event
@@ -281,7 +283,7 @@ if True:
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file,"song.mp3")        
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=192))
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the next song",color=ctx.author.color))
     @client.command()
@@ -475,7 +477,7 @@ if True:
             await ctx.send(embed=em)
         else:
             await ctx.channel.purge(limit=1)
-            await ctx.send(embed=discord.Embed(title="Permission denied",description="",color=ctx.author.color))
+            await ctx.send(embed=discord.Embed(title="Permission denied")
     @client.command()
     async def get_req(ctx):
         req()
@@ -606,7 +608,9 @@ if True:
         print("help")
         em=discord.Embed(title="**HELP** \n",description=te,color=ctx.author.color)
         await ctx.send(embed=em)
-    client.run(os.environ['Key'])
-    
+    try:
+        client.run(str(os.environ['App_key']))
+    except:
+        client.run("ODExNTkxNjIzMjQyMTU0MDQ2.YC0bmQ.4oW1hyppcaQJpRfKFRJCiddZ5aI")
 else:
     print("Something has occured")
