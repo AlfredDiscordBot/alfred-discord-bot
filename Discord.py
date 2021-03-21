@@ -607,7 +607,6 @@ if True:
         print("help")
         em=discord.Embed(title="**HELP** \n",description=te,color=ctx.author.color)
         await ctx.send(embed=em)
-    try:
-        client.run(str(os.environ['Key']))
+    client.run(str(os.environ['Key']))
 else:
     print("Something has occured")
