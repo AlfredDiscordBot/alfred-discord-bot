@@ -248,14 +248,14 @@ if True:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
 
-            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'192',}],}
+            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'96',}],}
             with youtube_dl.YoutubeDL(ydl_op) as ydl:
                 ydl.download([url])
             await ctx.send(embed=discord.Embed(title="Song",description="Playing "+name_of_the_song,color=ctx.author.color))
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file,"song.mp3")        
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=192))
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play a song",color=ctx.author.color))
     @client.command()
@@ -275,14 +275,14 @@ if True:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
-            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'192',}],}
+            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'96',}],}
             with youtube_dl.YoutubeDL(ydl_op) as ydl:
                 ydl.download([queue_song[re[3]]])
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file,"song.mp3")        
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=320))
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the next song",color=ctx.author.color))
     @client.command()
@@ -302,14 +302,14 @@ if True:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
-            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'192',}],}
+            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'96',}],}
             with youtube_dl.YoutubeDL(ydl_op) as ydl:
                 ydl.download([queue_song[re[3]]])
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file,"song.mp3")        
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=192))
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the previous song",color=ctx.author.color))
     @client.command()
@@ -326,14 +326,14 @@ if True:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
-            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'192',}],}
+            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'96',}],}
             with youtube_dl.YoutubeDL(ydl_op) as ydl:
                 ydl.download([queue_song[re[3]]])
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file,"song.mp3")        
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=192))
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=ctx.author.color))
     @client.command()
@@ -343,7 +343,7 @@ if True:
         if mem.count(str(ctx.author))>0:
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=192))
+            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=ctx.author.color))
     @client.command()
@@ -607,6 +607,4 @@ if True:
         print("help")
         em=discord.Embed(title="**HELP** \n",description=te,color=ctx.author.color)
         await ctx.send(embed=em)
-    client.run(str(os.environ['Key']))
-else:
-    print("Something has occured")
+    client.run(os.environ['Key'])
