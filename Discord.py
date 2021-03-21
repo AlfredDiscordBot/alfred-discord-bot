@@ -72,7 +72,7 @@ if True:
                 req=s.get(link)
                 k=out+link+date
                 if k in entr:
-                    continue          
+                    break          
                 entr.append(str(k))
                 lol=lol+out+" Date:"+date+"\n"
                 with open((out+".pdf"),'wb') as pdf:
@@ -477,7 +477,7 @@ if True:
             await ctx.send(embed=em)
         else:
             await ctx.channel.purge(limit=1)
-            await ctx.send(embed=discord.Embed(title="Permission denied")
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="",color=ctx.author.color)
     @client.command()
     async def get_req(ctx):
         req()
