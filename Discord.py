@@ -24,7 +24,7 @@ if True:
     entr=[]
     da1={}
     queue_song=[]
-    username=["BE/730/2020-21","alvin@dps"]
+    username=["username","password"]
     re=[0,"OK",1,0,-1,"",'169']
     re[5]=""
     def save_to_file():
@@ -711,4 +711,4 @@ if True:
         print("help")
         em=discord.Embed(title="**HELP** \n",description=te,color=ctx.author.color)
         await ctx.send(embed=em)
-    client.run("ODExNTkxNjIzMjQyMTU0MDQ2.YC0bmQ.2h0x5GIgFoaopc2cYs6w6jXQA0Y")
+    client.run("token")
