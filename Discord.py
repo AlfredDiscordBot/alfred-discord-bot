@@ -28,12 +28,12 @@ if True:
     re=[0,"OK",1,0,-1,"",'169']
     re[5]=""
     def save_to_file():
-        if "backup.txt" in os.listdir("./"):
-            os.remove("./backup.txt")
-        if "recover.txt" in os.listdir("./"):
-            os.remove("./recover.txt")
+        if ".backup.txt" in os.listdir("./"):
+            os.remove("./.backup.txt")
+        if ".recover.txt" in os.listdir("./"):
+            os.remove("./.recover.txt")
         if True:
-            file = open("backup.txt", "w")
+            file = open(".backup.txt", "w")
             file.write("censor="+str(censor)+"\n")
             file.write("da="+str(da)+"\n")
             file.write("da1="+str(da1)+"\n")
@@ -41,15 +41,14 @@ if True:
             file.write("queue_song="+str(queue_song)+"\n")
             file.write("re="+str(re)+"\n")
             file.close()
-            file = open("recover.txt", "w")
+            file = open(".recover.txt", "w")
             file.write("censor="+str(censor)+"\n")
             file.write("da="+str(da)+"\n")
             file.write("da1="+str(da1)+"\n")
             file.write("entr="+str(entr)+"\n")
             file.write("queue_song="+str(queue_song)+"\n")
             file.write("re="+str(re)+"\n")
-            file.close()
-    def load_from_file(file_name="backup.txt"):
+    def load_from_file(file_name=".backup.txt"):
         if file_name in os.listdir("./"):
             file=open(file_name,"r")
             global censor
@@ -97,9 +96,7 @@ if True:
             k_re=eval(txt_from_file[a1:a2])
             re=k_re
             re[5]=""
-        file.close()
         save_to_file()
-    load_from_file()
     @client.event
     async def on_ready():
         load_from_file()
@@ -108,7 +105,7 @@ if True:
         print("Prepared")
     @client.command(aliases=['$$'])
     async def recover(ctx):
-        load_from_file("recover.txt")
+        load_from_file(".recover.txt")
     @client.command()
     async def reset_from_backup(ctx):
         load_from_file()
@@ -327,10 +324,10 @@ if True:
             ending=aa.find("</title>")        
             name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("&amp;","&")
             print(url)
-            song=os.path.isfile("song.mp3")
+            song=os.path.isfile(".song.mp3")
             try:
                  if song:
-                     os.remove("song.mp3")
+                     os.remove(".song.mp3")
             except PermissionError:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
@@ -341,8 +338,8 @@ if True:
             await ctx.send(embed=discord.Embed(title="Song",description="Playing "+name_of_the_song,color=ctx.author.color))
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
-                    os.rename(file,"song.mp3")        
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=96))
+                    os.rename(file,".song.mp3")        
+            voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play a song",color=ctx.author.color))
     @client.command(aliases=['>'])
@@ -354,10 +351,10 @@ if True:
             if re[3]>=len(queue_song):
                 re[3]=len(queue_song)-1
                 await ctx.send(embed=discord.Embed(title="Last song",description="Only "+str(len(queue_song))+" songs in your queue",color=ctx.author.color))                          
-            song=os.path.isfile("song.mp3")
+            song=os.path.isfile(".song.mp3")
             try:
                  if song:
-                     os.remove("song.mp3")
+                     os.remove(".song.mp3")
             except PermissionError:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
@@ -368,8 +365,8 @@ if True:
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
-                    os.rename(file,"song.mp3")        
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=96))
+                    os.rename(file,".song.mp3")        
+            voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the next song",color=ctx.author.color))
     @client.command(aliases=['<'])
@@ -381,10 +378,10 @@ if True:
             if re[3]==-1:
                 re[3]=0
                 await ctx.send(embed=discord.Embed(title="First song",description="This is first in queue",color=ctx.author.color))   
-            song=os.path.isfile("song.mp3")
+            song=os.path.isfile(".song.mp3")
             try:
                  if song:
-                     os.remove("song.mp3")
+                     os.remove(".song.mp3")
             except PermissionError:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
@@ -395,8 +392,8 @@ if True:
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
-                    os.rename(file,"song.mp3")        
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=96))
+                    os.rename(file,".song.mp3")        
+            voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the previous song",color=ctx.author.color))
     @client.command()
@@ -405,10 +402,10 @@ if True:
         mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
         if mem.count(str(ctx.author))>0:
             re[3]=int(ind)
-            song=os.path.isfile("song.mp3")
+            song=os.path.isfile(".song.mp3")
             try:
                  if song:
-                     os.remove("song.mp3")
+                     os.remove(".song.mp3")
             except PermissionError:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
@@ -419,8 +416,8 @@ if True:
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
-                    os.rename(file,"song.mp3")        
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=96))
+                    os.rename(file,".song.mp3")        
+            voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=ctx.author.color))
     @client.command()
@@ -431,7 +428,7 @@ if True:
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
-            voice.play(discord.FFmpegOpusAudio("song.mp3",bitrate=96))
+            voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=ctx.author.color))
     @client.command(aliases=['!'])
@@ -446,7 +443,7 @@ if True:
         save_to_file()        
         await ctx.send(embed=discord.Embed(title="Restarted",description="The program finished restarting",color=ctx.author.color))
         print("Restart")
-        os.startfile(__file__)
+        os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Discord.py &")
         sys.exit()
     @client.command(aliases=['dc'])
     async def leave(ctx):
@@ -458,7 +455,7 @@ if True:
             voice.stop()
             await voice.disconnect()
             try:
-                os.remove("./song.mp3")
+                os.remove("./.song.mp3")
             except:
                 pass            
             await ctx.send(embed=discord.Embed(title="Disconnected",description="Bye",color=ctx.author.color))            
@@ -711,4 +708,4 @@ if True:
         print("help")
         em=discord.Embed(title="**HELP** \n",description=te,color=ctx.author.color)
         await ctx.send(embed=em)
-    client.run("token")
+    client.run("")
