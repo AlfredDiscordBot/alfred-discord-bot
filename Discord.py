@@ -17,20 +17,26 @@ import requests
 import ffmpeg
 import time
 import sys
+import psutil
 if True:
+    if os.getcwd()!="/home/alvinbengeorge":
+        os.chdir("/home/alvinbengeorge")
+    start_time=time.time()
     client=commands.Bot(command_prefix="'")
     censor=[] 
     da={}
     entr=[]
     da1={}
     queue_song=[]
-    username=["username","password"]
-    re=[0,"OK",1,0,-1,"",'169']
+    re=[0,"OK",1,0,-1,"",'205']
     re[5]=""
-    def save_to_file():
+    dev_users=['Alvin#6115']
+    ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'96',}],}
+    def save_to_file(a=""):
+        global dev_users
         if ".backup.txt" in os.listdir("./"):
             os.remove("./.backup.txt")
-        if ".recover.txt" in os.listdir("./"):
+        if ".recover.txt" in os.listdir("./") and a=="recover":
             os.remove("./.recover.txt")
         if True:
             file = open(".backup.txt", "w")
@@ -40,7 +46,9 @@ if True:
             file.write("entr="+str(entr)+"\n")
             file.write("queue_song="+str(queue_song)+"\n")
             file.write("re="+str(re)+"\n")
+            file.write("dev_users="+str(dev_users)+"\n")
             file.close()
+        if a=="recover":
             file = open(".recover.txt", "w")
             file.write("censor="+str(censor)+"\n")
             file.write("da="+str(da)+"\n")
@@ -48,6 +56,7 @@ if True:
             file.write("entr="+str(entr)+"\n")
             file.write("queue_song="+str(queue_song)+"\n")
             file.write("re="+str(re)+"\n")
+            file.write("dev_users="+str(dev_users)+"\n")
     def load_from_file(file_name=".backup.txt"):
         if file_name in os.listdir("./"):
             file=open(file_name,"r")
@@ -57,6 +66,7 @@ if True:
             global queue_song
             global entr
             global re
+            global dev_users
             txt_from_file=str(file.read())
             print(txt_from_file)
             #censor list
@@ -95,17 +105,99 @@ if True:
             a1=txt_from_file.find("[",a1,a2)
             k_re=eval(txt_from_file[a1:a2])
             re=k_re
+            #dev_users list
+            a1=txt_from_file.find("dev_users=")+len("dev_users")
+            a2=txt_from_file.find("]",(a1+1))+1
+            a1=txt_from_file.find("[",a1,a2)
+            k_dev_users=eval(txt_from_file[a1:a2])
+            dev_users=k_dev_users
             re[5]=""
-        save_to_file()
+        save_to_file()    
     @client.event
     async def on_ready():
         load_from_file()
         re[5]=""
         print(re)
-        print("Prepared")
+        print(dev_users)
+        print("Prepared")        
     @client.command(aliases=['$$'])
     async def recover(ctx):
         load_from_file(".recover.txt")
+    @client.command()
+    async def load(ctx):
+        cpu_per=str(int(psutil.cpu_percent()))
+        cpu_freq=str(int(psutil.cpu_freq().current))+"/"+str(int(psutil.cpu_freq().max))
+        ram=str(psutil.virtual_memory().percent)
+        swap=str(psutil.swap_memory().percent)
+        usage="CPU Percentage: "+cpu_per+"%\nCPU Frequency: "+cpu_freq+"\nRAM Usage: "+ram+"%\nSwap Usage: "+swap+"%"
+        await ctx.send(embed=discord.Embed(title="Current load",description=usage,color=ctx.author.color))
+    @client.command(aliases=['l'])
+    async def lyrics(ctx,*,string=""):        
+        req()
+        print(string)
+        search_url=""
+        url=""
+        if True:
+            if len(string)==0:
+                search_url=("https://search.azlyrics.com/search.php?q="+(str(da1[queue_song[re[3]]]).replace(" ","+")))
+                print(search_url)
+            else:
+                search_url=("https://search.azlyrics.com/search.php?q="+string.replace(" ","+"))
+                print(search_url)
+            html_code=urllib.request.urlopen(search_url).read().decode()           
+            pos_1=html_code.find('text-left')            
+            pos_2=int(int(html_code.find(".href='",pos_1))+len('.href="'))
+            pos_3=html_code.find("'",pos_2)
+            url=html_code[pos_2:pos_3]
+            if len(url)>3:
+                lyri=urllib.request.urlopen(url).read().decode()
+                lyri1=lyri[int(lyri.find("Sorry about that. -->")+len("Sorry about that. -->")):lyri.find("</div>",(int(lyri.find("Sorry about that. -->")+10)))].replace("<br>","").replace("<i>","_").replace("</i>","_") 
+                title_of_song=lyri[lyri.find("<title>")+len("<title>"):lyri.find("</title>")]+"\n"
+                if len(lyri)<=1900:
+                    await ctx.send(embed=discord.Embed(title="**Lyrics**",description=("**"+title_of_song+"**"+lyri1.replace('&quot;','"')),color=ctx.author.color))
+                else:
+                    await ctx.send(embed=discord.Embed(title="**Lyrics**",description=("**"+title_of_song+"**"+lyri1[0:1900]),color=ctx.author.color))
+                    await ctx.send(embed=discord.Embed(title="Continuation",description=("**"+title_of_song+"**"+lyri1[1900:]),color=ctx.author.color))
+            else:
+                await ctx.send(embed=discord.Embed(title="Not Found",description="Song not found, try lyrics <song name> to search properly",color=ctx.author.color))
+        else:
+            await ctx.send(embed=discord.Embed(title="Hmm",description="Enter the voice channel to use this function",color=ctx.author.color))
+    @client.command()
+    async def remove_dev(ctx,member:discord.Member):
+        print(member)
+        global dev_users
+        if str(ctx.author)=="Alvin#6115":
+            dev_users.remove(str(member))
+            await ctx.send(member.mention+" is no longer a dev")
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission Denied", description="Dude! You are not Alvin",color=ctx.author.color))
+    @client.command()
+    async def add_dev(ctx,member:discord.Member):
+        print(member)
+        global dev_users
+        if str(ctx.author) in dev_users:
+            dev_users=dev_users+[str(member)]
+            await ctx.send(member.mention+" is a dev now")
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission Denied", description="Dude! you are not a dev",color=ctx.author.color))
+    @client.command()
+    async def dev_op(ctx):
+        channel = discord.utils.get(ctx.guild.channels, name="devop")
+        await channel.purge(limit=10000000000000000000)
+        text_dev="You get to activate and reset certain functions in this channel \n" \
+        "↔️ for recovery \n"  \
+        "⭕ for list of all servers \n" \
+        "❌ for exiting \n" \
+        "🔥 for restart\n" \
+        "📊 for current load\n" \
+        "❕ for current issues" 
+        mess=await channel.send(embed=discord.Embed(title="DEVOP",description=text_dev,color=ctx.author.color))
+        await mess.add_reaction("↔")
+        await mess.add_reaction("⭕")
+        await mess.add_reaction("❌")
+        await mess.add_reaction("🔥")
+        await mess.add_reaction("📊")
+        await mess.add_reaction("❕")
     @client.command()
     async def reset_from_backup(ctx):
         load_from_file()
@@ -117,15 +209,15 @@ if True:
         lol=""
         header={'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36','referer':"https://entrar.in"}
         suvzsjv={
-            'username': str(username[0]),
-            'password': str(username[1])
+            'username': "username",
+            'password': "password"
             }
         announcement_data={
             'announcementlist': 'true',
-            'session': '169'
+            'session': '205'
             }
         re[6]=num
-        announcement_data['session']=str(re[6])        
+        announcement_data['session']=str(num)        
         with requests.Session() as s:
             url="https://entrar.in/login/authenticate1/"
             r=s.post(url,data=suvzsjv,headers=header)
@@ -171,8 +263,6 @@ if True:
     async def on_member_join(member):
         channel=discord.utils.get(ctx.guild.channels, name="announcement")
         await channel.send(member.mention+" is here")
-        add_role=discord.utils.get(ctx.guild.roles,name="bois")
-        await member.add_roles(add_role)
         await channel.send(embed=discord.Embed(title="Welcome!!!", description="Welcome to the channel, "+member.name,color=discord.Color.from_rgb(255,255,255)))
     @client.command(aliases=['cm'])
     async def connect_music(ctx,channel):
@@ -270,7 +360,12 @@ if True:
                 num+=1
             if st=="":st="_Empty_"
             em=discord.Embed(title="Queue",description=st,color=ctx.author.color)
-            await ctx.send(embed=em)
+            mess=await ctx.send(embed=em)
+            await mess.add_reaction("⏮")
+            await mess.add_reaction("⏸")
+            await mess.add_reaction("▶")
+            await mess.add_reaction("🔁")
+            await mess.add_reaction("⏭")
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to modify queue",color=ctx.author.color))
     @client.command(aliases=['sq'])
@@ -283,7 +378,12 @@ if True:
                 for i in queue_song:
                     st=st+str(num)+". "+da1[i]+"\n"
                     num+=1
-                await ctx.send(embed=discord.Embed(title="Queue",description=st,color=ctx.author.color))
+                mess=await ctx.send(embed=discord.Embed(title="Queue",description=st,color=ctx.author.color))
+                await mess.add_reaction("⏮")
+                await mess.add_reaction("⏸")
+                await mess.add_reaction("▶")
+                await mess.add_reaction("🔁")
+                await mess.add_reaction("⏭")
             else:
                 await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to show queue",color=ctx.author.color))
     @client.command()
@@ -331,8 +431,6 @@ if True:
             except PermissionError:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-
-            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'96',}],}
             with youtube_dl.YoutubeDL(ydl_op) as ydl:
                 ydl.download([url])
             await ctx.send(embed=discord.Embed(title="Song",description="Playing "+name_of_the_song,color=ctx.author.color))
@@ -359,7 +457,6 @@ if True:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
-            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'96',}],}
             with youtube_dl.YoutubeDL(ydl_op) as ydl:
                 ydl.download([queue_song[re[3]]])
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
@@ -368,7 +465,7 @@ if True:
                     os.rename(file,".song.mp3")        
             voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
         else:
-            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the next song",color=ctx.author.color))
+            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the next song",color=ctx.author.color))  
     @client.command(aliases=['<'])
     async def previous(ctx):
         req()
@@ -386,7 +483,6 @@ if True:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
-            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'96',}],}
             with youtube_dl.YoutubeDL(ydl_op) as ydl:
                 ydl.download([queue_song[re[3]]])
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
@@ -394,8 +490,6 @@ if True:
                 if file.endswith(".mp3"):
                     os.rename(file,".song.mp3")        
             voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
-        else:
-            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the previous song",color=ctx.author.color))
     @client.command()
     async def play(ctx,ind):
         req()
@@ -409,11 +503,15 @@ if True:
             except PermissionError:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-            voice.stop()
-            ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'96',}],}
+            voice.stop()            
             with youtube_dl.YoutubeDL(ydl_op) as ydl:
                 ydl.download([queue_song[re[3]]])
-            await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
+            mess=await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
+            await mess.add_reaction("⏮")
+            await mess.add_reaction("⏸")
+            await mess.add_reaction("▶")
+            await mess.add_reaction("🔁")
+            await mess.add_reaction("⏭")
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file,".song.mp3")        
@@ -423,9 +521,21 @@ if True:
     @client.command()
     async def again(ctx):
         req()
+        if not ".song.mp3" in os.listdir():
+            await ctx.send("You might need to wait a while since its not loaded")
+            with youtube_dl.YoutubeDL(ydl_op) as ydl:
+                ydl.download([queue_song[re[3]]])
+            for file in os.listdir("./"):
+                if file.endswith(".mp3"):
+                    os.rename(file,".song.mp3")
         mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
         if mem.count(str(ctx.author))>0:
-            await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
+            mess=await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[re[3]]],color=ctx.author.color))
+            await mess.add_reaction("⏮")
+            await mess.add_reaction("⏸")
+            await mess.add_reaction("▶")
+            await mess.add_reaction("🔁")
+            await mess.add_reaction("⏭")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
             voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
@@ -440,10 +550,10 @@ if True:
         except:
             pass
         re[5]=""
-        save_to_file()        
-        await ctx.send(embed=discord.Embed(title="Restarted",description="The program finished restarting",color=ctx.author.color))
+        save_to_file()
         print("Restart")
-        os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Discord.py &")
+        os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Discord.py &")                
+        await ctx.send(embed=discord.Embed(title="Restarted",description="The program finished restarting",color=ctx.author.color))
         sys.exit()
     @client.command(aliases=['dc'])
     async def leave(ctx):
@@ -478,10 +588,7 @@ if True:
         mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
         if mem.count(str(ctx.author))>0:
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-            voice.resume()
-            await ctx.send(embed=discord.Embed(title="Resume",color=ctx.author.color))
-        else:
-            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the channel to resume the song",color=ctx.author.color))
+            voice.resume()            
     @client.command()
     async def stop(ctx):
         req()
@@ -512,6 +619,161 @@ if True:
         print("check")
         em=discord.Embed(title="Online",description=("Hi, "+str(ctx.author)[0:str(ctx.author).find("#")]),color=ctx.author.color)
         await ctx.send(embed=em)
+    @client.command()
+    async def test(ctx):
+        mess=await ctx.send("This is a test")
+        await mess.add_reaction("😎")
+    @client.event
+    async def on_reaction_add(reaction, user):
+        req()
+        if reaction.emoji=='😎':
+            print("reaction added by "+str(user))
+            if str(user)!="Cube#2876":
+                await reaction.remove(user)
+        if reaction.emoji=='⏮':
+            if str(user)!="Cube#2876":
+                await reaction.remove(user)
+                req()
+                mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
+                if mem.count(str(user))>0:
+                    re[3]-=1
+                    if re[3]==-1:
+                        re[3]=0                          
+                    song=os.path.isfile(".song.mp3")
+                    try:
+                         if song:
+                             os.remove(".song.mp3")
+                    except PermissionError:
+                        pass
+                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                    voice.stop()
+                    with youtube_dl.YoutubeDL(ydl_op) as ydl:
+                        ydl.download([queue_song[re[3]]])                    
+                    for file in os.listdir("./"):
+                        if file.endswith(".mp3"):
+                            os.rename(file,".song.mp3")        
+                    voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+        if reaction.emoji=='⏸':
+            if str(user)!="Cube#2876":
+                await reaction.remove(user)
+                req()
+                mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
+                if mem.count(str(user))>0:
+                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                    voice.pause()
+        if reaction.emoji=='▶':
+            if str(user)!="Cube#2876":
+                await reaction.remove(user)
+                req()
+                mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
+                if mem.count(str(user))>0:
+                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                    voice.resume()
+        if reaction.emoji=='🔁':            
+            if str(user)!="Cube#2876":
+                await reaction.remove(user)
+                mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
+                if mem.count(str(user))>0:
+                    if not ".song.mp3" in os.listdir():                        
+                        with youtube_dl.YoutubeDL(ydl_op) as ydl:
+                            ydl.download([queue_song[re[3]]])
+                        for file in os.listdir("./"):
+                            if file.endswith(".mp3"):
+                                os.rename(file,".song.mp3")                
+                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                    voice.stop()
+                    voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+        if reaction.emoji=='⏭':
+            if str(user)!="Cube#2876":                
+                await reaction.remove(user)
+                req()
+                mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
+                if mem.count(str(user))>0:
+                    re[3]+=1
+                    if re[3]>=len(queue_song):
+                        re[3]=len(queue_song)-1                                                  
+                    song=os.path.isfile(".song.mp3")
+                    try:
+                         if song:
+                             os.remove(".song.mp3")
+                    except PermissionError:
+                        await ctx.send("Wait or use stop")
+                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                    voice.stop()
+                    with youtube_dl.YoutubeDL(ydl_op) as ydl:
+                        ydl.download([queue_song[re[3]]])
+                    
+                    for file in os.listdir("./"):
+                        if file.endswith(".mp3"):
+                            os.rename(file,".song.mp3")        
+                    voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+        if str(user) in dev_users:
+            channel=discord.utils.get(reaction.message.guild.channels,name='devop')
+            if reaction.emoji=="📊":
+                await reaction.remove(user)
+                cpu_per=str(int(psutil.cpu_percent()))
+                cpu_freq=str(int(psutil.cpu_freq().current))+"/"+str(int(psutil.cpu_freq().max))
+                ram=str(psutil.virtual_memory().percent)
+                swap=str(psutil.swap_memory().percent)
+                usage="CPU Percentage: "+cpu_per+"%\nCPU Frequency: "+cpu_freq+"\nRAM Usage: "+ram+"%\nSwap Usage: "+swap+"%"
+                await channel.send(embed=discord.Embed(title="Load",description=usage,color=discord.Color.from_rgb(0,0,0)))
+            if reaction.emoji=='↔️':
+                await reaction.remove(user)
+                load_from_file(".recover.txt")
+            if reaction.emoji=="⭕":
+                await reaction.remove(user)
+                text_servers=""
+                for i in client.guilds:
+                    text_servers=text_servers+str(i.name)+"\n"                
+                await channel.send(embed=discord.Embed(title="Servers",description=text_servers,color=discord.Color.from_rgb(0,0,0)))
+            if reaction.emoji=="🔥":
+                try:
+                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                    voice.stop()
+                    await voice.disconnect()
+                except:
+                    pass
+                re[5]=""
+                save_to_file()
+                print("Restart "+str(user))
+                await channel.purge(limit=100000000)
+                os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Discord.py &")           
+                await channel.send(embed=discord.Embed(title="Restart",description=("Requested by "+str(user)),color=discord.Color.from_rgb(255,255,255)))
+                sys.exit()
+            if reaction.emoji=="❌":
+                await reaction.remove(user)
+                try:
+                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                    voice.stop()
+                    await voice.disconnect()
+                except:
+                    pass
+                await channel.purge(limit=10000000000)
+                await channel.send(embed=discord.Embed(title="Exit",description=("Requested by "+str(user)),color=discord.Color.from_rgb(255,255,255)))                
+                sys.exit()
+            if reaction.emoji=="❕":
+                await reaction.remove(user)
+                issues=""
+                if psutil.cpu_percent()>85:
+                    issues=issues+"High CPU usage\n"
+                if psutil.virtual_memory().percent>80:
+                    issues=issues+"High RAM usage\n"
+                if psutil.virtual_memory().cached<719908352:
+                    issues=issues+"Low Memory cache\n"
+                if len(entr)==0:
+                    issues=issues+"Variable entr is empty\n"
+                if len(queue_song)==0:
+                    issues=issues+"Variable queue_song is empty\n"
+                if not ".recover.txt" in os.listdir():
+                    issues=issues+"Recovery file not found"
+                else:
+                    if len(entr)==0 and len(queue_song)==0 and len(re)<4:
+                        issues=issues+"Recovery required, attempting recovery\n"
+                        load_from_file(".recover.txt")
+                        if len(entr)==0 and len(queue_song)==0 and len(re)<4:
+                            issues=issues+"Recovery failed\n"
+                await channel.send(embed=discord.Embed(title="Issues with the program", description=issues, color=discord.Color.from_rgb(255,255,255)))
+                
     @client.command()
     async def yey(ctx):
         req()
@@ -558,6 +820,10 @@ if True:
             await msg.channel.send("thog dont caare")
         if msg.content.find("'")==0:
             save_to_file()
+            if len(entr)==0:
+                load_from_file(".recover.txt")
+        if start_time%60>20 and start_time%60<40 and len(entr)!=0 and len(queue_song)!=0:
+            save_to_file("recover")
         await client.process_commands(msg)
     @client.command()
     async def thog(ctx,*,text):
@@ -573,14 +839,18 @@ if True:
     @client.command(aliases=['m'])
     async def meth(ctx,*,text):
         req()
-        if (str(text).find("username")==-1 and str(text).find("os.")==-1 and str(text).find("sys.")==-1) or str(ctx.author)=="Alvin#6115":
+        global dev_users
+        if (str(text).find("username")==-1 and str(text).find("os")==-1 and str(text).find("import")==-1 and str(text).find("sys")==-1 and str(text).find("psutil")==-1 and str(text).find("clear")==-1 and str(text).find("dev_users")==-1 and str(text).find("remove")==-1) or str(ctx.author) in dev_users:
             pi=ma.pi
-            a=eval(text)
-            text=text.replace("ma.","")
-            text=text.replace("s.","")        
-            print(text)
-            em=discord.Embed(title=text,description=text+"="+str(a),color=ctx.author.color)
-            await ctx.send(embed=em)
+            try:
+                a=eval(text)
+                text=text.replace("ma.","")
+                text=text.replace("s.","")        
+                print(text)
+                em=discord.Embed(title=text,description=text+"="+str(a),color=ctx.author.color)
+                await ctx.send(embed=em)
+            except Exception as e:
+                await ctx.send(embed=discord.Embed(title="Error_message",description=str(e),color=ctx.author.color))            
         else:
             await ctx.channel.purge(limit=1)
             await ctx.send(embed=discord.Embed(title="Permission denied",description="",color=ctx.author.color))
@@ -688,13 +958,14 @@ if True:
     	await member.remove_roles(add_role)
     	await ctx.send("Unmuted "+member.mention)
     	print(member,"unmuted")	
-    te="**Commands**\n'google <text to search> \n'help to get this screen\n'c (n,r) for *combination* \n'p (n,r) for *permutation* \n**Leave space between p/c and the bracket'('** \n'meth <Expression> for any math calculation *(includes statistic)*\n'get_req for no. of requests\n"
-    te=te+"**Modules**:\n**ma** for math module\n**s** for statistics module \n\nr(angle in degree) to convert angle to radian \nd(angle in radian) to convert angle to radian\n\n"
-    te=te+"**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for any math calculation *(includes statistic)*\n\n"
-    te=te+"**Example**:\n'm quad('4x^2+2x-3')\n'p (10,9) \n'm ma.sin(r(45))\n'm ma.cos(pi)\n'help\n**Use small letters only**"
-    te=te+"\n\n\n\n **MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'song <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue 'play <index no.> to play certain song from the queue list\n"
-    te=te+"'addplaylist <Playlist name> to append the current queue to the playlist\n'addqueue <Playlist name> to add\n'clearqueue to clear the queue\n'resume,'pause\n"
-    te=te+"'currentmusic for current song's index\nI think thats pretty much it."
+    te="**Commands**\n'google <text to search> \n'help to get this screen\n'c (n,r) for *combination* \n'p (n,r) for *permutation* \n**Leave space between p/c and the bracket'('** \n'meth <Expression> for any math calculation *(includes statistic)*\n'get_req for no. of requests\n" \
+    "**Modules**:\n**ma** for math module\n**s** for statistics module \n\nr(angle in degree) to convert angle to radian \nd(angle in radian) to convert angle to radian\n\n" \
+    "**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for any math calculation *(includes statistic)*\n'> for next\n'< for previous\n'cm for connecting to a voice\n" \
+    "**Example**:\n'm quad('4x^2+2x-3')\n'p (10,9) \n'm ma.sin(r(45))\n'm ma.cos(pi)\n'help\n**Use small letters only**" \
+    "\n\n\n **MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'song <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue 'play <index no.> to play certain song from the queue list\n" \
+    "'addplaylist <Playlist name> to append the current queue to the playlist\n'addqueue <Playlist name> to add\n'clearqueue to clear the queue\n'resume,'pause\n" \
+    "'currentmusic for current song's index\nI think thats pretty much it.\n\n" \
+    "_Note: 'again' command does not support 'song' command._"
     client.remove_command("help")
     @client.group(invoke_without_command=True)
     async def help(ctx):
@@ -708,4 +979,4 @@ if True:
         print("help")
         em=discord.Embed(title="**HELP** \n",description=te,color=ctx.author.color)
         await ctx.send(embed=em)
-    client.run("")
+    client.run("token")
