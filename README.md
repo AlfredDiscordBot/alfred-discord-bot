@@ -1,6 +1,6 @@
 #Discord bot
 
-**All in one Discord bot**
+<h>**All in one Discord bot**</h>
 
 Includes: \
 _Python_ \
