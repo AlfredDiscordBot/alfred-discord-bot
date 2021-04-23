@@ -21,8 +21,8 @@ import emoji
 import psutil
 import mysql.connector as m
 if True:
-    if os.getcwd()!="/home/alvinbengeorge":
-        os.chdir("/home/alvinbengeorge")
+    if os.getcwd()!="/path/required":
+        os.chdir("/path/required")
     start_time=time.time()
     md=m.connect(host="localhost", user="root", passwd="password_for_mysql", database="notrequired")
     cursor=md.cursor()
