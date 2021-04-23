@@ -621,7 +621,7 @@ if True:
         re[5]=""
         save_to_file()
         print("Restart")
-        os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Discord.py &")                
+        os.system("nohup python /path/to/file/Discord.py &")                
         await ctx.send(embed=discord.Embed(title="Restarted",description="The program finished restarting",color=ctx.author.color))
         sys.exit()
     @client.command(aliases=['dc'])
@@ -826,7 +826,7 @@ if True:
                     save_to_file()
                     print("Restart "+str(user))
                     await channel.purge(limit=100000000)
-                    os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Discord.py &")           
+                    os.system("nohup python /path/to/file/Discord.py &")           
                     await channel.send(embed=discord.Embed(title="Restart",description=("Requested by "+str(user)),color=discord.Color.from_rgb(255,255,255)))
                     sys.exit()
                 if reaction.emoji=="❌":
