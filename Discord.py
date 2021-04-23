@@ -17,11 +17,15 @@ import requests
 import ffmpeg
 import time
 import sys
+import emoji
 import psutil
+import mysql.connector as m
 if True:
     if os.getcwd()!="/home/alvinbengeorge":
         os.chdir("/home/alvinbengeorge")
     start_time=time.time()
+    md=m.connect(host="localhost", user="root", passwd="password_for_mysql", database="notrequired")
+    cursor=md.cursor()
     client=commands.Bot(command_prefix="'")
     censor=[] 
     da={}
@@ -115,53 +119,86 @@ if True:
         save_to_file()    
     @client.event
     async def on_ready():
-        load_from_file()
-        re[5]=""
-        print(re)
-        print(dev_users)
+        channel = client.get_channel(834624717410926602)
+        try:
+            load_from_file()
+            re[5]=""
+            print(re)
+            print(dev_users)        
+            await channel.purge(limit=10000000000000000000)
+            text_dev="You get to activate and reset certain functions in this channel \n" \
+            ""+(emoji.emojize(":safety_vest:"))+" for recovery \n"  \
+            "⭕ for list of all servers \n" \
+            "❌ for exiting \n" \
+            "🔥 for restart\n" \
+            "📊 for current load\n" \
+            "❕ for current issues" 
+            mess=await channel.send(embed=discord.Embed(title="DEVOP",description=text_dev,color=discord.Color.from_rgb(255,255,255)))
+            await mess.add_reaction(emoji.emojize(":safety_vest:"))
+            await mess.add_reaction("⭕")
+            await mess.add_reaction("❌")
+            await mess.add_reaction("🔥")
+            await mess.add_reaction("📊")
+            await mess.add_reaction("❕")            
+        except Exception as e:
+            await channel.send(embed=discord.Embed(title="Error in the function on_ready", description=e,color=discord.Color.from_rgb(255,0,0)))
         print("Prepared")        
     @client.command(aliases=['$$'])
     async def recover(ctx):
-        load_from_file(".recover.txt")
+        try:
+            load_from_file(".recover.txt")
+        except Exception as e:
+            channel = discord.utils.get(ctx.guild.channels, name="devop")
+            await channel.send(embed=discord.Embed(title="Recovery failed", description=e, color=ctx.author.color))
+            
     @client.command()
     async def load(ctx):
-        cpu_per=str(int(psutil.cpu_percent()))
-        cpu_freq=str(int(psutil.cpu_freq().current))+"/"+str(int(psutil.cpu_freq().max))
-        ram=str(psutil.virtual_memory().percent)
-        swap=str(psutil.swap_memory().percent)
-        usage="CPU Percentage: "+cpu_per+"%\nCPU Frequency: "+cpu_freq+"\nRAM Usage: "+ram+"%\nSwap Usage: "+swap+"%"
-        await ctx.send(embed=discord.Embed(title="Current load",description=usage,color=ctx.author.color))
-    @client.command(aliases=['l'])
-    async def lyrics(ctx,*,string=""):        
         req()
-        print(string)
-        search_url=""
-        url=""
-        if True:
-            if len(string)==0:
-                search_url=("https://search.azlyrics.com/search.php?q="+(str(da1[queue_song[re[3]]]).replace(" ","+")))
-                print(search_url)
-            else:
-                search_url=("https://search.azlyrics.com/search.php?q="+string.replace(" ","+"))
-                print(search_url)
-            html_code=urllib.request.urlopen(search_url).read().decode()           
-            pos_1=html_code.find('text-left')            
-            pos_2=int(int(html_code.find(".href='",pos_1))+len('.href="'))
-            pos_3=html_code.find("'",pos_2)
-            url=html_code[pos_2:pos_3]
-            if len(url)>3:
-                lyri=urllib.request.urlopen(url).read().decode()
-                lyri1=lyri[int(lyri.find("Sorry about that. -->")+len("Sorry about that. -->")):lyri.find("</div>",(int(lyri.find("Sorry about that. -->")+10)))].replace("<br>","").replace("<i>","_").replace("</i>","_") 
-                title_of_song=lyri[lyri.find("<title>")+len("<title>"):lyri.find("</title>")]+"\n"
-                if len(lyri)<=1900:
-                    await ctx.send(embed=discord.Embed(title="**Lyrics**",description=("**"+title_of_song+"**"+lyri1.replace('&quot;','"')),color=ctx.author.color))
+        try:
+            cpu_per=str(int(psutil.cpu_percent()))
+            cpu_freq=str(int(psutil.cpu_freq().current))+"/"+str(int(psutil.cpu_freq().max))
+            ram=str(psutil.virtual_memory().percent)
+            swap=str(psutil.swap_memory().percent)
+            usage="CPU Percentage: "+cpu_per+"%\nCPU Frequency: "+cpu_freq+"\nRAM Usage: "+ram+"%\nSwap Usage: "+swap+"%"
+            await ctx.send(embed=discord.Embed(title="Current load",description=usage,color=ctx.author.color))
+        except Exception as e:
+            channel = discord.utils.get(ctx.guild.channels, name="devop")
+            await channel.send(embed=discord.Embed(title="Load failed", description=e, color=ctx.author.color))
+    @client.command(aliases=['l'])
+    async def lyrics(ctx,*,string=""):
+        try:
+            req()
+            print(string)
+            search_url=""
+            url=""
+            if True:
+                if len(string)==0:
+                    search_url=("https://search.azlyrics.com/search.php?q="+(str(da1[queue_song[re[3]]]).replace(" ","+")))
+                    print(search_url)
                 else:
-                    await ctx.send(embed=discord.Embed(title="**Lyrics**",description=("**"+title_of_song+"**"+lyri1[0:1900]),color=ctx.author.color))
-                    await ctx.send(embed=discord.Embed(title="Continuation",description=("**"+title_of_song+"**"+lyri1[1900:]),color=ctx.author.color))
+                    search_url=("https://search.azlyrics.com/search.php?q="+string.replace(" ","+"))
+                    print(search_url)
+                html_code=urllib.request.urlopen(search_url).read().decode()           
+                pos_1=html_code.find('text-left')            
+                pos_2=int(int(html_code.find(".href='",pos_1))+len('.href="'))
+                pos_3=html_code.find("'",pos_2)
+                url=html_code[pos_2:pos_3]
+                if len(url)>3:
+                    lyri=urllib.request.urlopen(url).read().decode()
+                    lyri1=lyri[int(lyri.find("Sorry about that. -->")+len("Sorry about that. -->")):lyri.find("</div>",(int(lyri.find("Sorry about that. -->")+10)))].replace("<br>","").replace("<i>","_").replace("</i>","_") 
+                    title_of_song=lyri[lyri.find("<title>")+len("<title>"):lyri.find("</title>")]+"\n"
+                    if len(lyri)<=1900:
+                        await ctx.send(embed=discord.Embed(title="**Lyrics**",description=("**"+title_of_song+"**"+lyri1.replace('&quot;','"')),color=ctx.author.color))
+                    else:
+                        await ctx.send(embed=discord.Embed(title="**Lyrics**",description=("**"+title_of_song+"**"+lyri1[0:1900]),color=ctx.author.color))
+                        await ctx.send(embed=discord.Embed(title="Continuation",description=("**"+title_of_song+"**"+lyri1[1900:]),color=ctx.author.color))
+                else:
+                    await ctx.send(embed=discord.Embed(title="Not Found",description="Song not found, try lyrics <song name> to search properly",color=ctx.author.color))
             else:
-                await ctx.send(embed=discord.Embed(title="Not Found",description="Song not found, try lyrics <song name> to search properly",color=ctx.author.color))
-        else:
-            await ctx.send(embed=discord.Embed(title="Hmm",description="Enter the voice channel to use this function",color=ctx.author.color))
+                await ctx.send(embed=discord.Embed(title="Hmm",description="Enter the voice channel to use this function",color=ctx.author.color))
+        except Exception as e:
+            channel = discord.utils.get(ctx.guild.channels, name="devop")
+            await channel.send(embed=discord.Embed(title="Lyrics failed", description=e, color=ctx.author.color))
     @client.command()
     async def remove_dev(ctx,member:discord.Member):
         print(member)
@@ -185,14 +222,14 @@ if True:
         channel = discord.utils.get(ctx.guild.channels, name="devop")
         await channel.purge(limit=10000000000000000000)
         text_dev="You get to activate and reset certain functions in this channel \n" \
-        "↔️ for recovery \n"  \
+        ""+(emoji.emojize(":safety_vest:"))+" for recovery \n"  \
         "⭕ for list of all servers \n" \
         "❌ for exiting \n" \
         "🔥 for restart\n" \
         "📊 for current load\n" \
         "❕ for current issues" 
         mess=await channel.send(embed=discord.Embed(title="DEVOP",description=text_dev,color=ctx.author.color))
-        await mess.add_reaction("↔")
+        await mess.add_reaction(emoji.emojize(":safety_vest:"))
         await mess.add_reaction("⭕")
         await mess.add_reaction("❌")
         await mess.add_reaction("🔥")
@@ -200,8 +237,12 @@ if True:
         await mess.add_reaction("❕")
     @client.command()
     async def reset_from_backup(ctx):
-        load_from_file()
-        re[5]=""
+        try:
+            load_from_file()
+            re[5]=""
+        except Exception as e:
+            channel = discord.utils.get(ctx.guild.channels, name="devop")
+            await channel.send(embed=discord.Embed(title="Reset_from_backup failed", description=e, color=ctx.author.color))
     @client.command()
     async def entrar(ctx,*,num=re[6]):
         global re
@@ -259,6 +300,19 @@ if True:
                 await channel.send(embed=discord.Embed(title="New announcements",description=lol,color=discord.Color.from_rgb(128,20,0)))
             else:
                 await channel.send(embed=discord.Embed(title="Empty",description="No new announcement",color=discord.Color.from_rgb(128,20,0)))
+
+    @client.command(aliases=[';'])
+    async def mysql(ctx,*,text):        
+        output=""
+        global cursor
+        try:
+            cursor.execute(text)
+            for i in cursor:
+                output=output+str(i)+"\n"
+            await ctx.send(embed=discord.Embed(title="MySQL", description=output,color=ctx.author.color))
+        except Exception as e:
+            await ctx.send(embed=discord.Embed(title="Error", description=e,color=discord.Color.from_rgb(255,0,0)))
+        
     @client.event
     async def on_member_join(member):
         channel=discord.utils.get(ctx.guild.channels, name="announcement")
@@ -266,12 +320,16 @@ if True:
         await channel.send(embed=discord.Embed(title="Welcome!!!", description="Welcome to the channel, "+member.name,color=discord.Color.from_rgb(255,255,255)))
     @client.command(aliases=['cm'])
     async def connect_music(ctx,channel):
-        req()
-        re[5]=channel
-        voiceChannel=discord.utils.get(ctx.guild.voice_channels,name=channel)
-        await voiceChannel.connect()
-        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-        await ctx.send("Connected")    
+        try:
+            req()
+            re[5]=channel
+            voiceChannel=discord.utils.get(ctx.guild.voice_channels,name=channel)
+            await voiceChannel.connect()
+            voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+            await ctx.send("Connected")
+        except Exception as e:
+            await ctx.send(embed=discord.Embed(title="Hmm",description="Already connected to music",color=ctx.author.color))
+            await channel.send(embed=discord.Embed(title="Connect music",description=e,color=ctx.author.color))
     @client.command()
     async def addto(ctx,mode,*,text):
         req()
@@ -307,8 +365,9 @@ if True:
         req()
         mem=[(str(i.name)+"#"+str(i.discriminator)) for i in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
         if mem.count(str(ctx.author))>0:
-            queue_song.clear()
-            da1.clear()
+            if len(queue_song)>0:
+                queue_song.clear()
+                da1.clear()
             re[3]=0
             await ctx.send(embed=discord.Embed(title="Cleared queue",description="_Done_",color=ctx.author.color))
         else:
@@ -318,15 +377,21 @@ if True:
         req()
         mem=[(str(i.name)+"#"+str(i.discriminator)) for i in discord.utils.get(ctx.guild.voice_channels,name=re[5]).members]
         if mem.count(str(ctx.author))>0:
-            await ctx.send(embed=discord.Embed(title="Removed",description=da1[queue_song[int(n)]],color=ctx.author.color))
-            del da1[queue_song[int(n)]]
-            queue_song.pop(int(n))
+            if int(n)<len(queue_song):
+                del da1[queue_song[int(n)]]
+                queue_song.pop(int(n))
+                await ctx.send(embed=discord.Embed(title="Removed",description=da1[queue_song[int(n)]],color=ctx.author.color))
+            else:
+                await ctx.send(embed=discord.Embed(title="Not removed", description="Only "+len(queue_song)+" song(s) in your queue",color=ctx.author.color))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to modify queue",color=ctx.author.color))
     @client.command(aliases=['curr'])
     async def currentmusic(ctx):
         req()
-        await ctx.send(embed=discord.Embed(title=str(da1[queue_song[re[3]]]),description="Current index: "+str(re[3]),color=ctx.author.color))
+        if len(queue_song)>0:
+            await ctx.send(embed=discord.Embed(title=str(da1[queue_song[re[3]]]),description="Current index: "+str(re[3]),color=ctx.author.color))
+        else:
+            await ctx.send(embed=discord.Embed(title="Empty queue",description="Your queue is currently empty",color=ctx.author.color))
     @client.command()
     async def loop(ctx):
         req()
@@ -366,6 +431,7 @@ if True:
             await mess.add_reaction("▶")
             await mess.add_reaction("🔁")
             await mess.add_reaction("⏭")
+            await mess.add_reaction("⏹")
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to modify queue",color=ctx.author.color))
     @client.command(aliases=['sq'])
@@ -384,6 +450,7 @@ if True:
                 await mess.add_reaction("▶")
                 await mess.add_reaction("🔁")
                 await mess.add_reaction("⏭")
+                await mess.add_reaction("⏹")
             else:
                 await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to show queue",color=ctx.author.color))
     @client.command()
@@ -512,6 +579,7 @@ if True:
             await mess.add_reaction("▶")
             await mess.add_reaction("🔁")
             await mess.add_reaction("⏭")
+            await mess.add_reaction("⏹")
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
                     os.rename(file,".song.mp3")        
@@ -536,6 +604,7 @@ if True:
             await mess.add_reaction("▶")
             await mess.add_reaction("🔁")
             await mess.add_reaction("⏭")
+            await mess.add_reaction("⏹")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
             voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
@@ -620,160 +689,182 @@ if True:
         em=discord.Embed(title="Online",description=("Hi, "+str(ctx.author)[0:str(ctx.author).find("#")]),color=ctx.author.color)
         await ctx.send(embed=em)
     @client.command()
-    async def test(ctx):
-        mess=await ctx.send("This is a test")
+    async def test(ctx,*,text):
+        mess=await ctx.send("This is a test "+emoji.demojize(text).replace(":",""))
+        print()
         await mess.add_reaction("😎")
     @client.event
     async def on_reaction_add(reaction, user):
         req()
-        if reaction.emoji=='😎':
-            print("reaction added by "+str(user))
-            if str(user)!="Cube#2876":
-                await reaction.remove(user)
-        if reaction.emoji=='⏮':
-            if str(user)!="Cube#2876":
-                await reaction.remove(user)
-                req()
-                mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
-                if mem.count(str(user))>0:
-                    re[3]-=1
-                    if re[3]==-1:
-                        re[3]=0                          
-                    song=os.path.isfile(".song.mp3")
-                    try:
-                         if song:
-                             os.remove(".song.mp3")
-                    except PermissionError:
-                        pass
-                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
-                    voice.stop()
-                    with youtube_dl.YoutubeDL(ydl_op) as ydl:
-                        ydl.download([queue_song[re[3]]])                    
-                    for file in os.listdir("./"):
-                        if file.endswith(".mp3"):
-                            os.rename(file,".song.mp3")        
-                    voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
-        if reaction.emoji=='⏸':
-            if str(user)!="Cube#2876":
-                await reaction.remove(user)
-                req()
-                mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
-                if mem.count(str(user))>0:
-                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
-                    voice.pause()
-        if reaction.emoji=='▶':
-            if str(user)!="Cube#2876":
-                await reaction.remove(user)
-                req()
-                mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
-                if mem.count(str(user))>0:
-                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
-                    voice.resume()
-        if reaction.emoji=='🔁':            
-            if str(user)!="Cube#2876":
-                await reaction.remove(user)
-                mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
-                if mem.count(str(user))>0:
-                    if not ".song.mp3" in os.listdir():                        
+        try:
+            if reaction.emoji=='😎':
+                print("reaction added by "+str(user))
+                if str(user)!="Cube#2876":
+                    await reaction.remove(user)
+            if reaction.emoji=='⏮':
+                if str(user)!="Cube#2876":
+                    await reaction.remove(user)
+                    req()
+                    mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
+                    if mem.count(str(user))>0:
+                        re[3]-=1
+                        if re[3]==-1:
+                            re[3]=0                          
+                        song=os.path.isfile(".song.mp3")
+                        try:
+                             if song:
+                                 os.remove(".song.mp3")
+                        except PermissionError:
+                            pass
+                        voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                        voice.stop()
                         with youtube_dl.YoutubeDL(ydl_op) as ydl:
-                            ydl.download([queue_song[re[3]]])
+                            ydl.download([queue_song[re[3]]])                    
                         for file in os.listdir("./"):
                             if file.endswith(".mp3"):
-                                os.rename(file,".song.mp3")                
-                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
-                    voice.stop()
-                    voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
-        if reaction.emoji=='⏭':
-            if str(user)!="Cube#2876":                
-                await reaction.remove(user)
-                req()
-                mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
-                if mem.count(str(user))>0:
-                    re[3]+=1
-                    if re[3]>=len(queue_song):
-                        re[3]=len(queue_song)-1                                                  
-                    song=os.path.isfile(".song.mp3")
+                                os.rename(file,".song.mp3")        
+                        voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+            if reaction.emoji=='⏸':
+                if str(user)!="Cube#2876":
+                    await reaction.remove(user)
+                    req()
+                    mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
+                    if mem.count(str(user))>0:
+                        voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                        voice.pause()
+            if reaction.emoji=='▶':
+                if str(user)!="Cube#2876":
+                    await reaction.remove(user)
+                    req()
+                    mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
+                    if mem.count(str(user))>0:
+                        voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                        voice.resume()
+            if reaction.emoji=='🔁':            
+                if str(user)!="Cube#2876":
+                    await reaction.remove(user)
+                    mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
+                    if mem.count(str(user))>0:
+                        if not ".song.mp3" in os.listdir():                        
+                            with youtube_dl.YoutubeDL(ydl_op) as ydl:
+                                ydl.download([queue_song[re[3]]])
+                            for file in os.listdir("./"):
+                                if file.endswith(".mp3"):
+                                    os.rename(file,".song.mp3")                
+                        voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                        voice.stop()
+                        voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+            if reaction.emoji=='⏭':
+                if str(user)!="Cube#2876":                
+                    await reaction.remove(user)
+                    req()
+                    mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
+                    if mem.count(str(user))>0:
+                        re[3]+=1
+                        if re[3]>=len(queue_song):
+                            re[3]=len(queue_song)-1                                                  
+                        song=os.path.isfile(".song.mp3")
+                        try:
+                             if song:
+                                 os.remove(".song.mp3")
+                        except PermissionError:
+                            await ctx.send("Wait or use stop")
+                        voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                        voice.stop()
+                        with youtube_dl.YoutubeDL(ydl_op) as ydl:
+                            ydl.download([queue_song[re[3]]])
+                        
+                        for file in os.listdir("./"):
+                            if file.endswith(".mp3"):
+                                os.rename(file,".song.mp3")        
+                        voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+            if reaction.emoji=="⏹":
+                req()                    
+                try:
+                    if str(user)!="Cube#2876":
+                        await reaction.remove(user)
+                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=re[5]).members]
+                        if mem.count(str(user))>0:
+                            re[5]=""
+                            voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                            voice.stop()
+                            await voice.disconnect()
+                            try:
+                                os.remove("./.song.mp3")
+                            except:
+                                pass
+                except Exception as e:
+                    channel=discord.utils.get(reaction.message.guild.channels,name='devop')
+                    await channel.send(embed=discord.Embed(title="Error", description=e,color=discord.Color.from_rgb(255,0,0)))
+            if str(user) in dev_users:
+                channel=discord.utils.get(reaction.message.guild.channels,name='devop')
+                if reaction.emoji=="📊":
+                    await reaction.remove(user)
+                    cpu_per=str(int(psutil.cpu_percent()))
+                    cpu_freq=str(int(psutil.cpu_freq().current))+"/"+str(int(psutil.cpu_freq().max))
+                    ram=str(psutil.virtual_memory().percent)
+                    swap=str(psutil.swap_memory().percent)
+                    usage="CPU Percentage: "+cpu_per+"%\nCPU Frequency: "+cpu_freq+"\nRAM Usage: "+ram+"%\nSwap Usage: "+swap+"%"
+                    await channel.send(embed=discord.Embed(title="Load",description=usage,color=discord.Color.from_rgb(0,0,0)))
+                if reaction.emoji==emoji.demojize(":safety_vest:"):
+                    await reaction.remove(user)
+                    load_from_file(".recover.txt")
+                if reaction.emoji=="⭕":
+                    await reaction.remove(user)
+                    text_servers=""
+                    for i in client.guilds:
+                        text_servers=text_servers+str(i.name)+"\n"                
+                    await channel.send(embed=discord.Embed(title="Servers",description=text_servers,color=discord.Color.from_rgb(0,0,0)))
+                if reaction.emoji=="🔥":
                     try:
-                         if song:
-                             os.remove(".song.mp3")
-                    except PermissionError:
-                        await ctx.send("Wait or use stop")
-                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
-                    voice.stop()
-                    with youtube_dl.YoutubeDL(ydl_op) as ydl:
-                        ydl.download([queue_song[re[3]]])
-                    
-                    for file in os.listdir("./"):
-                        if file.endswith(".mp3"):
-                            os.rename(file,".song.mp3")        
-                    voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
-        if str(user) in dev_users:
-            channel=discord.utils.get(reaction.message.guild.channels,name='devop')
-            if reaction.emoji=="📊":
-                await reaction.remove(user)
-                cpu_per=str(int(psutil.cpu_percent()))
-                cpu_freq=str(int(psutil.cpu_freq().current))+"/"+str(int(psutil.cpu_freq().max))
-                ram=str(psutil.virtual_memory().percent)
-                swap=str(psutil.swap_memory().percent)
-                usage="CPU Percentage: "+cpu_per+"%\nCPU Frequency: "+cpu_freq+"\nRAM Usage: "+ram+"%\nSwap Usage: "+swap+"%"
-                await channel.send(embed=discord.Embed(title="Load",description=usage,color=discord.Color.from_rgb(0,0,0)))
-            if reaction.emoji=='↔️':
-                await reaction.remove(user)
-                load_from_file(".recover.txt")
-            if reaction.emoji=="⭕":
-                await reaction.remove(user)
-                text_servers=""
-                for i in client.guilds:
-                    text_servers=text_servers+str(i.name)+"\n"                
-                await channel.send(embed=discord.Embed(title="Servers",description=text_servers,color=discord.Color.from_rgb(0,0,0)))
-            if reaction.emoji=="🔥":
-                try:
-                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
-                    voice.stop()
-                    await voice.disconnect()
-                except:
-                    pass
-                re[5]=""
-                save_to_file()
-                print("Restart "+str(user))
-                await channel.purge(limit=100000000)
-                os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Discord.py &")           
-                await channel.send(embed=discord.Embed(title="Restart",description=("Requested by "+str(user)),color=discord.Color.from_rgb(255,255,255)))
-                sys.exit()
-            if reaction.emoji=="❌":
-                await reaction.remove(user)
-                try:
-                    voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
-                    voice.stop()
-                    await voice.disconnect()
-                except:
-                    pass
-                await channel.purge(limit=10000000000)
-                await channel.send(embed=discord.Embed(title="Exit",description=("Requested by "+str(user)),color=discord.Color.from_rgb(255,255,255)))                
-                sys.exit()
-            if reaction.emoji=="❕":
-                await reaction.remove(user)
-                issues=""
-                if psutil.cpu_percent()>85:
-                    issues=issues+"High CPU usage\n"
-                if psutil.virtual_memory().percent>80:
-                    issues=issues+"High RAM usage\n"
-                if psutil.virtual_memory().cached<719908352:
-                    issues=issues+"Low Memory cache\n"
-                if len(entr)==0:
-                    issues=issues+"Variable entr is empty\n"
-                if len(queue_song)==0:
-                    issues=issues+"Variable queue_song is empty\n"
-                if not ".recover.txt" in os.listdir():
-                    issues=issues+"Recovery file not found"
-                else:
-                    if len(entr)==0 and len(queue_song)==0 and len(re)<4:
-                        issues=issues+"Recovery required, attempting recovery\n"
-                        load_from_file(".recover.txt")
+                        voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                        voice.stop()
+                        await voice.disconnect()
+                    except:
+                        pass
+                    re[5]=""
+                    save_to_file()
+                    print("Restart "+str(user))
+                    await channel.purge(limit=100000000)
+                    os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Discord.py &")           
+                    await channel.send(embed=discord.Embed(title="Restart",description=("Requested by "+str(user)),color=discord.Color.from_rgb(255,255,255)))
+                    sys.exit()
+                if reaction.emoji=="❌":
+                    await reaction.remove(user)
+                    try:
+                        voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                        voice.stop()
+                        await voice.disconnect()
+                    except:
+                        pass
+                    await channel.purge(limit=10000000000)
+                    await channel.send(embed=discord.Embed(title="Exit",description=("Requested by "+str(user)),color=discord.Color.from_rgb(255,255,255)))                
+                    sys.exit()
+                if reaction.emoji=="❕":
+                    await reaction.remove(user)
+                    issues=""
+                    if psutil.cpu_percent()>85:
+                        issues=issues+"High CPU usage\n"
+                    if psutil.virtual_memory().percent>80:
+                        issues=issues+"High RAM usage\n"
+                    if psutil.virtual_memory().cached<719908352:
+                        issues=issues+"Low Memory cache\n"
+                    if len(entr)==0:
+                        issues=issues+"Variable entr is empty\n"
+                    if len(queue_song)==0:
+                        issues=issues+"Variable queue_song is empty\n"
+                    if not ".recover.txt" in os.listdir():
+                        issues=issues+"Recovery file not found"
+                    else:
                         if len(entr)==0 and len(queue_song)==0 and len(re)<4:
-                            issues=issues+"Recovery failed\n"
-                await channel.send(embed=discord.Embed(title="Issues with the program", description=issues, color=discord.Color.from_rgb(255,255,255)))
-                
+                            issues=issues+"Recovery required, attempting recovery\n"
+                            load_from_file(".recover.txt")
+                            if len(entr)==0 and len(queue_song)==0 and len(re)<4:
+                                issues=issues+"Recovery failed\n"
+                    await channel.send(embed=discord.Embed(title="Issues with the program", description=issues, color=discord.Color.from_rgb(255,255,255)))
+        except Exception as e:
+            channel = discord.utils.get(ctx.guild.channels, name="devop")
+            await channel.send(embed=discord.Embed(title="Error", description=e, color=ctx.author.color))
     @client.command()
     async def yey(ctx):
         req()
@@ -800,31 +891,35 @@ if True:
         em=discord.Embed(title="Added "+string+" to the list",decription="Done",color=ctx.author.color)
         await ctx.send(embed=em)
     @client.event
-    async def on_message(msg):        
-        for word in censor:
-            if word in msg.content.lower():
-                await msg.delete()
-        if "?" in msg.content.lower() and re[4]==1:
-            await msg.channel.send("thog dont caare")
-        elif "what" in msg.content.lower() and re[4]==1:
-            await msg.channel.send("thog dont caare")
-        elif "how" in msg.content.lower() and re[4]==1:
-            await msg.channel.send("thog dont caare")
-        elif "when" in msg.content.lower() and re[4]==1:
-            await msg.channel.send("thog dont caare")
-        elif "why" in msg.content.lower() and re[4]==1:
-            await msg.channel.send("thog dont caare")
-        elif "who" in msg.content.lower() and re[4]==1:
-            await msg.channel.send("thog dont caare")
-        elif "where" in msg.content.lower() and re[4]==1:
-            await msg.channel.send("thog dont caare")
-        if msg.content.find("'")==0:
-            save_to_file()
-            if len(entr)==0:
-                load_from_file(".recover.txt")
-        if start_time%60>20 and start_time%60<40 and len(entr)!=0 and len(queue_song)!=0:
-            save_to_file("recover")
-        await client.process_commands(msg)
+    async def on_message(msg):
+        try:
+            for word in censor:
+                if word in msg.content.lower():
+                    await msg.delete()
+            if "?" in msg.content.lower() and re[4]==1:
+                await msg.channel.send("thog dont caare")
+            elif "what" in msg.content.lower() and re[4]==1:
+                await msg.channel.send("thog dont caare")
+            elif "how" in msg.content.lower() and re[4]==1:
+                await msg.channel.send("thog dont caare")
+            elif "when" in msg.content.lower() and re[4]==1:
+                await msg.channel.send("thog dont caare")
+            elif "why" in msg.content.lower() and re[4]==1:
+                await msg.channel.send("thog dont caare")
+            elif "who" in msg.content.lower() and re[4]==1:
+                await msg.channel.send("thog dont caare")
+            elif "where" in msg.content.lower() and re[4]==1:
+                await msg.channel.send("thog dont caare")
+            if msg.content.find("'")==0:
+                save_to_file()
+                if len(entr)==0:
+                    load_from_file(".recover.txt")
+            if start_time%60>30 and start_time%60<50 and len(entr)!=0 and len(queue_song)!=0:
+                save_to_file("recover")
+            await client.process_commands(msg)
+        except Exception as e:
+            channel = discord.utils.get(ctx.guild.channels, name="devop")
+            await channel.send(embed=discord.Embed(title="Error", description=e, color=ctx.author.color))
     @client.command()
     async def thog(ctx,*,text):
         if re[1]==text:
@@ -840,7 +935,7 @@ if True:
     async def meth(ctx,*,text):
         req()
         global dev_users
-        if (str(text).find("username")==-1 and str(text).find("os")==-1 and str(text).find("import")==-1 and str(text).find("sys")==-1 and str(text).find("psutil")==-1 and str(text).find("clear")==-1 and str(text).find("dev_users")==-1 and str(text).find("remove")==-1) or str(ctx.author) in dev_users:
+        if (str(text).find("username")==-1 and str(text).find("os")==-1 and str(text).find("ctx")==-1 and str(text).find("import")==-1 and str(text).find("sys")==-1 and str(text).find("psutil")==-1 and str(text).find("clear")==-1 and str(text).find("dev_users")==-1 and str(text).find("remove")==-1) or str(ctx.author) in dev_users:
             pi=ma.pi
             try:
                 a=eval(text)
@@ -961,10 +1056,11 @@ if True:
     te="**Commands**\n'google <text to search> \n'help to get this screen\n'c (n,r) for *combination* \n'p (n,r) for *permutation* \n**Leave space between p/c and the bracket'('** \n'meth <Expression> for any math calculation *(includes statistic)*\n'get_req for no. of requests\n" \
     "**Modules**:\n**ma** for math module\n**s** for statistics module \n\nr(angle in degree) to convert angle to radian \nd(angle in radian) to convert angle to radian\n\n" \
     "**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for any math calculation *(includes statistic)*\n'> for next\n'< for previous\n'cm for connecting to a voice\n" \
-    "**Example**:\n'm quad('4x^2+2x-3')\n'p (10,9) \n'm ma.sin(r(45))\n'm ma.cos(pi)\n'help\n**Use small letters only**" \
-    "\n\n\n **MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'song <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue 'play <index no.> to play certain song from the queue list\n" \
+    "**Example**:\n'm quad('4x^2+2x-3')\n'p (10,9) \n'm ma.sin(r(45))\n'm ma.cos(pi)\n'help\n**Use small letters only**\n" \
+    "**Updates**:\n Alfred now supports MySQL\n" \
+    "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'song <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue 'play <index no.> to play certain song from the queue list\n" \
     "'addplaylist <Playlist name> to append the current queue to the playlist\n'addqueue <Playlist name> to add\n'clearqueue to clear the queue\n'resume,'pause\n" \
-    "'currentmusic for current song's index\nI think thats pretty much it.\n\n" \
+    "'currentmusic for current song's index.\n\n" \
     "_Note: 'again' command does not support 'song' command._"
     client.remove_command("help")
     @client.group(invoke_without_command=True)
