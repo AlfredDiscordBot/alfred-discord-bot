@@ -1,6 +1,6 @@
-#Discord bot
+#Discord_bot
 
-<h>**All in one Discord bot**</h>
+##All in One Discord bot
 
 Includes: \
 _Python_ \
@@ -21,7 +21,7 @@ https://www.youtube.com/watch?v=r1AtmY-RMyQ, help for installing ffmpeg
 You need to download mysql as well
 You also need to replace os.system("nohup python /path/to/file/Discord.py &") with os.startfile("__file__")
 
-_Linux device:_
+_Linux devices:_
 >>sudo apt install ffmpeg \
 
 or
