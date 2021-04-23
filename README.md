@@ -2,11 +2,11 @@
 
 ## All in One Discord bot
 
-Includes: \
-_Python_ \
-_MySQL_ \
-_Music_ \
-_Entrar Announcement for schools using entrar.in_ \
+Includes:\
+_Python_\
+_MySQL_\
+_Music_\
+_Entrar Announcement for schools using entrar.in_\
 
 *Also includes dev_op which can be useful for recovering data and restarting the program*
 
@@ -15,10 +15,8 @@ _Entrar Announcement for schools using entrar.in_ \
 Set the path to a required location
 
 _Windows device:_
-Use this (https://ffmpeg.org/download.html) link to download and setup ffmpeg
-
-Install dependencies using pip3(PyNacl is required)
-
+Use this (https://ffmpeg.org/download.html) link to download and setup ffmpeg\
+Install dependencies using pip3(PyNacl is required)\
 https://www.youtube.com/watch?v=r1AtmY-RMyQ, help for installing ffmpeg
 
 You need to download mysql as well
