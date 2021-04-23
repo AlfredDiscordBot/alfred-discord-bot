@@ -23,9 +23,12 @@ You also need to replace os.system("nohup python /path/to/file/Discord.py &") wi
 
 _Linux device:_
 >>sudo apt install ffmpeg \
+
 or
 
 >>sudo dnf -y install ffmpeg \
 >>sudo dnf -y install ffmpeg-devel \
+
+
 Install dependencies using pip3(PyNacl is required for playing music in voice channel) \
 >>nohup python /path/to/file/Discord.py \
