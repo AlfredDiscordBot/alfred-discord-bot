@@ -734,10 +734,10 @@ if True:
                         re[3][str(reaction.message.guild.id)]-=1
                         if re[3][str(reaction.message.guild.id)]==-1:
                             re[3][str(reaction.message.guild.id)]=0                          
-                        song=os.path.isfile("."+str(ctx.guild.id)+".mp3")
+                        song=os.path.isfile("."+str(reaction.message.guild.id)+".mp3")
                         try:
                              if song:
-                                 os.remove("."+str(ctx.guild.id)+".mp3")
+                                 os.remove("."+str(reaction.message.guild.id)+".mp3")
                         except PermissionError:
                             pass
                         voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
@@ -746,7 +746,7 @@ if True:
                             ydl.download([queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]])                    
                         for file in os.listdir("./"):
                             if file.endswith(".mp3"):
-                                os.rename(file,"."+str(ctx.guild.id)+".mp3")        
+                                os.rename(file,"."+str(reaction.message.guild.id)+".mp3")        
                         voice.play(discord.FFmpegOpusAudio("."+str(reaction.message.guild.id)+".mp3",bitrate=96))
             if reaction.emoji=='⏸':
                 if str(user)!=str(client.user):
