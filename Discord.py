@@ -23,17 +23,17 @@ import mysql.connector as m
 import speedtest
 if True:
     st_speed=speedtest.Speedtest()
-    if os.getcwd()!="/home/alvinbengeorge":
-        os.chdir("/home/alvinbengeorge")
+    if os.getcwd()!="default/path":
+        os.chdir("default/path")
     start_time=time.time()
-    md=m.connect(host="localhost", user="root", passwd="password", database="Database_name")
+    md=m.connect(host="localhost", user="root", passwd="password for mysql", database="database name")
     cursor=md.cursor()
     intents=discord.Intents.default()
     intents.members=True
     client=commands.Bot(command_prefix="'",intents=intents)
     censor=[] 
     da={}
-    entr=[]
+    entr={}
     da1={}
     queue_song={}
     dev_channel=834624717410926602
@@ -98,8 +98,8 @@ if True:
             da1=k_da1
             #entr list
             a1=txt_from_file.find("entr=")+len("entr")
-            a2=txt_from_file.find("]",(a1+1))+1
-            a1=txt_from_file.find("[",a1,a2)
+            a2=txt_from_file.find("}",(a1+1))+1
+            a1=txt_from_file.find("{",a1,a2)
             k_entr=eval(txt_from_file[a1:a2])
             entr=k_entr
             #re list
@@ -278,6 +278,7 @@ if True:
             r=s.get("https://entrar.in/",headers=header)
             r=s.post("https://entrar.in/parent_portal/announcement",headers=header)
             r=s.get("https://entrar.in/parent_portal/announcement",headers=header)
+            time.sleep(1)
             r=s.post("https://entrar.in/parent_portal/announcement",data=announcement_data,headers=header)
             channel = discord.utils.get(ctx.guild.channels, name="announcement")
             st=r.content.decode()
@@ -300,9 +301,11 @@ if True:
                 link=str(st[h:j])
                 req=s.get(link)
                 k=out+link+date
-                if k in entr:
+                if not str(ctx.guild.id) in entr:
+                    entr[str(ctx.guild.id)]=[]
+                if k in entr[str(ctx.guild.id)]:
                     break          
-                entr.append(str(k))
+                entr[str(ctx.guild.id)].append(str(k))
                 lol=lol+out+" Date:"+date+"\n"
                 with open((out+".pdf"),'wb') as pdf:
                     pdf.write(req.content)                    
@@ -509,10 +512,10 @@ if True:
             ending=aa.find("</title>")        
             name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("&amp;","&")
             print(url)
-            song=os.path.isfile(".song.mp3")
+            song=os.path.isfile("."+str(ctx.guild.id)+".mp3")
             try:
                  if song:
-                     os.remove(".song.mp3")
+                     os.remove("."+str(ctx.guild.id)+".mp3")
             except PermissionError:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
@@ -521,8 +524,8 @@ if True:
             await ctx.send(embed=discord.Embed(title="Song",description="Playing "+name_of_the_song,color=ctx.author.color))
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
-                    os.rename(file,".song.mp3")        
-            voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+                    os.rename(file,"."+str(ctx.guild.id)+".mp3")        
+            voice.play(discord.FFmpegOpusAudio("."+str(ctx.guild.id)+".mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play a song",color=ctx.author.color))
     @client.command(aliases=['>'])
@@ -534,10 +537,10 @@ if True:
             if re[3][str(ctx.guild.id)]>=len(queue_song[str(ctx.guild.id)]):
                 re[3][str(ctx.guild.id)]=len(queue_song[str(ctx.guild.id)])-1
                 await ctx.send(embed=discord.Embed(title="Last song",description="Only "+str(len(queue_song))+" songs in your queue",color=ctx.author.color))                          
-            song=os.path.isfile(".song.mp3")
+            song=os.path.isfile("."+str(ctx.guild.id)+".mp3")
             try:
                  if song:
-                     os.remove(".song.mp3")
+                     os.remove("."+str(ctx.guild.id)+".mp3")
             except PermissionError:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
@@ -547,8 +550,8 @@ if True:
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=ctx.author.color))
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
-                    os.rename(file,".song.mp3")        
-            voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+                    os.rename(file,"."+str(ctx.guild.id)+".mp3")        
+            voice.play(discord.FFmpegOpusAudio("."+str(ctx.guild.id)+".mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the next song",color=ctx.author.color))  
     @client.command(aliases=['<'])
@@ -560,10 +563,10 @@ if True:
             if re[3][str(ctx.guild.id)]==-1:
                 re[3][str(ctx.guild.id)]=0
                 await ctx.send(embed=discord.Embed(title="First song",description="This is first in queue",color=ctx.author.color))   
-            song=os.path.isfile(".song.mp3")
+            song=os.path.isfile("."+str(ctx.guild.id)+".mp3")
             try:
                  if song:
-                     os.remove(".song.mp3")
+                     os.remove("."+str(ctx.guild.id)+".mp3")
             except PermissionError:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
@@ -573,18 +576,18 @@ if True:
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=ctx.author.color))
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
-                    os.rename(file,".song.mp3")        
-            voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+                    os.rename(file,"."+str(ctx.guild.id)+".mp3")        
+            voice.play(discord.FFmpegOpusAudio("."+str(ctx.guild.id)+".mp3",bitrate=96))
     @client.command()
     async def play(ctx,ind):
         req()
         mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
         if mem.count(str(ctx.author))>0:
             re[3][str(ctx.guild.id)]=int(ind)
-            song=os.path.isfile(".song.mp3")
+            song=os.path.isfile("."+str(ctx.guild.id)+".mp3")
             try:
                  if song:
-                     os.remove(".song.mp3")
+                     os.remove("."+str(ctx.guild.id)+".mp3")
             except PermissionError:
                 await ctx.send("Wait or use stop")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
@@ -600,20 +603,20 @@ if True:
             await mess.add_reaction("⏹")
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
-                    os.rename(file,".song.mp3")        
-            voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+                    os.rename(file,"."+str(ctx.guild.id)+".mp3")        
+            voice.play(discord.FFmpegOpusAudio("."+str(ctx.guild.id)+".mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=ctx.author.color))
     @client.command()
     async def again(ctx):
         req()
-        if not ".song.mp3" in os.listdir():
+        if not "."+str(ctx.guild.id)+".mp3" in os.listdir():
             await ctx.send("You might need to wait a while since its not loaded")
             with youtube_dl.YoutubeDL(ydl_op) as ydl:
                 ydl.download([queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]])
             for file in os.listdir("./"):
                 if file.endswith(".mp3"):
-                    os.rename(file,".song.mp3")
+                    os.rename(file,"."+str(ctx.guild.id)+".mp3")
         mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
         if mem.count(str(ctx.author))>0:
             mess=await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=ctx.author.color))
@@ -625,7 +628,7 @@ if True:
             await mess.add_reaction("⏹")
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
-            voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+            voice.play(discord.FFmpegOpusAudio("."+str(ctx.guild.id)+".mp3",bitrate=96))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=ctx.author.color))
     @client.command(aliases=['!'])
@@ -638,7 +641,7 @@ if True:
             pass        
         save_to_file()
         print("Restart")
-        os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Discord.py &")                
+        os.system("nohup python path/to/python/file &")                
         await ctx.send(embed=discord.Embed(title="Restarted",description="The program finished restarting",color=ctx.author.color))
         sys.exit()
     @client.command(aliases=['dc'])
@@ -651,7 +654,7 @@ if True:
             voice.stop()
             await voice.disconnect()
             try:
-                os.remove("./.song.mp3")
+                os.remove("./."+str(ctx.guild.id)+".mp3")
             except:
                 pass            
             await ctx.send(embed=discord.Embed(title="Disconnected",description="Bye",color=ctx.author.color))            
@@ -731,10 +734,10 @@ if True:
                         re[3][str(reaction.message.guild.id)]-=1
                         if re[3][str(reaction.message.guild.id)]==-1:
                             re[3][str(reaction.message.guild.id)]=0                          
-                        song=os.path.isfile(".song.mp3")
+                        song=os.path.isfile("."+str(ctx.guild.id)+".mp3")
                         try:
                              if song:
-                                 os.remove(".song.mp3")
+                                 os.remove("."+str(ctx.guild.id)+".mp3")
                         except PermissionError:
                             pass
                         voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
@@ -743,8 +746,8 @@ if True:
                             ydl.download([queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]])                    
                         for file in os.listdir("./"):
                             if file.endswith(".mp3"):
-                                os.rename(file,".song.mp3")        
-                        voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+                                os.rename(file,"."+str(ctx.guild.id)+".mp3")        
+                        voice.play(discord.FFmpegOpusAudio("."+str(reaction.message.guild.id)+".mp3",bitrate=96))
             if reaction.emoji=='⏸':
                 if str(user)!=str(client.user):
                     await reaction.remove(user)
@@ -766,15 +769,15 @@ if True:
                     await reaction.remove(user)
                     mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=vc_channel[str(reaction.message.guild.id)]).members]
                     if mem.count(str(user))>0:
-                        if not ".song.mp3" in os.listdir():                        
+                        if not "."+str(reaction.message.guild.id)+".mp3" in os.listdir():                        
                             with youtube_dl.YoutubeDL(ydl_op) as ydl:
                                 ydl.download([queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]])
                             for file in os.listdir("./"):
                                 if file.endswith(".mp3"):
-                                    os.rename(file,".song.mp3")                
+                                    os.rename(file,"."+str(reaction.message.guild.id)+".mp3")                
                         voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
                         voice.stop()
-                        voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+                        voice.play(discord.FFmpegOpusAudio("."+str(reaction.message.guild.id)+".mp3",bitrate=96))
             if reaction.emoji=='⏭':
                 if str(user)!=str(client.user):                
                     await reaction.remove(user)
@@ -784,10 +787,10 @@ if True:
                         re[3][str(reaction.message.guild.id)]+=1
                         if re[3][str(reaction.message.guild.id)]>=len(queue_song[str(reaction.message.guild.id)]):
                             re[3][str(reaction.message.guild.id)]=len(queue_song[str(reaction.message.guild.id)])-1                                                  
-                        song=os.path.isfile(".song.mp3")
+                        song=os.path.isfile("."+str(reaction.message.guild.id)+".mp3")
                         try:
                              if song:
-                                 os.remove(".song.mp3")
+                                 os.remove("."+str(reaction.message.guild.id)+".mp3")
                         except PermissionError:
                             await ctx.send("Wait or use stop")
                         voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
@@ -797,8 +800,8 @@ if True:
                         
                         for file in os.listdir("./"):
                             if file.endswith(".mp3"):
-                                os.rename(file,".song.mp3")        
-                        voice.play(discord.FFmpegOpusAudio(".song.mp3",bitrate=96))
+                                os.rename(file,"."+str(reaction.message.guild.id)+".mp3")        
+                        voice.play(discord.FFmpegOpusAudio("."+str(reaction.message.guild.id)+".mp3",bitrate=96))
             if reaction.emoji=="⏹":
                 req()                    
                 try:
@@ -811,7 +814,7 @@ if True:
                             voice.stop()
                             await voice.disconnect()
                             try:
-                                os.remove("./.song.mp3")
+                                os.remove("./."+str(reaction.message.guild.id)+".mp3")
                             except:
                                 pass
                 except Exception as e:
@@ -926,7 +929,7 @@ if True:
     @client.command(aliases=['g'])
     async def google(ctx,*,text):
         req()
-        print(text)
+        print(text, str(ctx.author))
         li="**"+text+"** \n\n"
         for i in googlesearch.search(text,num=7,stop=7,pause=0):
             li=li+i+" \n\n"
@@ -1105,9 +1108,9 @@ if True:
     	print(member,"unmuted")	
     te="**Commands**\n'google <text to search> \n'help to get this screen\n'c (n,r) for *combination* \n'p (n,r) for *permutation* \n**Leave space between p/c and the bracket'('** \n'meth <Expression> for any math calculation *(includes statistic)*\n'get_req for no. of requests\n" \
     "**Modules**:\n**ma** for math module\n**s** for statistics module \n\nr(angle in degree) to convert angle to radian \nd(angle in radian) to convert angle to radian\n\n" \
-    "**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for any math calculation *(includes statistic)*\n'> for next\n'< for previous\n'cm for connecting to a voice\n" \
+    "**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for any math calculation *(includes statistic)*\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n" \
     "**Example**:\n'm quad('4x^2+2x-3')\n'p (10,9) \n'm ma.sin(r(45))\n'm ma.cos(pi)\n'help\n**Use small letters only**\n" \
-    "**Updates**:\n Alfred now supports MySQL\n" \
+    "**Updates**:\n Alfred now supports MySQL\n\n" \
     "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'song <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue 'play <index no.> to play certain song from the queue list\n" \
     "'addplaylist <Playlist name> to append the current queue to the playlist\n'addqueue <Playlist name> to add\n'clearqueue to clear the queue\n'resume,'pause\n" \
     "'currentmusic for current song's index.\n\n" \
