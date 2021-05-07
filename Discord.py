@@ -23,7 +23,7 @@ if True:
     if os.getcwd()!="/home/alvinbengeorge":
         os.chdir("/home/alvinbengeorge")
     start_time=time.time()
-    md=m.connect(host="localhost", user="root", passwd="password_for_mysql", database="database_name")
+    md=m.connect(host="localhost", user="root", passwd="password", database="DBname")
     cursor=md.cursor()
     intents=discord.Intents.default()
     intents.members=True
@@ -546,7 +546,7 @@ if True:
             if re[3][str(ctx.guild.id)]>=len(queue_song[str(ctx.guild.id)]):
                 re[3][str(ctx.guild.id)]=len(queue_song[str(ctx.guild.id)])-1
                 await ctx.send(embed=discord.Embed(title="Last song",description="Only "+str(len(queue_song))+" songs in your queue",color=ctx.author.color))                          
-            youtube_download(ctx,url)
+            youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=ctx.author.color))
@@ -562,7 +562,7 @@ if True:
             if re[3][str(ctx.guild.id)]==-1:
                 re[3][str(ctx.guild.id)]=0
                 await ctx.send(embed=discord.Embed(title="First song",description="This is first in queue",color=ctx.author.color))   
-            youtube_download(ctx,url)
+            youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()            
             await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=ctx.author.color))                  
@@ -573,9 +573,9 @@ if True:
         mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
         if mem.count(str(ctx.author))>0:
             re[3][str(ctx.guild.id)]=int(ind)
-            youtube_download(ctx,url)
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()            
+            youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
             mess=await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=ctx.author.color))
             await mess.add_reaction("⏮")
             await mess.add_reaction("⏸")
