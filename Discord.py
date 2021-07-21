@@ -3,6 +3,7 @@ from random import *
 from discord.ext import commands, tasks
 from googlesearch import search
 from GoogleNews import GoogleNews
+from dotenv import load_dotenv
 from math import *
 from statistics import*
 from wikipedia import *
@@ -20,8 +21,12 @@ import time
 import sys
 import emoji
 import psutil
+import asyncio
+
+
 try:
     import mysql.connector as m
+    load_dotenv()
 except:
     pass
 import speedtest
@@ -31,11 +36,11 @@ if True:
     except:
         print("failed")
     googlenews=GoogleNews()
-    if os.getcwd()!="/home/alvinbengeorge/Desktop/Discord_Python":#set your default path here
+    if os.getcwd()!="/home/alvinbengeorge/Desktop/Discord_Python":
         os.chdir("/home/alvinbengeorge/Desktop/Discord_Python")
     start_time=time.time()
     try:
-        md=m.connect(host="localhost", user="root", passwd="mysqlpassword")
+        md=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'))
         conn=md
         cursor=md.cursor()
     except:
@@ -74,13 +79,14 @@ if True:
     re=[0,"OK",1,{},-1,'','205',1,5360]
     a_channels=[822500785765875749,822446957288357888]
     cat={}
+    pages={}
     color_message=None
     color_temp=()
     checking_for_replay=False
     link_for_cats=[]
     vc_channel={}
     dev_users=['432801163126243328']#replace your id with this
-    ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'96',}],}
+    ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'64',}],}
     FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
     def save_to_file(a=""):
         global dev_users
@@ -109,6 +115,16 @@ if True:
             file.write("re="+str(re)+"\n")
             file.write("dev_users="+str(dev_users)+"\n")
             file.write("entr="+str(entr)+"\n")
+        if a=="save":
+            file = open(".safe.txt", "w")
+            file.write("censor="+str(censor)+"\n")
+            file.write("da="+str(da)+"\n")
+            file.write("da1="+str(da1)+"\n")
+            file.write("queue_song="+str(queue_song)+"\n")
+            file.write("a_channels="+str(a_channels)+"\n")
+            file.write("re="+str(re)+"\n")
+            file.write("dev_users="+str(dev_users)+"\n")
+            file.write("entr="+str(entr)+"\n")
     def load_from_file(file_name=".backup.txt"):
         if file_name in os.listdir("./"):
             file=open(file_name,"r")
@@ -120,56 +136,78 @@ if True:
             global re
             global dev_users
             txt_from_file=str(file.read())
-            print(txt_from_file)
             #censor list
-            a1=txt_from_file.find("censor=")+len("censor")
-            a2=txt_from_file.find("]",(a1+1))+1
-            a1=txt_from_file.find("[",a1,a2)
-            k_censor=eval(txt_from_file[a1:a2])
-            censor=k_censor
+            try:
+                a1=txt_from_file.find("censor=")+len("censor")
+                a2=txt_from_file.find("]",(a1+1))+1
+                a1=txt_from_file.find("[",a1,a2)
+                k_censor=eval(txt_from_file[a1:a2])
+                censor=k_censor
+            except:
+                print("Problem with censor list")
             #da dictionary
-            a1=txt_from_file.find("da=")+len("da")
-            a2=txt_from_file.find("}",(a1+1))+1
-            a1=txt_from_file.find("{",a1,a2)
-            k_da=eval(txt_from_file[a1:a2])
-            da=k_da
+            try:
+                a1=txt_from_file.find("da=")+len("da")
+                a2=txt_from_file.find("}",(a1+1))+1
+                a1=txt_from_file.find("{",a1,a2)
+                k_da=eval(txt_from_file[a1:a2])
+                da=k_da
+            except:
+                print("Problem with da")
             #da1 dictionary
-            a1=txt_from_file.find("da1=")+len("da1")
-            a2=txt_from_file.find("}",(a1+1))+1
-            a1=txt_from_file.find("{",a1,a2)
-            k_da1=eval(txt_from_file[a1:a2])
-            da1=k_da1
+            try:
+                a1=txt_from_file.find("da1=")+len("da1")
+                a2=txt_from_file.find("}",(a1+1))+1
+                a1=txt_from_file.find("{",a1,a2)
+                k_da1=eval(txt_from_file[a1:a2])
+                da1=k_da1
+            except:
+                print("Problem with da1")
             #entr list
-            a1=txt_from_file.find("entr=")+len("entr")
-            a2=txt_from_file.find("}",(a1+1))+1
-            a1=txt_from_file.find("{",a1,a2)
-            k_entr=eval(txt_from_file[a1:a2])
-            entr=k_entr
+            try:
+                a1=txt_from_file.find("entr=")+len("entr")
+                a2=txt_from_file.find("}",(a1+1))+1
+                a1=txt_from_file.find("{",a1,a2)
+                k_entr=eval(txt_from_file[a1:a2])
+                entr=k_entr
+            except:
+                print("Problem with entr")
             #a_channels list
-            a1=txt_from_file.find("a_channels=")+len("a_channels")
-            a2=txt_from_file.find("]",(a1+1))+1
-            a1=txt_from_file.find("[",a1,a2)
-            k_a_channels=eval(txt_from_file[a1:a2])
-            print(k_a_channels)
-            a_channels=k_a_channels
+            try:
+                a1=txt_from_file.find("a_channels=")+len("a_channels")
+                a2=txt_from_file.find("]",(a1+1))+1
+                a1=txt_from_file.find("[",a1,a2)
+                k_a_channels=eval(txt_from_file[a1:a2])            
+                a_channels=k_a_channels
+            except:
+                print("Problem with a_channels")
             #dev_users list
-            a1=txt_from_file.find("dev_users=")+len("dev_users")
-            a2=txt_from_file.find("]",(a1+1))+1
-            a1=txt_from_file.find("[",a1,a2)
-            k_dev_users=eval(txt_from_file[a1:a2])
-            dev_users=k_dev_users
+            try:
+                a1=txt_from_file.find("dev_users=")+len("dev_users")
+                a2=txt_from_file.find("]",(a1+1))+1
+                a1=txt_from_file.find("[",a1,a2)
+                k_dev_users=eval(txt_from_file[a1:a2])
+                dev_users=k_dev_users
+            except:
+                print("Problem with dev_users")
             #queue_song dictionary
-            a1=txt_from_file.find("queue_song=")+len("queue_song")
-            a2=txt_from_file.find("}",(a1))+1
-            a1=txt_from_file.find("{",a1,a2)
-            k_queue_song=eval(txt_from_file[a1:a2])
-            queue_song=k_queue_song
+            try:
+                a1=txt_from_file.find("queue_song=")+len("queue_song")
+                a2=txt_from_file.find("}",(a1))+1
+                a1=txt_from_file.find("{",a1,a2)
+                k_queue_song=eval(txt_from_file[a1:a2])
+                queue_song=k_queue_song
+            except:
+                print("Problem with queue song")
             #re list
-            a1=txt_from_file.find("re=")+len("re")
-            a2=txt_from_file.find("]",(a1+1))+1
-            a1=txt_from_file.find("[",a1,a2)
-            k_re=eval(txt_from_file[a1:a2])
-            re=k_re
+            try:
+                a1=txt_from_file.find("re=")+len("re")
+                a2=txt_from_file.find("]",(a1+1))+1
+                a1=txt_from_file.find("[",a1,a2)
+                k_re=eval(txt_from_file[a1:a2])
+                re=k_re
+            except:
+                print("Problem with re")
         save_to_file()
     def youtube_download(ctx,url):
         global checking_for_replay
@@ -234,11 +272,27 @@ if True:
                     if number>=97:
                         safe_stop=0
                     link_for_cats+=[string[n2:n1]]
-                raw=requests.get("https://br.pinterest.com/levato/meme/")
+                #https://in.pinterest.com/search/pins/?q=HIMYM%20memes&rs=typed&term_meta[]=HIMYM%7Ctyped&term_meta[]=memes%7Ctyped
+                raw=requests.get("https://www.pinterest.com/humbertopieroni/english-memes/")
                 html_content=raw.content.decode()
                 stop=0
                 number=0
-                for i in range(0,100):
+                for i in range(0,250):
+                    a=html_content.find("GrowthUnauthPinImage__Image",stop)
+                    b=html_content.find('src="',a)+len('src="')
+                    c=html_content.find('" ',b)
+                    stop=c
+                    if i==0:
+                        continue
+                    link=html_content[b:c]
+                    if link.find("</div>")!=-1 or link.find("<html")!=-1:
+                        continue
+                    link_for_cats+=[link]
+                raw=requests.get("https://www.pinterest.com/ralicay/himym/")
+                html_content=raw.content.decode()
+                stop=0
+                number=0
+                for i in range(0,250):
                     a=html_content.find("GrowthUnauthPinImage__Image",stop)
                     b=html_content.find('src="',a)+len('src="')
                     c=html_content.find('" ',b)
@@ -295,17 +349,44 @@ if True:
                 await temp_dev[i][1].edit(embed=discord.Embed(title="Done",description=str(person.mention)+"\nTime remaining: "+str(temp_dev[i][0])+"s",color=discord.Color(value=re[8])))
             else:
                 await temp_dev[i][1].edit(embed=discord.Embed(title="Time up", description="Your time is up, please ask a bot dev to give you access to the script function",color=discord.Color.from_rgb(250,50,0)))
-                temp_dev.pop(i)
-        
-        aad=m.connect(host="localhost", user="root", passwd="mysqlpassword",database="Discord")        
-        curs=aad.cursor()
-        asdf=str(re)
-        curs.execute('update requ set variable="'+asdf+'" where  here=1')
-        aad.commit()
+                temp_dev.pop(i)        
+        if len(queue_song)!=0:
+            aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")        
+            curs=aad.cursor()
+            asdf=str(re)
+            curs.execute("Delete from queue")
+            for j in list(queue_song.keys()):
+                for i in queue_song[j]:
+                    curs.execute("Insert into queue (links,server) values ('"+i+"','"+j+"')")
+            curs.execute('update requ set variable="'+asdf+'" where  here=1')
+            aad.commit()
+        else:
+            aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")
+            curs=aad.cursor()
+            curs.execute("Select distinct(server) from queue")
+            servers=cursor.fetchall()
+            for i in servers:
+                curs.execute("Select link from queue where server='"+i[0]+"';")
+                urls=curs.fetchall()
+                for url in urls:
+                    queue_song[i[0]].append(url[0])
         
     @dev_loop.before_loop
     async def wait_for_ready():
         await client.wait_until_ready()
+    @client.command(aliases=['e'])
+    async def uemoji(ctx,*,emoji_name):
+        req()
+        await ctx.message.delete()
+        if discord.utils.get(client.emojis,name=emoji_name)!=None:
+            webhook=await ctx.channel.create_webhook(name=ctx.author.name)
+            await webhook.send(discord.utils.get(client.emojis,name=emoji_name), username=ctx.author.name, avatar_url=ctx.author.avatar_url)
+            webhooks = await ctx.channel.webhooks()
+            for webhook in webhooks:
+                    await webhook.delete()
+            
+        else:
+            await ctx.send("The emoji is not available")
     @client.command(aliases=['color','||'])
     async def theme_color(ctx,*,tup1):
         try:
@@ -489,8 +570,9 @@ if True:
         lol=""
         header={'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36','referer':"https://entrar.in"}
         suvzsjv={
-            'username': "Username",
-            'password': "password"
+            'username': os.getenv('user'),
+            'password': os.getenv('pass'),
+            'captcha':'0'
             }
         announcement_data={
             'announcementlist': 'true',
@@ -498,7 +580,13 @@ if True:
             }
         re[6]=num
         announcement_data['session']=str(num)
+        #class="label-input100"        
         with requests.Session() as s:
+            r=s.get("https://entrar.in/login/login",headers=header)
+            st=r.content.decode()
+            start_captcha=st.find('<span class="label-input100" style="font-size: 20px;">')+len('<span class="label-input100" style="font-size: 20px;">')
+            end_captcha=st.find(":",start_captcha)
+            suvzsjv['captcha']=str(eval(st[start_captcha:end_captcha]))
             url="https://entrar.in/login/authenticate1/"
             r=s.post(url,data=suvzsjv,headers=header)
             r=s.get("https://entrar.in/",headers=header)
@@ -606,11 +694,9 @@ if True:
             await ctx.send(embed=discord.Embed(title="Disabled",description="You've disabled MySQL",color=discord.Color(value=re[8])))
 
     @client.event
-    async def on_member_join(member):
-        if member.guild.id!=743323684705402951:
-            channel=discord.utils.get(member.guild.channels, name="announcement")
-        else:
-            channel=client.get_channel(849215252280770580)        
+    async def on_member_join(member):        
+        
+        channel=discord.utils.get(ctx.guild.channels, name="announcement")        
         await channel.send(member.mention+" is here")
         embed=discord.Embed(title="Welcome!!!", description="Welcome to the channel, "+member.name,color=discord.Color(value=re[8]))
         embed.set_thumbnail(url="https://image.shutterstock.com/image-vector/welcome-poster-spectrum-brush-strokes-260nw-1146069941.jpg")
@@ -621,7 +707,7 @@ if True:
             channel=discord.utils.get(member.guild.channels, name="announcement")
         else:
             channel=client.get_channel(849215252280770580)
-        await channel.send(member.mention+" is no loger here")
+        await channel.send(member.mention+" is no longer here")
         embed=discord.Embed(title="Bye!!!", description="Hope you enjoyed your stay "+member.name,color=discord.Color(value=re[8]))
         embed.set_thumbnail(url="https://thumbs.dreamstime.com/b/bye-bye-man-says-45256525.jpg")
         await channel.send(embed=embed)
@@ -658,23 +744,23 @@ if True:
                 re[3][str(ctx.guild.id)]=0
             if channel=="":
                 if ctx.author.voice and ctx.author.voice.channel:
-                    channel=ctx.author.voice.channel.name
+                    channel=ctx.author.voice.channel.id
                     vc_channel[str(ctx.guild.id)]=channel
-                    voiceChannel=discord.utils.get(ctx.guild.voice_channels,name=channel)
+                    voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
                     await voiceChannel.connect()
                     voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                    await ctx.send("Connected")
+                    await ctx.send(embed=discord.Embed(title="",description="Connected",color=discord.Color(value=re[8])))
                 else:
-                    await ctx.send("You are not in a voice channel")
+                    await ctx.send(embed=discord.Embed(title="",description="You are not in a voice channel",color=discord.Color(value=re[8])))
             else:
-                if channel in [i.name for i in ctx.guild.voice_channels]:
-                    vc_channel[str(ctx.guild.id)]=channel
+                if channel in [i.name for i in ctx.guild.voice_channels]:                    
                     voiceChannel=discord.utils.get(ctx.guild.voice_channels,name=channel)
+                    vc_channel[str(ctx.guild.id)]=voiceChannel.id
                     await voiceChannel.connect()
                     voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                    await ctx.send("Connected")
+                    await ctx.send(embed=discord.Embed(title="",description="Connected",color=discord.Color(value=re[8])))
                 else:
-                    await ctx.send("The voice channel does not exist")
+                    await ctx.send(embed=discord.Embed(title="",description="The voice channel does not exist",color=discord.Color(value=re[8])))
 
         except Exception as e:
             await ctx.send(embed=discord.Embed(title="Hmm",description=str(e),color=discord.Color(value=re[8])))
@@ -684,7 +770,7 @@ if True:
     async def addto(ctx,mode,*,text):
         req()
         present=1
-        voiceChannel=discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)])
+        voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)])
         member=voiceChannel.members
         for mem in member:
             if str(ctx.author)==str(mem):
@@ -698,14 +784,8 @@ if True:
             song_list=""
             for i in range(0,len(get_elem(str(text)))):
                 link_add=get_elem(str(text))[i]
-                aa=str(urllib.request.urlopen(link_add).read().decode())
-                starting=aa.find("<title>")+len("<title>")
-                ending=aa.find("</title>")
-                name_of_the_song=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
-                da1[link_add]=name_of_the_song
                 queue_song[str(ctx.guild.id)].append(link_add)
-                song_list=song_list+name_of_the_song+"\n"
-            await ctx.send(embed=discord.Embed(title="Songs added",description=song_list,color=discord.Color(value=re[8])))
+            await ctx.send(embed=discord.Embed(title="Songs added",description="Done",color=discord.Color(value=re[8])))
         else:
             if present==0:
                 await ctx.send("Only playlist and queue")
@@ -714,7 +794,7 @@ if True:
     @client.command(aliases=['cq'])
     async def clearqueue(ctx):
         req()
-        mem=[(str(i.name)+"#"+str(i.discriminator)) for i in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
+        mem=[(str(i.name)+"#"+str(i.discriminator)) for i in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
         if mem.count(str(ctx.author))>0:
             if len(queue_song[str(ctx.guild.id)])>0:
                 queue_song[str(ctx.guild.id)].clear()
@@ -726,7 +806,7 @@ if True:
     @client.command()
     async def remove(ctx,n):
         req()
-        mem=[(str(i.name)+"#"+str(i.discriminator)) for i in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
+        mem=[(str(i.name)+"#"+str(i.discriminator)) for i in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
         if mem.count(str(ctx.author))>0:
             if int(n)<len(queue_song[str(ctx.guild.id)]):
                 await ctx.send(embed=discord.Embed(title="Removed",description=da1[queue_song[str(ctx.guild.id)][int(n)]],color=discord.Color(value=re[8])))
@@ -743,8 +823,22 @@ if True:
             await ctx.send(embed=discord.Embed(title=str(da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]),description="Current index: "+str(re[3][str(ctx.guild.id)]),color=discord.Color(value=re[8])))
         else:
             await ctx.send(embed=discord.Embed(title="Empty queue",description="Your queue is currently empty",color=discord.Color(value=re[8])))
-    def repeat(ctx,voice,from_itself=False):
-        pass
+    def repeat(ctx,voice):
+        req()
+        if not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]] in da1.keys():
+            aa=str(urllib.request.urlopen(queue_song[str(ctx.guild.id)]).read().decode())
+            starting=aa.find("<title>")+len("<title>")
+            ending=aa.find("</title>")
+            da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
+        time.sleep(1)
+        if re[7]==1 and not voice.is_playing():
+            re[3][str(ctx.guild.id)]+=1
+            if re[3][str(ctx.guild.id)]>=len(queue_song[str(ctx.guild.id)]):
+                re[3][str(ctx.guild.id)]=len(queue_song[str(ctx.guild.id)])-1
+        if re[2]==1 or re[7]==1:                       
+            if not voice.is_playing():
+                URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
+                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))    
     @client.command()
     async def autoplay(ctx):
         req()
@@ -767,7 +861,7 @@ if True:
     async def queue(ctx,*,name=""):
         req()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
+            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
         except:
             mem=[]
         if mem.count(str(ctx.author))>0 and name!="":
@@ -778,43 +872,27 @@ if True:
                 video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
                 url="https://www.youtube.com/watch?v="+video[0]
             else:
-                url=name
-            aa=str(urllib.request.urlopen(url).read().decode())
-            starting=aa.find("<title>")+len("<title>")
-            ending=aa.find("</title>")
-            name_of_the_song=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
-            print(name_of_the_song,":",url)
-            da1[url]=name_of_the_song
-            queue_song[str(ctx.guild.id)].append(url)
+                url=name            
             st=""
             await ctx.send("Added to queue")
             num=0
-            if len(queue_song[str(ctx.guild.id)])<27:
-                for i in queue_song[str(ctx.guild.id)]:
-                    st=st+str(num)+". "+da1[i]+"\n"
-                    num+=1
-            else:
-                adfg=0
-                num=-1
-                for i in queue_song[str(ctx.guild.id)]:
-                    num+=1
+            if True:
+                aa=str(urllib.request.urlopen(url).read().decode())
+                starting=aa.find("<title>")+len("<title>")
+                ending=aa.find("</title>")
+                name_of_the_song=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
+                print(name_of_the_song,":",url)
+                da1[url]=name_of_the_song
+                queue_song[str(ctx.guild.id)].append(url)
+            for i in queue_song[str(ctx.guild.id)]:                
+                if num>=len(queue_song[str(ctx.guild.id)])-10:
                     if not i in da1.keys():
                         aa=str(urllib.request.urlopen(i).read().decode())
                         starting=aa.find("<title>")+len("<title>")
                         ending=aa.find("</title>")
                         da1[i]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
-                    try:
-                        if re[3][str(ctx.guild.id)]<10:                            
-                            if num<15:                                
-                                st=st+str(num)+". "+da1[i]+"\n"
-                        elif re[3][str(ctx.guild.id)]>(len(queue_song[str(ctx.guild.id)])-10):
-                            if num>(len(queue_song[str(ctx.guild.id)])-15):
-                                st=st+str(num)+". "+da1[i]+"\n"
-                        else:
-                            if num>re[3][str(ctx.guild.id)]-10 and num<re[3][str(ctx.guild.id)]+10:
-                                st=st+str(num)+". "+da1[i]+"\n"
-                    except Exception as e:
-                        pass
+                    st=st+str(num)+". "+da1[i]+"\n"
+                num+=1
             #st=st+str(num)+". "+da1[i]+"\n"
             if st=="":st="_Empty_"
             em=discord.Embed(title="Queue",description=st,color=discord.Color(value=re[8]))
@@ -845,20 +923,31 @@ if True:
                 num=-1
                 for i in queue_song[str(ctx.guild.id)]:
                     num+=1
-                    if not i in da1.keys():
-                        aa=str(urllib.request.urlopen(i).read().decode())
-                        starting=aa.find("<title>")+len("<title>")
-                        ending=aa.find("</title>")
-                        da1[i]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
+                    
                     try:
                         if re[3][str(ctx.guild.id)]<10:                            
-                            if num<15:                                
+                            if num<15:
+                                if not i in da1.keys():
+                                    aa=str(urllib.request.urlopen(i).read().decode())
+                                    starting=aa.find("<title>")+len("<title>")
+                                    ending=aa.find("</title>")
+                                    da1[i]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                                 st=st+str(num)+". "+da1[i]+"\n"
                         elif re[3][str(ctx.guild.id)]>(len(queue_song[str(ctx.guild.id)])-10):
                             if num>(len(queue_song[str(ctx.guild.id)])-15):
+                                if not i in da1.keys():
+                                    aa=str(urllib.request.urlopen(i).read().decode())
+                                    starting=aa.find("<title>")+len("<title>")
+                                    ending=aa.find("</title>")
+                                    da1[i]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                                 st=st+str(num)+". "+da1[i]+"\n"
                         else:
                             if num>re[3][str(ctx.guild.id)]-10 and num<re[3][str(ctx.guild.id)]+10:
+                                if not i in da1.keys():
+                                    aa=str(urllib.request.urlopen(i).read().decode())
+                                    starting=aa.find("<title>")+len("<title>")
+                                    ending=aa.find("</title>")
+                                    da1[i]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                                 st=st+str(num)+". "+da1[i]+"\n"
                     except Exception as e:
                         pass
@@ -879,54 +968,45 @@ if True:
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to modify queue",color=discord.Color(value=re[8])))
 
-    @client.command()
-    async def show_playlist(ctx,*,key):
-        req()
-        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
-        if mem.count(str(ctx.author))>0:
-            li=da.get(key,["This Playlist does not exist"])
-            st=""
-            num=0
-            for i in li:
-                num+=1
-                if i=="This Playlist does not exist":
-                    await ctx.send(embed=discord.Embed(title="No Playlist named "+key,description=li,color=discord.Color(value=re[8])))
-                    break
-                else:
-                    aa=str(urllib.request.urlopen(i).read().decode())
-                    starting=aa.find("<title>")+len("<title>")
-                    ending=aa.find("</title>")
-                    name_of_the_song=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
-                    st=st+"*"+str(num)+"*. "+name_of_the_song+"\n"
-            else:
-                embed=discord.Embed(title=key,description=st,color=discord.Color(value=re[8]))
-                embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
-                await ctx.send(embed=embed)
-        else:
-            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to see the playlist",color=discord.Color(value=re[8])))
-
 
     @client.command(aliases=['>'])
     async def next(ctx):
         req()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
+            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
             if mem.count(str(ctx.author))>0:
                 checking_for_replay=True
                 re[3][str(ctx.guild.id)]+=1
                 if re[3][str(ctx.guild.id)]>=len(queue_song[str(ctx.guild.id)]):
                     re[3][str(ctx.guild.id)]=len(queue_song[str(ctx.guild.id)])-1
                     await ctx.send(embed=discord.Embed(title="Last song",description="Only "+str(len(queue_song[str(ctx.guild.id)]))+" songs in your queue",color=discord.Color(value=re[8])))
-                voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                voice.stop()
-                URL=URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
+                voice=discord.utils.get(client.voice_clients,guild=ctx.guild)                
+                URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
                 await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=discord.Color(value=re[8])))
-                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                voice.stop()
+                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))    
             else:
                 await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the next song",color=discord.Color(value=re[8])))
         except Exception as e:
             channel=client.get_channel(dev_channel)
             await channel.send(embed=discord.Embed(title="Error in next function", description=str(e)+"\n"+str(ctx.guild)+": "+str(ctx.channel.name),color=discord.Color(value=re[8])))
+    @client.command()
+    async def set_profile(ctx,mode="k"):
+        p=psutil.Process()
+        if str(ctx.author.id) in dev_users:
+            if mode=="single":
+                p.cpu_affinity([3])
+                await ctx.send(embed=discord.Embed(title="Single",description="Set to single CPU mode", color=discord.Color(value=re[8])))
+            elif mode=="multi":
+                p.cpu_affinity([])
+                await ctx.send(embed=discord.Embed(title="Multi",description="Set to Multiple CPU mode", color=discord.Color(value=re[8])))
+            else:
+                p.cpu_affinity([])
+                await ctx.send(embed=discord.Embed(title="Multi",description="Set to Multiple CPU mode", color=discord.Color(value=re[8])))
+        else:
+            await ctx.send(embed=discord.Embed(title="Oops",description="You need to be a developer to change", color=discord.Color(value=re[8])))
+            
+            
     @client.command()
     async def news(ctx,*,subject=""):
         if subject!="":
@@ -943,18 +1023,23 @@ if True:
     async def previous(ctx):
         req()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
+            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
             if mem.count(str(ctx.author))>0:
                 checking_for_replay=True
                 re[3][str(ctx.guild.id)]-=1
                 if re[3][str(ctx.guild.id)]==-1:
                     re[3][str(ctx.guild.id)]=0
                     await ctx.send(embed=discord.Embed(title="First song",description="This is first in queue",color=discord.Color(value=re[8])))
+                if not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]] in da1.keys():
+                        aa=str(urllib.request.urlopen(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]).read().decode())
+                        starting=aa.find("<title>")+len("<title>")
+                        ending=aa.find("</title>")
+                        da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                 voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                voice.stop()
                 URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
                 await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=discord.Color(value=re[8])))
-                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                voice.stop()
+                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))    
             else:
                 await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to move to the previous song",color=discord.Color(value=re[8])))
         except Exception as e:
@@ -963,22 +1048,31 @@ if True:
     @client.command()
     async def play(ctx,*,ind):
         req()
+        if discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)==None and ctx.author.voice and ctx.author.voice.channel:
+            if not str(ctx.guild.id) in queue_song:
+                queue_song[str(ctx.guild.id)]=[]
+            if not str(ctx.guild.id) in re[3]:
+                re[3][str(ctx.guild.id)]=0
+            channel=ctx.author.voice.channel.id
+            vc_channel[str(ctx.guild.id)]=channel
+            voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
+            await voiceChannel.connect()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
+            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
             if mem.count(str(ctx.author))>0:
                 if ind.isnumeric():
                     checking_for_replay=True
                     re[3][str(ctx.guild.id)]=int(ind)
                     voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                    voice.stop()
                     URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
                     if not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]] in da1.keys():
-                        aa=str(urllib.request.urlopen(queue_song[str(ctx.guild.id)]).read().decode())
+                        aa=str(urllib.request.urlopen(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]).read().decode())
                         starting=aa.find("<title>")+len("<title>")
                         ending=aa.find("</title>")
-                        da1[i]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
+                        da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                     mess=await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=discord.Color(value=re[8])))
-                    voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                    voice.stop()
+                    voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))    
                     await mess.add_reaction("⏮")
                     await mess.add_reaction("⏸")
                     await mess.add_reaction("▶")
@@ -1001,6 +1095,7 @@ if True:
                     starting=aa.find("<title>")+len("<title>")
                     ending=aa.find("</title>")
                     name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("&amp;","&")
+                    voice.stop()
                     voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
                     await ctx.send(embed=discord.Embed(title="Playing", description=name_of_the_song,color=discord.Color(value=re[8])))
 
@@ -1009,17 +1104,32 @@ if True:
         except Exception as e:
             channel=client.get_channel(dev_channel)
             await channel.send(embed=discord.Embed(title="Error in play function", description=str(e)+"\n"+str(ctx.guild)+": "+str(ctx.channel.name),color=discord.Color(value=re[8])))
+            
     @client.command()
     async def again(ctx):
         req()
+        if discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)==None and ctx.author.voice and ctx.author.voice.channel:
+            if not str(ctx.guild.id) in queue_song:
+                queue_song[str(ctx.guild.id)]=[]
+            if not str(ctx.guild.id) in re[3]:
+                re[3][str(ctx.guild.id)]=0
+            channel=ctx.author.voice.channel.id
+            vc_channel[str(ctx.guild.id)]=channel
+            voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
+            await voiceChannel.connect()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
+            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
             if mem.count(str(ctx.author))>0:
                 voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                voice.stop()
+                if not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]] in da1.keys():
+                    aa=str(urllib.request.urlopen(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]).read().decode())
+                    starting=aa.find("<title>")+len("<title>")
+                    ending=aa.find("</title>")
+                    da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                 mess=await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=discord.Color(value=re[8])))
                 URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
-                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                voice.stop()
+                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))    
                 await mess.add_reaction("⏮")
                 await mess.add_reaction("⏸")
                 await mess.add_reaction("▶")
@@ -1055,10 +1165,13 @@ if True:
     async def leave(ctx):
         req()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
+            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
             if mem.count(str(ctx.author))>0:
-                vc_channel[str(ctx.guild.id)]=""
-                voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+                try:
+                    del vc_channel[str(ctx.guild.id)]
+                except:
+                    pass
+                voice=ctx.guild.voice_client
                 voice.stop()
                 await voice.disconnect()
                 await ctx.send(embed=discord.Embed(title="Disconnected",description="Bye",color=discord.Color(value=re[8])))
@@ -1072,7 +1185,7 @@ if True:
     @client.command()
     async def pause(ctx):
         req()
-        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
         if mem.count(str(ctx.author))>0:
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.pause()
@@ -1086,14 +1199,15 @@ if True:
     @client.command()
     async def resume(ctx):
         req()
-        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
         if mem.count(str(ctx.author))>0:
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.resume()
+            await ctx.send(embed=discord.Embed(title="Resume",color=discord.Color(value=re[8])))
     @client.command()
     async def stop(ctx):
         req()
-        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,name=vc_channel[str(ctx.guild.id)]).members]
+        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
         if mem.count(str(ctx.author))>0:
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
@@ -1114,7 +1228,7 @@ if True:
     async def wikipedia(ctx,*,text):
     	req()
     	t=str(search(text)[0].encode("utf-8"))
-    	em=discord.Embed(title=text,description=str(summary(t,sentences=5)),color=discord.Color(value=re[8]))
+    	em=discord.Embed(title=str(t).title(),description=str(summary(t,sentences=5)),color=discord.Color(value=re[8]))
     	em.set_thumbnail(url="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg")
     	await ctx.send(embed=em)
     @client.command()
@@ -1244,25 +1358,30 @@ if True:
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         await reaction.remove(user)
                         req()
-                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=vc_channel[str(reaction.message.guild.id)]).members]
+                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
                         if mem.count(str(user))>0:
+                            if not queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]] in da1.keys():
+                                aa=str(urllib.request.urlopen(queue_song[str(reaction.message.guild.id)]).read().decode())
+                                starting=aa.find("<title>")+len("<title>")
+                                ending=aa.find("</title>")
+                                da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                             checking_for_replay=True
                             re[3][str(reaction.message.guild.id)]-=1
                             if re[3][str(reaction.message.guild.id)]==-1:
                                 re[3][str(reaction.message.guild.id)]=0
                             await reaction.message.edit(embed=discord.Embed(title="Downloading...",description="Downloading the song, please wait for a moment",color=discord.Color(value=re[8])))
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
-                            voice.stop()
                             URL=youtube_download(reaction.message,queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]])
-                            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                            voice.stop()
+                            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(reaction.message,voice))    
                             await reaction.message.edit(embed=discord.Embed(title="Playing",description=da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]],color=discord.Color(value=re[8])))
                         else:
-                            await reaction.message.edit(Embed=discord.Embed(description="You need to join the voice channel to change the song "+str(user.mention),color=discord.Color(value=re[8])))
+                            await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
                 if reaction.emoji=='⏸':
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         await reaction.remove(user)
                         req()
-                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=vc_channel[str(reaction.message.guild.id)]).members]
+                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
                         if mem.count(str(user))>0:
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
                             await reaction.message.edit(embed=discord.Embed(title="Paused",description=da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]],color=discord.Color(value=re[8])))
@@ -1271,63 +1390,73 @@ if True:
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         await reaction.remove(user)
                         req()
-                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=vc_channel[str(reaction.message.guild.id)]).members]
+                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
                         if mem.count(str(user))>0:
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
+                            if not queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]] in da1.keys():
+                                aa=str(urllib.request.urlopen(queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]).read().decode())
+                                starting=aa.find("<title>")+len("<title>")
+                                ending=aa.find("</title>")
+                                da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                             await reaction.message.edit(embed=discord.Embed(title="Playing",description=da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]],color=discord.Color(value=re[8])))
                             voice.resume()
                         else:
-                            await reaction.message.edit(Embed=discord.Embed(description="You need to join the voice channel to pause the song"+str(user.mention),color=discord.Color(value=re[8])))
+                            await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
                 if reaction.emoji=='🔁':
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         await reaction.remove(user)
-                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=vc_channel[str(reaction.message.guild.id)]).members]
+                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
                         if mem.count(str(user))>0:
                             checking_for_replay=True
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
-                            voice.stop()
                             URL=youtube_download(reaction.message,queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]])
-                            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                            voice.stop()
+                            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(reaction.message,voice))
+                            if not queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]] in da1.keys():
+                                aa=str(urllib.request.urlopen(queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]).read().decode())
+                                starting=aa.find("<title>")+len("<title>")
+                                ending=aa.find("</title>")
+                                da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                             await reaction.message.edit(embed=discord.Embed(title="Playing",description=da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]],color=discord.Color(value=re[8])))
                         else:
-                            await reaction.message.edit(Embed=discord.Embed(description="You need to join the voice channel to repeat the song"+str(user.mention),color=discord.Color(value=re[8])))
+                            await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
                 if reaction.emoji=='⏭':
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         await reaction.remove(user)
                         req()
-                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=vc_channel[str(reaction.message.guild.id)]).members]
+                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
                         if mem.count(str(user))>0:
                             checking_for_replay=True
+                            if not queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]] in da1.keys():
+                                aa=str(urllib.request.urlopen(queue_song[str(reaction.message.guild.id)]).read().decode())
+                                starting=aa.find("<title>")+len("<title>")
+                                ending=aa.find("</title>")
+                                da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                             re[3][str(reaction.message.guild.id)]+=1
                             if re[3][str(reaction.message.guild.id)]>=len(queue_song[str(reaction.message.guild.id)]):
                                 re[3][str(reaction.message.guild.id)]-=1
                             await reaction.message.edit(embed=discord.Embed(title="Downloading...",description="Downloading the song, please wait for a moment",color=discord.Color(value=re[8])))
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
-                            voice.stop()
                             URL=youtube_download(reaction.message,queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]])
-                            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                            voice.stop()
+                            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(reaction.message,voice))    
                             await reaction.message.edit(embed=discord.Embed(title="Playing",description=da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]],color=discord.Color(value=re[8])))
                         else:
-                            await reaction.message.edit(Embed=discord.Embed(description="You need to join the voice channel to change the song"+str(user.mention),color=discord.Color(value=re[8])))
+                            await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
                 if reaction.emoji=="⏹":
                     req()
                     if True:
                         if str(user)!=str(client.user) and reaction.message.author==client.user:
                             await reaction.remove(user)
-                            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,name=vc_channel[str(reaction.message.guild.id)]).members]
-                            if mem.count(str(user))>0:
-                                for i in list(vc_channel.keys()):
-                                    del vc_channel[str(reaction.message.guild.id)]
-                                    voice=discord.utils.get(client.voice_clients,guild=client.get_guild(int(i)))
-                                    voice.stop()
-                                    await voice.disconnect()
-                                try:
-                                    os.remove("./."+str(reaction.message.guild.id)+".mp3")
-                                except:
-                                    pass
+                            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
+                            if mem.count(str(user))>0:                                
+                                del vc_channel[str(reaction.message.guild.id)]
+                                voice=reaction.message.guild.voice_client
+                                voice.stop()
+                                await voice.disconnect()                                
                                 await reaction.message.edit(embed=discord.Embed(title="Disconnected",description="Bye, Thank you for using Alfred",color=discord.Color(value=re[8])))
                             else:
-                                await reaction.message.edit(Embed=discord.Embed(description="You need to join the voice channel to stop the song"+str(user.mention),color=discord.Color(value=re[8])))
+                                await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
                 if reaction.emoji==emoji.emojize(":keycap_*:"):
                     num=0
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
@@ -1346,21 +1475,31 @@ if True:
                             adfg=0
                             num=-1
                             for i in queue_song[str(reaction.message.guild.id)]:
-                                num+=1
-                                if not i in da1.keys():
-                                    aa=str(urllib.request.urlopen(i).read().decode())
-                                    starting=aa.find("<title>")+len("<title>")
-                                    ending=aa.find("</title>")
-                                    da1[i]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
+                                num+=1                                
                                 try:
                                     if re[3][str(reaction.message.guild.id)]<10:                            
-                                        if num<15:                                
+                                        if num<15:
+                                            if not i in da1.keys():
+                                                aa=str(urllib.request.urlopen(i).read().decode())
+                                                starting=aa.find("<title>")+len("<title>")
+                                                ending=aa.find("</title>")
+                                                da1[i]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                                             st=st+str(num)+". "+da1[i]+"\n"
                                     elif re[3][str(reaction.message.guild.id)]>(len(queue_song[str(reaction.message.guild.id)])-10):
                                         if num>(len(queue_song[str(reaction.message.guild.id)])-15):
+                                            if not i in da1.keys():
+                                                aa=str(urllib.request.urlopen(i).read().decode())
+                                                starting=aa.find("<title>")+len("<title>")
+                                                ending=aa.find("</title>")
+                                                da1[i]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                                             st=st+str(num)+". "+da1[i]+"\n"
                                     else:
                                         if num>re[3][str(reaction.message.guild.id)]-10 and num<re[3][str(reaction.message.guild.id)]+10:
+                                            if not i in da1.keys():
+                                                aa=str(urllib.request.urlopen(i).read().decode())
+                                                starting=aa.find("<title>")+len("<title>")
+                                                ending=aa.find("</title>")
+                                                da1[i]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                                             st=st+str(num)+". "+da1[i]+"\n"
                                 except Exception as e:
                                     pass
@@ -1491,8 +1630,8 @@ if True:
         req()
         print(text, str(ctx.author))
         li="**"+text+"** \n\n"
-        for i in googlesearch.search(text,num=10,stop=10,pause=0):
-            li=li+i+" \n\n"
+        for i in googlesearch.search(text,num=6,stop=6,pause=0):
+            li=li+i+" \n"
         text=text.replace(' ','%20')
         li=li+"**Query link:**https://www.google.com/search?q="+text+"\n"
         await ctx.send(li)
@@ -1575,7 +1714,7 @@ if True:
         if (ctx.author.id in list(temp_dev.keys()) and not (text.find("os.")!=-1 and text.find("psutil")!=-1 and text.find("import psutil")!=-1 and text.find("import os")!=-1 and text.find("__import__")!=-1 and text.find("import sys")!=-1 and str(text).find("subclass()")==-1 and str(text).find("client")==-1 and text.find("sys.")!=-1 and text.find("subprocess.")!=-1 and text.find("dev_users")!=-1 and text.find("temp_dev")!=-1)) or (str(ctx.author.id) in dev_users):
             mysql_password="Denied"
             if text.find("passwd")!=-1:
-                mysql_password="mysqlpassword"
+                mysql_password=os.getenv('mysql')
             text=text.replace("```py","```")
             text=text[3:-3].strip()
             f = StringIO()
@@ -1685,14 +1824,13 @@ if True:
     	await member.remove_roles(add_role)
     	await ctx.send("Unmuted "+member.mention)
     	print(member,"unmuted")
-    te="**Commands**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n" \
-    "**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for python eval \n'w for Wikipedia\n':: for cat memes\n'sq for queue\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n" \
-    "**Example**:\n'help\n'sq\n'w Wikipedia\n'again\n'next\n'memes\n'q Song\n\n**Use small letters only**\n\n" \
-    "**Updates**:\n Alfred now supports MySQL\n\n" \
-    "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'song <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue 'play <index no.> to play certain song from the queue list\n" \
-    "'addplaylist <Playlist name> to add current queue to playlist\n'addqueue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume,'pause\n" \
-    "'curr for current song.\n\n" \
-    "_Note: 'again' command does not support 'song' command._"
+    te="**Commands**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n\n" \
+    "**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for python eval \n'w for Wikipedia\n':: for memes\n'sq for queue\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n" \
+    "**Example**:\n'help\n'q\n'w Wikipedia\n'again\n'next\n'memes\n'q Song\n\n" \
+    "**Updates**:\n Alfred can now get emojis from other servers. \nAll you have to do is type 'e <emojiname>\n*Games coming soon*\n\n" \
+    "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'play <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue\n'play <index no.> to play certain song from the queue list\n" \
+    "'addto playlist <Playlist name> to add current queue to playlist\n'addto queue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume\n'pause\n" \
+    "'curr for current song.\n\n"     
     client.remove_command("help")
     @client.group(invoke_without_command=True)
     async def help(ctx):
@@ -1708,4 +1846,4 @@ if True:
         em=discord.Embed(title="**HELP** \n",description=te,color=discord.Color(value=re[8]))
         em.set_thumbnail(url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903")
         await ctx.send(embed=em)
-    client.run("token")
+    client.run(os.getenv('token'))
