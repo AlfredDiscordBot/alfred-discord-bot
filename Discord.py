@@ -826,7 +826,7 @@ if True:
     def repeat(ctx,voice):
         req()
         if not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]] in da1.keys():
-            aa=str(urllib.request.urlopen(queue_song[str(ctx.guild.id)]).read().decode())
+            aa=str(urllib.request.urlopen(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]).read().decode())
             starting=aa.find("<title>")+len("<title>")
             ending=aa.find("</title>")
             da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
@@ -1215,11 +1215,12 @@ if True:
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the channel to resume the song",color=discord.Color(value=re[8])))
     @client.command()
-    async def clear(ctx,text,num=1000000000000000):
+    async def clear(ctx,text,num=10):
     	req()
     	await ctx.channel.purge(limit=1)
     	if str(text)==re[1]:
     	    if ctx.guild.id==743323684705402951 and (ctx.author.id==432801163126243328 or ctx.author.id==728108289090650173):await ctx.channel.purge(limit=num)
+    	    elif ctx.guild.id==830050310181486672 and (ctx.author.id==432801163126243328 or ctx.author.id==217657354672406528 or ctx.author.id==731178806806708234):await ctx.channel.purge(limit=num)
     	    elif ctx.guild.id!=743323684705402951: await ctx.channel.purge(limit=num)
     	    else: await ctx.send(embed=discord.Embed(title="Permission Denied", description="You cant delete messages",color=discord.Color(value=re[8])))
     	else:
