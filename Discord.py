@@ -1194,8 +1194,11 @@ if True:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the channel to pause the song",color=discord.Color(value=re[8])))
     @client.command(aliases=['*'])
     async def change_nickname(ctx,member: discord.Member, *, nickname):
-        await member.edit(nick=nickname)
-        await ctx.send(embed=discord.Embed(title="Nickname Changed", description=("Nickname changed to "+member.mention+" by "+ctx.author.mention),color=discord.Color(value=re[8])))
+        if ctx.author.guild_permissions.change_nickname or ctx.author.id==432801163126243328:
+            await member.edit(nick=nickname)
+            await ctx.send(embed=discord.Embed(title="Nickname Changed", description=("Nickname changed to "+member.mention+" by "+ctx.author.mention),color=discord.Color(value=re[8])))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permissions Denied", description="You dont have permission to change others nickname", color=discord.Color(value=re[8])))
     @client.command()
     async def resume(ctx):
         req()
@@ -1214,14 +1217,12 @@ if True:
             await ctx.send(embed=discord.Embed(title="Stop",color=discord.Color(value=re[8])))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the channel to resume the song",color=discord.Color(value=re[8])))
-    @client.command()
+    @client.command()    
     async def clear(ctx,text,num=10):
     	req()
     	await ctx.channel.purge(limit=1)
     	if str(text)==re[1]:
-    	    if ctx.guild.id==743323684705402951 and (ctx.author.id==432801163126243328 or ctx.author.id==728108289090650173):await ctx.channel.purge(limit=num)
-    	    elif ctx.guild.id==830050310181486672 and (ctx.author.id==432801163126243328 or ctx.author.id==217657354672406528 or ctx.author.id==731178806806708234):await ctx.channel.purge(limit=num)
-    	    elif ctx.guild.id!=743323684705402951: await ctx.channel.purge(limit=num)
+    	    if ctx.author.guild_permissions.manage_messages or ctx.author.id==432801163126243328: await ctx.channel.purge(limit=num)
     	    else: await ctx.send(embed=discord.Embed(title="Permission Denied", description="You cant delete messages",color=discord.Color(value=re[8])))
     	else:
     	    await ctx.send("Wrong password")
@@ -1714,7 +1715,7 @@ if True:
         global temp_dev
         if (ctx.author.id in list(temp_dev.keys()) and not (text.find("os.")!=-1 and text.find("psutil")!=-1 and text.find("import psutil")!=-1 and text.find("import os")!=-1 and text.find("__import__")!=-1 and text.find("import sys")!=-1 and str(text).find("subclass()")==-1 and str(text).find("client")==-1 and text.find("sys.")!=-1 and text.find("subprocess.")!=-1 and text.find("dev_users")!=-1 and text.find("temp_dev")!=-1)) or (str(ctx.author.id) in dev_users):
             mysql_password="Denied"
-            if text.find("passwd")!=-1:
+            if text.find("passwd=")!=-1:
                 mysql_password=os.getenv('mysql')
             text=text.replace("```py","```")
             text=text[3:-3].strip()
