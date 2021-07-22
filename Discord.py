@@ -694,9 +694,8 @@ if True:
             await ctx.send(embed=discord.Embed(title="Disabled",description="You've disabled MySQL",color=discord.Color(value=re[8])))
 
     @client.event
-    async def on_member_join(member):        
-        
-        channel=discord.utils.get(ctx.guild.channels, name="announcement")        
+    async def on_member_join(member):       
+        channel=discord.utils.get(member.guild.channels, name="announcement")        
         await channel.send(member.mention+" is here")
         embed=discord.Embed(title="Welcome!!!", description="Welcome to the channel, "+member.name,color=discord.Color(value=re[8]))
         embed.set_thumbnail(url="https://image.shutterstock.com/image-vector/welcome-poster-spectrum-brush-strokes-260nw-1146069941.jpg")
@@ -1247,10 +1246,51 @@ if True:
     async def on_reaction_add(reaction, user):
         req()
         try:
-            if not user.bot:
+            if not user.bot:                
                 global color_temp
-                save_to_file()
+                save_to_file()                
                 global Emoji_list
+                if reaction.emoji == emoji.emojize(":upwards_button:") and len(queue_song[str(reaction.message.guild.id)])>0:
+                    await reaction.remove(user)
+                    if not reaction.message in list(pages.keys()):
+                        pages[reaction.message]=0
+                    else:
+                        if pages[reaction.message]>0:
+                            pages[reaction.message]-=1
+                    st=""
+                    for i in range(pages[reaction.message]*10,(pages[reaction.message]*10)+10):
+                        try:
+                            if not queue_song[str(reaction.message.guild.id)][i] in da1.keys():
+                                aa=str(urllib.request.urlopen(i).read().decode())
+                                starting=aa.find("<title>")+len("<title>")
+                                ending=aa.find("</title>")
+                                da1[queue_song[str(reaction.message.guild.id)][i]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
+                            st=st+str(i)+". "+da1[queue_song[str(reaction.message.guild.id)][i]]+"\n"
+                        except Exception as e:
+                            print(e)
+                    await reaction.message.edit(embed=discord.Embed(title="Queue", description=st, color=discord.Color(value=re[8])))
+                if reaction.emoji == emoji.emojize(":downwards_button:") and len(queue_song[str(reaction.message.guild.id)])>0:
+                    await reaction.remove(user)
+                    if not reaction.message in list(pages.keys()):
+                        pages[reaction.message]=0
+                    else:
+                        if pages[reaction.message]*10<len(queue_song[str(reaction.message.guild.id)]):
+                            pages[reaction.message]+=1
+                        else:
+                            pages[reaction.message]=len(queue_song[str(reaction.message.guild.id)])//10
+                    st=""
+                    for i in range(pages[reaction.message]*10,(pages[reaction.message]*10)+10):
+                        try:
+                            if not queue_song[str(reaction.message.guild.id)][i] in da1.keys():
+                                aa=str(urllib.request.urlopen(i).read().decode())
+                                starting=aa.find("<title>")+len("<title>")
+                                ending=aa.find("</title>")
+                                da1[queue_song[str(reaction.message.guild.id)][i]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
+                            st=st+str(i)+". "+da1[queue_song[str(reaction.message.guild.id)][i]]+"\n"
+                        except Exception as e:
+                            pass
+                    await reaction.message.edit(embed=discord.Embed(title="Queue", description=st, color=discord.Color(value=re[8])))
+                        
                 if reaction.emoji in [emoji.emojize(":keycap_"+str(i)+":") for i in range(1,10)] and reaction.message.author.id==client.user.id:
                   global board, available, sent, dictionary
                   if user != client.user:
@@ -1685,7 +1725,7 @@ if True:
             else:
                 await ctx.send(embed=discord.Embed(title="Thog",description="Deactivated",color=discord.Color(value=re[8])))
         else:
-            await ctx.channel.purge(limit=1)
+            await ctx.message.delete()
             await ctx.send("Wrong password")
     @client.command(aliases=['m'])
     async def python_shell(ctx,*,text):
