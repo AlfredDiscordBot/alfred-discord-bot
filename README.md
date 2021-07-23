@@ -6,7 +6,7 @@ Includes:\
 _Python_\
 _MySQL_\
 _Music_\
-_Entrar Announcement for schools using entrar.in_\
+_Entrar Announcement for class 12 DPSE_\
 *Also includes dev_op which can be useful for recovering data and restarting the program*
 
 **Setup:**
