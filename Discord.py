@@ -383,11 +383,24 @@ if True:
             await webhook.send(discord.utils.get(client.emojis,name=emoji_name), username=ctx.author.name, avatar_url=ctx.author.avatar_url)
             webhooks = await ctx.channel.webhooks()
             for webhook in webhooks:
-                    await webhook.delete()
+                await webhook.delete()
             
         else:
             await ctx.send("The emoji is not available")
-    @client.command(aliases=['color','||'])
+    @client.command(aliases=['cw'])
+    async def clear_webhooks(ctx):
+        webhooks = await ctx.channel.webhooks()
+        print(webhooks)
+        for webhook in webhooks:
+            try:
+                await webhook.delete()
+            except Exception as e:
+                print(e)
+    @client.command()
+    async def show_webhooks(ctx):
+        webhooks = await ctx.channel.webhooks()
+        await ctx.send(str(webhooks))
+    @client.command(aliases=['color','||'])    
     async def theme_color(ctx,*,tup1):
         try:
             global color_temp
@@ -595,10 +608,12 @@ if True:
             r=scraper.get("https://entrar.in/parent_portal/announcement",headers=header)
             time.sleep(1)
             r=scraper.post("https://entrar.in/parent_portal/announcement",data=announcement_data,headers=header)
-            if ctx.guild.id!=727061931373887531:
-                channel = discord.utils.get(ctx.guild.channels, name="announcement")
-            else:
+            
+            channel = discord.utils.get(ctx.guild.channels, name="announcement")
+            if ctx.guild.id==727061931373887531:
                 channel = discord.utils.get(ctx.guild.channels, name="bot")
+            elif ctx.guild.id==743323684705402951:
+                channel=client.get_channel(868085346867490866)
             st=r.content.decode()
             for i in range(1,5):
                 a=st.find('<td class="text-wrap">'+str(i)+'</td>')
