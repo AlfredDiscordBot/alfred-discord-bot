@@ -22,7 +22,7 @@ import sys
 import emoji
 import psutil
 import asyncio
-
+import cloudscraper
 
 try:
     import mysql.connector as m
@@ -582,18 +582,19 @@ if True:
         announcement_data['session']=str(num)
         #class="label-input100"        
         with requests.Session() as s:
-            r=s.get("https://entrar.in/login/login",headers=header)
+            scraper=cloudscraper.create_scraper(sess=s)
+            r=scraper.get("https://entrar.in/login/login",headers=header)
             st=r.content.decode()
-            start_captcha=st.find('<span class="label-input100" style="font-size: 20px;">')+len('<span class="label-input100" style="font-size: 20px;">')
-            end_captcha=st.find(":",start_captcha)
+            start_captcha=st.find('<span class="label-input100" style="font-size: 18px;">')+len('<span class="label-input100" style="font-size: 20px;">')
+            end_captcha=st.find(" = </span>",start_captcha)
             suvzsjv['captcha']=str(eval(st[start_captcha:end_captcha]))
-            url="https://entrar.in/login/authenticate1/"
-            r=s.post(url,data=suvzsjv,headers=header)
-            r=s.get("https://entrar.in/",headers=header)
-            r=s.post("https://entrar.in/parent_portal/announcement",headers=header)
-            r=s.get("https://entrar.in/parent_portal/announcement",headers=header)
+            url="https://entrar.in/login/auth/"
+            r=scraper.post(url,data=suvzsjv,headers=header)
+            r=scraper.get("https://entrar.in/",headers=header)
+            r=scraper.post("https://entrar.in/parent_portal/announcement",headers=header)
+            r=scraper.get("https://entrar.in/parent_portal/announcement",headers=header)
             time.sleep(1)
-            r=s.post("https://entrar.in/parent_portal/announcement",data=announcement_data,headers=header)
+            r=scraper.post("https://entrar.in/parent_portal/announcement",data=announcement_data,headers=header)
             if ctx.guild.id!=727061931373887531:
                 channel = discord.utils.get(ctx.guild.channels, name="announcement")
             else:
@@ -614,12 +615,12 @@ if True:
                 g=st.find('</td>',e,e+45)
                 date=st[f:g]
                 h=st.find('<a target="_blank" href="',a,b)+len('<a target="_blank" href="')
-                j=st.find('" download>',h,b)
+                j=st.find('"',h,b)
                 try:
                     link=str(st[h:j])
                     if link=='id="simpletable" class="table table-striped table-bordered nowrap':
                         continue
-                    req=s.get(link)
+                    req=scraper.get(link)
                     k=out+date
                     if not str(ctx.guild.id) in entr:
                         entr[str(ctx.guild.id)]=[]
@@ -633,7 +634,7 @@ if True:
                         pdf.close()
                     os.remove(out+".pdf")
                 except Exception as e:
-                    pass
+                    print(e)
             if lol!="":
                 embed=discord.Embed(title="New announcements",description=lol,color=discord.Color(value=re[8]))
                 embed.set_thumbnail(url="https://entrar.in/logo_dir/entrar_white.png")
@@ -1279,6 +1280,7 @@ if True:
                         else:
                             pages[reaction.message]=len(queue_song[str(reaction.message.guild.id)])//10
                     st=""
+                    await reaction.message.edit(embed=discord.Embed(title="Loading", description="Fetching names", color=discord.Color(value=re[8])))
                     for i in range(pages[reaction.message]*10,(pages[reaction.message]*10)+10):
                         try:
                             if not queue_song[str(reaction.message.guild.id)][i] in da1.keys():
@@ -1289,6 +1291,8 @@ if True:
                             st=st+str(i)+". "+da1[queue_song[str(reaction.message.guild.id)][i]]+"\n"
                         except Exception as e:
                             pass
+                    if st=="":
+                        st="End of queue"
                     await reaction.message.edit(embed=discord.Embed(title="Queue", description=st, color=discord.Color(value=re[8])))
                         
                 if reaction.emoji in [emoji.emojize(":keycap_"+str(i)+":") for i in range(1,10)] and reaction.message.author.id==client.user.id:
