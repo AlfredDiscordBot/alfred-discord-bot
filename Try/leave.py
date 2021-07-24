@@ -2,7 +2,7 @@ def requirements():
     return "dev_users, re"
 def main(client, dev_users, re):
     import discord
-    from discord import commands
+    from discord.ext import commands, tasks
     @client.command()
     async def leave_server(ctx, *, server_name):
         if str(ctx.author.id) in dev_users:

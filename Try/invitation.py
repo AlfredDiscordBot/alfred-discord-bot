@@ -1,6 +1,8 @@
 def requirements():
     return "re"
 def main(client, re):
+    import discord
+    from discord.ext import commands
     @client.command()
     async def get_invite(ctx, time=300):
         link = await ctx.channel.create_invite(max_age = int(time))
