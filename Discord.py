@@ -71,6 +71,7 @@ if True:
     client=commands.Bot(command_prefix="'",intents=intents)
     temp_dev={}
     censor=[]
+    deleted_message={}
     da={}
     entr={}
     da1={}
@@ -709,6 +710,16 @@ if True:
                 await ctx.send(embed=discord.Embed(title="Permission Denied",description="",color=discord.Color(value=re[8])))
         else:
             await ctx.send(embed=discord.Embed(title="Disabled",description="You've disabled MySQL",color=discord.Color(value=re[8])))
+            
+    @client.command()
+    async def snipe(ctx):
+        await ctx.send("**"+deleted_message[ctx.channel.id][-1][0]+":**\n"+deleted_message[ctx.channel.id][-1][1])
+            
+    @client.event
+    async def on_message_delete(message):
+        if not message.channel.id in list(deleted_message.keys()):
+            deleted_message[message.channel.id]=[]
+        deleted_message[message.channel.id].append((str(message.author),message.content))
 
     @client.event
     async def on_member_join(member):       
