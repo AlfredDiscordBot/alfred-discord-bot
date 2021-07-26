@@ -1696,7 +1696,7 @@ if True:
     async def yey(ctx):
         req()
         print("yey")
-        em=discord.Embed(title="*yey*")
+        em=discord.Embed(title="*yey*",color=discord.Color(value=re[8]))
         await ctx.send(embed=em)
     @client.command(aliases=['g'])
     async def google(ctx,*,text):
