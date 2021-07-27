@@ -274,12 +274,9 @@ if True:
                     if number>=97:
                         safe_stop=0
                     link_for_cats+=[string[n2:n1]]
-                link=pinterest("https://www.pinterest.com/humbertopieroni/english-memes/",250)
-                link_for_cats+=link
-                link=pinterest("https://www.pinterest.com/ralicay/himym/",150)
-                link_for_cats+=link
-                link=pinterest("https://www.pinterest.com/capplegate7777/marveldc-memes/",150)
-                link_for_cats+=link                
+                link_for_cats+=memes2()
+                link_for_cats+=memes1()
+                link_for_cats+=memes3()
             if True:
                 imports=""
                 sys.path.insert(1,'/home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Try')

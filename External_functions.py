@@ -45,19 +45,35 @@ def quad(eq):
         root1 = (-b + determinant) / (2 * a)
         root2 = (-b - determinant) / (2 * a)
         return "This equation has two roots: "+str(root1)+","+str(root2)
-def pinterest(website, end_number=250):
-    raw=requests.get(website)
-    html_content=raw.content.decode()
+def memes2():
+    st=requests.get("https://cheezburger.com/14858757/40-dumb-memes-for-distractible-scrollers").content.decode()
     stop=0
-    number=0
-    for i in range(0,end_number):
-        a=html_content.find("GrowthUnauthPinImage__Image",stop)
-        b=html_content.find('src="',a)+len('src="')
-        c=html_content.find('" ',b)
-        stop=c
-        if i==0:
-            continue
-        link=html_content[b:c]
-        if link.find("</div>")!=-1 or link.find("<html")!=-1:
-            continue
+    link=[]
+    for i in range(0,40):
+      a=st.find("<img class='resp-media' src='",stop)+len("<img class='resp-media' src='")
+      b=st.find("' id",a)
+      stop=b
+      link=link+[st[a:b]]
     return link
+def memes1():
+    st=requests.get("http://www.quickmeme.com/").content.decode()
+    stop=0
+    link=[]
+    for i in range(10):
+      a=st.find('"post-image" src="',stop)+len('post-image" src="')+1
+      b=st.find('" alt',a)
+      stop=b
+      link=link+[st[a:b]]
+    return link
+def memes3():
+    st=requests.get("https://www.paulbarrs.com/business/funny-memes-website-design").content.decode()
+    stop=0
+    link=[]
+    for i in range(20):
+      a=st.find('srcset="',stop)+len('srcset="')
+      b=st.find(".jpg",a)+len(".jpg")
+      print(st[a:b])
+      stop=b
+      link+=[st[a:b]]
+    return link
+
