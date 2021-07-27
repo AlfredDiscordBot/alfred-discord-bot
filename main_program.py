@@ -88,7 +88,7 @@ if True:
     link_for_cats=[]
     vc_channel={}
     dev_users=['432801163126243328']#replace your id with this
-    ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'64',}],}
+    ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'128',}],}
     FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
     def save_to_file(a=""):
         global dev_users
@@ -345,6 +345,13 @@ if True:
             
         else:
             await ctx.send("The emoji is not available")
+    @client.command()
+    async def set_quality(ctx,number):
+        if str(ctx.author.id) in dev_users:
+            ydl_op['preferredquality']=str(number)
+            await ctx.send(embed=discord.Embed(title="Done", description="Bitrate set to "+number,color=discord.Color(value=re[8])))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permission Denied", description="You cant set the bitrate of the voice, only devs are allowed to do that",color=discord.Color(value=re[8])))
     @client.command(aliases=['cw'])
     async def clear_webhooks(ctx):
         webhooks = await ctx.channel.webhooks()
