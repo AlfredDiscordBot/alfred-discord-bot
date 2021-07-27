@@ -4,4 +4,3 @@ Files/
 .recover.txt
 .backup.txt
 Storage.py
-__pycache__/
