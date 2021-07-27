@@ -1,3 +1,4 @@
+import requests
 def quad(eq):
     if "x^2" not in eq:
         return "x^2 not found, try again"
@@ -44,3 +45,19 @@ def quad(eq):
         root1 = (-b + determinant) / (2 * a)
         root2 = (-b - determinant) / (2 * a)
         return "This equation has two roots: "+str(root1)+","+str(root2)
+def pinterest(website, end_number=250):
+    raw=requests.get(website)
+    html_content=raw.content.decode()
+    stop=0
+    number=0
+    for i in range(0,end_number):
+        a=html_content.find("GrowthUnauthPinImage__Image",stop)
+        b=html_content.find('src="',a)+len('src="')
+        c=html_content.find('" ',b)
+        stop=c
+        if i==0:
+            continue
+        link=html_content[b:c]
+        if link.find("</div>")!=-1 or link.find("<html")!=-1:
+            continue
+    return link

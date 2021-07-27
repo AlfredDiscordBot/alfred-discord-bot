@@ -256,8 +256,8 @@ if True:
             await mess.add_reaction(emoji.emojize(":satellite:"))
             await mess.add_reaction(emoji.emojize(":black_circle:"))
             await mess.add_reaction(emoji.emojize(":classical_building:"))
-            await mess.add_reaction(emoji.emojize(":laptop:"))
-            global link_for_cats
+            await mess.add_reaction(emoji.emojize(":laptop:"))            
+            global link_for_cats            
             if True:
                 safe_stop=0
                 r=requests.get("https://bestlifeonline.com/funniest-cat-memes-ever/")
@@ -274,53 +274,12 @@ if True:
                     if number>=97:
                         safe_stop=0
                     link_for_cats+=[string[n2:n1]]
-                #https://in.pinterest.com/search/pins/?q=HIMYM%20memes&rs=typed&term_meta[]=HIMYM%7Ctyped&term_meta[]=memes%7Ctyped
-                raw=requests.get("https://www.pinterest.com/humbertopieroni/english-memes/")
-                html_content=raw.content.decode()
-                stop=0
-                number=0
-                for i in range(0,250):
-                    a=html_content.find("GrowthUnauthPinImage__Image",stop)
-                    b=html_content.find('src="',a)+len('src="')
-                    c=html_content.find('" ',b)
-                    stop=c
-                    if i==0:
-                        continue
-                    link=html_content[b:c]
-                    if link.find("</div>")!=-1 or link.find("<html")!=-1:
-                        continue
-                    link_for_cats+=[link]
-                raw=requests.get("https://www.pinterest.com/ralicay/himym/")
-                html_content=raw.content.decode()
-                stop=0
-                number=0
-                for i in range(0,250):
-                    a=html_content.find("GrowthUnauthPinImage__Image",stop)
-                    b=html_content.find('src="',a)+len('src="')
-                    c=html_content.find('" ',b)
-                    stop=c
-                    if i==0:
-                        continue
-                    link=html_content[b:c]
-                    if link.find("</div>")!=-1 or link.find("<html")!=-1:
-                        continue
-                    link_for_cats+=[link]
-                raw=requests.get("https://www.pinterest.com/capplegate7777/marveldc-memes/")
-                html_content=raw.content.decode()
-                stop=0
-                number=0
-                for i in range(0,150):
-                    a=html_content.find("GrowthUnauthPinImage__Image",stop)
-                    b=html_content.find('src="',a)+len('src="')
-                    c=html_content.find('" ',b)
-                    stop=c
-                    if i==0:
-                        continue
-                    link=html_content[b:c]
-                    if link.find("</div>")!=-1 or link.find("<html")!=-1:
-                        continue
-                    link_for_cats+=[link]
-                #https://www.pinterest.com/capplegate7777/marveldc-memes/
+                link=pinterest("https://www.pinterest.com/humbertopieroni/english-memes/",250)
+                link_for_cats+=link
+                link=pinterest("https://www.pinterest.com/ralicay/himym/",150)
+                link_for_cats+=link
+                link=pinterest("https://www.pinterest.com/capplegate7777/marveldc-memes/",150)
+                link_for_cats+=link                
             if True:
                 imports=""
                 sys.path.insert(1,'/home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Try')
@@ -804,7 +763,7 @@ if True:
                 present=0
                 break
         if mode=="playlist" and present==0:
-            add(text,queue_song[str(ctx.guild.id)].copy())
+            addt(text,queue_song[str(ctx.guild.id)].copy())
             await ctx.send("Done")
         elif mode=="queue" and present==0:
             print(len(get_elem(str(text))))
@@ -861,7 +820,7 @@ if True:
         if re[7]==1 and not voice.is_playing():
             re[3][str(ctx.guild.id)]+=1
             if re[3][str(ctx.guild.id)]>=len(queue_song[str(ctx.guild.id)]):
-                re[3][str(ctx.guild.id)]=len(queue_song[str(ctx.guild.id)])-1
+                re[3][str(ctx.guild.id)]=0
         if re[2]==1 or re[7]==1:                       
             if not voice.is_playing():
                 URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
@@ -918,7 +877,7 @@ if True:
                         starting=aa.find("<title>")+len("<title>")
                         ending=aa.find("</title>")
                         da1[i]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
-                    st=st+str(num)+". "+da1[i]+"\n"
+                    st=st+str(num)+". "+da1[i].replace("&quot","'")+"\n"
                 num+=1
             #st=st+str(num)+". "+da1[i]+"\n"
             if st=="":st="_Empty_"
@@ -1306,8 +1265,7 @@ if True:
                             pages[reaction.message]+=1
                         else:
                             pages[reaction.message]=len(queue_song[str(reaction.message.guild.id)])//10
-                    st=""
-                    await reaction.message.edit(embed=discord.Embed(title="Loading", description="Fetching names", color=discord.Color(value=re[8])))
+                    st=""                    
                     for i in range(pages[reaction.message]*10,(pages[reaction.message]*10)+10):
                         try:
                             if not queue_song[str(reaction.message.guild.id)][i] in da1.keys():
@@ -1818,7 +1776,7 @@ if True:
         return radians(x)
     def d(x):
         return degrees(x)
-    def add(p1,p2):
+    def addt(p1,p2):
         da[p1]=p2
         return "Done"
     def get_elem(k):
