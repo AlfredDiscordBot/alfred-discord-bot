@@ -1,3 +1,13 @@
+'''
+Set your env like the example below:
+token=
+sjdoskenv=
+sjdoskenv1=
+mysql=
+default=
+'''
+
+
 import discord
 from random import *
 from discord.ext import commands, tasks
@@ -25,6 +35,8 @@ import psutil
 import asyncio
 import cloudscraper
 
+
+location_of_file=os.getcwd()
 try:
     import mysql.connector as m
     load_dotenv()
@@ -37,8 +49,8 @@ if True:
     except:
         print("failed")
     googlenews=GoogleNews()
-    if os.getcwd()!="/home/alvinbengeorge/Desktop/Discord_Python":
-        os.chdir("/home/alvinbengeorge/Desktop/Discord_Python")
+    if os.getcwd()!=os.getenv('default'):
+        os.chdir(os.getenv('default'))
     start_time=time.time()
     try:
         md=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'))
@@ -279,8 +291,8 @@ if True:
                 link_for_cats+=memes3()
             if True:
                 imports=""
-                sys.path.insert(1,'/home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Try')
-                for i in os.listdir('/home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Try'):
+                sys.path.insert(1,location_of_file+"/Try")
+                for i in os.listdir(location_of_file+"/Try"):
                     if i.endswith(".py"):
                         try:
                             requi=__import__(i[0:len(i)-3]).requirements()
@@ -548,8 +560,8 @@ if True:
         lol=""
         header={'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36','referer':"https://entrar.in"}
         suvzsjv={
-            'username': os.getenv('user'),
-            'password': os.getenv('pass'),
+            'username': os.getenv('sjdoskenv'),
+            'password': os.getenv('sjdoskenv1'),
             'captcha':'0'
             }
         announcement_data={
@@ -1160,7 +1172,8 @@ if True:
             pass
         save_to_file()
         print("Restart")
-        os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Discord.py &")
+        os.chdir(location_of_file)
+        os.system("nohup python Discord.py &")
         await ctx.send(embed=discord.Embed(title="Restarted",description="The program finished restarting",color=discord.Color(value=re[8])))
         sys.exit()
     @client.command(aliases=['dc'])
@@ -1591,7 +1604,7 @@ if True:
                             string=string+str(client.get_user(int(i)).name)+"\n"
                         await channel.send(embed=discord.Embed(title="Developers",description=string+"\n\nThank you for supporting",color= discord.Color(value=re[8])))
                     if reaction.emoji==emoji.emojize(":classical_building:") and str(reaction.message.channel.id)==str(channel.id) and reaction.message.author==client.user:
-                        os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Storage.py &> .storage.txt &")
+                        os.system("nohup python "+location_of_file+"/Storage.py &> .storage.txt &")
                         await reaction.remove(user)
                         await channel.send(embed=discord.Embed(title="Storage",description="Requested Storage to wake up",color=client.discord.Color.from_rgb(255,255,255)))
                     if reaction.emoji==emoji.emojize(":bar_chart:") and str(reaction.message.channel.id)==str(channel.id):
@@ -1623,7 +1636,8 @@ if True:
                         save_to_file()
                         print("Restart "+str(user))
                         await channel.purge(limit=100000000)
-                        os.system("nohup python /home/alvinbengeorge/OneDrive/Desktop/others/F/Python/Discord/Discord.py &")
+                        os.chdir(location_of_file)
+                        os.system("nohup python "+location_of_file+"/Discord.py &")
                         await channel.send(embed=discord.Embed(title="Restart",description=("Requested by "+str(user)),color=discord.Color(value=re[8])))
                         sys.exit()
                     if reaction.emoji==emoji.emojize(":cross_mark:") and str(reaction.message.channel.id)==str(channel.id):
