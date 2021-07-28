@@ -851,7 +851,7 @@ if True:
     async def queue(ctx,*,name=""):
         req()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
+            mem=[str(names) for names in ctx.voice_client.channel.members]
         except:
             mem=[]
         if mem.count(str(ctx.author))>0 and name!="":
@@ -942,7 +942,7 @@ if True:
                     except Exception as e:
                         pass
                     
-                
+            if st=="":st="_Empty_"
             embed=discord.Embed(title="Queue",description=st,color=discord.Color(value=re[8]))
             embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
             mess=await ctx.send(embed=embed)
@@ -963,7 +963,10 @@ if True:
     async def next(ctx):
         req()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
+            try:
+                mem=[str(names) for names in ctx.voice_client.channel.members]
+            except:
+                mem=[]
             if mem.count(str(ctx.author))>0:
                 checking_for_replay=True
                 re[3][str(ctx.guild.id)]+=1
@@ -1013,7 +1016,10 @@ if True:
     async def previous(ctx):
         req()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
+            try:
+                mem=[str(names) for names in ctx.voice_client.channel.members]
+            except:
+                mem=[]
             if mem.count(str(ctx.author))>0:
                 checking_for_replay=True
                 re[3][str(ctx.guild.id)]-=1
@@ -1048,7 +1054,10 @@ if True:
             voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
             await voiceChannel.connect()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
+            try:
+                mem=[str(names) for names in ctx.voice_client.channel.members]
+            except:
+                mem=[]
             if mem.count(str(ctx.author))>0:
                 if ind.isnumeric():
                     checking_for_replay=True
@@ -1108,7 +1117,10 @@ if True:
             voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
             await voiceChannel.connect()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
+            try:
+                mem=[str(names) for names in ctx.voice_client.channel.members]
+            except:
+                mem=[]
             if mem.count(str(ctx.author))>0:
                 voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
                 if not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]] in da1.keys():
@@ -1155,7 +1167,10 @@ if True:
     async def leave(ctx):
         req()
         try:
-            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
+            try:
+                mem=[str(names) for names in ctx.voice_client.channel.members]
+            except:
+                mem=[]
             if mem.count(str(ctx.author))>0:
                 try:
                     del vc_channel[str(ctx.guild.id)]
@@ -1175,7 +1190,10 @@ if True:
     @client.command()
     async def pause(ctx):
         req()
-        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
+        try:
+            mem=[str(names) for names in ctx.voice_client.channel.members]
+        except:
+            mem=[]
         if mem.count(str(ctx.author))>0:
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.pause()
@@ -1192,7 +1210,10 @@ if True:
     @client.command()
     async def resume(ctx):
         req()
-        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
+        try:
+            mem=[str(names) for names in ctx.voice_client.channel.members]
+        except:
+            mem=[]
         if mem.count(str(ctx.author))>0:
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.resume()
@@ -1200,7 +1221,10 @@ if True:
     @client.command()
     async def stop(ctx):
         req()
-        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(ctx.guild.voice_channels,id=vc_channel[str(ctx.guild.id)]).members]
+        try:
+            mem=[str(names) for names in ctx.voice_client.channel.members]
+        except:
+            mem=[]
         if mem.count(str(ctx.author))>0:
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.stop()
@@ -1393,7 +1417,10 @@ if True:
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         await reaction.remove(user)
                         req()
-                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
+                        try:
+                            mem=[str(names) for names in reaction.message.voice_client.channel.members]
+                        except:
+                            mem=[]
                         if mem.count(str(user))>0:
                             if not queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]] in da1.keys():
                                 aa=str(urllib.request.urlopen(queue_song[str(reaction.message.guild.id)]).read().decode())
@@ -1416,7 +1443,10 @@ if True:
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         await reaction.remove(user)
                         req()
-                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
+                        try:
+                            mem=[str(names) for names in reaction.message.voice_client.channel.members]
+                        except:
+                            mem=[]
                         if mem.count(str(user))>0:
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
                             await reaction.message.edit(embed=discord.Embed(title="Paused",description=da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]],color=discord.Color(value=re[8])))
@@ -1425,7 +1455,10 @@ if True:
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         await reaction.remove(user)
                         req()
-                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
+                        try:
+                            mem=[str(names) for names in reaction.message.voice_client.channel.members]
+                        except:
+                            mem=[]
                         if mem.count(str(user))>0:
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
                             if not queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]] in da1.keys():
@@ -1440,7 +1473,10 @@ if True:
                 if reaction.emoji=='🔁':
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         await reaction.remove(user)
-                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
+                        try:
+                            mem=[str(names) for names in reaction.message.voice_client.channel.members]
+                        except:
+                            mem=[]
                         if mem.count(str(user))>0:
                             checking_for_replay=True
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
@@ -1459,7 +1495,10 @@ if True:
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         await reaction.remove(user)
                         req()
-                        mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
+                        try:
+                            mem=[str(names) for names in reaction.message.voice_client.channel.members]
+                        except:
+                            mem=[]
                         if mem.count(str(user))>0:
                             checking_for_replay=True
                             if not queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]] in da1.keys():
@@ -1483,7 +1522,10 @@ if True:
                     if True:
                         if str(user)!=str(client.user) and reaction.message.author==client.user:
                             await reaction.remove(user)
-                            mem=[(str(ps.name)+"#"+str(ps.discriminator)) for ps in discord.utils.get(reaction.message.guild.voice_channels,id=vc_channel[str(reaction.message.guild.id)]).members]
+                            try:
+                                mem=[str(names) for names in reaction.message.voice_client.channel.members]
+                            except:
+                                mem=[]
                             if mem.count(str(user))>0:                                
                                 del vc_channel[str(reaction.message.guild.id)]
                                 voice=reaction.message.guild.voice_client
