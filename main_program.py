@@ -1418,7 +1418,7 @@ if True:
                         await reaction.remove(user)
                         req()
                         try:
-                            mem=[str(names) for names in reaction.message.voice_client.channel.members]
+                            mem=[str(names) for names in reaction.message.guild.voice_client.channel.members]
                         except:
                             mem=[]
                         if mem.count(str(user))>0:
@@ -1444,7 +1444,7 @@ if True:
                         await reaction.remove(user)
                         req()
                         try:
-                            mem=[str(names) for names in reaction.message.voice_client.channel.members]
+                            mem=[str(names) for names in reaction.message.guild.voice_client.channel.members]
                         except:
                             mem=[]
                         if mem.count(str(user))>0:
@@ -1456,7 +1456,7 @@ if True:
                         await reaction.remove(user)
                         req()
                         try:
-                            mem=[str(names) for names in reaction.message.voice_client.channel.members]
+                            mem=[str(names) for names in reaction.message.guild.voice_client.channel.members]
                         except:
                             mem=[]
                         if mem.count(str(user))>0:
@@ -1472,11 +1472,11 @@ if True:
                             await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
                 if reaction.emoji=='🔁':
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
-                        await reaction.remove(user)
+                        await reaction.remove(user)                        
                         try:
-                            mem=[str(names) for names in reaction.message.voice_client.channel.members]
-                        except:
-                            mem=[]
+                            mem=[str(names) for names in reaction.message.guild.voice_client.channel.members]                           
+                        except Exception as e:
+                            mem=[]                            
                         if mem.count(str(user))>0:
                             checking_for_replay=True
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
@@ -1496,7 +1496,7 @@ if True:
                         await reaction.remove(user)
                         req()
                         try:
-                            mem=[str(names) for names in reaction.message.voice_client.channel.members]
+                            mem=[str(names) for names in reaction.message.guild.voice_client.channel.members]
                         except:
                             mem=[]
                         if mem.count(str(user))>0:
@@ -1523,7 +1523,7 @@ if True:
                         if str(user)!=str(client.user) and reaction.message.author==client.user:
                             await reaction.remove(user)
                             try:
-                                mem=[str(names) for names in reaction.message.voice_client.channel.members]
+                                mem=[str(names) for names in reaction.message.guild.voice_client.channel.members]
                             except:
                                 mem=[]
                             if mem.count(str(user))>0:                                
