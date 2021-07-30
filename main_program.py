@@ -1289,7 +1289,7 @@ if True:
                     for i in range(pages[reaction.message]*10,(pages[reaction.message]*10)+10):
                         try:
                             if not queue_song[str(reaction.message.guild.id)][i] in da1.keys():
-                                aa=str(urllib.request.urlopen(i).read().decode())
+                                aa=str(urllib.request.urlopen(queue_song[str(reaction.message.guild.id)][i]).read().decode())
                                 starting=aa.find("<title>")+len("<title>")
                                 ending=aa.find("</title>")
                                 da1[queue_song[str(reaction.message.guild.id)][i]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
@@ -1309,14 +1309,14 @@ if True:
                     st=""                    
                     for i in range(pages[reaction.message]*10,(pages[reaction.message]*10)+10):
                         try:
-                            if not queue_song[str(reaction.message.guild.id)][i] in da1.keys():
-                                aa=str(urllib.request.urlopen(i).read().decode())
+                            if not queue_song[str(reaction.message.guild.id)][i] in list(da1.keys()):
+                                aa=str(urllib.request.urlopen(queue_song[str(reaction.message.guild.id)][i]).read().decode())
                                 starting=aa.find("<title>")+len("<title>")
                                 ending=aa.find("</title>")
                                 da1[queue_song[str(reaction.message.guild.id)][i]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
                             st=st+str(i)+". "+da1[queue_song[str(reaction.message.guild.id)][i]]+"\n"
                         except Exception as e:
-                            pass
+                            print(e)
                     if st=="":
                         st="End of queue"
                     await reaction.message.edit(embed=discord.Embed(title="Queue", description=st, color=discord.Color(value=re[8])))
