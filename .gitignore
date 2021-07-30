@@ -4,3 +4,4 @@ Files/
 .recover.txt
 .backup.txt
 Storage.py
+nohup.out

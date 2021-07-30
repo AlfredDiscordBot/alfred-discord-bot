@@ -80,7 +80,7 @@ if True:
     dictionary=dict(zip(Raw_Emoji_list, Emoji_list))
     intents=discord.Intents.default()
     intents.members=True
-    client=commands.Bot(command_prefix="'",intents=intents, case_insensitive=True)
+    client=commands.Bot(command_prefix=["'","Alfred ","alfred "],intents=intents, case_insensitive=True)
     temp_dev={}
     censor=[]
     deleted_message={}
