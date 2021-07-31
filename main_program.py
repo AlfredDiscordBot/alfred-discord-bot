@@ -20,6 +20,8 @@ from wikipedia import *
 from io import StringIO
 from contextlib import redirect_stdout
 from External_functions import *
+from instagramy import *
+from instascrape import *
 import traceback
 import googlesearch
 import youtube_dl
@@ -77,6 +79,7 @@ if True:
     board=reset_board()
     global sent
     sent=None
+    instagram_posts=[]
     dictionary=dict(zip(Raw_Emoji_list, Emoji_list))
     intents=discord.Intents.default()
     intents.members=True
@@ -90,10 +93,11 @@ if True:
     queue_song={}
     temporary_list=[]
     dev_channel=834624717410926602
-    re=[0,"OK",1,{},-1,'','205',1,5360]
+    re=[0,"OK",1,{},-1,'','205',1,5360, "48515587275%3A0AvceDiA27u1vT%3A26"]
     a_channels=[822500785765875749,822446957288357888]
     cat={}
     pages={}
+    SESSIONID=None
     color_message=None
     color_temp=()
     checking_for_replay=False
@@ -357,6 +361,23 @@ if True:
             
         else:
             await ctx.send("The emoji is not available")
+
+    @client.command()
+    async def set_sessionid(ctx, sessionid):
+        re[9]=sessionid
+        await ctx.send(embed=discord.Embed(description="SessionID set",color=discord.Color(re[8])))
+
+    @client.command()
+    async def instagram(ctx, account):
+        if ctx.guild.id==743323684705402951:
+            a=instagram_get(account,re[8],re[9])
+            if a!=None:
+                await ctx.send(a[1])
+                await ctx.send(embed=a[0])
+            else:
+                await ctx.send(embed=discord.Embed(description="Oops!, something is wrong.",color=discord.Color(value=re[8])))
+
+    
     @client.command()
     async def set_quality(ctx,number):
         if str(ctx.author.id) in dev_users:

@@ -1,4 +1,11 @@
 import requests
+import requests, hashlib
+import os
+import discord
+from dotenv import load_dotenv
+from instagramy import *
+from instascrape import *
+
 def quad(eq):
     if "x^2" not in eq:
         return "x^2 not found, try again"
@@ -76,4 +83,71 @@ def memes3():
       stop=b
       link+=[st[a:b]]
     return link
+
+
+load_dotenv()
+
+
+username=str(os.getenv('username'))
+password=str(os.getenv('password'))
+
+def get_sessionid(username, password):
+    url = "https://i.instagram.com/api/v1/accounts/login/"
+
+    def generate_device_id(username, password):
+        m = hashlib.md5()
+        m.update(username.encode() + password.encode())
+
+        seed = m.hexdigest()
+        volatile_seed = "12345"
+
+        m = hashlib.md5()
+        m.update(seed.encode('utf-8') + volatile_seed.encode('utf-8'))
+        return 'android-' + m.hexdigest()[:16]
+
+    device_id = generate_device_id(username, password)
+
+    payload = {
+        'username': username,
+        'device_id': device_id,
+        'password': password,
+    }
+
+    headers = {
+        'Accept': '*/*',
+        'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Accept-Language': 'en-US',
+    }
+
+    response = requests.post(url, headers=headers, data=payload)
+    if response.status_code == 200:
+        return response.cookies.get_dict()['sessionid']
+    
+    return response.text
+
+def get_it():
+    return get_sessionid(username,password)
+
+
+def instagram_get(account,color, SESSIONID):
+    try:
+        user=InstagramUser(account,sessionid=SESSIONID)
+        url=user.posts[0].post_url
+        if True:
+            pos=Post(url)
+            headers = {
+            "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36 Edg/87.0.664.57",
+            "cookie": "sessionid="+SESSIONID+";"}
+            pos.scrape(headers=headers)
+            descript=pos.caption
+            thumb=user.profile_picture_url
+            embed=discord.Embed(title="Insta",description=descript, color=discord.Color(value=color))
+            embed.set_image(url=user.posts[0].post_source)
+            embed.set_thumbnail(url=thumb)
+            return (embed, url)
+
+    except Exception as e:
+        print(e)
+        #SESSIONID=get_it()
+        #return SESSIONID
 
