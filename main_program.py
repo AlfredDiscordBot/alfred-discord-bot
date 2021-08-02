@@ -86,6 +86,7 @@ if True:
     client=commands.Bot(command_prefix=["'","Alfred ","alfred "],intents=intents, case_insensitive=True)
     temp_dev={}
     censor=[]
+    old_youtube_vid={}
     deleted_message={}
     da={}
     entr={}
@@ -96,6 +97,7 @@ if True:
     re=[0,"OK",1,{},-1,'','205',1,5360, "48515587275%3A0AvceDiA27u1vT%3A26"]
     a_channels=[822500785765875749,822446957288357888]
     cat={}
+    youtube=[]
     pages={}
     SESSIONID=None
     color_message=None
@@ -312,10 +314,11 @@ if True:
             await mess.add_reaction("❌")
         dev_loop.start()
         print("Prepared")
+        
     @tasks.loop(seconds=10)
     async def dev_loop():
         global temp_dev
-        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="The Dark Knight Rises"))
+        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Gotham"))
         for i in list(temp_dev.keys()):
             person=client.get_user(i)
             if temp_dev[i][0]>0:
@@ -323,10 +326,21 @@ if True:
                 await temp_dev[i][1].edit(embed=discord.Embed(title="Done",description=str(person.mention)+"\nTime remaining: "+str(temp_dev[i][0])+"s",color=discord.Color(value=re[8])))
             else:
                 await temp_dev[i][1].edit(embed=discord.Embed(title="Time up", description="Your time is up, please ask a bot dev to give you access to the script function",color=discord.Color.from_rgb(250,50,0)))
-                temp_dev.pop(i)        
-        if len(queue_song)!=0:
-            aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")        
-            curs=aad.cursor()
+                temp_dev.pop(i)
+        aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")        
+        curs=aad.cursor()
+        if len(youtube)==0:
+            curs.execute("select * from youtube")
+            datas=curs.fetchall()
+            for data in datas:
+                youtube.append(data)
+        else:
+            curs.execute("delete from youtube")
+            for i in youtube:
+                curs.execute("insert into (url, channel) values('"+i[0]+"', '"+i[1]+"')")
+            aad.commit()
+                
+        if len(queue_song)!=0:            
             asdf=str(re)
             curs.execute("Delete from queue")
             for j in list(queue_song.keys()):
@@ -335,8 +349,6 @@ if True:
             curs.execute('update requ set variable="'+asdf+'" where  here=1')
             aad.commit()
         else:
-            aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")
-            curs=aad.cursor()
             curs.execute("Select distinct(server) from queue")
             servers=cursor.fetchall()
             for i in servers:
@@ -348,19 +360,29 @@ if True:
     @dev_loop.before_loop
     async def wait_for_ready():
         await client.wait_until_ready()
+        
     @client.command(aliases=['e'])
-    async def uemoji(ctx,*,emoji_name):
+    async def uemoji(ctx,emoji_name, number=0):
         req()
-        await ctx.message.delete()
+        try:
+            await ctx.message.delete()
+        except:
+            pass
         if discord.utils.get(client.emojis,name=emoji_name)!=None:
+            emoji_list=[names.name for names in client.emojis if names.name==emoji_name]
+            le=len(emoji_list)
+            if le>=2:
+                if number>le-1:
+                    number=le-1
+            emoji=[names for names in client.emojis if names.name==emoji_name][number]
             webhook=await ctx.channel.create_webhook(name=ctx.author.name)
-            await webhook.send(discord.utils.get(client.emojis,name=emoji_name), username=ctx.author.name, avatar_url=ctx.author.avatar_url)
+            await webhook.send(emoji, username=ctx.author.name, avatar_url=ctx.author.avatar_url)
             webhooks = await ctx.channel.webhooks()
             for webhook in webhooks:
                 await webhook.delete()
             
         else:
-            await ctx.send("The emoji is not available")
+            await ctx.send(embed=discord.Embed(description="The emoji is not available",color=discord.Color(value=re[8])))
 
     @client.command()
     async def set_sessionid(ctx, sessionid):
@@ -369,11 +391,12 @@ if True:
 
     @client.command()
     async def instagram(ctx, account):
-        if ctx.guild.id==743323684705402951:
+        if True:
             a=instagram_get(account,re[8],re[9])
-            if a!=None:
-                await ctx.send(a[1])
+            if a!=None and type(a)!=type("aa"):                
                 await ctx.send(embed=a[0])
+            elif type(a)!=type("aa"):
+                re[9]=a
             else:
                 await ctx.send(embed=discord.Embed(description="Oops!, something is wrong.",color=discord.Color(value=re[8])))
 

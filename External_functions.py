@@ -117,6 +117,8 @@ def get_sessionid(username, password):
         'Accept': '*/*',
         'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'Accept-Language': 'en-US',
+        'referer': "https://www.instagram.com/accounts/login/",
+        'User-Agent': "Instagram 10.26.0 Android"
     }
 
     response = requests.post(url, headers=headers, data=payload)
@@ -125,7 +127,7 @@ def get_sessionid(username, password):
     
     return response.text
 
-def get_it():
+def get_it():    
     return get_sessionid(username,password)
 
 
@@ -148,6 +150,17 @@ def instagram_get(account,color, SESSIONID):
 
     except Exception as e:
         print(e)
-        #SESSIONID=get_it()
-        #return SESSIONID
+        SESSIONID=get_it()
+        return SESSIONID
+def get_youtube_urls(url):
+    st=requests.get(url).content.decode()
+    stop=0
+    li=[]
+    print(st)
+    for i in range(10):
+        a=st.find("/watch?v",stop)
+        b=st.find("\\",a)
+        li=li+["https://www.youtube.com"+st[a:b]]
+        stop=b
+    return li
 
