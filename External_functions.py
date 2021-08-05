@@ -152,15 +152,14 @@ def instagram_get(account,color, SESSIONID):
         print(e)
         SESSIONID=get_it()
         return SESSIONID
-def get_youtube_urls(url):
+def get_youtube_url(url):
     st=requests.get(url).content.decode()
     stop=0
     li=[]
-    print(st)
     for i in range(10):
         a=st.find("/watch?v",stop)
         b=st.find("\\",a)
         li=li+["https://www.youtube.com"+st[a:b]]
         stop=b
-    return li
+    return li[0]
 

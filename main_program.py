@@ -312,13 +312,27 @@ if True:
         except Exception as e:
             mess=await channel.send(embed=discord.Embed(title="Error in the function on_ready", description=str(e),color=discord.Color(value=re[8])))
             await mess.add_reaction("❌")
-        dev_loop.start()
+        dev_loop.start()        
         print("Prepared")
+        youtube_loop.start()
+
         
+    @tasks.loop(minutes=7)
+    async def youtube_loop():
+        for i in youtube:
+            a=get_youtube_url(i[0])
+            channel_youtube=client.get_channel(i[1])
+            if not a in old_youtube_vid:
+                old_youtube[a]=channel_youtube.guild.id
+                await channel_youtube.send(embed=discord.Embed(description="New video out from "+i[0],color=discord.Color(value=re[8])))
+                await channel_youtube.send(a)
+                
+                
+                
     @tasks.loop(seconds=10)
     async def dev_loop():
         global temp_dev
-        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Gotham"))
+        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=str(len(client.guilds))+" servers"))
         for i in list(temp_dev.keys()):
             person=client.get_user(i)
             if temp_dev[i][0]>0:
@@ -358,6 +372,10 @@ if True:
                     queue_song[i[0]].append(url[0])
         
     @dev_loop.before_loop
+    async def wait_for_ready():
+        await client.wait_until_ready()
+
+    @youtube_loop.before_loop
     async def wait_for_ready():
         await client.wait_until_ready()
         
@@ -741,8 +759,10 @@ if True:
         deleted_message[message.channel.id].append((str(message.author),message.content))
 
     @client.event
-    async def on_member_join(member):       
+    async def on_member_join(member):
         channel=discord.utils.get(member.guild.channels, name="announcement")        
+        if membed.guild.id==841026124174983188:
+            channel=client.get_channel(841026124174983193)        
         await channel.send(member.mention+" is here")
         embed=discord.Embed(title="Welcome!!!", description="Welcome to the channel, "+member.name,color=discord.Color(value=re[8]))
         embed.set_thumbnail(url="https://image.shutterstock.com/image-vector/welcome-poster-spectrum-brush-strokes-260nw-1146069941.jpg")
