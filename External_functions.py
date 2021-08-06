@@ -158,8 +158,8 @@ def get_youtube_url(url):
     li=[]
     for i in range(10):
         a=st.find("/watch?v",stop)
-        b=st.find("\\",a)
+        b=st.find('"',a)
         li=li+["https://www.youtube.com"+st[a:b]]
         stop=b
-    return li[0]
-
+    return li
+print(get_youtube_url("https://www.youtube.com/user/Luismartingu/videos"))

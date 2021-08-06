@@ -105,6 +105,19 @@ if True:
     checking_for_replay=False
     link_for_cats=[]
     vc_channel={}
+    aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")
+    if True:
+        curs=aad.cursor()
+        if len(youtube)==0:
+            curs.execute("select * from youtube")
+            datas=curs.fetchall()
+            for data in datas:
+                youtube.append(data)
+        else:
+            curs.execute("delete from youtube")
+            for i in youtube:
+                curs.execute("insert into (url, channel) values('"+i[0]+"', '"+i[1]+"')")
+            aad.commit()
     dev_users=['432801163126243328']#replace your id with this
     ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'128',}],}
     FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
@@ -144,7 +157,7 @@ if True:
             file.write("a_channels="+str(a_channels)+"\n")
             file.write("re="+str(re)+"\n")
             file.write("dev_users="+str(dev_users)+"\n")
-            file.write("entr="+str(entr)+"\n")
+            file.write("entr="+str(entr)+"\n")        
     def load_from_file(file_name=".backup.txt"):
         if file_name in os.listdir("./"):
             file=open(file_name,"r")
@@ -320,10 +333,10 @@ if True:
     @tasks.loop(minutes=7)
     async def youtube_loop():
         for i in youtube:
-            a=get_youtube_url(i[0])
-            channel_youtube=client.get_channel(i[1])
+            a=get_youtube_url(i[0])[0]
+            channel_youtube=client.get_channel(int(i[1]))
             if not a in old_youtube_vid:
-                old_youtube[a]=channel_youtube.guild.id
+                old_youtube_vid[a]=channel_youtube.guild.id
                 await channel_youtube.send(embed=discord.Embed(description="New video out from "+i[0],color=discord.Color(value=re[8])))
                 await channel_youtube.send(a)
                 
@@ -352,7 +365,7 @@ if True:
             curs.execute("delete from youtube")
             for i in youtube:
                 curs.execute("insert into (url, channel) values('"+i[0]+"', '"+i[1]+"')")
-            aad.commit()
+            
                 
         if len(queue_song)!=0:            
             asdf=str(re)
@@ -361,7 +374,7 @@ if True:
                 for i in queue_song[j]:
                     curs.execute("Insert into queue (links,server) values ('"+i+"','"+j+"')")
             curs.execute('update requ set variable="'+asdf+'" where  here=1')
-            aad.commit()
+            
         else:
             curs.execute("Select distinct(server) from queue")
             servers=cursor.fetchall()
@@ -370,6 +383,7 @@ if True:
                 urls=curs.fetchall()
                 for url in urls:
                     queue_song[i[0]].append(url[0])
+        aad.commit()
         
     @dev_loop.before_loop
     async def wait_for_ready():
@@ -418,6 +432,9 @@ if True:
             else:
                 await ctx.send(embed=discord.Embed(description="Oops!, something is wrong.",color=discord.Color(value=re[8])))
 
+    @client.command()
+    async def set_youtube(url,channel:discord.TextChannel):
+        channel_id=channel.id
     
     @client.command()
     async def set_quality(ctx,number):
@@ -483,6 +500,8 @@ if True:
         except Exception as e:
             channel = client.get_channel(dev_channel)
             await channel.send(embed=discord.Embed(title="Recovery failed", description=str(e), color=discord.Color(value=re[8])))
+
+    
 
     @client.command()
     async def load(ctx):
@@ -760,13 +779,15 @@ if True:
 
     @client.event
     async def on_member_join(member):
-        channel=discord.utils.get(member.guild.channels, name="announcement")        
-        if membed.guild.id==841026124174983188:
+        channel=discord.utils.get(member.guild.channels, name="announcement")
+        print(member.guild)
+        if member.guild.id==841026124174983188:
             channel=client.get_channel(841026124174983193)        
         await channel.send(member.mention+" is here")
-        embed=discord.Embed(title="Welcome!!!", description="Welcome to the channel, "+member.name,color=discord.Color(value=re[8]))
+        embed=discord.Embed(title="Welcome!!!", description="Welcome to the server, "+member.name,color=discord.Color(value=re[8]))
         embed.set_thumbnail(url="https://image.shutterstock.com/image-vector/welcome-poster-spectrum-brush-strokes-260nw-1146069941.jpg")
         await channel.send(embed=embed)
+        
     @client.event
     async def on_member_remove(member):
         if member.guild.id!=743323684705402951:
@@ -1946,7 +1967,7 @@ if True:
     async def help(ctx):
         req()
         print("help")
-        em=discord.Embed(title="**HELP** \n",description=te,color=discord.Color(value=re[8]))
+        em=discord.Embed(title="```Help```",description=te,color=discord.Color(value=re[8]))
         em.set_thumbnail(url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903")
         await ctx.send(embed=em)
     @client.group(invoke_without_command=True)
