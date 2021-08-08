@@ -6,7 +6,7 @@ def main(client,re):
     import requests
     @client.command()
     async def titan(ctx, url, mode="random", preference="blah"):
-        if url.startswith("http"):
+        if True:
             with requests.Session() as s:
                 true=True
                 false=False
@@ -16,7 +16,6 @@ def main(client,re):
                     'slug' : str(preference)
                     }
                 header={ 'user-agent' : 'Mozilla/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.115 Safari/537.36',
-                         'referer' : 'https://titan-url.herokuapp.com/'}
-                r=s.get("https://titan-url.herokuapp.com/", headers=header)                
+                         'referer' : 'https://titan-url.herokuapp.com/'}                
                 t=s.post("https://titan-url.herokuapp.com/shorten",json=payload, headers=header)                
                 await ctx.send(embed=discord.Embed(title="TitanURL",description=eval(str(t.content.decode()))["message"], color=discord.Color(value=re[8])))
