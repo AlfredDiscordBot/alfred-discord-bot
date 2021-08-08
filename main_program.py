@@ -86,7 +86,7 @@ if True:
     client=commands.Bot(command_prefix=["'","Alfred ","alfred "],intents=intents, case_insensitive=True)
     temp_dev={}
     censor=[]
-    old_youtube_vid={}
+    old_youtube_vid=[]
     deleted_message={}
     da={}
     entr={}
@@ -117,7 +117,11 @@ if True:
             curs.execute("delete from youtube")
             for i in youtube:
                 curs.execute("insert into (url, channel) values('"+i[0]+"', '"+i[1]+"')")
-            aad.commit()
+        curs.execute("select * from old")
+        datas=curs.fetchall()
+        for data in datas:
+            old_youtube_vid.append(data)
+        aad.commit()
     dev_users=['432801163126243328']#replace your id with this
     ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'128',}],}
     FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
@@ -332,15 +336,18 @@ if True:
         
     @tasks.loop(minutes=7)
     async def youtube_loop():
-        for i in youtube:
+        for i in youtube:            
             a=get_youtube_url(i[0])[0]
             channel_youtube=client.get_channel(int(i[1]))
-            if not a in old_youtube_vid:
-                old_youtube_vid[a]=channel_youtube.guild.id
+            if not (a,str(channel_youtube.guild.id)) in  old_youtube_vid:
+                old_youtube_vid.append((a,str(channel_youtube.guild.id)))
+                aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")        
+                curs=aad.cursor()
+                curs.execute("insert into old (video,channel) values('"+a+"', '"+str(channel_youtube.guild.id)+"')")
                 await channel_youtube.send(embed=discord.Embed(description="New video out from "+i[0],color=discord.Color(value=re[8])))
                 await channel_youtube.send(a)
-                
-                
+                aad.commit()                
+    
                 
     @tasks.loop(seconds=10)
     async def dev_loop():
@@ -354,36 +361,45 @@ if True:
             else:
                 await temp_dev[i][1].edit(embed=discord.Embed(title="Time up", description="Your time is up, please ask a bot dev to give you access to the script function",color=discord.Color.from_rgb(250,50,0)))
                 temp_dev.pop(i)
-        aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")        
-        curs=aad.cursor()
-        if len(youtube)==0:
-            curs.execute("select * from youtube")
-            datas=curs.fetchall()
-            for data in datas:
-                youtube.append(data)
-        else:
-            curs.execute("delete from youtube")
-            for i in youtube:
-                curs.execute("insert into (url, channel) values('"+i[0]+"', '"+i[1]+"')")
-            
+        try:
+            aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")        
+            curs=aad.cursor()
+            if len(youtube)==0:
+                curs.execute("select * from youtube")
+                datas=curs.fetchall()
+                for data in datas:
+                    youtube.append(data)
+            else:
+                temp=[]
+                curs.execute("select * from youtube")
+                datas=curs.fetchall()
+                for data in datas:
+                    temp.append(data)
+                if temp!=youtube:
+                    curs.execute("delete from youtube")
+                    for i in youtube:
+                        curs.execute("Insert into youtube (url, channel) values ('"+str(i[0])+"', '"+str(i[1])+"')")
                 
-        if len(queue_song)!=0:            
-            asdf=str(re)
-            curs.execute("Delete from queue")
-            for j in list(queue_song.keys()):
-                for i in queue_song[j]:
-                    curs.execute("Insert into queue (links,server) values ('"+i+"','"+j+"')")
-            curs.execute('update requ set variable="'+asdf+'" where  here=1')
-            
-        else:
-            curs.execute("Select distinct(server) from queue")
-            servers=cursor.fetchall()
-            for i in servers:
-                curs.execute("Select link from queue where server='"+i[0]+"';")
-                urls=curs.fetchall()
-                for url in urls:
-                    queue_song[i[0]].append(url[0])
-        aad.commit()
+                    
+            if len(queue_song)!=0:            
+                asdf=str(re)
+                curs.execute("Delete from queue")
+                for j in list(queue_song.keys()):
+                    for i in queue_song[j]:
+                        curs.execute("Insert into queue (links,server) values ('"+i+"','"+j+"')")
+                curs.execute('update requ set variable="'+asdf+'" where  here=1')
+                
+            else:
+                curs.execute("Select distinct(server) from queue")
+                servers=cursor.fetchall()
+                for i in servers:
+                    curs.execute("Select link from queue where server='"+i[0]+"';")
+                    urls=curs.fetchall()
+                    for url in urls:
+                        queue_song[i[0]].append(url[0])
+            aad.commit()
+        except Exception as e:
+            print(e)
         
     @dev_loop.before_loop
     async def wait_for_ready():
@@ -392,6 +408,15 @@ if True:
     @youtube_loop.before_loop
     async def wait_for_ready():
         await client.wait_until_ready()
+
+        
+    @client.command(aliases=['youtube'])
+    async def subscribe(ctx, url, channel:discord.TextChannel):
+        if url.startswith("http"):
+            youtube.append((str(url),str(channel.id)))
+            await ctx.send(embed=discord.Embed(description="Added "+url+" to the list\nUpdates will be in "+channel.name+" channel",color=discord.Color(value=re[8])))
+        else:
+            await ctx.send(embed=discord.Embed(description="Add the full link, including https",color=discord.Color(value=re[8])))
         
     @client.command(aliases=['e'])
     async def uemoji(ctx,emoji_name, number=0):
@@ -623,6 +648,7 @@ if True:
         await mess.add_reaction(emoji.emojize(":black_circle:"))
         await mess.add_reaction(emoji.emojize(":classical_building:"))
         await mess.add_reaction(emoji.emojize(":laptop:"))
+        
     @client.command()
     async def reset_from_backup(ctx):
         print("reset_from_backup",str(ctx.author))
@@ -929,21 +955,27 @@ if True:
     @client.command()
     async def autoplay(ctx):
         req()
-        st=""
-        re[7]=re[7]*-1
-        if re[7]==1:re[2]=-1
-        if re[7]<0:st="Off"
-        else:st="_On_"
-        await ctx.send(embed=discord.Embed(title='Autoplay',description=st,color=discord.Color(value=re[8])))
+        if ctx.author.id in [i.id for i in ctx.voice_client.channel.members]:
+            st=""
+            re[7]=re[7]*-1
+            if re[7]==1:re[2]=-1
+            if re[7]<0:st="Off"
+            else:st="_On_"
+            await ctx.send(embed=discord.Embed(title='Autoplay',description=st,color=discord.Color(value=re[8])))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permissions Denied", description="You need to be in the voice channel to toggle autoplay",color=discord.Color(value=re[8])))
     @client.command()
     async def loop(ctx):
         req()
-        st=""
-        re[2]=re[2]*-1
-        if re[2]==1:re[7]=-1
-        if re[2]<0:st="Off"
-        else:st="_On_"
-        await ctx.send(embed=discord.Embed(title="Loop",description=st,color=discord.Color(value=re[8])))
+        if ctx.author.id in [i.id for i in ctx.voice_client.channel.members]:
+            st=""
+            re[2]=re[2]*-1
+            if re[2]==1:re[7]=-1
+            if re[2]<0:st="Off"
+            else:st="_On_"
+            await ctx.send(embed=discord.Embed(title="Loop",description=st,color=discord.Color(value=re[8])))
+        else:
+            await ctx.send(embed=discord.Embed(title="Permissions Denied", description="You need to be in the voice channel to toggle loop",color=discord.Color(value=re[8])))
     @client.command(aliases=['q'])
     async def queue(ctx,*,name=""):
         req()
@@ -1138,7 +1170,7 @@ if True:
         except Exception as e:
             channel=client.get_channel(dev_channel)
             await channel.send(embed=discord.Embed(title="Error in previous function", description=str(e)+"\n"+str(ctx.guild)+": "+str(ctx.channel.name),color=discord.Color(value=re[8])))
-    @client.command()
+    @client.command(aliases=['p'])
     async def play(ctx,*,ind):
         req()
         if discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)==None and ctx.author.voice and ctx.author.voice.channel:
@@ -1961,7 +1993,8 @@ if True:
     "**Updates**:\n Alfred can now get emojis from other servers. \nAll you have to do is type 'e <emojiname>\n*Games coming soon*\n\n" \
     "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'play <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue\n'play <index no.> to play certain song from the queue list\n" \
     "'addto playlist <Playlist name> to add current queue to playlist\n'addto queue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume\n'pause\n" \
-    "'curr for current song.\n\n"     
+    "'curr for current song.\n\n"
+    
     client.remove_command("help")
     @client.group(invoke_without_command=True)
     async def help(ctx):
