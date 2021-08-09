@@ -1,5 +1,6 @@
 import requests
 import requests, hashlib
+import psutil
 import os
 import discord
 from dotenv import load_dotenv
@@ -162,4 +163,6 @@ def get_youtube_url(url):
         li=li+["https://www.youtube.com"+st[a:b]]
         stop=b
     return li
-print(get_youtube_url("https://www.youtube.com/user/Luismartingu/videos"))
+
+def get_if_process_exists(name):    
+    return len([i for i in [p.info['name'] for p in psutil.process_iter(['name'])] if i.find(name)!=-1])>0

@@ -7,7 +7,7 @@ def main(client,re):
     color_of_embed={}
     thumbnail_of_embed={}
     description_for_embed={}
-    
+    footer_of_embed={}
     @client.command(aliases=['init_embed','embed_init'])    
     async def create_embed_init(ctx):
         if ctx.author.guild_permissions.manage_messages or ctx.author.id==432801163126243328:
@@ -37,6 +37,12 @@ def main(client,re):
         if ctx.author.guild_permissions.manage_messages or ctx.author.id==432801163126243328:
             description_for_embed[ctx.guild.id]=description
             await ctx.send(embed=discord.Embed(description="Description Set",color = discord.Color(value=re[8])))
+
+    @client.command(aliases=['footer'])    
+    async def set_footer(ctx, *, footer):
+        if ctx.author.guild_permissions.manage_messages or ctx.author.id==432801163126243328:
+            footer_of_embed[ctx.guild.id]=footer
+            await ctx.send(embed=discord.Embed(description="Footer Set",color = discord.Color(value=re[8])))
         
     @client.command(aliases=['thumbnail'])    
     async def set_thumbnail(ctx, url):
@@ -50,6 +56,7 @@ def main(client,re):
             if client.get_channel(channel.id)!=None:
                 send_channel=client.get_channel(channel.id)
                 embed=discord.Embed()
+                embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url_as(format="png"))
                 if ctx.guild.id in list(description_for_embed.keys()):
                     try:
                         embed=discord.Embed(description=description_for_embed[ctx.guild.id])                    
@@ -68,6 +75,11 @@ def main(client,re):
                 if ctx.guild.id in list(color_of_embed.keys()):
                     try:
                         embed.color=color_of_embed[ctx.guild.id]                    
+                    except Exception as e:
+                        await ctx.send(str(e))
+                if ctx.guild.id in list(footer_of_embed.keys()):
+                    try:
+                        embed.set_footer(text=footer_of_embed[ctx.guild.id])                    
                     except Exception as e:
                         await ctx.send(str(e))
                 await send_channel.send(embed=embed)

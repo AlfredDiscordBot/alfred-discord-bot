@@ -104,24 +104,25 @@ if True:
     color_temp=()
     checking_for_replay=False
     link_for_cats=[]
-    vc_channel={}
-    aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")
-    if True:
-        curs=aad.cursor()
-        if len(youtube)==0:
-            curs.execute("select * from youtube")
+    vc_channel={}    
+    def mysql_load():
+        try:
+            aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")
+            curs=aad.cursor()
+            if len(youtube)==0:
+                curs.execute("select * from youtube")
+                datas=curs.fetchall()
+                for data in datas:
+                    youtube.append(data)        
+            curs.execute("select * from old")
             datas=curs.fetchall()
             for data in datas:
-                youtube.append(data)
-        else:
-            curs.execute("delete from youtube")
-            for i in youtube:
-                curs.execute("insert into (url, channel) values('"+i[0]+"', '"+i[1]+"')")
-        curs.execute("select * from old")
-        datas=curs.fetchall()
-        for data in datas:
-            old_youtube_vid.append(data)
-        aad.commit()
+                old_youtube_vid.append(data)
+            aad.commit()
+        except:
+            time.sleep(10)
+            mysql_load()
+    mysql_load()
     dev_users=['432801163126243328']#replace your id with this
     ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'128',}],}
     FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
@@ -336,6 +337,13 @@ if True:
         
     @tasks.loop(minutes=7)
     async def youtube_loop():
+        list_of_programs=['blender','chrome','idle3','brave','gedit','discord']
+        for i in list_of_programs:
+            if get_if_process_exists(i):
+                await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=i))
+                break
+        else:
+            await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=str(len(client.guilds))+" servers"))
         for i in youtube:            
             a=get_youtube_url(i[0])[0]
             channel_youtube=client.get_channel(int(i[1]))
@@ -351,8 +359,7 @@ if True:
                 
     @tasks.loop(seconds=10)
     async def dev_loop():
-        global temp_dev
-        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=str(len(client.guilds))+" servers"))
+        global temp_dev        
         for i in list(temp_dev.keys()):
             person=client.get_user(i)
             if temp_dev[i][0]>0:
@@ -510,6 +517,7 @@ if True:
                 await color_message.edit(embed=embed)
         except Exception as e:
             await client.get_channel(dev_channel).send(embed=discord.Embed(title="Error in Theme_Color",description=str(e),color=discord.Color(value=re[8])))
+            
     @client.command()
     async def setup(ctx,a,*,text):
         print("setup",text,str(ctx.author))
@@ -517,6 +525,7 @@ if True:
         if a=="entrar":
             a_channels=a_channels+[discord.utils.get(ctx.guild.channels,name=text).id]
             await ctx.send(embed=discord.Embed(title="Done", description="Set <#"+discord.utils.get(ctx.guild.channels,name=text).id+"> as default"))
+            
     @client.command(aliases=['$$'])
     async def recover(ctx):
         print("Recover",str(ctx.author))
@@ -586,6 +595,14 @@ if True:
             channel = client.get_channel(dev_channel)
             await ctx.send(embed=discord.Embed(title="Unavailable",description="Couldnt find lyrics",color=discord.Color(value=re[8])))
             await channel.send(embed=discord.Embed(title="Lyrics failed", description=str(e), color=discord.Color(value=re[8])))
+
+    @client.command(aliases=['c'])
+    async def cover_up(ctx):
+        await ctx.message.delete()
+        mess=await ctx.send(discord.utils.get(client.emojis,name="enrique"))
+        await mess.delete()
+        
+        
     @client.command()
     async def remove_dev(ctx,member:discord.Member):
         print(member)
@@ -794,8 +811,17 @@ if True:
             await ctx.send(embed=discord.Embed(title="Disabled",description="You've disabled MySQL",color=discord.Color(value=re[8])))
             
     @client.command()
-    async def snipe(ctx):
-        await ctx.send("**"+deleted_message[ctx.channel.id][-1][0]+":**\n"+deleted_message[ctx.channel.id][-1][1])
+    async def snipe(ctx,number=0):
+        if number==0:
+            message=deleted_message[ctx.channel.id][-1]
+            await ctx.send("**"+message[0]+":**\n"+message[1])
+        else:
+            nu=0
+            for i in deleted_message[ctx.channel.id][::-1]:
+                nu+=1                
+                await ctx.send("**"+i[0]+":**\n"+i[1])
+                if nu==number:
+                    break
             
     @client.event
     async def on_message_delete(message):
@@ -1211,21 +1237,24 @@ if True:
                     await mess.add_reaction(emoji.emojize(":upwards_button:"))
                     await mess.add_reaction(emoji.emojize(":downwards_button:"))
                 else:
-                    voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                    voice.stop()
                     name=ind
-                    name=name.replace(" ","+")
-                    htm=urllib.request.urlopen("https://www.youtube.com/results?search_query="+name)
-                    video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
-                    url="https://www.youtube.com/watch?v="+video[0]
-                    URL=youtube_download(ctx,url)
-                    aa=str(urllib.request.urlopen(url).read().decode())
-                    starting=aa.find("<title>")+len("<title>")
-                    ending=aa.find("</title>")
-                    name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("&amp;","&")
-                    voice.stop()
-                    voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-                    await ctx.send(embed=discord.Embed(title="Playing", description=name_of_the_song,color=discord.Color(value=re[8])))
+                    if name.find("rick")==-1:
+                        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+                        voice.stop()                        
+                        name=name.replace(" ","+")
+                        htm=urllib.request.urlopen("https://www.youtube.com/results?search_query="+name)
+                        video=regex.findall(r"watch\?v=(\S{11})",htm.read().decode())
+                        url="https://www.youtube.com/watch?v="+video[0]
+                        URL=youtube_download(ctx,url)
+                        aa=str(urllib.request.urlopen(url).read().decode())
+                        starting=aa.find("<title>")+len("<title>")
+                        ending=aa.find("</title>")
+                        name_of_the_song=aa[starting:ending].replace("&#39;","'").replace("&amp;","&")
+                        voice.stop()
+                        voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                        await ctx.send(embed=discord.Embed(title="Playing", description=name_of_the_song,color=discord.Color(value=re[8])))
+                    else:
+                        mess=await ctx.send(embed=discord.Embed(title="Playing", description="Rick Astley - Never Gonna Give You Up (Official Music Video) - YouTube :wink:", color=discord.Color(value=re[8])))
 
             else:
                 await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=discord.Color(value=re[8])))
@@ -1872,6 +1901,10 @@ if True:
                 await msg.channel.send("thog dont caare")
             elif "where" in msg.content.lower() and re[4]==1:
                 await msg.channel.send("thog dont caare")
+            if f'<@!{client.user.id}>' in msg.content:
+                embed=discord.Embed(title="Hi!! I am Alfred.",description="Prefix is '\nFor more help, type 'help",color=discord.Color(value=re[8]))
+                embed.set_image(url="https://giffiles.alphacoders.com/205/205331.gif")
+                await msg.channel.send(embed=embed)
             if msg.content.find("'")==0:
                 save_to_file()
                 if len(entr)==0 and len(re)<9:
@@ -1882,6 +1915,7 @@ if True:
         except Exception as e:
             channel = client.get_channel(dev_channel)
             await channel.send(embed=discord.Embed(title="Error", description=str(e), color=discord.Color(value=re[8])))
+            
     @client.command()
     async def thog(ctx,*,text):
         if re[1]==text:
