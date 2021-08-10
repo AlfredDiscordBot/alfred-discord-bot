@@ -788,6 +788,16 @@ if True:
       else:
         return " "
 
+    @client.command()
+    async def docs(ctx,name):
+        try:
+            if name.find("()")==-1:
+                await ctx.send(embed=discord.Embed(title="Docs",description=str(eval(name+".__doc__")),color=discord.Color(value=re[8])))
+            else:
+                await ctx.send(embed=discord.Embed(title="Permissions Denied", description="Functions are not allowed. Try without the brackets to get the information",color=discord.Color(value=re[8])))
+        except Exception as e:
+            await ctx.send(embed=discord.Embed(title="Error", description=str(e),color=discord.Color(value=re[8])))
+
     @client.command(aliases=[';'])
     async def mysql(ctx,*,text):
         print("MySQL",str(ctx.author))
@@ -2024,7 +2034,7 @@ if True:
     te="**Commands**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n\n" \
     "**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for python eval \n'w for Wikipedia\n':: for memes\n'sq for queue\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n" \
     "**Example**:\n'help\n'q\n'w Wikipedia\n'again\n'next\n'memes\n'q Song\n\n" \
-    "**Updates**:\n Alfred can now get emojis from other servers. \nAll you have to do is type 'e <emojiname>\n*Games coming soon*\n\n" \
+    "**Updates**:\n*Games coming soon*\nAlfred now supports youtube subscriptions\n\n" \
     "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'play <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue\n'play <index no.> to play certain song from the queue list\n" \
     "'addto playlist <Playlist name> to add current queue to playlist\n'addto queue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume\n'pause\n" \
     "'curr for current song.\n\n"

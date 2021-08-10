@@ -8,6 +8,7 @@ def main(client,re):
         embed=discord.Embed(color=discord.Color(re[8]))
         embed.set_image(url="https://c.tenor.com/BaJDchtzSMQAAAAC/f-letter-f-burts.gif")
         await ctx.send(embed=embed)
+        
     @client.command(aliases=['s_e'])
     async def search_emoji(ctx,name):
         try:
@@ -23,3 +24,4 @@ def main(client,re):
             await ctx.send(embed=embed)
         except Exception as e:
             await ctx.send(embed=discord.Embed(description=str(e),color=discord.Color(value=re[8])))
+    
