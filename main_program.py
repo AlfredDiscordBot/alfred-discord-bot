@@ -337,7 +337,7 @@ if True:
         
     @tasks.loop(minutes=7)
     async def youtube_loop():
-        list_of_programs=['blender','chrome','idle3','brave','gedit','discord']
+        list_of_programs=['blender','chrome','inkscape','firefox','idle3','brave','gedit','discord']
         for i in list_of_programs:
             if get_if_process_exists(i):
                 await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=i))
@@ -602,7 +602,6 @@ if True:
         mess=await ctx.send(discord.utils.get(client.emojis,name="enrique"))
         await mess.delete()
         
-        
     @client.command()
     async def remove_dev(ctx,member:discord.Member):
         print(member)
@@ -791,12 +790,15 @@ if True:
     @client.command()
     async def docs(ctx,name):
         try:
-            if name.find("()")==-1:
+            if name.find("(")==-1:
                 await ctx.send(embed=discord.Embed(title="Docs",description=str(eval(name+".__doc__")),color=discord.Color(value=re[8])))
             else:
                 await ctx.send(embed=discord.Embed(title="Permissions Denied", description="Functions are not allowed. Try without the brackets to get the information",color=discord.Color(value=re[8])))
         except Exception as e:
             await ctx.send(embed=discord.Embed(title="Error", description=str(e),color=discord.Color(value=re[8])))
+
+    
+
 
     @client.command(aliases=[';'])
     async def mysql(ctx,*,text):
@@ -898,7 +900,7 @@ if True:
                     voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
                     await voiceChannel.connect()
                     voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                    await ctx.send(embed=discord.Embed(title="",description="Connected",color=discord.Color(value=re[8])))
+                    await ctx.send(embed=discord.Embed(title="",description="Connected\nBitrate of the channel: "+str(ctx.voice_client.channel.bitrate//1000),color=discord.Color(value=re[8])))
                 else:
                     await ctx.send(embed=discord.Embed(title="",description="You are not in a voice channel",color=discord.Color(value=re[8])))
             else:
@@ -907,7 +909,7 @@ if True:
                     vc_channel[str(ctx.guild.id)]=voiceChannel.id
                     await voiceChannel.connect()
                     voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                    await ctx.send(embed=discord.Embed(title="",description="Connected",color=discord.Color(value=re[8])))
+                    await ctx.send(embed=discord.Embed(title="",description="ConnectednBitrate of the channel: "+str(ctx.voice_client.channel.bitrate//1000),color=discord.Color(value=re[8])))
                 else:
                     await ctx.send(embed=discord.Embed(title="",description="The voice channel does not exist",color=discord.Color(value=re[8])))
 
@@ -1206,6 +1208,27 @@ if True:
         except Exception as e:
             channel=client.get_channel(dev_channel)
             await channel.send(embed=discord.Embed(title="Error in previous function", description=str(e)+"\n"+str(ctx.guild)+": "+str(ctx.channel.name),color=discord.Color(value=re[8])))
+    
+    @client.command(aliases=['s_q'])
+    async def search_queue(ctx,part):
+        st=""
+        index=0
+        found_songs=0
+        for i in queue_song[str(ctx.guild.id)]:            
+            if i in da1:
+                found_songs+=1
+                if da1[i].lower().find(part.lower())!=-1:                    
+                    st+=str(index)+". "+da1[i]+"\n"
+            index+=1
+        if st=="":st="Not found"
+        if len(queue_song[str(ctx.guild.id)])-found_songs>0:
+            st+="\n\nWARNING: Some song names may not be loaded properly, this search may not be accurate"
+            st+="\nSongs not found: "+str(len(queue_song[str(ctx.guild.id)])-found_songs)
+        embed=discord.Embed(title="Songs in queue",description=st,color=discord.Color(value=re[8]))
+        embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))        
+        await ctx.send(embed=embed)
+
+                
     @client.command(aliases=['p'])
     async def play(ctx,*,ind):
         req()
@@ -1275,45 +1298,48 @@ if True:
     @client.command()
     async def again(ctx):
         req()
-        if discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)==None and ctx.author.voice and ctx.author.voice.channel:
-            if not str(ctx.guild.id) in queue_song:
-                queue_song[str(ctx.guild.id)]=[]
-            if not str(ctx.guild.id) in re[3]:
-                re[3][str(ctx.guild.id)]=0
-            channel=ctx.author.voice.channel.id
-            vc_channel[str(ctx.guild.id)]=channel
-            voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
-            await voiceChannel.connect()
-        try:
+        if True:
+            if discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)==None and ctx.author.voice and ctx.author.voice.channel:
+                if not str(ctx.guild.id) in queue_song:
+                    queue_song[str(ctx.guild.id)]=[]
+                if not str(ctx.guild.id) in re[3]:
+                    re[3][str(ctx.guild.id)]=0
+                channel=ctx.author.voice.channel.id
+                vc_channel[str(ctx.guild.id)]=channel
+                voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
+                await voiceChannel.connect()
             try:
-                mem=[str(names) for names in ctx.voice_client.channel.members]
-            except:
-                mem=[]
-            if mem.count(str(ctx.author))>0:
-                voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                if not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]] in da1.keys():
-                    aa=str(urllib.request.urlopen(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]).read().decode())
-                    starting=aa.find("<title>")+len("<title>")
-                    ending=aa.find("</title>")
-                    da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
-                mess=await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=discord.Color(value=re[8])))
-                URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
-                voice.stop()
-                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))    
-                await mess.add_reaction("⏮")
-                await mess.add_reaction("⏸")
-                await mess.add_reaction("▶")
-                await mess.add_reaction("🔁")
-                await mess.add_reaction("⏭")
-                await mess.add_reaction("⏹")
-                await mess.add_reaction(emoji.emojize(":keycap_*:"))
-                await mess.add_reaction(emoji.emojize(":upwards_button:"))
-                await mess.add_reaction(emoji.emojize(":downwards_button:"))
-            else:
-                await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=discord.Color(value=re[8])))
-        except Exception as e:
-            channel=client.get_channel(dev_channel)
-            await channel.send(embed=discord.Embed(title="Error in play function", description=str(e)+"\n"+str(ctx.guild)+": "+str(ctx.channel.name),color=discord.Color(value=re[8])))
+                try:
+                    mem=[str(names) for names in ctx.voice_client.channel.members]
+                except:
+                    mem=[]
+                if mem.count(str(ctx.author))>0:
+                    voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+                    bitrate="\nBitrate of the channel: "+str(ctx.voice_client.channel.bitrate//1000)
+                    if not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]] in da1.keys():
+                        aa=str(urllib.request.urlopen(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]).read().decode())
+                        starting=aa.find("<title>")+len("<title>")
+                        ending=aa.find("</title>")
+                        da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
+                    mess=await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]+bitrate,color=discord.Color(value=re[8])))
+                    URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
+                    voice.stop()
+                    voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))    
+                    await mess.add_reaction("⏮")
+                    await mess.add_reaction("⏸")
+                    await mess.add_reaction("▶")
+                    await mess.add_reaction("🔁")
+                    await mess.add_reaction("⏭")
+                    await mess.add_reaction("⏹")
+                    await mess.add_reaction(emoji.emojize(":keycap_*:"))
+                    await mess.add_reaction(emoji.emojize(":upwards_button:"))
+                    await mess.add_reaction(emoji.emojize(":downwards_button:"))
+                else:
+                    await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=discord.Color(value=re[8])))
+            except Exception as e:
+                channel=client.get_channel(dev_channel)
+                await channel.send(embed=discord.Embed(title="Error in play function", description=str(e)+"\n"+str(ctx.guild)+": "+str(ctx.channel.name),color=discord.Color(value=re[8])))
+        
     @client.command(aliases=['::'])
     async def memes(ctx):
         await ctx.send(choice(link_for_cats))
@@ -1705,6 +1731,9 @@ if True:
                                 await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
                 if reaction.emoji==emoji.emojize(":keycap_*:"):
                     num=0
+                    bitrate=""
+                    length="\nLength of queue: "+str(len(queue_song[str(reaction.message.guild.id)]))
+                    if reaction.message.guild.voice_client!=None:bitrate="\nBitrate of the channel: "+str(reaction.message.guild.voice_client.channel.bitrate//1000)
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         st=""
                         await reaction.remove(user)
@@ -1749,7 +1778,7 @@ if True:
                                             st=st+str(num)+". "+da1[i]+"\n"
                                 except Exception as e:
                                     pass
-                        await reaction.message.edit(embed=discord.Embed(title="Queue",description=st,color=discord.Color(value=re[8])))
+                        await reaction.message.edit(embed=discord.Embed(title="Queue",description=st+bitrate+length,color=discord.Color(value=re[8])))
                 if str(user.id) in dev_users:
                     global dev_channel
                     channel=client.get_channel(dev_channel)
