@@ -826,20 +826,31 @@ if True:
     async def snipe(ctx,number=0):
         if number==0:
             message=deleted_message[ctx.channel.id][-1]
-            await ctx.send("**"+message[0]+":**\n"+message[1])
+            if len(message)<3:
+                await ctx.send("**"+message[0]+":**\n"+message[1])
+            else:
+                await ctx.send("**"+message[0]+":**")                    
+                await ctx.send(embed=message[1])
         else:
             nu=0
             for i in deleted_message[ctx.channel.id][::-1]:
-                nu+=1                
-                await ctx.send("**"+i[0]+":**\n"+i[1])
+                nu+=1
+                if len(i)<3:
+                    await ctx.send("**"+i[0]+":**\n"+i[1])
+                else:
+                    await ctx.send("**"+i[0]+":**")                    
+                    await ctx.send(embed=i[1])
                 if nu==number:
                     break
             
     @client.event
-    async def on_message_delete(message):
+    async def on_message_delete(message):        
         if not message.channel.id in list(deleted_message.keys()):
             deleted_message[message.channel.id]=[]
-        deleted_message[message.channel.id].append((str(message.author),message.content))
+        if len(message.embeds)<0:
+            deleted_message[message.channel.id].append((str(message.author),message.content))
+        else:
+            deleted_message[message.channel.id].append((str(message.author),message.embeds[0],True))
 
     @client.event
     async def on_member_join(member):
@@ -909,7 +920,7 @@ if True:
                     vc_channel[str(ctx.guild.id)]=voiceChannel.id
                     await voiceChannel.connect()
                     voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                    await ctx.send(embed=discord.Embed(title="",description="ConnectednBitrate of the channel: "+str(ctx.voice_client.channel.bitrate//1000),color=discord.Color(value=re[8])))
+                    await ctx.send(embed=discord.Embed(title="",description="Connected\nBitrate of the channel: "+str(ctx.voice_client.channel.bitrate//1000),color=discord.Color(value=re[8])))
                 else:
                     await ctx.send(embed=discord.Embed(title="",description="The voice channel does not exist",color=discord.Color(value=re[8])))
 
@@ -1178,7 +1189,8 @@ if True:
         string=""
         for i in range(0,10):
             string=string+str(i)+". "+news_list[i]+"\n"
-        await ctx.send(embed=discord.Embed(title="News",description=string,color=discord.Color(value=re[8])))
+        await ctx.send(embed=cembed(title="News",description=string,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        
     @client.command(aliases=['<'])
     async def previous(ctx):
         req()
@@ -1223,10 +1235,8 @@ if True:
         if st=="":st="Not found"
         if len(queue_song[str(ctx.guild.id)])-found_songs>0:
             st+="\n\nWARNING: Some song names may not be loaded properly, this search may not be accurate"
-            st+="\nSongs not found: "+str(len(queue_song[str(ctx.guild.id)])-found_songs)
-        embed=discord.Embed(title="Songs in queue",description=st,color=discord.Color(value=re[8]))
-        embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))        
-        await ctx.send(embed=embed)
+            st+="\nSongs not found: "+str(len(queue_song[str(ctx.guild.id)])-found_songs)      
+        await ctx.send(embed=cembed(title="Songs in queue",description=st,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
 
                 
     @client.command(aliases=['p'])
@@ -1248,27 +1258,30 @@ if True:
                 mem=[]
             if mem.count(str(ctx.author))>0:
                 if ind.isnumeric():
-                    checking_for_replay=True
-                    re[3][str(ctx.guild.id)]=int(ind)
-                    voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-                    URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
-                    if not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]] in da1.keys():
-                        aa=str(urllib.request.urlopen(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]).read().decode())
-                        starting=aa.find("<title>")+len("<title>")
-                        ending=aa.find("</title>")
-                        da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
-                    mess=await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=discord.Color(value=re[8])))
-                    voice.stop()
-                    voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))    
-                    await mess.add_reaction("⏮")
-                    await mess.add_reaction("⏸")
-                    await mess.add_reaction("▶")
-                    await mess.add_reaction("🔁")
-                    await mess.add_reaction("⏭")
-                    await mess.add_reaction("⏹")
-                    await mess.add_reaction(emoji.emojize(":keycap_*:"))
-                    await mess.add_reaction(emoji.emojize(":upwards_button:"))
-                    await mess.add_reaction(emoji.emojize(":downwards_button:"))
+                    if int(ind)<len(queue_song[str(ctx.guild.id)]):
+                        re[3][str(ctx.guild.id)]=int(ind)
+                        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+                        URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
+                        if not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]] in da1.keys():
+                            aa=str(urllib.request.urlopen(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]).read().decode())
+                            starting=aa.find("<title>")+len("<title>")
+                            ending=aa.find("</title>")
+                            da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
+                        mess=await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]],color=discord.Color(value=re[8])))
+                        voice.stop()
+                        voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))    
+                        await mess.add_reaction("⏮")
+                        await mess.add_reaction("⏸")
+                        await mess.add_reaction("▶")
+                        await mess.add_reaction("🔁")
+                        await mess.add_reaction("⏭")
+                        await mess.add_reaction("⏹")
+                        await mess.add_reaction(emoji.emojize(":keycap_*:"))
+                        await mess.add_reaction(emoji.emojize(":upwards_button:"))
+                        await mess.add_reaction(emoji.emojize(":downwards_button:"))
+                    else:
+                        embed=discord.Embed(title="Hmm", description=f"There are only {len(queue_song[str(ctx.guild.id)])} songs",color=discord.Color(value=re[8]))
+                        await ctx.send(embed=embed)
                 else:
                     name=ind
                     if name.find("rick")==-1:
@@ -1355,8 +1368,8 @@ if True:
         save_to_file()
         print("Restart")
         os.chdir(location_of_file)
-        os.system("nohup python Discord.py &")
-        await ctx.send(embed=discord.Embed(title="Restarted",description="The program finished restarting",color=discord.Color(value=re[8])))
+        os.system("nohup python Discord.py &")        
+        await ctx.send(embed=cembed(title="Restarted",description="The program finished restarting",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         sys.exit()
     @client.command(aliases=['dc'])
     async def leave(ctx):
@@ -1941,8 +1954,12 @@ if True:
             elif "where" in msg.content.lower() and re[4]==1:
                 await msg.channel.send("thog dont caare")
             if f'<@!{client.user.id}>' in msg.content:
-                embed=discord.Embed(title="Hi!! I am Alfred.",description="Prefix is '\nFor more help, type 'help",color=discord.Color(value=re[8]))
+                st="\n\n\n**Mutual guilds:**\n\n"
+                for i in msg.author.mutual_guilds:
+                    st=st+i.name+"\n" 
+                embed=discord.Embed(title="Hi!! I am Alfred.",description="Prefix is '\nFor more help, type 'help"+st,color=discord.Color(value=re[8]))
                 embed.set_image(url="https://giffiles.alphacoders.com/205/205331.gif")
+                
                 await msg.channel.send(embed=embed)
             if msg.content.find("'")==0:
                 save_to_file()
@@ -2038,8 +2055,11 @@ if True:
         re[0]=re[0]+1
     def g_req():
         return re[0]
-    
 
+    @client.command()
+    async def test_embed(ctx):
+        embed=cembed(title="Title of the embed", description="This is to check if the embed function works", thumbnail=client.user.avatar_url_as(format="png"), picture=ctx.author.avatar_url_as(format="png"), color=re[8])
+        await ctx.send(embed=embed)
 
 
     @client.command(aliases=['mu'])
