@@ -20,8 +20,6 @@ from wikipedia import *
 from io import StringIO
 from contextlib import redirect_stdout
 from External_functions import *
-from instagramy import *
-from instascrape import *
 import traceback
 import googlesearch
 import youtube_dl
@@ -847,7 +845,7 @@ if True:
     async def on_message_delete(message):        
         if not message.channel.id in list(deleted_message.keys()):
             deleted_message[message.channel.id]=[]
-        if len(message.embeds)<0:
+        if len(message.embeds)<=0:
             deleted_message[message.channel.id].append((str(message.author),message.content))
         else:
             deleted_message[message.channel.id].append((str(message.author),message.embeds[0],True))
