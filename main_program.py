@@ -11,6 +11,7 @@ default=
 import discord
 from random import *
 from discord.ext import commands, tasks
+from discord_slash import SlashCommand
 from googlesearch import search
 from GoogleNews import GoogleNews
 from dotenv import load_dotenv
@@ -82,6 +83,7 @@ if True:
     intents=discord.Intents.default()
     intents.members=True
     client=commands.Bot(command_prefix=["'","Alfred ","alfred "],intents=intents, case_insensitive=True)
+    slash = SlashCommand(client, sync_commands=True)
     temp_dev={}
     censor=[]
     old_youtube_vid=[]
@@ -673,7 +675,9 @@ if True:
             await channel.send(embed=discord.Embed(title="Done",description="Reset from backup: done\nBy: "+str(ctx.author),color=discord.Color(value=re[8])))
         except Exception as e:
             await channel.send(embed=discord.Embed(title="Reset_from_backup failed", description=str(e), color=discord.Color(value=re[8])))
-    @client.command()
+
+    
+    @client.command()    
     async def entrar(ctx,*,num=re[6]):
         print("Entrar",str(ctx.author))
         global re
@@ -752,8 +756,17 @@ if True:
                 embed=discord.Embed(title="New announcements",description=lol,color=discord.Color(value=re[8]))
                 embed.set_thumbnail(url="https://entrar.in/logo_dir/entrar_white.png")
                 await channel.send(embed=embed)
+                await ctx.send("Done")
             else:
                 await channel.send(embed=discord.Embed(title="Empty",description="No new announcement",color=discord.Color(value=re[8])))
+                await ctx.send("Done")
+            
+
+    @slash.slash(name="entrar", description="Latest announcements from Entrar")
+    async def yentrar(ctx,*,num=re[6]):
+        await ctx.defer()
+        await entrar(ctx)
+        
     def check_win(board):
       board = board.replace("\n", "")
       board = board.replace("-", "")
@@ -819,7 +832,12 @@ if True:
                 await ctx.send(embed=discord.Embed(title="Permission Denied",description="",color=discord.Color(value=re[8])))
         else:
             await ctx.send(embed=discord.Embed(title="Disabled",description="You've disabled MySQL",color=discord.Color(value=re[8])))
-            
+
+    @slash.slash(name="Snipe",description="Get the last few deleted messages")
+    async def snipe_slash(ctx,number=0):
+        await ctx.defer()
+        await snipe(ctx,number)
+        
     @client.command()
     async def snipe(ctx,number=0):
         if number==0:
@@ -893,6 +911,11 @@ if True:
                     await coin_toss_message.add_reaction(emoji.emojize(":hibiscus:"))
         else:
             await ctx.send(embed=discord.Embed(title="Games", description="1. TicTacToe(XO)\n2. Coin Toss(Toss)\n\nEnter the keyword given in the brackets after 'games",color=discord.Color(value=re[8])))
+    @slash.slash(name="connect",description="Connect to a voice channel")
+    async def connect_slash(ctx,channel=""):
+        await ctx.defer()
+        await connect_music(ctx,channel)
+        
     @client.command(aliases=['cm'])
     async def connect_music(ctx,channel=""):
         print("Connect music",str(ctx.author))
@@ -1349,7 +1372,13 @@ if True:
                     await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=discord.Color(value=re[8])))
             except Exception as e:
                 channel=client.get_channel(dev_channel)
+                await ctx.send(embed=cembed(title="Error", description=str(e),color=re[8], thumbnail=client.user.avatar_url_as(format="png")))
                 await channel.send(embed=discord.Embed(title="Error in play function", description=str(e)+"\n"+str(ctx.guild)+": "+str(ctx.channel.name),color=discord.Color(value=re[8])))
+
+    @slash.slash(name="again",description="Repeat the song")
+    async def again_slash(ctx):
+        await ctx.defer()
+        await again(ctx)
         
     @client.command(aliases=['::'])
     async def memes(ctx):

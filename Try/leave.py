@@ -6,7 +6,7 @@ def main(client, dev_users, re):
     @client.command()
     async def leave_server(ctx, *, server_name):
         if str(ctx.author.id) in dev_users:
-            guild = discord.utils.get(bot.guilds, name=server_name)
+            guild = discord.utils.get(client.guilds, name=server_name)
             if guild is None:
                 await ctx.send(embed=discord.Embed(title="Hmm", description="This server doesnt exist. Please check if the name is right", color=discord.Color(value=re[8])))
             else:
