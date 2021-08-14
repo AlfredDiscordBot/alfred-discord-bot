@@ -15,7 +15,7 @@ def main(client,re):
             emoji_names= [i.name for i in client.emojis]
             st=""
             for i in emoji_names:
-                if i.find(name)!=-1:
+                if i.lower().find(name.lower())!=-1:
                     st+=i+"\n"
             if st=="":
                 st="Not found"

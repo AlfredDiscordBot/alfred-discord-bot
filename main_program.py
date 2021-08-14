@@ -858,6 +858,8 @@ if True:
                     await ctx.send(embed=i[1])
                 if nu==number:
                     break
+            if num==0:
+                await ctx.send(embed=cembed(title="Oops", description="Oops sorry, I fell asleep ig, or idk",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
             
     @client.event
     async def on_message_delete(message):        
@@ -981,7 +983,6 @@ if True:
         if mem.count(str(ctx.author))>0:
             if len(queue_song[str(ctx.guild.id)])>0:
                 queue_song[str(ctx.guild.id)].clear()
-                da1.clear()
             re[3][str(ctx.guild.id)]=0
             await ctx.send(embed=discord.Embed(title="Cleared queue",description="_Done_",color=discord.Color(value=re[8])))
         else:
@@ -1021,7 +1022,18 @@ if True:
         if re[2]==1 or re[7]==1:                       
             if not voice.is_playing():
                 URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
-                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))    
+                voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))
+                
+    @slash.slash(name="autoplay",description="Plays the next song automatically if its turned on")
+    async def autoplay_slash(ctx):
+        await ctx.defer()
+        await autoplay(ctx)
+
+    @slash.slash(name="loop",description="Loops the same song")
+    async def loop_slash(ctx):
+        await ctx.defer()
+        await loop(ctx)
+            
     @client.command()
     async def autoplay(ctx):
         req()
@@ -1197,14 +1209,15 @@ if True:
                 await ctx.send(embed=discord.Embed(title="Multi",description="Set to Multiple CPU mode", color=discord.Color(value=re[8])))
         else:
             await ctx.send(embed=discord.Embed(title="Oops",description="You need to be a developer to change", color=discord.Color(value=re[8])))
-            
+
+    @slash.slash(name="news",description="Latest news from a given subject")
+    async def news_slash(ctx,*,subject="Technology"):
+        await ctx.defer()
+        await news(ctx,subject)
             
     @client.command()
-    async def news(ctx,*,subject=""):
-        if subject!="":
-            googlenews.get_news(subject)
-        else:
-            googlenews.get_news("Technology")
+    async def news(ctx,subject="Technology"):
+        googlenews.get_news(subject)
         news_list=googlenews.get_texts()
         googlenews.clear()
         string=""
@@ -1379,6 +1392,11 @@ if True:
     async def again_slash(ctx):
         await ctx.defer()
         await again(ctx)
+
+    @slash.slash(name="memes",description="Memes from Alfred yey")
+    async def leave_slash(ctx):
+        await ctx.defer()
+        await memes(ctx)
         
     @client.command(aliases=['::'])
     async def memes(ctx):
@@ -1398,6 +1416,13 @@ if True:
         os.system("nohup python Discord.py &")        
         await ctx.send(embed=cembed(title="Restarted",description="The program finished restarting",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         sys.exit()
+
+    @slash.slash(name="dc",description="Disconnect the bot from your voice channel")
+    async def leave_slash(ctx):
+        await ctx.defer()
+        await leave(ctx)
+
+        
     @client.command(aliases=['dc'])
     async def leave(ctx):
         req()
@@ -1482,12 +1507,16 @@ if True:
     	em=discord.Embed(title=str(t).title(),description=str(summary(t,sentences=5)),color=discord.Color(value=re[8]))
     	em.set_thumbnail(url="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg")
     	await ctx.send(embed=em)
-    @client.command()
+    @client.command(aliases=['hi'])
     async def check(ctx):
         req()
         print("check")
-        em=discord.Embed(title="Online",description=("Hi, "+str(ctx.author)[0:str(ctx.author).find("#")]),color=discord.Color(value=re[8]))
+        em=discord.Embed(title="Online",description=("Hi, "+str(ctx.author)[0:str(ctx.author).find("#")])+"\nLatency: "+str(int(client.latency*1000)),color=discord.Color(value=re[8]))
         await ctx.send(embed=em)
+    @slash.slash(name="check",description="Check if the bot is online")
+    async def check_slash(ctx):
+        await ctx.defer()
+        await check(ctx)
     @client.command()
     async def test(ctx,*,text):
         mess=await ctx.send(embed=discord.Embed(title="This is a "+emoji.demojize(text).replace(":",""),color=discord.Color(value=re[8])))
@@ -1500,7 +1529,7 @@ if True:
                 global color_temp
                 save_to_file()                
                 global Emoji_list
-                if reaction.emoji == emoji.emojize(":upwards_button:") and len(queue_song[str(reaction.message.guild.id)])>0:
+                if reaction.emoji == emoji.emojize(":upwards_button:") and len(queue_song[str(reaction.message.guild.id)])>0 and reaction.message.author==client.user:
                     await reaction.remove(user)
                     if not reaction.message in list(pages.keys()):
                         pages[reaction.message]=0
@@ -1519,7 +1548,7 @@ if True:
                         except Exception as e:
                             print(e)
                     await reaction.message.edit(embed=discord.Embed(title="Queue", description=st, color=discord.Color(value=re[8])))
-                if reaction.emoji == emoji.emojize(":downwards_button:") and len(queue_song[str(reaction.message.guild.id)])>0:
+                if reaction.emoji == emoji.emojize(":downwards_button:") and len(queue_song[str(reaction.message.guild.id)])>0  and reaction.message.author==client.user:
                     await reaction.remove(user)
                     if not reaction.message in list(pages.keys()):
                         pages[reaction.message]=0
@@ -1769,7 +1798,7 @@ if True:
                                 await reaction.message.edit(embed=discord.Embed(title="Disconnected",description="Bye, Thank you for using Alfred",color=discord.Color(value=re[8])))
                             else:
                                 await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
-                if reaction.emoji==emoji.emojize(":keycap_*:"):
+                if reaction.emoji==emoji.emojize(":keycap_*:") and reaction.message.author==client.user:
                     num=0
                     bitrate=""
                     length="\nLength of queue: "+str(len(queue_song[str(reaction.message.guild.id)]))
@@ -2114,7 +2143,11 @@ if True:
     "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'play <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue\n'play <index no.> to play certain song from the queue list\n" \
     "'addto playlist <Playlist name> to add current queue to playlist\n'addto queue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume\n'pause\n" \
     "'curr for current song.\n\n"
-    
+
+    @slash.slash(name="help",description="Help from Alfred")
+    async def help_slash(ctx):
+        await ctx.defer()
+        await h(ctx)
     client.remove_command("help")
     @client.group(invoke_without_command=True)
     async def help(ctx):
