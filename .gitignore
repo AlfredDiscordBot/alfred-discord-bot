@@ -7,3 +7,5 @@ Files/
 Storage.py
 nohup.out
 .instagramy_cache/
+*.pyc
+__pycache__/
