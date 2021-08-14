@@ -9,3 +9,4 @@ nohup.out
 .instagramy_cache/
 *.pyc
 __pycache__/
+.pytest_cache/

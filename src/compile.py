@@ -20,8 +20,8 @@ class CodeExecutor:
         try:
             runtime_url = "https://emkc.org/api/v2/piston/runtimes"
             r = requests.get(runtime_url)
-            data = json.loads(r.text)[0]
-            runtimes = List[str]
+            data = json.loads(r.text)
+            runtimes: List[Dict[str, Union[str, List[str]]]] = []
             for langs in data:
                 runtimes.append({
                     "language": langs["language"],
@@ -30,11 +30,11 @@ class CodeExecutor:
                 })
 
             return runtimes
-        
+
         except Exception as e:
             traceback.print_exc(e)
 
-    def execute_code(self, language:str, version:str = "latest", files: List[Dict[str, str]] = []) -> str:
+    def execute_code(self, language: str, version: str = "latest", files: List[Dict[str, str]] = []) -> str:
         """
         Executes the given code in the given language and version.
         """
@@ -64,24 +64,26 @@ class CodeExecutor:
                 data = json.loads(resp.text)
 
                 run_data = data["run"]
-            
-                return f'''
-                Status Code: {run_data["status_code"]}
 
-                Output:
-                ```
-                {run_data["output"]}
-                ```
+                return f'''
+Status Code: {run_data["code"]}
+
+Output:
+```
+{run_data["output"]}
+```
                 '''
 
             else:
                 return f"Error: {resp.status_code}"
-    
+
         except Exception as e:
             traceback.print_exc(e)
             return "Couldn't connect at the moment."
 
+
 if __name__ == "__main__":
     rce = CodeExecutor()
+    # print(rce.get_runtimes())
     print(rce.execute_code(
-    language="python", version="latest", files = [{"file.py": "print('Hello World')"}]))
+        language="python", version="latest", files=[{"name": "prog.py", "content":"print('hello)"}]))
