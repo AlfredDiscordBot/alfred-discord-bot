@@ -204,7 +204,10 @@ def cembed(title="",description="",thumbnail="",picture="",color=discord.Color.d
     if description!="":
         embed.description=description
     if thumbnail!="":
-
+        embed.set_thumbnail(url=thumbnail)
+    if picture!="":
+        embed.set_image(url=picture)            
+    return embed
 
 def get_if_process_exists(name):
     return len([i for i in [p.info['name'] for p in psutil.process_iter(['name'])] if i.find(name) != -1]) > 0
