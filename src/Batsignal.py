@@ -1,10 +1,8 @@
 def requirements():
     return "re"
 
-
 def main(client, re):
     from gi.repository import Notify
-
     @client.command()
     async def batsignal(ctx):
         # https://c.tenor.com/0GJ-XEcYLfcAAAAd/wongwingchun58.gif

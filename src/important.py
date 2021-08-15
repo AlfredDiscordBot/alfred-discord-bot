@@ -4,7 +4,6 @@ def requirements():
 
 def main(client, re):
     import discord
-    from discord.ext import commands, tasks
 
     @client.command()
     async def f(ctx):

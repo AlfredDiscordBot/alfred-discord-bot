@@ -86,6 +86,23 @@ Output:
             return "Couldn't connect at the moment."
 
 
+
+def requirements():
+    return "re[8]"
+def main(client,color):
+    rce=CodeExecutor()
+    import discord
+    @client.command()
+    async def code(ctx,lang,*,code):
+        actual_code=""
+        for i in code.split("\n"):
+            if not i.startswith("```"):
+                actual_code+=i+"\n"                
+        output=rce.execute_code(language=lang,code=actual_code)
+        embed=discord.Embed(title="Result",description=output,color=discord.Color(value=color))
+        embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+        embed.set_footer(text="Result from https://emkc.org/")
+        await ctx.send(embed=embed)
 # if __name__ == "__main__":
 #     rce = CodeExecutor()
 #     # print(rce.runtimes)

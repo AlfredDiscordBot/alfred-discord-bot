@@ -4,7 +4,6 @@ def requirements():
 
 def main(client, re):
     import discord
-    from discord.ext import commands
     title_of_embed = {}
     color_of_embed = {}
     thumbnail_of_embed = {}

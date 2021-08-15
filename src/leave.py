@@ -4,7 +4,6 @@ def requirements():
 
 def main(client, dev_users, re):
     import discord
-    from discord.ext import commands, tasks
 
     @client.command()
     async def leave_server(ctx, *, server_name):

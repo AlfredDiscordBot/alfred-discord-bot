@@ -4,7 +4,6 @@ def requirements():
 
 def main(client, re):
     import discord
-    from discord.ext import commands
 
     @client.command()
     async def get_invite(ctx, time=300):

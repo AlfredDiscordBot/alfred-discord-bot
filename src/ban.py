@@ -4,7 +4,6 @@ def requirements():
 
 def main(client, re):
     import discord
-    from discord.ext import commands
 
     @client.command(aliases=['ban'])
     async def ban_member(ctx, member: discord.Member, *, reason=None):

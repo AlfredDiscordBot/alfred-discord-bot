@@ -17,7 +17,7 @@ from GoogleNews import GoogleNews
 from dotenv import load_dotenv
 from math import *
 from statistics import*
-from wikipedia import *
+from wikipedia import search, summary
 from io import StringIO
 from contextlib import redirect_stdout
 from External_functions import *
@@ -101,8 +101,7 @@ if True:
     pages={}
     SESSIONID=None
     color_message=None
-    color_temp=()
-    checking_for_replay=False
+    color_temp=()    
     link_for_cats=[]
     vc_channel={}    
     def mysql_load():
@@ -247,8 +246,7 @@ if True:
             except:
                 print("Problem with re")
         save_to_file()
-    def youtube_download(ctx,url):
-        global checking_for_replay
+    def youtube_download(ctx,url):        
         if True:
             with youtube_dl.YoutubeDL(ydl_op) as ydl:
                 URL = ydl.extract_info(url, download=False)['formats'][0]['url']
@@ -466,7 +464,7 @@ if True:
     async def instagram(ctx, account):
         if True:
             a=instagram_get(account,re[8],re[9])
-            if a!=None and type(a)!=type("aa"):                
+            if a is not None and type(a)!=type("aa"):                
                 await ctx.send(embed=a[0])
             elif type(a)!=type("aa"):
                 re[9]=a
@@ -499,7 +497,7 @@ if True:
             global color_temp
             req()
             try:
-                color_temp=(int("0x"+str(hex(re[8]))[2:4],16),int("0x"+ str(hex(re[8]))[4:6],16),int( "0x"+str(hex(re[8]))[6:8],16))
+                color_temp=(int("0x"+str(hex(re[8]))[2:4],16),int("0x"+ str(hex(re[8]))[4:6],16),int("0x"+str(hex(re[8]))[6:8],16))
             except:
                 pass
             print("Theme color",str(ctx.author))
@@ -770,38 +768,8 @@ if True:
     @slash.slash(name="entrar", description="Latest announcements from Entrar")
     async def yentrar(ctx,*,num=re[6]):
         await ctx.defer()
-        await entrar(ctx)
-        
-    def check_win(board):
-      board = board.replace("\n", "")
-      board = board.replace("-", "")
-      board = board.replace(" ", "")
-      board = board.replace("X", ":X:")
-      board = board.replace("O", ":O:")
-      board = board.replace("::", ":|:")
-      board = board.split("|")
-      if(board[0] == board[1] == board[2] == emoji.emojize(":cross_mark:") or
-        board[3] == board[4] == board[5] == emoji.emojize(":cross_mark:") or
-        board[6] == board[7] == board[8] == emoji.emojize(":cross_mark:") or
-        board[0] == board[3] == board[6] == emoji.emojize(":cross_mark:") or
-        board[1] == board[4] == board[7] == emoji.emojize(":cross_mark:") or
-        board[2] == board[5] == board[8] == emoji.emojize(":cross_mark:") or
-        board[0] == board[4] == board[8] == emoji.emojize(":cross_mark:") or
-        board[2] == board[4] == board[6] == emoji.emojize(":cross_mark:")):
-          result = "You won"
-          return(result)
-      elif(board[0] == board[1] == board[2] == emoji.emojize(":hollow_red_circle:") or
-        board[3] == board[4] == board[5] == emoji.emojize(":hollow_red_circle:") or
-        board[6] == board[7] == board[8] == emoji.emojize(":hollow_red_circle:") or
-        board[0] == board[3] == board[6] == emoji.emojize(":hollow_red_circle:") or
-        board[1] == board[4] == board[7] == emoji.emojize(":hollow_red_circle:") or
-        board[2] == board[5] == board[8] == emoji.emojize(":hollow_red_circle:") or
-        board[0] == board[4] == board[8] == emoji.emojize(":hollow_red_circle:") or
-        board[2] == board[4] == board[6] == emoji.emojize(":hollow_red_circle:")):
-          result = "Alfred won"
-          return(result)
-      else:
-        return " "
+        await entrar(ctx)        
+    
 
     @client.command()
     async def docs(ctx,name):
@@ -1131,8 +1099,7 @@ if True:
                 adfg=0
                 num=-1
                 for i in queue_song[str(ctx.guild.id)]:
-                    num+=1
-                    
+                    num+=1                    
                     try:
                         if re[3][str(ctx.guild.id)]<10:                            
                             if num<15:
@@ -1186,8 +1153,7 @@ if True:
                 mem=[str(names) for names in ctx.voice_client.channel.members]
             except:
                 mem=[]
-            if mem.count(str(ctx.author))>0:
-                checking_for_replay=True
+            if mem.count(str(ctx.author))>0:                
                 re[3][str(ctx.guild.id)]+=1
                 if re[3][str(ctx.guild.id)]>=len(queue_song[str(ctx.guild.id)]):
                     re[3][str(ctx.guild.id)]=len(queue_song[str(ctx.guild.id)])-1
@@ -1241,8 +1207,7 @@ if True:
                 mem=[str(names) for names in ctx.voice_client.channel.members]
             except:
                 mem=[]
-            if mem.count(str(ctx.author))>0:
-                checking_for_replay=True
+            if mem.count(str(ctx.author))>0:                
                 re[3][str(ctx.guild.id)]-=1
                 if re[3][str(ctx.guild.id)]==-1:
                     re[3][str(ctx.guild.id)]=0
@@ -1499,6 +1464,7 @@ if True:
             await ctx.send(embed=discord.Embed(title="Stop",color=discord.Color(value=re[8])))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the channel to resume the song",color=discord.Color(value=re[8])))
+            
     @client.command()    
     async def clear(ctx,text,num=10):
     	req()
@@ -1698,8 +1664,7 @@ if True:
                                 aa=str(urllib.request.urlopen(queue_song[str(reaction.message.guild.id)]).read().decode())
                                 starting=aa.find("<title>")+len("<title>")
                                 ending=aa.find("</title>")
-                                da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
-                            checking_for_replay=True
+                                da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")                            
                             re[3][str(reaction.message.guild.id)]-=1
                             if re[3][str(reaction.message.guild.id)]==-1:
                                 re[3][str(reaction.message.guild.id)]=0
@@ -1749,8 +1714,7 @@ if True:
                             mem=[str(names) for names in reaction.message.guild.voice_client.channel.members]                           
                         except Exception as e:
                             mem=[]                            
-                        if mem.count(str(user))>0:
-                            checking_for_replay=True
+                        if mem.count(str(user))>0:                            
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
                             URL=youtube_download(reaction.message,queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]])
                             voice.stop()
@@ -1771,8 +1735,7 @@ if True:
                             mem=[str(names) for names in reaction.message.guild.voice_client.channel.members]
                         except:
                             mem=[]
-                        if mem.count(str(user))>0:
-                            checking_for_replay=True
+                        if mem.count(str(user))>0:                            
                             if not queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]] in da1.keys():
                                 aa=str(urllib.request.urlopen(queue_song[str(reaction.message.guild.id)]).read().decode())
                                 starting=aa.find("<title>")+len("<title>")
@@ -2144,10 +2107,10 @@ if True:
     	await member.remove_roles(add_role)
     	await ctx.send("Unmuted "+member.mention)
     	print(member,"unmuted")
-    te="**Commands**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n\n" \
+    te="**Commands**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n'compile <lang> ```#code```\n\n" \
     "**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for python eval \n'w for Wikipedia\n':: for memes\n'sq for queue\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n" \
     "**Example**:\n'help\n'q\n'w Wikipedia\n'again\n'next\n'memes\n'q Song\n\n" \
-    "**Updates**:\n*Games coming soon*\nAlfred now supports youtube subscriptions\n\n" \
+    "**Updates**:\nAlfred now supports youtube subscriptions\nAlfred now can execute code and its open for everyone\nIts for everyone. Check it out using\n 'compile lang\n```#code here```, Thank Shravan.\nAlfred has 24/7 games and roast feature now, currently games include chess only, we'll add more, DW.\nBtw if you didnt get slash commands get the new invite for Alfred from dev\n.Enjoy" \
     "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'play <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue\n'play <index no.> to play certain song from the queue list\n" \
     "'addto playlist <Playlist name> to add current queue to playlist\n'addto queue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume\n'pause\n" \
     "'curr for current song.\n\n"
