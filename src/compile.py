@@ -84,6 +84,6 @@ Output:
 
 if __name__ == "__main__":
     rce = CodeExecutor()
-    # print(rce.get_runtimes())
-    print(rce.execute_code(
-        language="python", version="latest", files=[{"name": "prog.py", "content":"print('hello)"}]))
+    print(rce.runtimes)
+    # print(rce.execute_code(
+    #     language="python", version="latest", files=[{"name": "prog.py", "content":"print('hello)"}]))
