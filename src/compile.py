@@ -2,7 +2,7 @@ import requests
 import traceback
 import json
 from typing import List, Dict, Union
-
+from functools import lru_cache
 
 class CodeExecutor:
     """
@@ -34,28 +34,32 @@ class CodeExecutor:
         except Exception as e:
             traceback.print_exc(e)
 
-    def execute_code(self, language: str, version: str = "latest", files: List[Dict[str, str]] = []) -> str:
+    @lru_cache(maxsize=50)
+    def execute_code(self, language: str, code:str) -> str:
         """
         Executes the given code in the given language and version.
         """
         try:
             execute_url = "https://emkc.org/api/v2/piston/execute"
+            all_langs = [runtime["language"] for runtime in self.runtimes]
+            _aliases = [runtime["aliases"] for runtime in self.runtimes]
+            aliases = [i for sublist in _aliases for i in sublist]
 
-            if language not in [lang["language"] for lang in self.runtimes]:
+            if language not in all_langs and language not in aliases:
                 return f"Language {language} is not supported."
 
-            if version == "latest":
-                for runtime in self.runtimes:
-                    if runtime["language"] == language:
-                        version = runtime["version"]
-                        break
-                else:
-                    return f"No version found for language {language}"
+            for runtime in self.runtimes:
+                if runtime["language"] == language or language in runtime["aliases"]:
+                    version = runtime["version"]
+                    break
 
             payload = {
                 "language": language,
                 "version": version,
-                "files": files
+                "files": [{
+                    "name": "prog",
+                    "content": code,
+                }]
             }
 
             resp = requests.post(execute_url, json=payload)
@@ -66,7 +70,7 @@ class CodeExecutor:
                 run_data = data["run"]
 
                 return f'''
-Status Code: {run_data["code"]}
+Exit Code: {run_data["code"]}
 
 Output:
 ```
@@ -82,8 +86,8 @@ Output:
             return "Couldn't connect at the moment."
 
 
-if __name__ == "__main__":
-    rce = CodeExecutor()
-    print(rce.runtimes)
-    # print(rce.execute_code(
-    #     language="python", version="latest", files=[{"name": "prog.py", "content":"print('hello)"}]))
+# if __name__ == "__main__":
+#     rce = CodeExecutor()
+#     # print(rce.runtimes)
+#     print(rce.execute_code(language="vlang", code="println('hello')"))
+#     print(rce.execute_code(language="vlang", code="println('hello')"))
