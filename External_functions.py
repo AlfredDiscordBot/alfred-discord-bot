@@ -192,23 +192,6 @@ def get_youtube_url(url):
 
 
 
-def cembed(title="",description="",thumbnail="",picture="",color=discord.Color.dark_theme()):
-    '''
-    A simpler way for creating an embed
-    '''
-    embed=discord.Embed()
-    if color!=discord.Color.dark_theme():
-        embed=discord.Embed(color=discord.Color(value=color))
-    if title!="":
-        embed.title=title
-    if description!="":
-        embed.description=description
-    if thumbnail!="":
-        embed.set_thumbnail(url=thumbnail)
-    if picture!="":
-        embed.set_image(url=picture)            
-    return embed
-
 def get_if_process_exists(name):
     return len([i for i in [p.info['name'] for p in psutil.process_iter(['name'])] if i.find(name) != -1]) > 0
 
