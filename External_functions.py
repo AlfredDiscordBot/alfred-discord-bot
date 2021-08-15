@@ -191,8 +191,6 @@ def get_youtube_url(url):
     return li
 
 
-def get_if_process_exists(name):    
-    return len([i for i in [p.info['name'] for p in psutil.process_iter(['name'])] if i.find(name)!=-1])>0
 
 def cembed(title="",description="",thumbnail="",picture="",color=discord.Color.dark_theme()):
     '''
