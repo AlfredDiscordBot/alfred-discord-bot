@@ -3,7 +3,7 @@ def requirements():
 
 def main(client, re):
     from gi.repository import Notify
-    @client.command()
+    @client.command(aliases=['<:batsignal:876812166609633320>'])
     async def batsignal(ctx):
         # https://c.tenor.com/0GJ-XEcYLfcAAAAd/wongwingchun58.gif
         alvin = client.get_user(432801163126243328).mention

@@ -86,23 +86,42 @@ Output:
             return "Couldn't connect at the moment."
 
 
+history={}
+
+def filter_graves(code):
+    actual_code=""
+    for i in code.split("\n"):
+        if not i.startswith("```"):
+            actual_code+=i+"\n"
+    return actual_code
 
 def requirements():
     return "re[8]"
+
 def main(client,color):
     rce=CodeExecutor()
     import discord
+    
     @client.command()
     async def code(ctx,lang,*,code):
-        actual_code=""
-        for i in code.split("\n"):
-            if not i.startswith("```"):
-                actual_code+=i+"\n"                
+        actual_code=filter_graves(code)       
         output=rce.execute_code(language=lang,code=actual_code)
         embed=discord.Embed(title="Result",description=output,color=discord.Color(value=color))
         embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
         embed.set_footer(text="Result from https://emkc.org/")
         await ctx.send(embed=embed)
+        
+    @client.event
+    async def on_message_edit(message_before,message_after):
+        if message_after.content.startswith("'code"):
+            a=message_after.content.split("\n")[0]
+            language=a[a.find("'code")+len("'code "):]
+            actual_code=filter_graves(message_after.content[message_after.content.find("\n")+1:])
+            output=rce.execute_code(language=language,code=actual_code)
+            embed=discord.Embed(title="Result",description=output,color=discord.Color(value=color))
+            embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+            embed.set_footer(text="Result from https://emkc.org/")
+            await message_after.channel.send(embed=embed)
 # if __name__ == "__main__":
 #     rce = CodeExecutor()
 #     # print(rce.runtimes)

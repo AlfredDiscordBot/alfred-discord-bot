@@ -21,6 +21,7 @@ from wikipedia import search, summary
 from io import StringIO
 from contextlib import redirect_stdout
 from External_functions import *
+from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
 import traceback
 import googlesearch
 import youtube_dl
@@ -122,7 +123,8 @@ if True:
             time.sleep(10)
             mysql_load()
     mysql_load()
-    dev_users=['432801163126243328']#replace your id with this
+    #replace your id with this
+    dev_users=['432801163126243328']
     ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'128',}],}
     FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
     def save_to_file(a=""):
@@ -257,6 +259,7 @@ if True:
     @client.event
     async def on_ready():
         channel = client.get_channel(dev_channel)
+        DiscordComponents(client, change_discord_methods=True)
         try:
             try:
                 load_from_file()
@@ -342,17 +345,21 @@ if True:
                 break
         else:
             await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=str(len(client.guilds))+" servers"))
-        for i in youtube:            
-            a=get_youtube_url(i[0])[0]
-            channel_youtube=client.get_channel(int(i[1]))
-            if not (a,str(channel_youtube.guild.id)) in  old_youtube_vid:
-                old_youtube_vid.append((a,str(channel_youtube.guild.id)))
-                aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")        
-                curs=aad.cursor()
-                curs.execute("insert into old (video,channel) values('"+a+"', '"+str(channel_youtube.guild.id)+"')")
-                await channel_youtube.send(embed=discord.Embed(description="New video out from "+i[0],color=discord.Color(value=re[8])))
-                await channel_youtube.send(a)
-                aad.commit()                
+        for i in youtube:
+            try:
+                a=get_youtube_url(i[0])[0]
+                channel_youtube=client.get_channel(int(i[1]))
+                if not (a,str(channel_youtube.guild.id)) in  old_youtube_vid:
+                    old_youtube_vid.append((a,str(channel_youtube.guild.id)))
+                    aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")        
+                    curs=aad.cursor()
+                    curs.execute("insert into old (video,channel) values('"+a+"', '"+str(channel_youtube.guild.id)+"')")
+                    await channel_youtube.send(embed=discord.Embed(description="New video out from "+i[0],color=discord.Color(value=re[8])))
+                    await channel_youtube.send(a)
+                    aad.commit()
+            except Exception as e:
+                server_youtube=client.get_channel(int(i[1])).guild.name
+                await client.get_channel(dev_channel).send(embed=discord.Embed(title="Error in Youtube loop",description=str(e)+"\n"+server_youtube,color=discord.Color(value=re[8])))
     
                 
     @tasks.loop(seconds=10)
@@ -419,9 +426,12 @@ if True:
         await ctx.send(embed=imdb_embed(movie))
 
     @slash.slash(name="imdb",description="Give a movie name")
-    async def imdb_slash(ctx,*,movie):
+    async def imdb_slash(ctx,movie):
         await ctx.defer()
-        await imdb(ctx,movie)
+        try:
+            await ctx.send(embed=imdb_embed(movie))
+        except Exception as e:
+            await ctx.send(embed=cembed(title="Oops", description=str(e),color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
 
         
     @client.command(aliases=['youtube'])
@@ -431,8 +441,22 @@ if True:
             await ctx.send(embed=discord.Embed(description="Added "+url+" to the list\nUpdates will be in "+channel.name+" channel",color=discord.Color(value=re[8])))
         else:
             await ctx.send(embed=discord.Embed(description="Add the full link, including https",color=discord.Color(value=re[8])))
-        
-    @client.command(aliases=['e'])
+
+    @slash.slash(name="emoji",description="Get Emojis from other servers")
+    async def emoji_slash(ctx,emoji_name,number=0):
+        await ctx.defer()
+        if discord.utils.get(client.emojis,name=emoji_name)!=None:
+            emoji_list=[names.name for names in client.emojis if names.name==emoji_name]
+            le=len(emoji_list)
+            if le>=2:
+                if number>le-1:
+                    number=le-1
+            emoji=[names for names in client.emojis if names.name==emoji_name][number].id
+            await ctx.send(str(discord.utils.get(client.emojis,id=emoji)))
+        else:
+            await ctx.send(embed=discord.Embed(description="The emoji is not available",color=discord.Color(value=re[8])))
+    
+    @client.command(aliases=['e','emoji'])
     async def uemoji(ctx,emoji_name, number=0):
         req()
         try:
@@ -558,6 +582,11 @@ if True:
             embed=discord.Embed(title="Load failed", description=str(e), color=discord.Color(value=re[8]))
             embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
             await channel.send(embed=embed)
+            
+    @slash.slash(name="pr",description="Prints what you ask it to print")
+    async def pr_slash(ctx,text):
+        await ctx.send(text)
+        
     @client.command()
     async def pr(ctx,*,text):
         await ctx.send(text)
@@ -980,7 +1009,7 @@ if True:
     async def currentmusic(ctx):
         req()
         if len(queue_song[str(ctx.guild.id)])>0:
-            await ctx.send(embed=discord.Embed(title=str(da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]),description="Current index: "+str(re[3][str(ctx.guild.id)]),color=discord.Color(value=re[8])))
+            await ctx.send(embed=discord.Embed(title=str(da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]),description="[Current index: "+str(re[3][str(ctx.guild.id)])+"]("+queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]+")",color=discord.Color(value=re[8])))
         else:
             await ctx.send(embed=discord.Embed(title="Empty queue",description="Your queue is currently empty",color=discord.Color(value=re[8])))
     def repeat(ctx,voice):
@@ -1227,7 +1256,25 @@ if True:
         except Exception as e:
             channel=client.get_channel(dev_channel)
             await channel.send(embed=discord.Embed(title="Error in previous function", description=str(e)+"\n"+str(ctx.guild)+": "+str(ctx.channel.name),color=discord.Color(value=re[8])))
-    
+
+    @client.command(aliases=['dict'])
+    async def dictionary(ctx,*,text):
+        try:
+            data=eval(requests.get("https://api.dictionaryapi.dev/api/v2/entries/en/"+text.replace(" ","%20")).content.decode())[0]        
+            word=data['word']
+            phonetics="**Phonetics:**\n"+data['phonetics'][0]['text']+"\n\n"
+            origin="**Origin: **"+data['origin']+"\n"
+            meanings=data['meanings'][0]['definitions'][0]
+            meaning="**Definition: **"+meanings['definition']+"\n"
+            if 'example' in list(meaning.keys()):
+                example="**Example: **"+meanings['example']
+            else:
+                example=""
+            description=phonetics+origin+meaning+example
+            await ctx.send(embed=cembed(title=word,description=description,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        except Exception as e:            
+            await ctx.send(embed=cembed(title="Oops",description="Something is wrong\n"+str(e),color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        
     @client.command(aliases=['s_q'])
     async def search_queue(ctx,part):
         st=""
@@ -1474,6 +1521,18 @@ if True:
     	    else: await ctx.send(embed=discord.Embed(title="Permission Denied", description="You cant delete messages",color=discord.Color(value=re[8])))
     	else:
     	    await ctx.send("Wrong password")
+    	    
+    @slash.slash(name="wikipedia", description="Get a topic from wikipedia")
+    async def wiki_slash(ctx,text):
+        try:
+            await ctx.defer()
+            t=str(search(text)[0].encode("utf-8"))
+            em=discord.Embed(title=str(t).title(),description=str(summary(t,sentences=5)),color=discord.Color(value=re[8]))
+            em.set_thumbnail(url="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg")
+            await ctx.send(embed=em)
+        except Exception as e:
+            await ctx.send(embed=cembed(title="Oops",description=str(e),color=re[8],thumbnail=client.user.avatar_url_as(format='png')))
+    
     @client.command(aliases=['w'])
     async def wikipedia(ctx,*,text):
     	req()
@@ -1481,6 +1540,7 @@ if True:
     	em=discord.Embed(title=str(t).title(),description=str(summary(t,sentences=5)),color=discord.Color(value=re[8]))
     	em.set_thumbnail(url="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg")
     	await ctx.send(embed=em)
+    	
     @client.command(aliases=['hi'])
     async def check(ctx):
         req()
@@ -1672,8 +1732,10 @@ if True:
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
                             URL=youtube_download(reaction.message,queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]])
                             voice.stop()
-                            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(reaction.message,voice))    
-                            await reaction.message.edit(embed=discord.Embed(title="Playing",description=da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]],color=discord.Color(value=re[8])))
+                            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(reaction.message,voice))
+                            url=queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]
+                            song_name=da1[url]
+                            await reaction.message.edit(embed=discord.Embed(title="Playing",description=f"[{song_name}]({url})",color=discord.Color(value=re[8])))
                         else:
                             await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
                 if reaction.emoji=='⏸':
@@ -1686,7 +1748,9 @@ if True:
                             mem=[]
                         if mem.count(str(user))>0:
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
-                            await reaction.message.edit(embed=discord.Embed(title="Paused",description=da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]],color=discord.Color(value=re[8])))
+                            url=queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]
+                            song_name=da1[url]
+                            await reaction.message.edit(embed=discord.Embed(title="Paused",description=f"[{song_name}]({url})",color=discord.Color(value=re[8])))
                             voice.pause()
                 if reaction.emoji=='▶':
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
@@ -1703,7 +1767,9 @@ if True:
                                 starting=aa.find("<title>")+len("<title>")
                                 ending=aa.find("</title>")
                                 da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
-                            await reaction.message.edit(embed=discord.Embed(title="Playing",description=da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]],color=discord.Color(value=re[8])))
+                            url=queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]
+                            song_name=da1[url]
+                            await reaction.message.edit(embed=discord.Embed(title="Playing",description=f"[{song_name}]({url})",color=discord.Color(value=re[8])))
                             voice.resume()
                         else:
                             await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
@@ -1724,7 +1790,9 @@ if True:
                                 starting=aa.find("<title>")+len("<title>")
                                 ending=aa.find("</title>")
                                 da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
-                            await reaction.message.edit(embed=discord.Embed(title="Playing",description=da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]],color=discord.Color(value=re[8])))
+                            url=queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]
+                            song_name=da1[url]
+                            await reaction.message.edit(embed=discord.Embed(title="Playing",description=f"[{song_name}]({url})",color=discord.Color(value=re[8])))
                         else:
                             await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
                 if reaction.emoji=='⏭':
@@ -1748,8 +1816,10 @@ if True:
                             voice=discord.utils.get(client.voice_clients,guild=reaction.message.guild)
                             URL=youtube_download(reaction.message,queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]])
                             voice.stop()
-                            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(reaction.message,voice))    
-                            await reaction.message.edit(embed=discord.Embed(title="Playing",description=da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]],color=discord.Color(value=re[8])))
+                            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(reaction.message,voice))
+                            url=queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]
+                            song_name=da1[url]
+                            await reaction.message.edit(embed=discord.Embed(title="Playing",description=f"[{song_name}]({url})",color=discord.Color(value=re[8])))
                         else:
                             await reaction.message.edit(embed=discord.Embed(title="Permission denied",description=("You need to join the voice channel "+str(user.name)),color=discord.Color(value=re[8])))
                 if reaction.emoji=="⏹":
@@ -2093,6 +2163,7 @@ if True:
     @commands.has_permissions(kick_members=True)
     async def mute(ctx,member:discord.Member):
     	req()
+    	if ctx.guild.id==743323684705402951:add_role=discord.utils.get(ctx.guild.roles,name="muted")
     	if ctx.guild.id==851315724119310367:add_role=discord.utils.get(ctx.guild.roles,name="Muted")
     	else:add_role=discord.utils.get(ctx.guild.roles,name="dunce")
     	await member.add_roles(add_role)
@@ -2107,10 +2178,10 @@ if True:
     	await member.remove_roles(add_role)
     	await ctx.send("Unmuted "+member.mention)
     	print(member,"unmuted")
-    te="**Commands**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n'compile <lang> ```#code```\n\n" \
-    "**Alias**: \n'g <text to search> \n'h to show this message \n'm <Expression> for python eval \n'w for Wikipedia\n':: for memes\n'sq for queue\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n" \
-    "**Example**:\n'help\n'q\n'w Wikipedia\n'again\n'next\n'memes\n'q Song\n\n" \
-    "**Updates**:\nAlfred now supports youtube subscriptions\nAlfred now can execute code and its open for everyone\nIts for everyone. Check it out using\n 'compile lang\n```#code here```, Thank Shravan.\nAlfred has 24/7 games and roast feature now, currently games include chess only, we'll add more, DW.\nBtw if you didnt get slash commands get the new invite for Alfred from dev\n.Enjoy" \
+    te="**COMMANDS**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n'compile <lang> ```#code```\n\n" \
+    "**ALIAS**: \n'g <text to search> \n'h to show this message \n'm <Expression> for python eval \n'w for Wikipedia\n':: for memes\n'sq for queue\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n" \
+    "**EXAMPLE**:\n'help\n'q\n'w Wikipedia\n'again\n'next\n'memes\n'q Song\n\n" \
+    "**UPDATES**:\nAlfred now supports youtube subscriptions\nAlfred can  now execute code and its open for everyone\nIts for everyone. Check it out using\n 'compile lang\n```#code here```\n Thank Shravan.\nAlfred has 24/7 games and roast feature now, currently games include chess only, we'll add more, DW\nUse prefix `{` for that.\nBtw if you didnt get slash commands get the new invite for Alfred from dev.\nEnjoy\n\n" \
     "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'play <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue\n'play <index no.> to play certain song from the queue list\n" \
     "'addto playlist <Playlist name> to add current queue to playlist\n'addto queue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume\n'pause\n" \
     "'curr for current song.\n\n"

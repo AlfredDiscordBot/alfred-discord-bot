@@ -28,3 +28,11 @@ def main(client, re):
             await ctx.send(embed=embed)
         except Exception as e:
             await ctx.send(embed=discord.Embed(description=str(e), color=discord.Color(value=re[8])))
+            
+    @client.command(aliases=['github','source_code','sc','source'])
+    async def repo(ctx):
+        embed=discord.Embed(title="Source Code for Alfred",description="[Here you go, click this link and it'll redirect you to the github page](https://github.com/alvinbengeorge/alfred-discord-bot)",color=discord.Color(value=re[8]))
+        embed.set_thumbnail(url="https://github.githubassets.com/images/modules/open_graph/github-octocat.png")
+        embed.set_image(url=client.user.avatar_url_as(format="png"))
+        await ctx.send(embed=embed)
+        
