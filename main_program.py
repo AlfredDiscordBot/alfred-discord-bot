@@ -251,8 +251,12 @@ if True:
     def youtube_download(ctx,url):        
         if True:
             with youtube_dl.YoutubeDL(ydl_op) as ydl:
-                URL = ydl.extract_info(url, download=False)['formats'][0]['url']
+                URL = youtube_info(url)['formats'][0]['url']
         return URL
+    def youtube_info(url):
+        with youtube_dl.YoutubeDL(ydl_op) as ydl:
+            info=ydl.extract_info(url, download=False)
+        return info
     def fix_queue():
         pass
 
@@ -545,13 +549,6 @@ if True:
         except Exception as e:
             await client.get_channel(dev_channel).send(embed=discord.Embed(title="Error in Theme_Color",description=str(e),color=discord.Color(value=re[8])))
             
-    @client.command()
-    async def setup(ctx,a,*,text):
-        print("setup",text,str(ctx.author))
-        global a_channels
-        if a=="entrar":
-            a_channels=a_channels+[discord.utils.get(ctx.guild.channels,name=text).id]
-            await ctx.send(embed=discord.Embed(title="Done", description="Set <#"+discord.utils.get(ctx.guild.channels,name=text).id+"> as default"))
             
     @client.command(aliases=['$$'])
     async def recover(ctx):
@@ -1009,7 +1006,13 @@ if True:
     async def currentmusic(ctx):
         req()
         if len(queue_song[str(ctx.guild.id)])>0:
-            await ctx.send(embed=discord.Embed(title=str(da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]),description="[Current index: "+str(re[3][str(ctx.guild.id)])+"]("+queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]+")",color=discord.Color(value=re[8])))
+            description="[Current index: "+str(re[3][str(ctx.guild.id)])+"]("+queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]+")\n"
+            info=youtube_info(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
+            check="\n\nDescription: \n"+info['description']+"\n"
+            if len(check)<3000 and len(check)>0:
+                description+=check
+            description+="\nDuration: "+str(info['duration']//60)+"min "+str(info['duration']%60)+"sec"+f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n{info['dislike_count']} :thumbdown:"
+            await ctx.send(embed=cembed(title=str(da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]),description=description,color=re[8],thumbnail=info['thumbnail']))
         else:
             await ctx.send(embed=discord.Embed(title="Empty queue",description="Your queue is currently empty",color=discord.Color(value=re[8])))
     def repeat(ctx,voice):
@@ -1388,7 +1391,7 @@ if True:
                         starting=aa.find("<title>")+len("<title>")
                         ending=aa.find("</title>")
                         da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]=aa[starting:ending].replace("&#39;","'").replace(" - YouTube","").replace("&amp;","&")
-                    mess=await ctx.send(embed=discord.Embed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]+bitrate,color=discord.Color(value=re[8])))
+                    mess=await ctx.send(embed=cembed(title="Playing",description=da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]+bitrate,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
                     URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
                     voice.stop()
                     voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))    
@@ -1402,7 +1405,7 @@ if True:
                     await mess.add_reaction(emoji.emojize(":upwards_button:"))
                     await mess.add_reaction(emoji.emojize(":downwards_button:"))
                 else:
-                    await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to play the song",color=discord.Color(value=re[8])))
+                    await ctx.send(embed=cembed(title="Permission denied",description="Join the voice channel to play the song",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
             except Exception as e:
                 channel=client.get_channel(dev_channel)
                 await ctx.send(embed=cembed(title="Error", description=str(e),color=re[8], thumbnail=client.user.avatar_url_as(format="png")))
