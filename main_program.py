@@ -1262,20 +1262,28 @@ if True:
 
     @client.command(aliases=['dict'])
     async def dictionary(ctx,*,text):
-        try:
+        if True:
             data=eval(requests.get("https://api.dictionaryapi.dev/api/v2/entries/en/"+text.replace(" ","%20")).content.decode())[0]        
             word=data['word']
-            phonetics="**Phonetics:**\n"+data['phonetics'][0]['text']+"\n\n"
-            origin="**Origin: **"+data['origin']+"\n"
+            description="**Here's What I found:**\n\n"
+            if 'phonetics' in data.keys():
+                if 'text' in data['phonetics'][0]:
+                    phonetics="**Phonetics:**\n"+data['phonetics'][0]['text']+"\n\n"
+                    description+=phonetics
+            if 'origin' in list(data.keys()):
+                origin="**Origin: **"+data['origin']+"\n\n"
+                description+=origin
             meanings=data['meanings'][0]['definitions'][0]
-            meaning="**Definition: **"+meanings['definition']+"\n"
-            if 'example' in list(meaning.keys()):
+            if 'definition' in list(meanings.keys()):
+                meaning="**Definition: **"+meanings['definition']+"\n\n"
+                description+=meaning
+            if 'example' in list(meanings.keys()):
                 example="**Example: **"+meanings['example']
-            else:
-                example=""
-            description=phonetics+origin+meaning+example
+                description+=example
+            
             await ctx.send(embed=cembed(title=word,description=description,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
-        except Exception as e:            
+        else:
+            print(e)
             await ctx.send(embed=cembed(title="Oops",description="Something is wrong\n"+str(e),color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         
     @client.command(aliases=['s_q'])
