@@ -7,7 +7,7 @@ def main(client, re):
     import random
     @client.command()
     async def f(ctx):
-        urls = ["https://c.tenor.com/BaJDchtzSMQAAAAC/f-letter-f-burts.gif","https://tenor.com/view/rick-astley-rick-roll-dancing-dance-moves-gif-14097983","https://tenor.com/view/fairy-oddparents-f-dancing-dance-gif-14148380","https://tenor.com/view/efemann-efe-ff-f-in-the-chat-f-in-chat-gif-17919585","https://tenor.com/view/team-fortress2-pay-respects-press-f-gif-14764178","https://tenor.com/view/triggered-letter-f-respect-shake-gif-16962890"]
+        urls = ["https://c.tenor.com/BaJDchtzSMQAAAAC/f-letter-f-burts.gif","https://c.tenor.com/rtnshG9YFykAAAAd/rick-astley-rick-roll.gif","https://c.tenor.com/Mk3HGIMZ0mcAAAAC/fairy-oddparents-f-dancing.gif","https://c.tenor.com/J4bVExaxn5oAAAAd/efemann-efe.gif","https://c.tenor.com/H8DA2jkNgtwAAAAC/team-fortress2-pay-respects.gif","https://c.tenor.com/L68DS0H7Mp8AAAAC/triggered-letter-f.gif"]
         embed = discord.Embed(color=discord.Color(re[8]))
         embed.set_image(
             url=random.choice(urls))
