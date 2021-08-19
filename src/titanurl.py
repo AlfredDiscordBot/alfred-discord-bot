@@ -22,3 +22,4 @@ def main(client, re):
                 t = s.post("https://titan-url.herokuapp.com/shorten",
                            json=payload, headers=header)
                 await ctx.send(embed=discord.Embed(title="TitanURL", description=eval(str(t.content.decode()))["message"], color=discord.Color(value=re[8])))
+
