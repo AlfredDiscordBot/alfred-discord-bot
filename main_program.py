@@ -299,7 +299,7 @@ if True:
             await mess.add_reaction(emoji.emojize(":classical_building:"))
             await mess.add_reaction(emoji.emojize(":laptop:"))            
             global link_for_cats            
-            if True:
+            try:
                 safe_stop=0
                 r=requests.get("https://bestlifeonline.com/funniest-cat-memes-ever/")
                 string=str(r.content.decode())
@@ -318,6 +318,8 @@ if True:
                 link_for_cats+=memes2()
                 link_for_cats+=memes1()
                 link_for_cats+=memes3()
+            except Exception as e:
+                await channel.send(embed=cembed(title="Meme issues", description="Something went wrong during importing memes\n"+str(e),color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
             if True:
                 imports=""
                 sys.path.insert(1,location_of_file+"/src")
@@ -431,6 +433,7 @@ if True:
 
     @slash.slash(name="imdb",description="Give a movie name")
     async def imdb_slash(ctx,movie):
+        req()
         await ctx.defer()
         try:
             await ctx.send(embed=imdb_embed(movie))
@@ -448,6 +451,7 @@ if True:
 
     @slash.slash(name="emoji",description="Get Emojis from other servers")
     async def emoji_slash(ctx,emoji_name,number=0):
+        req()
         await ctx.defer()
         if discord.utils.get(client.emojis,name=emoji_name)!=None:
             emoji_list=[names.name for names in client.emojis if names.name==emoji_name]
@@ -582,6 +586,7 @@ if True:
             
     @slash.slash(name="pr",description="Prints what you ask it to print")
     async def pr_slash(ctx,text):
+        req()
         await ctx.send(text)
         
     @client.command()
@@ -834,6 +839,7 @@ if True:
 
     @slash.slash(name="Snipe",description="Get the last few deleted messages")
     async def snipe_slash(ctx,number=0):
+        req()
         await ctx.defer()
         await snipe(ctx,number)
         
@@ -917,6 +923,7 @@ if True:
             await ctx.send(embed=discord.Embed(title="Games", description="1. TicTacToe(XO)\n2. Coin Toss(Toss)\n\nEnter the keyword given in the brackets after 'games",color=discord.Color(value=re[8])))
     @slash.slash(name="connect",description="Connect to a voice channel")
     async def connect_slash(ctx,channel=""):
+        req()
         await ctx.defer()
         await connect_music(ctx,channel)
         
@@ -1034,12 +1041,14 @@ if True:
                 
     @slash.slash(name="autoplay",description="Plays the next song automatically if its turned on")
     async def autoplay_slash(ctx):
+        req()
         await ctx.defer()
         await autoplay(ctx)
 
     @slash.slash(name="loop",description="Loops the same song")
     async def loop_slash(ctx):
         await ctx.defer()
+        req()
         await loop(ctx)
             
     @client.command()
@@ -1218,6 +1227,7 @@ if True:
 
     @slash.slash(name="news",description="Latest news from a given subject")
     async def news_slash(ctx,*,subject="Technology"):
+        req()
         await ctx.defer()
         await news(ctx,subject)
             
@@ -1263,23 +1273,29 @@ if True:
     @client.command(aliases=['dict'])
     async def dictionary(ctx,*,text):
         if True:
-            data=eval(requests.get("https://api.dictionaryapi.dev/api/v2/entries/en/"+text.replace(" ","%20")).content.decode())[0]        
-            word=data['word']
-            description="**Here's What I found:**\n\n"
-            if 'phonetics' in data.keys():
-                if 'text' in data['phonetics'][0]:
-                    phonetics="**Phonetics:**\n"+data['phonetics'][0]['text']+"\n\n"
-                    description+=phonetics
-            if 'origin' in list(data.keys()):
-                origin="**Origin: **"+data['origin']+"\n\n"
-                description+=origin
-            meanings=data['meanings'][0]['definitions'][0]
-            if 'definition' in list(meanings.keys()):
-                meaning="**Definition: **"+meanings['definition']+"\n\n"
-                description+=meaning
-            if 'example' in list(meanings.keys()):
-                example="**Example: **"+meanings['example']
-                description+=example
+            data=eval(requests.get("https://api.dictionaryapi.dev/api/v2/entries/en/"+text.replace(" ","%20")).content.decode())
+            if type(data)==type([]):
+                data=data[0]
+                word=data['word']
+                description="**Here's What I found:**\n\n"
+                if 'phonetics' in data.keys():
+                    if 'text' in data['phonetics'][0]:
+                        phonetics="**Phonetics:**\n"+data['phonetics'][0]['text']+"\n\n"
+                        description+=phonetics
+                if 'origin' in list(data.keys()):
+                    origin="**Origin: **"+data['origin']+"\n\n"
+                    description+=origin
+                if 'meanings' in data.keys() and 'definitions' in data['meanings'][0]:
+                    meanings=data['meanings'][0]['definitions'][0]
+                    if 'definition' in list(meanings.keys()):
+                        meaning="**Definition: **"+meanings['definition']+"\n\n"
+                        description+=meaning
+                    if 'example' in list(meanings.keys()):
+                        example="**Example: **"+meanings['example']
+                        description+=example
+            else:
+                word=data['title']
+                description=data['message']
             
             await ctx.send(embed=cembed(title=word,description=description,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         else:
@@ -1421,11 +1437,13 @@ if True:
 
     @slash.slash(name="again",description="Repeat the song")
     async def again_slash(ctx):
+        req()
         await ctx.defer()
         await again(ctx)
 
     @slash.slash(name="memes",description="Memes from Alfred yey")
-    async def leave_slash(ctx):
+    async def memes(ctx):
+        req()
         await ctx.defer()
         await memes(ctx)
         
@@ -1450,6 +1468,7 @@ if True:
 
     @slash.slash(name="dc",description="Disconnect the bot from your voice channel")
     async def leave_slash(ctx):
+        req()
         await ctx.defer()
         await leave(ctx)
 
@@ -1508,20 +1527,7 @@ if True:
         if mem.count(str(ctx.author))>0:
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.resume()
-            await ctx.send(embed=discord.Embed(title="Resume",color=discord.Color(value=re[8])))
-    @client.command()
-    async def stop(ctx):
-        req()
-        try:
-            mem=[str(names) for names in ctx.voice_client.channel.members]
-        except:
-            mem=[]
-        if mem.count(str(ctx.author))>0:
-            voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
-            voice.stop()
-            await ctx.send(embed=discord.Embed(title="Stop",color=discord.Color(value=re[8])))
-        else:
-            await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the channel to resume the song",color=discord.Color(value=re[8])))
+            await ctx.send(embed=discord.Embed(title="Resume",color=discord.Color(value=re[8])))   
             
     @client.command()    
     async def clear(ctx,text,num=10):
@@ -1536,6 +1542,7 @@ if True:
     @slash.slash(name="wikipedia", description="Get a topic from wikipedia")
     async def wiki_slash(ctx,text):
         try:
+            req()
             await ctx.defer()
             t=str(search(text)[0].encode("utf-8"))
             em=discord.Embed(title=str(t).title(),description=str(summary(t,sentences=5)),color=discord.Color(value=re[8]))
@@ -1560,6 +1567,7 @@ if True:
         await ctx.send(embed=em)
     @slash.slash(name="check",description="Check if the bot is online")
     async def check_slash(ctx):
+        req()
         await ctx.defer()
         await check(ctx)
     @client.command()
@@ -2199,6 +2207,7 @@ if True:
 
     @slash.slash(name="help",description="Help from Alfred")
     async def help_slash(ctx):
+        req()
         await ctx.defer()
         await h(ctx)
     client.remove_command("help")
