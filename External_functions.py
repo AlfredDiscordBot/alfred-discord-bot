@@ -4,6 +4,7 @@ import hashlib
 import psutil
 import os
 import discord
+import random
 import imdb
 from dotenv import load_dotenv
 from instagramy import *
@@ -259,3 +260,17 @@ def check_win(board):
           return(result)
       else:
           return " "
+
+def reddit(account="wholesomememes",number=25,single=True):
+    true=True
+    false=False
+    a=eval(requests.get(f"https://meme-api.herokuapp.com/gimme/{account}/{number}").content.decode())
+    l=[]
+    if not 'message' in a.keys():
+        for i in a['memes']:
+            l.append((i['title'],i['url']))
+        if single:
+            l=[random.choice(l)]
+        return l
+    else:
+        return [(a['code'],a['message'],False)]

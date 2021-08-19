@@ -589,9 +589,31 @@ if True:
         req()
         await ctx.send(text)
         
-    @client.command()
+    @client.command(aliases=['say'])
     async def pr(ctx,*,text):
         await ctx.send(text)
+
+    @slash.slash(name="reddit",description="Gives you a random reddit post from the account you specify")
+    async def reddit_slash(ctx,account="wholesomememes"):
+        try:
+            await ctx.defer()
+            await reddit_search(ctx,account)
+        except:
+            await ctx.send(embed=cembed(title="Oops", description="Something went wrong",color=re[8]))
+    @client.command(aliases=['reddit'])
+    async def reddit_search(ctx,account="wholesomememes", show_as_list="",number=1):
+        req()
+        description=""
+        if number==1:
+            a=reddit(account)[0]
+            if len(a)<3:
+                await ctx.send(embed=cembed(title=a[0],color=re[8],picture=a[1]))
+            else:
+                await ctx.send(embed=cembed(title=a[0],color=re[8],description=a[1]))
+        
+                
+        
+        
     @client.command(aliases=['l'])
     async def lyrics(ctx,*,string=""):
         print("Lyrics",str(ctx.author))
@@ -848,7 +870,7 @@ if True:
         if number==0:
             message=deleted_message[ctx.channel.id][-1]
             if len(message)<3:
-                await ctx.send("**"+message[0]+":**\n"+message[1])
+                await ctx.send("**"+message[0]+":**\n```"+message[1]+"```")
             else:
                 await ctx.send("**"+message[0]+":**")                    
                 await ctx.send(embed=message[1])
@@ -2074,7 +2096,7 @@ if True:
                 for i in msg.author.mutual_guilds:
                     st=st+i.name+"\n" 
                 embed=discord.Embed(title="Hi!! I am Alfred.",description="Prefix is '\nFor more help, type 'help"+st,color=discord.Color(value=re[8]))
-                embed.set_image(url="https://giffiles.alphacoders.com/205/205331.gif")
+                embed.set_image(url=random.choice(["https://giffiles.alphacoders.com/205/205331.gif","https://c.tenor.com/PQu-tE-5HxwAAAAd/michael-caine-the-dark-knight.gif"]))
                 
                 await msg.channel.send(embed=embed)
             if msg.content.find("'")==0:
