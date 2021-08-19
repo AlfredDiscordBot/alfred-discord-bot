@@ -4,12 +4,13 @@ def requirements():
 
 def main(client, re):
     import discord
-
+    import random
     @client.command()
     async def f(ctx):
+        urls = ["https://c.tenor.com/BaJDchtzSMQAAAAC/f-letter-f-burts.gif","https://tenor.com/view/rick-astley-rick-roll-dancing-dance-moves-gif-14097983","https://tenor.com/view/fairy-oddparents-f-dancing-dance-gif-14148380","https://tenor.com/view/efemann-efe-ff-f-in-the-chat-f-in-chat-gif-17919585","https://tenor.com/view/team-fortress2-pay-respects-press-f-gif-14764178","https://tenor.com/view/triggered-letter-f-respect-shake-gif-16962890"]
         embed = discord.Embed(color=discord.Color(re[8]))
         embed.set_image(
-            url="https://c.tenor.com/BaJDchtzSMQAAAAC/f-letter-f-burts.gif")
+            url=random.choice(urls))
         await ctx.send(embed=embed)
 
     @client.command(aliases=['s_e'])
