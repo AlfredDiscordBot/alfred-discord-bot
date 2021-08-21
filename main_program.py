@@ -104,7 +104,8 @@ if True:
     color_message=None
     color_temp=()    
     link_for_cats=[]
-    vc_channel={}    
+    vc_channel={}
+    wolfram=os.getenv('wolfram')
     def mysql_load():
         try:
             aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")
