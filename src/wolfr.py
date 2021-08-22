@@ -5,6 +5,7 @@ def main(client,re,AiD,dev_channel):
     import discord
     import io
     import requests
+    import urllib.parse
     w=Client(AiD)
 
     def get_answer(question=""):
@@ -42,6 +43,7 @@ def main(client,re,AiD,dev_channel):
             embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
             return (embed,None)
         else:
+            question=urllib.parse.quote(question, safe='')
             color=str(hex(re[8]))[2:].upper()
             a=requests.get(f"http://api.wolframalpha.com/v1/simple?appid={AiD}&i={question}&layout=labelbar&background={color}&width=1500").content
             file=open('output.png','wb')
