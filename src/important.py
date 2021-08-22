@@ -7,10 +7,13 @@ def main(client, re):
     import random
     @client.command()
     async def f(ctx):
-        urls = ["https://c.tenor.com/BaJDchtzSMQAAAAC/f-letter-f-burts.gif","https://c.tenor.com/rtnshG9YFykAAAAd/rick-astley-rick-roll.gif","https://c.tenor.com/Mk3HGIMZ0mcAAAAC/fairy-oddparents-f-dancing.gif","https://c.tenor.com/J4bVExaxn5oAAAAd/efemann-efe.gif","https://c.tenor.com/H8DA2jkNgtwAAAAC/team-fortress2-pay-respects.gif","https://c.tenor.com/L68DS0H7Mp8AAAAC/triggered-letter-f.gif", "https://tenor.com/view/dance-moves-dancing-singer-groovy-gif-17029825.gif", "https://c.tenor.com/view/rick-astley-rick-roll-dancing-dance-moves-gif-14097983.gif", "https://.ctenor.com/view/rickroll-lyrics-80s-never-gonna-give-you-up-rick-astley-gif-21869209.gif", "https://c.tenor.com/view/never-gonna-give-up-singing-gif-16046974.gif"]
+        urls = ["https://c.tenor.com/BaJDchtzSMQAAAAC/f-letter-f-burts.gif","https://c.tenor.com/rtnshG9YFykAAAAd/rick-astley-rick-roll.gif","https://c.tenor.com/Mk3HGIMZ0mcAAAAC/fairy-oddparents-f-dancing.gif","https://c.tenor.com/J4bVExaxn5oAAAAd/efemann-efe.gif","https://c.tenor.com/H8DA2jkNgtwAAAAC/team-fortress2-pay-respects.gif","https://c.tenor.com/L68DS0H7Mp8AAAAC/triggered-letter-f.gif", "https://tenor.com/view/dance-moves-dancing-singer-groovy-gif-17029825.gif", "https://c.tenor.com/view/never-gonna-give-up-singing-gif-16046974.gif"]
         embed = discord.Embed(color=discord.Color(re[8]))
+        url=random.choice(urls)
+        print(urls.index(url))
+        print(url)
         embed.set_image(
-            url=random.choice(urls))
+            url=url)
         await ctx.send(embed=embed)
 
     @client.command(aliases=['s_e'])
