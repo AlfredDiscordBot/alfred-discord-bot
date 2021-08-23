@@ -1681,6 +1681,18 @@ if True:
                             result = check_win(board)
                             if result!=" ":
                                 await sent.edit(embed=discord.Embed(title="Tic Tac Toe by Rahul",description=result,color=discord.Color(value=re[8])))
+                if reaction.emoji==emoji.emojize(":musical_note:"):
+                    await reaction.remove(user)
+                    if len(queue_song[str(reaction.message.guild.id)])>0:
+                        description="[Current index: "+str(re[3][str(reaction.message.guild.id)])+"]("+queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]+")\n"
+                        info=youtube_info(queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]])
+                        check="\n\nDescription: \n"+info['description']+"\n"
+                        if len(check)<3000 and len(check)>0:
+                            description+=check
+                        description+="\nDuration: "+str(info['duration']//60)+"min "+str(info['duration']%60)+"sec"+f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n{info['dislike_count']} :thumbdown:"
+                        await reaction.message.edit(embed=cembed(title=str(da1[queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]]]),description=description,color=re[8],thumbnail=info['thumbnail']))
+                    else:
+                        await reaction.message.edit(embed=discord.Embed(title="Empty queue",description="Your queue is currently empty",color=discord.Color(value=re[8])))
                 if reaction.emoji==discord.utils.get(client.emojis,name="blue_down"):
                     if str(user)!=str(client.user) and reaction.message.author==client.user:
                         await reaction.remove(user)
