@@ -92,8 +92,7 @@ def memes3():
     link = []
     for i in range(20):
         a = st.find('srcset="', stop)+len('srcset="')
-        b = st.find(".jpg", a)+len(".jpg")
-        print(st[a:b])
+        b = st.find(".jpg", a)+len(".jpg")        
         stop = b
         link += [st[a:b]]
     return link
