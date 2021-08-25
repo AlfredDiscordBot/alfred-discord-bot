@@ -2214,5 +2214,4 @@ if True:
         em=discord.Embed(title="**HELP** \n",description=te,color=discord.Color(value=re[8]))
         em.set_thumbnail(url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903")
         await ctx.send(embed=em)
-    #client.run("ODQ4NTUxNzMyMDQ4MDM1ODYw.YLORYg.XBmW2JEh_AATxlvRqxn6K42dOb0")
     client.run(os.getenv('token'))
