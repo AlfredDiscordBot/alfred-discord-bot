@@ -51,8 +51,6 @@ if True:
     except:
         print("failed")
     googlenews=GoogleNews()
-    if os.getcwd()!=os.getenv('default'):
-        os.chdir(os.getenv('default'))
     start_time=time.time()
     try:
         md=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'))
@@ -121,8 +119,9 @@ if True:
                 old_youtube_vid.append(data)
             aad.commit()
         except:
-            time.sleep(10)
-            mysql_load()
+            print("not yet")
+            #time.sleep(10)
+            #mysql_load()
     mysql_load()
     #replace your id with this
     dev_users=['432801163126243328']
@@ -1912,11 +1911,7 @@ if True:
                         await reaction.remove(user)
                         for i in dev_users:
                             string=string+str(client.get_user(int(i)).name)+"\n"
-                        await channel.send(embed=discord.Embed(title="Developers",description=string+"\n\nThank you for supporting",color= discord.Color(value=re[8])))
-                    if reaction.emoji==emoji.emojize(":classical_building:") and str(reaction.message.channel.id)==str(channel.id) and reaction.message.author==client.user:
-                        os.system("nohup python "+location_of_file+"/Storage.py &> .storage.txt &")
-                        await reaction.remove(user)
-                        await channel.send(embed=discord.Embed(title="Storage",description="Requested Storage to wake up",color=client.discord.Color.from_rgb(255,255,255)))
+                        await channel.send(embed=discord.Embed(title="Developers",description=string+"\n\nThank you for supporting",color= discord.Color(value=re[8])))                    
                     if reaction.emoji==emoji.emojize(":bar_chart:") and str(reaction.message.channel.id)==str(channel.id):
                         await reaction.remove(user)
                         cpu_per=str(int(psutil.cpu_percent()))
@@ -2219,4 +2214,5 @@ if True:
         em=discord.Embed(title="**HELP** \n",description=te,color=discord.Color(value=re[8]))
         em.set_thumbnail(url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903")
         await ctx.send(embed=em)
+    #client.run("ODQ4NTUxNzMyMDQ4MDM1ODYw.YLORYg.XBmW2JEh_AATxlvRqxn6K42dOb0")
     client.run(os.getenv('token'))
