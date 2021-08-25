@@ -7,7 +7,7 @@ mysql=
 default=
 '''
 
-
+from keep_alive import keep_alive
 import discord
 from random import choice
 from discord.ext import commands, tasks
@@ -417,7 +417,7 @@ if True:
     @slash.command(name="imdb",description="Give a movie name")
     async def imdb_slash(ctx,movie):
         req()
-        await ctx.defer()
+        
         try:
             await ctx.send(embed=imdb_embed(movie))
         except Exception as e:
@@ -435,7 +435,7 @@ if True:
     @slash.command(name="emoji",description="Get Emojis from other servers")
     async def emoji_slash(ctx,emoji_name,number=0):
         req()
-        await ctx.defer()
+        
         if discord.utils.get(client.emojis,name=emoji_name)!=None:
             emoji_list=[names.name for names in client.emojis if names.name==emoji_name]
             le=len(emoji_list)
@@ -581,9 +581,10 @@ if True:
     async def reddit_slash(ctx,account="wholesomememes"):
         req()
         try:
-            await ctx.defer()
+            
             await reddit_search(ctx,account)
-        except:
+        except Exception as e:
+            print(e)
             await ctx.send(embed=cembed(title="Oops", description="Something went wrong",color=re[8]))
     @client.command(aliases=['reddit'])
     async def reddit_search(ctx,account="wholesomememes", show_as_list="",number=1):
@@ -809,7 +810,7 @@ if True:
 
     @slash.command(name="entrar", description="Latest announcements from Entrar")
     async def yentrar(ctx,*,num=re[6]):
-        await ctx.defer()
+        
         await entrar(ctx)        
     
 
@@ -851,7 +852,7 @@ if True:
     @slash.command(name="snipe",description="Get the last few deleted messages")
     async def snipe_slash(ctx,number=0):
         req()
-        await ctx.defer()
+        
         await snipe(ctx,number)
         
     @client.command()
@@ -935,7 +936,7 @@ if True:
     @slash.command(name="connect",description="Connect to a voice channel")
     async def connect_slash(ctx,channel=""):
         req()
-        await ctx.defer()
+        
         await connect_music(ctx,channel)
         
     @client.command(aliases=['cm'])
@@ -1053,12 +1054,12 @@ if True:
     @slash.command(name="autoplay",description="Plays the next song automatically if its turned on")
     async def autoplay_slash(ctx):
         req()
-        await ctx.defer()
+        
         await autoplay(ctx)
 
     @slash.command(name="loop",description="Loops the same song")
     async def loop_slash(ctx):
-        await ctx.defer()
+        
         req()
         await loop(ctx)
             
@@ -1218,7 +1219,7 @@ if True:
     @slash.command(name="news",description="Latest news from a given subject")
     async def news_slash(ctx,*,subject="Technology"):
         req()
-        await ctx.defer()
+        
         await news(ctx,subject)
             
     @client.command()
@@ -1415,13 +1416,13 @@ if True:
     @slash.command(name="again",description="Repeat the song")
     async def again_slash(ctx):
         req()
-        await ctx.defer()
+        
         await again(ctx)
 
     @slash.command(name="memes",description="Memes from Alfred yey")
     async def memes(ctx):
         req()
-        await ctx.defer()
+        
         await memes(ctx)
         
     @client.command(aliases=['::'])
@@ -1473,7 +1474,7 @@ if True:
     @slash.command(name="dc",description="Disconnect the bot from your voice channel")
     async def leave_slash(ctx):
         req()
-        await ctx.defer()
+        
         await leave(ctx)
 
         
@@ -1543,7 +1544,7 @@ if True:
     async def wiki_slash(ctx,text):
         try:
             req()
-            await ctx.defer()
+            
             t=str(search(text)[0].encode("utf-8"))
             em=discord.Embed(title=str(t).title(),description=str(summary(t,sentences=5)),color=discord.Color(value=re[8]))
             em.set_thumbnail(url="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg")
@@ -1568,7 +1569,7 @@ if True:
     @slash.command(name="check",description="Check if the bot is online")
     async def check_slash(ctx):
         req()
-        await ctx.defer()
+        
         await check(ctx)
     @client.command()
     async def test(ctx,*,text):
@@ -2042,6 +2043,11 @@ if True:
     @client.event
     async def on_message(msg):
         try:
+            try:
+              pass
+              #Jay do stuff here
+            except Exception as e:
+              print(e)
             for word in censor:
                 if word in msg.content.lower() and msg.guild.id==822445271019421746:
                     await msg.delete()
@@ -2167,6 +2173,13 @@ if True:
         embed=cembed(title="Title of the embed", description="This is to check if the embed function works", thumbnail=client.user.avatar_url_as(format="png"), picture=ctx.author.avatar_url_as(format="png"), color=re[8])
         await ctx.send(embed=embed)
 
+    @client.command(aliases=['alfred'])
+    async def hey_alfred(ctx,*, text):
+        import randomstuff
+        client = randomstuff.Client(api_key=os.getenv("cpi"))
+        text = text.replace("alfred", "")
+        response = client.get_ai_response(text, name="Alfred")
+        await ctx.send(response.message)
 
     @client.command(aliases=['mu'])
     @commands.has_permissions(kick_members=True)
@@ -2198,7 +2211,7 @@ if True:
     @slash.command(name="help",description="Help from Alfred")
     async def help_slash(ctx):
         req()
-        await ctx.defer()
+        
         await h(ctx)
     client.remove_command("help")
     @client.group(invoke_without_command=True)
@@ -2215,4 +2228,5 @@ if True:
         em=discord.Embed(title="**HELP** \n",description=te,color=discord.Color(value=re[8]))
         em.set_thumbnail(url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903")
         await ctx.send(embed=em)
+    keep_alive
     client.run(os.getenv('token'))
