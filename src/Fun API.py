@@ -6,7 +6,10 @@ def main(client,re):
     import urllib.parse
 
     def convert_to_url(name):
-        name=urllib.parse.quote(name, safe='')
+        name=urllib.parse.quote(name)
+        return name
+
+    
     @client.command()
     async def kanye(ctx):
         re[0]+=1
@@ -47,3 +50,31 @@ def main(client,re):
             await ctx.send(embed=embed)
         else:
             await ctx.send(embed=discord.Embed(title="Hmm",description="Not found",color=discord.Color(value=re[8])))
+            
+    @client.command()
+    async def ip(ctx,*,ip):
+        re[0]+re[0]+1
+        ip=convert_to_url(ip)
+        print(ip)
+        print(f"https://ipinfo.io/{ip}/geo")
+        a=eval(requests.get(f"https://ipinfo.io/{ip}/geo").content.decode())
+        st=""
+        if 'status' not in list(a.keys()):
+            for i in list(a.keys()):
+                st+=f"**{i}**:\n{a[i]}\n\n"
+            embed=discord.Embed(title=ip,description=st,color=discord.Color(value=re[8]))
+            embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))    
+            await ctx.send(embed=embed)
+        else:
+            embed=discord.Embed(title="Oops",description="Oops, couldnt find it :confused:",color=discord.Color(value=re[8]))
+            embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+            await ctx.send(embed=embed)
+
+    @client.command(aliases=['cat'])
+    async def cat_fact(ctx):
+        re[0]+re[0]+1
+        a=eval(requests.get("https://catfact.ninja/fact").content.decode())
+        embed=discord.Embed(title="Cat Fact",description=a['fact'],color=discord.Color(value=re[8]))
+        embed.set_thumbnail(url="https://i.imgur.com/u1TPbIp.png?1")
+        await ctx.send(embed=embed)
+                

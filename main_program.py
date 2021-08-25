@@ -16,7 +16,7 @@ from googlesearch import search
 from GoogleNews import GoogleNews
 from dotenv import load_dotenv
 from math import *
-from statistics import*
+from statistics import *
 from wikipedia import search, summary
 from io import StringIO
 from contextlib import redirect_stdout
@@ -300,33 +300,7 @@ if True:
             await mess.add_reaction(emoji.emojize(":black_circle:"))
             await mess.add_reaction(emoji.emojize(":classical_building:"))
             await mess.add_reaction(emoji.emojize(":laptop:"))
-            print("Finished devop display")
-            global link_for_cats            
-            try:
-                safe_stop=0
-                r=requests.get("https://bestlifeonline.com/funniest-cat-memes-ever/")
-                string=str(r.content.decode())
-                for i in range(0,94):
-                    #https://bestlifeonline.com/funniest-cat-memes-ever/
-                    n1=string.find("<h2",safe_stop+len("<h2"))
-                    n3=string.find('<div class="number">',n1)+len('<div class="number">')
-                    n4=string.find('</div>',n3)
-                    n2=string.find("data-src=",n1)+len("data-src=")+1
-                    n1=string.find('" ',n2)
-                    safe_stop=n1
-                    number=int(string[n3:n4])
-                    if number>=97:
-                        safe_stop=0
-                    link_for_cats+=[string[n2:n1]]
-                print("Finished meme")
-                link_for_cats+=memes1()
-                print("Finished meme1")
-                link_for_cats+=memes2()
-                print("Finished meme2")
-                link_for_cats+=memes3()
-                print("Finished meme3")
-            except Exception as e:
-                await channel.send(embed=cembed(title="Meme issues", description="Something went wrong during importing memes\n"+str(e),color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+            print("Finished devop display")            
             print("Starting imports")
             if True:
                 imports=""
@@ -532,6 +506,7 @@ if True:
     async def show_webhooks(ctx):
         webhooks = await ctx.channel.webhooks()
         await ctx.send(str(webhooks))
+        
     @client.command(aliases=['color','||'])    
     async def theme_color(ctx,*,tup1):
         try:
@@ -604,6 +579,7 @@ if True:
 
     @slash.slash(name="reddit",description="Gives you a random reddit post from the account you specify")
     async def reddit_slash(ctx,account="wholesomememes"):
+        req()
         try:
             await ctx.defer()
             await reddit_search(ctx,account)
@@ -761,71 +737,74 @@ if True:
             }
         re[6]=num
         announcement_data['session']=str(num)
-        #class="label-input100"        
-        with requests.Session() as s:
-            scraper=cloudscraper.create_scraper(sess=s)
-            r=scraper.get("https://entrar.in/login/login",headers=header)
-            st=r.content.decode()
-            start_captcha=st.find('<span class="label-input100" style="font-size: 18px;">')+len('<span class="label-input100" style="font-size: 20px;">')
-            end_captcha=st.find(" = </span>",start_captcha)
-            suvzsjv['captcha']=str(eval(st[start_captcha:end_captcha]))
-            url="https://entrar.in/login/auth/"
-            r=scraper.post(url,data=suvzsjv,headers=header)
-            r=scraper.get("https://entrar.in/",headers=header)
-            r=scraper.post("https://entrar.in/parent_portal/announcement",headers=header)
-            r=scraper.get("https://entrar.in/parent_portal/announcement",headers=header)
-            time.sleep(1)
-            r=scraper.post("https://entrar.in/parent_portal/announcement",data=announcement_data,headers=header)
-            
-            channel = discord.utils.get(ctx.guild.channels, name="announcement")
-            if ctx.guild.id==727061931373887531:
-                channel = discord.utils.get(ctx.guild.channels, name="bot")
-            elif ctx.guild.id==743323684705402951:
-                channel=client.get_channel(868085346867490866)
-            st=r.content.decode()
-            for i in range(1,5):
-                a=st.find('<td class="text-wrap">'+str(i)+'</td>')
-                b=st.find('<td class="text-wrap">'+str(i+1)+'</td>')
-                le=len('<td class="text-wrap">'+str(i+1)+'</td>')-1
-                if b==-1:
-                    await ctx.send(embed=discord.Embed(title="End Of List",description="",color=discord.Color(value=re[8])))
-                    break
-                c=st.find('&nbsp;&nbsp; ',a,b)+len("&nbsp;&nbsp; ")
-                d=st.find('<',c,b)
-                out=st[c:d].strip()
-                e=a+le
-                f=st.find('<td>',e,e+15)+len('<td>')
-                g=st.find('</td>',e,e+45)
-                date=st[f:g]
-                h=st.find('<a target="_blank" href="',a,b)+len('<a target="_blank" href="')
-                j=st.find('"',h,b)
-                try:
-                    link=str(st[h:j])
-                    if link=='id="simpletable" class="table table-striped table-bordered nowrap':
-                        continue
-                    req=scraper.get(link)
-                    k=out+date
-                    if not str(ctx.guild.id) in entr:
-                        entr[str(ctx.guild.id)]=[]
-                    if k in entr[str(ctx.guild.id)]:
-                        continue
-                    entr[str(ctx.guild.id)].append(str(k))
-                    lol=lol+out+" Date:"+date+"\n"
-                    with open((out+".pdf"),'wb') as pdf:
-                        pdf.write(req.content)
-                        await channel.send(file=discord.File(out+".pdf"))
-                        pdf.close()
-                    os.remove(out+".pdf")
-                except Exception as e:
-                    print(e)
-            if lol!="":
-                embed=discord.Embed(title="New announcements",description=lol,color=discord.Color(value=re[8]))
-                embed.set_thumbnail(url="https://entrar.in/logo_dir/entrar_white.png")
-                await channel.send(embed=embed)
-                await ctx.send("Done")
-            else:
-                await channel.send(embed=discord.Embed(title="Empty",description="No new announcement",color=discord.Color(value=re[8])))
-                await ctx.send("Done")
+        #class="label-input100"
+        try:
+            with requests.Session() as s:
+                scraper=cloudscraper.create_scraper(sess=s)
+                r=scraper.get("https://entrar.in/login/login",headers=header)
+                st=r.content.decode()
+                start_captcha=st.find('<span class="label-input100" style="font-size: 18px;">')+len('<span class="label-input100" style="font-size: 20px;">')
+                end_captcha=st.find("=",start_captcha)
+                suvzsjv['captcha']=str(eval(st[start_captcha:end_captcha]))
+                url="https://entrar.in/login/auth/"
+                r=scraper.post(url,data=suvzsjv,headers=header)
+                r=scraper.get("https://entrar.in/",headers=header)
+                r=scraper.post("https://entrar.in/parent_portal/announcement",headers=header)
+                r=scraper.get("https://entrar.in/parent_portal/announcement",headers=header)
+                time.sleep(1)
+                r=scraper.post("https://entrar.in/parent_portal/announcement",data=announcement_data,headers=header)
+                
+                channel = discord.utils.get(ctx.guild.channels, name="announcement")
+                if ctx.guild.id==727061931373887531:
+                    channel = discord.utils.get(ctx.guild.channels, name="bot")
+                elif ctx.guild.id==743323684705402951:
+                    channel=client.get_channel(868085346867490866)
+                st=r.content.decode()
+                for i in range(1,5):
+                    a=st.find('<td class="text-wrap">'+str(i)+'</td>')
+                    b=st.find('<td class="text-wrap">'+str(i+1)+'</td>')
+                    le=len('<td class="text-wrap">'+str(i+1)+'</td>')-1
+                    if b==-1:
+                        await ctx.send(embed=discord.Embed(title="End Of List",description="",color=discord.Color(value=re[8])))
+                        break
+                    c=st.find('&nbsp;&nbsp; ',a,b)+len("&nbsp;&nbsp; ")
+                    d=st.find('<',c,b)
+                    out=st[c:d].strip()
+                    e=a+le
+                    f=st.find('<td>',e,e+15)+len('<td>')
+                    g=st.find('</td>',e,e+45)
+                    date=st[f:g]
+                    h=st.find('<a target="_blank" href="',a,b)+len('<a target="_blank" href="')
+                    j=st.find('"',h,b)
+                    try:
+                        link=str(st[h:j])
+                        if link=='id="simpletable" class="table table-striped table-bordered nowrap':
+                            continue
+                        req=scraper.get(link)
+                        k=out+date
+                        if not str(ctx.guild.id) in entr:
+                            entr[str(ctx.guild.id)]=[]
+                        if k in entr[str(ctx.guild.id)]:
+                            continue
+                        entr[str(ctx.guild.id)].append(str(k))
+                        lol=lol+out+" Date:"+date+"\n"
+                        with open((out+".pdf"),'wb') as pdf:
+                            pdf.write(req.content)
+                            await channel.send(file=discord.File(out+".pdf"))
+                            pdf.close()
+                        os.remove(out+".pdf")
+                    except Exception as e:
+                        print(e)
+                if lol!="":
+                    embed=discord.Embed(title="New announcements",description=lol,color=discord.Color(value=re[8]))
+                    embed.set_thumbnail(url="https://entrar.in/logo_dir/entrar_white.png")
+                    await channel.send(embed=embed)
+                    await ctx.send("Done")
+                else:
+                    await channel.send(embed=discord.Embed(title="Empty",description="No new announcement",color=discord.Color(value=re[8])))
+                    await ctx.send("Done")
+        except Exception as e:
+            await ctx.send(embed=cembed(title="Oops", description="Something went wrong\n"+str(e),color=re[8],thumbnail="https://entrar.in/logo_dir/entrar_white.png"))
             
 
     @slash.slash(name="entrar", description="Latest announcements from Entrar")
@@ -1394,16 +1373,15 @@ if True:
     @client.command()
     async def again(ctx):
         req()
-        if True:
-            if discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)==None and ctx.author.voice and ctx.author.voice.channel:
-                if not str(ctx.guild.id) in queue_song:
-                    queue_song[str(ctx.guild.id)]=[]
-                if not str(ctx.guild.id) in re[3]:
-                    re[3][str(ctx.guild.id)]=0
-                channel=ctx.author.voice.channel.id
-                vc_channel[str(ctx.guild.id)]=channel
-                voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
-                await voiceChannel.connect()
+        if discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)==None and ctx.author.voice and ctx.author.voice.channel:
+            if not str(ctx.guild.id) in queue_song:
+                queue_song[str(ctx.guild.id)]=[]
+            if not str(ctx.guild.id) in re[3]:
+                re[3][str(ctx.guild.id)]=0
+            channel=ctx.author.voice.channel.id
+            vc_channel[str(ctx.guild.id)]=channel
+            voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
+            await voiceChannel.connect()
             try:
                 try:
                     mem=[str(names) for names in ctx.voice_client.channel.members]
@@ -1448,6 +1426,33 @@ if True:
         
     @client.command(aliases=['::'])
     async def memes(ctx):
+        global link_for_cats            
+        if len(link_for_cats)==0:            
+            try:
+                safe_stop=0
+                r=requests.get("https://bestlifeonline.com/funniest-cat-memes-ever/")
+                string=str(r.content.decode())
+                for i in range(0,94):
+                    #https://bestlifeonline.com/funniest-cat-memes-ever/
+                    n1=string.find("<h2",safe_stop+len("<h2"))
+                    n3=string.find('<div class="number">',n1)+len('<div class="number">')
+                    n4=string.find('</div>',n3)
+                    n2=string.find("data-src=",n1)+len("data-src=")+1
+                    n1=string.find('" ',n2)
+                    safe_stop=n1
+                    number=int(string[n3:n4])
+                    if number>=97:
+                        safe_stop=0
+                    link_for_cats+=[string[n2:n1]]
+                print("Finished meme")
+                link_for_cats+=memes1()
+                print("Finished meme1")
+                link_for_cats+=memes2()
+                print("Finished meme2")
+                link_for_cats+=memes3()
+                print("Finished meme3")
+            except Exception as e:
+                await channel.send(embed=cembed(title="Meme issues", description="Something went wrong during importing memes\n"+str(e),color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         await ctx.send(choice(link_for_cats))
         save_to_file()
     @client.command(aliases=['!'])
@@ -1477,14 +1482,10 @@ if True:
         req()
         try:
             try:
-                mem=[str(names) for names in ctx.voice_client.channel.members]
+                mem=[names.id for names in ctx.voice_client.channel.members]
             except:
                 mem=[]
-            if mem.count(str(ctx.author))>0:
-                try:
-                    del vc_channel[str(ctx.guild.id)]
-                except:
-                    pass
+            if mem.count(ctx.author.id)>0:
                 voice=ctx.guild.voice_client
                 voice.stop()
                 await voice.disconnect()
@@ -1815,10 +1816,10 @@ if True:
                         await reaction.remove(user)
                         req()
                         try:
-                            mem=[str(names) for names in reaction.message.guild.voice_client.channel.members]
+                            mem=[names.id for names in reaction.message.guild.voice_client.channel.members]
                         except:
                             mem=[]
-                        if mem.count(str(user))>0:                            
+                        if user.id in mem:                            
                             if not queue_song[str(reaction.message.guild.id)][re[3][str(reaction.message.guild.id)]] in da1.keys():
                                 aa=str(urllib.request.urlopen(queue_song[str(reaction.message.guild.id)]).read().decode())
                                 starting=aa.find("<title>")+len("<title>")
@@ -1843,11 +1844,10 @@ if True:
                         if str(user)!=str(client.user) and reaction.message.author==client.user:
                             await reaction.remove(user)
                             try:
-                                mem=[str(names) for names in reaction.message.guild.voice_client.channel.members]
+                                mem=[names.id for names in reaction.message.guild.voice_client.channel.members]
                             except:
                                 mem=[]
-                            if mem.count(str(user))>0:                                
-                                del vc_channel[str(reaction.message.guild.id)]
+                            if mem.count(user.id)>0:
                                 voice=reaction.message.guild.voice_client
                                 voice.stop()
                                 await voice.disconnect()                                
