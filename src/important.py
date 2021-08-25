@@ -41,12 +41,13 @@ def main(client, re):
         embed.set_image(url=client.user.avatar_url_as(format="png"))
         await ctx.send(embed=embed)
         
-    def batsignal(ctx):
+    @client.command()
+    async def batsignal(ctx):
         # https://c.tenor.com/0GJ-XEcYLfcAAAAd/wongwingchun58.gif
         alvin = client.get_user(432801163126243328).mention
         await ctx.send(str(alvin) + "You've been summoned by "+ctx.author.name)
         await ctx.send("https://c.tenor.com/0GJ-XEcYLfcAAAAd/wongwingchun58.gif")
-        
+
     @client.command()
     async def get_invite(ctx, time=300):
         link = await ctx.channel.create_invite(max_age=int(time))
