@@ -1,2 +1,2 @@
 language = "python3"
-run = "pip3 install -r requirements.txt && python3 Discord.py"
+run = "pip3 install -r requirements.txt && python3 main_program.py"
