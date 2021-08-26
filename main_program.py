@@ -11,7 +11,7 @@ default=
 import discord
 from random import choice
 from discord.ext import commands, tasks
-from discord_slash import SlashCommand
+from discord_slash import SlashCommand, SlashContext
 from googlesearch import search
 from GoogleNews import GoogleNews
 from dotenv import load_dotenv
@@ -36,6 +36,9 @@ import emoji
 import psutil
 import asyncio
 import cloudscraper
+
+my_secret = os.environ['token']
+print(my_secret)
 
 
 location_of_file=os.getcwd()
@@ -81,8 +84,9 @@ if True:
     dictionary=dict(zip(Raw_Emoji_list, Emoji_list))
     intents=discord.Intents.default()
     intents.members=True
-    client=commands.Bot(command_prefix=["'","Alfred ","alfred "],intents=intents, case_insensitive=True)
-    slash = SlashCommand(client, sync_commands=True)
+    client=commands.Bot(command_prefix=["'","Alfred ","Alfred "],intents=intents, case_insensitive=True)
+    
+    slash = SlashCommand(client)
     temp_dev={}
     censor=[]
     old_youtube_vid=[]
@@ -260,6 +264,7 @@ if True:
 
     @client.event
     async def on_ready():
+        print(client.user)
         channel = client.get_channel(dev_channel)
         #DiscordComponents(client, change_discord_methods=True)
         try:
@@ -284,8 +289,7 @@ if True:
             "📊 for current load\n" \
             "❕ for current issues\n" \
             ""+emoji.emojize(":satellite:")+" for speedtest\n" \
-            ""+emoji.emojize(":black_circle:")+" for clear screen\n" \
-            ""+emoji.emojize(":classical_building: for starting Storage bot\n")+""
+            ""+emoji.emojize(":black_circle:")+" for clear screen\n" 
             embed=discord.Embed(title="DEVOP",description=text_dev,color=discord.Color(value=re[8]))
             embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
             mess=await channel.send(embed=embed)
@@ -297,7 +301,6 @@ if True:
             await mess.add_reaction("❕")
             await mess.add_reaction(emoji.emojize(":satellite:"))
             await mess.add_reaction(emoji.emojize(":black_circle:"))
-            await mess.add_reaction(emoji.emojize(":classical_building:"))
             await mess.add_reaction(emoji.emojize(":laptop:"))
             print("Finished devop display")            
             print("Starting imports")
@@ -421,7 +424,6 @@ if True:
             await ctx.send(embed=imdb_embed(movie))
         except Exception as e:
             await ctx.send(embed=cembed(title="Oops", description=str(e),color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
-
         
     @client.command(aliases=['youtube'])
     async def subscribe(ctx, url, channel:discord.TextChannel):
@@ -584,6 +586,7 @@ if True:
             await reddit_search(ctx,account)
         except:
             await ctx.send(embed=cembed(title="Oops", description="Something went wrong",color=re[8]))
+
     @client.command(aliases=['reddit'])
     async def reddit_search(ctx,account="wholesomememes", show_as_list="",number=1):
         req()
@@ -690,8 +693,7 @@ if True:
         "📊 for current load\n" \
         "❕ for current issues\n" \
         ""+emoji.emojize(":satellite:")+" for speedtest\n" \
-        ""+emoji.emojize(":black_circle:")+" for clear screen\n" \
-        ""+emoji.emojize(":classical_building: for starting Storage bot\n")+""
+        ""+emoji.emojize(":black_circle:")+" for clear screen\n" 
         embed=discord.Embed(title="DEVOP",description=text_dev,color=discord.Color(value=re[8]))
         embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
         mess=await channel.send(embed=embed)
@@ -703,7 +705,6 @@ if True:
         await mess.add_reaction("❕")
         await mess.add_reaction(emoji.emojize(":satellite:"))
         await mess.add_reaction(emoji.emojize(":black_circle:"))
-        await mess.add_reaction(emoji.emojize(":classical_building:"))
         await mess.add_reaction(emoji.emojize(":laptop:"))
         
     @client.command()
@@ -717,99 +718,6 @@ if True:
         except Exception as e:
             await channel.send(embed=discord.Embed(title="Reset_from_backup failed", description=str(e), color=discord.Color(value=re[8])))
 
-    
-    @client.command()    
-    async def entrar(ctx,*,num=re[6]):
-        print("Entrar",str(ctx.author))
-        global re
-        re[0]=re[0]+1
-        lol=""
-        header={'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36','referer':"https://entrar.in"}
-        suvzsjv={
-            'username': os.getenv('sjdoskenv'),
-            'password': os.getenv('sjdoskenv1'),
-            'captcha':'0'
-            }
-        announcement_data={
-            'announcementlist': 'true',
-            'session': '205'
-            }
-        re[6]=num
-        announcement_data['session']=str(num)
-        #class="label-input100"
-        try:
-            with requests.Session() as s:
-                scraper=cloudscraper.create_scraper(sess=s)
-                r=scraper.get("https://entrar.in/login/login",headers=header)
-                st=r.content.decode()
-                start_captcha=st.find('<span class="label-input100" style="font-size: 18px;">')+len('<span class="label-input100" style="font-size: 20px;">')
-                end_captcha=st.find("=",start_captcha)
-                suvzsjv['captcha']=str(eval(st[start_captcha:end_captcha]))
-                url="https://entrar.in/login/auth/"
-                r=scraper.post(url,data=suvzsjv,headers=header)
-                r=scraper.get("https://entrar.in/",headers=header)
-                r=scraper.post("https://entrar.in/parent_portal/announcement",headers=header)
-                r=scraper.get("https://entrar.in/parent_portal/announcement",headers=header)
-                time.sleep(1)
-                r=scraper.post("https://entrar.in/parent_portal/announcement",data=announcement_data,headers=header)
-                
-                channel = discord.utils.get(ctx.guild.channels, name="announcement")
-                if ctx.guild.id==727061931373887531:
-                    channel = discord.utils.get(ctx.guild.channels, name="bot")
-                elif ctx.guild.id==743323684705402951:
-                    channel=client.get_channel(868085346867490866)
-                st=r.content.decode()
-                for i in range(1,5):
-                    a=st.find('<td class="text-wrap">'+str(i)+'</td>')
-                    b=st.find('<td class="text-wrap">'+str(i+1)+'</td>')
-                    le=len('<td class="text-wrap">'+str(i+1)+'</td>')-1
-                    if b==-1:
-                        await ctx.send(embed=discord.Embed(title="End Of List",description="",color=discord.Color(value=re[8])))
-                        break
-                    c=st.find('&nbsp;&nbsp; ',a,b)+len("&nbsp;&nbsp; ")
-                    d=st.find('<',c,b)
-                    out=st[c:d].strip()
-                    e=a+le
-                    f=st.find('<td>',e,e+15)+len('<td>')
-                    g=st.find('</td>',e,e+45)
-                    date=st[f:g]
-                    h=st.find('<a target="_blank" href="',a,b)+len('<a target="_blank" href="')
-                    j=st.find('"',h,b)
-                    try:
-                        link=str(st[h:j])
-                        if link=='id="simpletable" class="table table-striped table-bordered nowrap':
-                            continue
-                        req=scraper.get(link)
-                        k=out+date
-                        if not str(ctx.guild.id) in entr:
-                            entr[str(ctx.guild.id)]=[]
-                        if k in entr[str(ctx.guild.id)]:
-                            continue
-                        entr[str(ctx.guild.id)].append(str(k))
-                        lol=lol+out+" Date:"+date+"\n"
-                        with open((out+".pdf"),'wb') as pdf:
-                            pdf.write(req.content)
-                            await channel.send(file=discord.File(out+".pdf"))
-                            pdf.close()
-                        os.remove(out+".pdf")
-                    except Exception as e:
-                        print(e)
-                if lol!="":
-                    embed=discord.Embed(title="New announcements",description=lol,color=discord.Color(value=re[8]))
-                    embed.set_thumbnail(url="https://entrar.in/logo_dir/entrar_white.png")
-                    await channel.send(embed=embed)
-                    await ctx.send("Done")
-                else:
-                    await channel.send(embed=discord.Embed(title="Empty",description="No new announcement",color=discord.Color(value=re[8])))
-                    await ctx.send("Done")
-        except Exception as e:
-            await ctx.send(embed=cembed(title="Oops", description="Something went wrong\n"+str(e),color=re[8],thumbnail="https://entrar.in/logo_dir/entrar_white.png"))
-            
-
-    @slash.slash(name="entrar", description="Latest announcements from Entrar")
-    async def yentrar(ctx,*,num=re[6]):
-        await ctx.defer()
-        await entrar(ctx)        
     
 
     @client.command()
@@ -1564,11 +1472,13 @@ if True:
         print("check")
         em=discord.Embed(title="Online",description=("Hi, "+str(ctx.author)[0:str(ctx.author).find("#")])+"\nLatency: "+str(int(client.latency*1000)),color=discord.Color(value=re[8]))
         await ctx.send(embed=em)
+
     @slash.slash(name="check",description="Check if the bot is online")
     async def check_slash(ctx):
         req()
         await ctx.defer()
         await check(ctx)
+        
     @client.command()
     async def test(ctx,*,text):
         mess=await ctx.send(embed=discord.Embed(title="This is a "+emoji.demojize(text).replace(":",""),color=discord.Color(value=re[8])))
@@ -1997,8 +1907,7 @@ if True:
                         "📊 for current load\n" \
                         "❕ for current issues\n" \
                         ""+emoji.emojize(":satellite:")+" for speedtest\n" \
-                        ""+emoji.emojize(":black_circle:")+" for clear screen\n" \
-                        ""+emoji.emojize(":classical_building: for starting Storage bot\n")+""
+                        ""+emoji.emojize(":black_circle:")+" for clear screen\n" 
                         embed=discord.Embed(title="DEVOP",description=text_dev,color=discord.Color(value=re[8]))
                         embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
                         mess=await channel.send(embed=embed)
@@ -2010,7 +1919,6 @@ if True:
                         await mess.add_reaction("❕")
                         await mess.add_reaction(emoji.emojize(":satellite:"))
                         await mess.add_reaction(emoji.emojize(":black_circle:"))
-                        await mess.add_reaction(emoji.emojize(":classical_building:"))
                         await mess.add_reaction(emoji.emojize(":laptop:"))
         except Exception as e:
             channel = client.get_channel(834624717410926602)
@@ -2041,6 +1949,11 @@ if True:
     @client.event
     async def on_message(msg):
         try:
+            try:
+              pass
+              #Jay do stuff here
+            except Exception as e:
+              print(e)
             for word in censor:
                 if word in msg.content.lower() and msg.guild.id==822445271019421746:
                     await msg.delete()
@@ -2166,6 +2079,13 @@ if True:
         embed=cembed(title="Title of the embed", description="This is to check if the embed function works", thumbnail=client.user.avatar_url_as(format="png"), picture=ctx.author.avatar_url_as(format="png"), color=re[8])
         await ctx.send(embed=embed)
 
+    @client.command(aliases=['alfred'])
+    async def hey_alfred(ctx,*, text):
+        import randomstuff
+        client = randomstuff.Client(api_key=os.getenv("cpi"))
+        text = text.replace("alfred", "")
+        response = client.get_ai_response(text, name="Alfred")
+        await ctx.send(response.message)
 
     @client.command(aliases=['mu'])
     @commands.has_permissions(kick_members=True)
@@ -2199,6 +2119,7 @@ if True:
         req()
         await ctx.defer()
         await h(ctx)
+
     client.remove_command("help")
     @client.group(invoke_without_command=True)
     async def help(ctx):

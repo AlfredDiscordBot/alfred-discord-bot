@@ -5,7 +5,7 @@ def requirements():
 def main(client, re):
     import discord
     import random
-    from gi.repository import Notify
+    #from gi.repository import Notify
     @client.command()
     async def f(ctx):
         urls = ["https://c.tenor.com/BaJDchtzSMQAAAAC/f-letter-f-burts.gif","https://c.tenor.com/rtnshG9YFykAAAAd/rick-astley-rick-roll.gif","https://c.tenor.com/Mk3HGIMZ0mcAAAAC/fairy-oddparents-f-dancing.gif","https://c.tenor.com/J4bVExaxn5oAAAAd/efemann-efe.gif","https://c.tenor.com/H8DA2jkNgtwAAAAC/team-fortress2-pay-respects.gif","https://c.tenor.com/L68DS0H7Mp8AAAAC/triggered-letter-f.gif", "https://tenor.com/view/dance-moves-dancing-singer-groovy-gif-17029825.gif", "https://c.tenor.com/view/never-gonna-give-up-singing-gif-16046974.gif"]
@@ -41,20 +41,12 @@ def main(client, re):
         embed.set_image(url=client.user.avatar_url_as(format="png"))
         await ctx.send(embed=embed)
         
-    @client.command(aliases=['<:batsignal:876812166609633320>'])
+    @client.command()
     async def batsignal(ctx):
         # https://c.tenor.com/0GJ-XEcYLfcAAAAd/wongwingchun58.gif
         alvin = client.get_user(432801163126243328).mention
         await ctx.send(str(alvin) + "You've been summoned by "+ctx.author.name)
         await ctx.send("https://c.tenor.com/0GJ-XEcYLfcAAAAd/wongwingchun58.gif")
-        ping(ctx)
-
-    def ping(ctx):
-        Notify.init("Alfred")
-        notification = Notify.Notification.new("Ping from "+ctx.guild.name, "You've been summoned by " +
-                                               ctx.author.name, "/home/alvinbengeorge/Desktop/Discord_Python/Emerald.png")
-        notification.show()
-        Notify.uninit()
 
     @client.command()
     async def get_invite(ctx, time=300):
