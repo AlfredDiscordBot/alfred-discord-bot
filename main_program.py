@@ -7,12 +7,11 @@ mysql=
 default=
 '''
 
-from keep_alive import keep_alive
+
 import discord
 from random import choice
 from discord.ext import commands, tasks
-from dislash import slash_commands
-from dislash.interactions import *
+from discord_slash import SlashCommand, SlashContext
 from googlesearch import search
 from GoogleNews import GoogleNews
 from dotenv import load_dotenv
@@ -37,6 +36,9 @@ import emoji
 import psutil
 import asyncio
 import cloudscraper
+
+my_secret = os.environ['token']
+print(my_secret)
 
 
 location_of_file=os.getcwd()
@@ -83,7 +85,8 @@ if True:
     intents=discord.Intents.default()
     intents.members=True
     client=commands.Bot(command_prefix=["'","Alfred ","Alfred "],intents=intents, case_insensitive=True)
-    slash = slash_commands.SlashClient(client, sync_commands=True)
+    
+    slash = SlashCommand(client)
     temp_dev={}
     censor=[]
     old_youtube_vid=[]
@@ -261,6 +264,7 @@ if True:
 
     @client.event
     async def on_ready():
+        print(client.user)
         channel = client.get_channel(dev_channel)
         #DiscordComponents(client, change_discord_methods=True)
         try:
@@ -412,15 +416,14 @@ if True:
     async def imdb(ctx,*,movie):
         await ctx.send(embed=imdb_embed(movie))
 
-    @slash.command(name="imdb",description="Give a movie name")
+    @slash.slash(name="imdb",description="Give a movie name")
     async def imdb_slash(ctx,movie):
         req()
-        
+        await ctx.defer()
         try:
             await ctx.send(embed=imdb_embed(movie))
         except Exception as e:
             await ctx.send(embed=cembed(title="Oops", description=str(e),color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
-
         
     @client.command(aliases=['youtube'])
     async def subscribe(ctx, url, channel:discord.TextChannel):
@@ -430,10 +433,10 @@ if True:
         else:
             await ctx.send(embed=discord.Embed(description="Add the full link, including https",color=discord.Color(value=re[8])))
 
-    @slash.command(name="emoji",description="Get Emojis from other servers")
+    @slash.slash(name="emoji",description="Get Emojis from other servers")
     async def emoji_slash(ctx,emoji_name,number=0):
         req()
-        
+        await ctx.defer()
         if discord.utils.get(client.emojis,name=emoji_name)!=None:
             emoji_list=[names.name for names in client.emojis if names.name==emoji_name]
             le=len(emoji_list)
@@ -566,7 +569,7 @@ if True:
             embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
             await channel.send(embed=embed)
             
-    @slash.command(name="pr",description="Prints what you ask it to print")
+    @slash.slash(name="pr",description="Prints what you ask it to print")
     async def pr_slash(ctx,text):
         req()
         await ctx.send(text)
@@ -575,15 +578,15 @@ if True:
     async def pr(ctx,*,text):
         await ctx.send(text)
 
-    @slash.command(name="reddit",description="Gives you a random reddit post from the account you specify")
+    @slash.slash(name="reddit",description="Gives you a random reddit post from the account you specify")
     async def reddit_slash(ctx,account="wholesomememes"):
         req()
         try:
-            
+            await ctx.defer()
             await reddit_search(ctx,account)
-        except Exception as e:
-            print(e)
+        except:
             await ctx.send(embed=cembed(title="Oops", description="Something went wrong",color=re[8]))
+
     @client.command(aliases=['reddit'])
     async def reddit_search(ctx,account="wholesomememes", show_as_list="",number=1):
         req()
@@ -752,10 +755,10 @@ if True:
         else:
             await ctx.send(embed=discord.Embed(title="Disabled",description="You've disabled MySQL",color=discord.Color(value=re[8])))
 
-    @slash.command(name="snipe",description="Get the last few deleted messages")
+    @slash.slash(name="Snipe",description="Get the last few deleted messages")
     async def snipe_slash(ctx,number=0):
         req()
-        
+        await ctx.defer()
         await snipe(ctx,number)
         
     @client.command()
@@ -836,10 +839,10 @@ if True:
                     await coin_toss_message.add_reaction(emoji.emojize(":hibiscus:"))
         else:
             await ctx.send(embed=discord.Embed(title="Games", description="1. TicTacToe(XO)\n2. Coin Toss(Toss)\n\nEnter the keyword given in the brackets after 'games",color=discord.Color(value=re[8])))
-    @slash.command(name="connect",description="Connect to a voice channel")
+    @slash.slash(name="connect",description="Connect to a voice channel")
     async def connect_slash(ctx,channel=""):
         req()
-        
+        await ctx.defer()
         await connect_music(ctx,channel)
         
     @client.command(aliases=['cm'])
@@ -954,15 +957,15 @@ if True:
                 URL=youtube_download(ctx,queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
                 voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: repeat(ctx,voice))
                 
-    @slash.command(name="autoplay",description="Plays the next song automatically if its turned on")
+    @slash.slash(name="autoplay",description="Plays the next song automatically if its turned on")
     async def autoplay_slash(ctx):
         req()
-        
+        await ctx.defer()
         await autoplay(ctx)
 
-    @slash.command(name="loop",description="Loops the same song")
+    @slash.slash(name="loop",description="Loops the same song")
     async def loop_slash(ctx):
-        
+        await ctx.defer()
         req()
         await loop(ctx)
             
@@ -1119,10 +1122,10 @@ if True:
         else:
             await ctx.send(embed=discord.Embed(title="Oops",description="You need to be a developer to change", color=discord.Color(value=re[8])))
 
-    @slash.command(name="news",description="Latest news from a given subject")
+    @slash.slash(name="news",description="Latest news from a given subject")
     async def news_slash(ctx,*,subject="Technology"):
         req()
-        
+        await ctx.defer()
         await news(ctx,subject)
             
     @client.command()
@@ -1316,16 +1319,16 @@ if True:
                 await ctx.send(embed=cembed(title="Error", description=str(e),color=re[8], thumbnail=client.user.avatar_url_as(format="png")))
                 await channel.send(embed=discord.Embed(title="Error in play function", description=str(e)+"\n"+str(ctx.guild)+": "+str(ctx.channel.name),color=discord.Color(value=re[8])))
 
-    @slash.command(name="again",description="Repeat the song")
+    @slash.slash(name="again",description="Repeat the song")
     async def again_slash(ctx):
         req()
-        
+        await ctx.defer()
         await again(ctx)
 
-    @slash.command(name="memes",description="Memes from Alfred yey")
+    @slash.slash(name="memes",description="Memes from Alfred yey")
     async def memes(ctx):
         req()
-        
+        await ctx.defer()
         await memes(ctx)
         
     @client.command(aliases=['::'])
@@ -1374,10 +1377,10 @@ if True:
         await ctx.send(embed=cembed(title="Restarted",description="The program finished restarting",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         sys.exit()
 
-    @slash.command(name="dc",description="Disconnect the bot from your voice channel")
+    @slash.slash(name="dc",description="Disconnect the bot from your voice channel")
     async def leave_slash(ctx):
         req()
-        
+        await ctx.defer()
         await leave(ctx)
 
         
@@ -1443,11 +1446,11 @@ if True:
     	else:
     	    await ctx.send("Wrong password")
     	    
-    @slash.command(name="wikipedia", description="Get a topic from wikipedia")
+    @slash.slash(name="wikipedia", description="Get a topic from wikipedia")
     async def wiki_slash(ctx,text):
         try:
             req()
-            
+            await ctx.defer()
             t=str(search(text)[0].encode("utf-8"))
             em=discord.Embed(title=str(t).title(),description=str(summary(t,sentences=5)),color=discord.Color(value=re[8]))
             em.set_thumbnail(url="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg")
@@ -1469,11 +1472,13 @@ if True:
         print("check")
         em=discord.Embed(title="Online",description=("Hi, "+str(ctx.author)[0:str(ctx.author).find("#")])+"\nLatency: "+str(int(client.latency*1000)),color=discord.Color(value=re[8]))
         await ctx.send(embed=em)
-    @slash.command(name="check",description="Check if the bot is online")
+
+    @slash.slash(name="check",description="Check if the bot is online")
     async def check_slash(ctx):
         req()
-        
+        await ctx.defer()
         await check(ctx)
+        
     @client.command()
     async def test(ctx,*,text):
         mess=await ctx.send(embed=discord.Embed(title="This is a "+emoji.demojize(text).replace(":",""),color=discord.Color(value=re[8])))
@@ -2109,11 +2114,12 @@ if True:
     "'addto playlist <Playlist name> to add current queue to playlist\n'addto queue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume\n'pause\n" \
     "'curr for current song.\n\n"
 
-    @slash.command(name="help",description="Help from Alfred")
+    @slash.slash(name="help",description="Help from Alfred")
     async def help_slash(ctx):
         req()
-        
+        await ctx.defer()
         await h(ctx)
+
     client.remove_command("help")
     @client.group(invoke_without_command=True)
     async def help(ctx):
@@ -2129,5 +2135,4 @@ if True:
         em=discord.Embed(title="**HELP** \n",description=te,color=discord.Color(value=re[8]))
         em.set_thumbnail(url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903")
         await ctx.send(embed=em)
-    keep_alive
     client.run(os.getenv('token'))
