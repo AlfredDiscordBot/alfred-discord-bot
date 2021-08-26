@@ -575,6 +575,7 @@ if True:
         
     @client.command(aliases=['say'])
     async def pr(ctx,*,text):
+        req()
         await ctx.send(text)
 
     @slash.slash(name="reddit",description="Gives you a random reddit post from the account you specify")
@@ -2098,7 +2099,7 @@ if True:
         req()
         print("Python Shell",text,str(ctx.author))
         global dev_users
-        if (str(text).find("username")==-1 and str(text).find("os")==-1 and str(text).find("ctx.")==-1 and str(text).find("__import__")==-1 and str(text).find("sys")==-1 and str(text).find("psutil")==-1 and str(text).find("clear")==-1 and str(text).find("dev_users")==-1 and str(text).find("remove")==-1 and str(text).find("class.")==-1  and str(text).find("subclass()")==-1 and str(text).find("client")==-1 and str(text).find("quit")==-1 and str(text).find("exit")==-1) or (str(ctx.author.id) in dev_users and str(text).find("reboot")==-1 and str(text).find("shut")==-1):
+        if (str(text).find("username")==-1 and str(text).find("os.")==-1 and str(text).find("ctx.")==-1 and str(text).find("__import__")==-1 and str(text).find("sys")==-1 and str(text).find("psutil")==-1 and str(text).find("clear")==-1 and str(text).find("dev_users")==-1 and str(text).find("remove")==-1 and str(text).find("class.")==-1  and str(text).find("subclass()")==-1 and str(text).find("client")==-1 and str(text).find("quit")==-1 and str(text).find("exit")==-1) or (str(ctx.author.id) in dev_users and str(text).find("reboot")==-1 and str(text).find("shut")==-1):
             if str(ctx.author.guild.id)!="727061931373887531":
                 try:
                     text=text.replace("```py","")
