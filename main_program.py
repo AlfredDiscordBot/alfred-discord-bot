@@ -21,6 +21,7 @@ from wikipedia import search, summary
 from io import StringIO
 from contextlib import redirect_stdout
 from External_functions import *
+#from ButtonPaginator import Paginator
 #from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
 import traceback
 import googlesearch
@@ -1955,7 +1956,7 @@ if True:
             except Exception as e:
               print(e)
             for word in censor:
-                if word in msg.content.lower() and msg.guild.id==822445271019421746:
+                if word in msg.content.lower() and msg.guild.id in [822445271019421746,841026124174983188]:
                     await msg.delete()
             if "?" in msg.content.lower() and re[4]==1:
                 await msg.channel.send("thog dont caare")
@@ -1972,10 +1973,8 @@ if True:
             elif "where" in msg.content.lower() and re[4]==1:
                 await msg.channel.send("thog dont caare")
             if f'<@!{client.user.id}>' in msg.content:
-                st="\n\n\n**Mutual guilds:**\n\n"
-                for i in msg.author.mutual_guilds:
-                    st=st+i.name+"\n" 
-                embed=discord.Embed(title="Hi!! I am Alfred.",description="Prefix is '\nFor more help, type 'help"+st,color=discord.Color(value=re[8]))
+                 
+                embed=discord.Embed(title="Hi!! I am Alfred.",description="Prefix is '\nFor more help, type 'help",color=discord.Color(value=re[8]))
                 embed.set_image(url=random.choice(["https://giffiles.alphacoders.com/205/205331.gif","https://c.tenor.com/PQu-tE-5HxwAAAAd/michael-caine-the-dark-knight.gif"]))
                 
                 await msg.channel.send(embed=embed)
