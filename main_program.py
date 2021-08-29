@@ -21,7 +21,6 @@ from wikipedia import search, summary
 from io import StringIO
 from contextlib import redirect_stdout
 from External_functions import *
-#from ButtonPaginator import Paginator
 #from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
 import traceback
 import googlesearch
@@ -600,7 +599,26 @@ if True:
                 await ctx.send(embed=cembed(title=a[0],color=re[8],description=a[1]))
         
                 
-        
+    async def pa(embeds,ctx):
+      message=await ctx.send(embed=embeds[0])
+      pag=0
+      await message.add_reaction("◀️")
+      await message.add_reaction("▶️")
+      def check(reaction, user):          
+          return user == ctx.author and str(reaction.emoji) in ["◀️", "▶️"]
+      while True:
+          try:
+              reaction, user= await client.wait_for("reaction_add", timeout=360, check=check)
+              #await message.remove_reaction(reaction, user)
+              if str(reaction.emoji) == "▶️" and pag+1!=len(embeds):
+                  pag+=1
+                  await message.edit(embed=embeds[pag])
+              elif str(reaction.emoji) == "◀️" and pag!=0:
+                  pag-=1
+                  await message.edit(embed=embeds[pag])
+          except asyncio.TimeoutError:
+             break
+
         
     @client.command(aliases=['l'])
     async def lyrics(ctx,*,string=""):
@@ -782,7 +800,7 @@ if True:
                     await ctx.send(embed=i[1])
                 if nu==number:
                     break
-            if num==0:
+            if nu==0:
                 await ctx.send(embed=cembed(title="Oops", description="Oops sorry, I fell asleep ig, or idk",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
             
     @client.event
@@ -1281,15 +1299,17 @@ if True:
     @client.command()
     async def again(ctx):
         req()
-        if discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)==None and ctx.author.voice and ctx.author.voice.channel:
+        if ctx.author.voice and ctx.author.voice.channel:
             if not str(ctx.guild.id) in queue_song:
                 queue_song[str(ctx.guild.id)]=[]
             if not str(ctx.guild.id) in re[3]:
-                re[3][str(ctx.guild.id)]=0
-            channel=ctx.author.voice.channel.id
-            vc_channel[str(ctx.guild.id)]=channel
-            voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
-            await voiceChannel.connect()
+                re[3][str(ctx.guild.id)]=0  
+            if discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)==None:
+                channel=ctx.author.voice.channel.id
+                vc_channel[str(ctx.guild.id)]=channel
+                voiceChannel=discord.utils.get(ctx.guild.voice_channels,id=channel)
+                await voiceChannel.connect()
+            mem=[]            
             try:
                 try:
                     mem=[str(names) for names in ctx.voice_client.channel.members]
@@ -1481,9 +1501,12 @@ if True:
         await check(ctx)
         
     @client.command()
-    async def test(ctx,*,text):
-        mess=await ctx.send(embed=discord.Embed(title="This is a "+emoji.demojize(text).replace(":",""),color=discord.Color(value=re[8])))
-        await mess.add_reaction("😎")
+    async def test(ctx):
+      embeds=[]
+      for i in range(0,10):
+          embeds.append(discord.Embed(title="Hi there",description=str(i),color=discord.Color(value=re[8])))
+      await pa(embeds,ctx)
+
     @client.event
     async def on_reaction_add(reaction, user):
         req()

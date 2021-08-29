@@ -6,6 +6,7 @@ import os
 import discord
 import random
 import imdb
+import emoji
 from dotenv import load_dotenv
 from instagramy import *
 from instascrape import *
@@ -261,9 +262,7 @@ def check_win(board):
           return " "
 
 def reddit(account="wholesomememes",number=25,single=True):
-    true=True
-    false=False
-    a=eval(requests.get(f"https://meme-api.herokuapp.com/gimme/{account}/{number}").content.decode())
+    a=requests.get(f"https://meme-api.herokuapp.com/gimme/{account}/{number}").json()
     l=[]
     if not 'message' in a.keys():
         for i in a['memes']:

@@ -1,0 +1,2 @@
+run="pip3 install -r requirements.txt && python3 Discord.py"
+language="python3"
