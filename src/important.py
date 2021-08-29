@@ -51,5 +51,5 @@ def main(client, re):
     @client.command()
     async def get_invite(ctx, time=300):
         link = await ctx.channel.create_invite(max_age=int(time))
-        await ctx.send(embed=discord.Embed(title="Invitation link", description=link, color=discord.Color(value=re[8])))
+        await ctx.send(embed=discord.Embed(title="Invitation link", description=str(link), color=discord.Color(value=re[8])))
         

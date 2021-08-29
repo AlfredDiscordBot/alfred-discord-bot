@@ -29,12 +29,12 @@ def main(client,re,AiD,dev_channel):
             embed=discord.Embed(title=question,description=st,color=discord.Color(value=re[8]))
             embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
             embed.set_image(url=pic)
-            return embed
+            return (embed,None)
             
             
     @client.command()
     async def wolf(ctx,*,question):
-        out=get_answer1(question)
+        out=get_answer(question)
         await ctx.send(embed=out[0],file=out[1])
 
     def get_answer1(question=""):
@@ -43,9 +43,8 @@ def main(client,re,AiD,dev_channel):
             embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
             return (embed,None)
         else:
-            question=urllib.parse.quote(question, safe='')
-            color=str(hex(re[8]))[2:].upper()
-            a=requests.get(f"http://api.wolframalpha.com/v1/simple?appid={AiD}&i={question}&layout=labelbar&background={color}&width=1500").content
+            question=urllib.parse.quote(question)
+            a=requests.get(f"http://api.wolframalpha.com/v1/simple?appid={AiD}&i={question}&layout=labelbar&width=1500").content
             file=open('output.png','wb')
             file.write(a)
             file.close()
