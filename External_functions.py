@@ -10,6 +10,11 @@ import emoji
 from dotenv import load_dotenv
 from instagramy import *
 from instascrape import *
+import urllib.parse
+
+def convert_to_url(name):
+    name=urllib.parse.quote(name)
+    return name
 
 
 def quad(eq):

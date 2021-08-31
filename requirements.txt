@@ -10,7 +10,7 @@ charset-normalizer==2.0.3
 cloudscraper==1.2.58
 dateparser==1.0.0
 discord==1.0.1
-discord.py==1.6.0
+discord.py==1.7.3
 discord-py-interactions==3.0.2
 docutils==0.16
 emoji==1.4.1
