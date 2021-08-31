@@ -34,7 +34,7 @@ def main(client,re,AiD,dev_channel):
             
     @client.command()
     async def wolf(ctx,*,question):
-        out=get_answer(question)
+        out=get_answer1(question)
         await ctx.send(embed=out[0],file=out[1])
 
     def get_answer1(question=""):

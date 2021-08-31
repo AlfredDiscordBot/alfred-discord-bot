@@ -84,7 +84,7 @@ if True:
     dictionary=dict(zip(Raw_Emoji_list, Emoji_list))
     intents=discord.Intents.default()
     intents.members=True
-    client=commands.Bot(command_prefix=["'","Alfred ","Alfred "],intents=intents, case_insensitive=True)
+    client=commands.Bot(command_prefix=["'","alfred ","Alfred "],intents=intents, case_insensitive=True)
     
     slash = SlashCommand(client)
     temp_dev={}
@@ -129,7 +129,7 @@ if True:
     mysql_load()
     #replace your id with this
     dev_users=['432801163126243328']
-    ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'128',}],}
+    ydl_op={'format':'bestaudio/best','postprocessors':[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'384',}],}
     FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
     def save_to_file(a=""):
         global dev_users
@@ -416,6 +416,101 @@ if True:
     async def imdb(ctx,*,movie):
         await ctx.send(embed=imdb_embed(movie))
 
+    @client.command()    
+    async def entrar(ctx,*,num=re[6]):
+        print("Entrar",str(ctx.author))
+        global re
+        re[0]=re[0]+1
+        lol=""
+        header={'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36','referer':"https://entrar.in"}
+        suvzsjv={
+            'username': os.getenv('sjdoskenv'),
+            'password': os.getenv('sjdoskenv1'),
+            'captcha':'0'
+            }
+        announcement_data={
+            'announcementlist': 'true',
+            'session': '205'
+            }
+        re[6]=num
+        announcement_data['session']=str(num)
+        #class="label-input100"
+        try:
+            with requests.Session() as s:
+                scraper=cloudscraper.create_scraper(sess=s)
+                r=scraper.get("https://entrar.in/login/login",headers=header)
+                st=r.content.decode()
+                start_captcha=st.find('<span class="label-input100" style="font-size: 18px;">')+len('<span class="label-input100" style="font-size: 20px;">')
+                end_captcha=st.find("=",start_captcha)
+                suvzsjv['captcha']=str(eval(st[start_captcha:end_captcha]))
+                url="https://entrar.in/login/auth/"
+                r=scraper.post(url,data=suvzsjv,headers=header)
+                r=scraper.get("https://entrar.in/",headers=header)
+                r=scraper.post("https://entrar.in/parent_portal/announcement",headers=header)
+                r=scraper.get("https://entrar.in/parent_portal/announcement",headers=header)
+                await asyncio.sleep(2)
+                r=scraper.post("https://entrar.in/parent_portal/announcement",data=announcement_data,headers=header)   
+                channel = discord.utils.get(ctx.guild.channels, name="announcement")
+                if ctx.guild.id==727061931373887531:
+                    channel = discord.utils.get(ctx.guild.channels, name="bot")
+                elif ctx.guild.id==743323684705402951:
+                    channel=client.get_channel(868085346867490866)
+                st=r.content.decode()
+                for i in range(1,5):
+                    await asyncio.sleep(1)
+                    a=st.find('<td class="text-wrap">'+str(i)+'</td>')
+                    b=st.find('<td class="text-wrap">'+str(i+1)+'</td>')
+                    print(a,b)
+                    le=len('<td class="text-wrap">'+str(i+1)+'</td>')-1
+                    if b==-1:
+                        await ctx.send(embed=discord.Embed(title="End Of List",description="",color=discord.Color(value=re[8])))
+                        break
+                    c=st.find('&nbsp;&nbsp; ',a,b)+len("&nbsp;&nbsp; ")
+                    d=st.find('<',c,b)
+                    out=st[c:d].strip()
+                    e=a+le
+                    f=st.find('<td>',e,e+15)+len('<td>')
+                    g=st.find('</td>',e,e+45)
+                    date=st[f:g]
+                    h=st.find('<a target="_blank" href="',a,b)+len('<a target="_blank" href="')
+                    j=st.find('"',h,b)
+                    try:
+                        link=str(st[h:j])
+                        print(link)
+                        if link=='id="simpletable" class="table table-striped table-bordered nowrap':
+                            continue
+                        req=scraper.get(link)
+                        k=out+date
+                        if not str(ctx.guild.id) in entr:
+                            entr[str(ctx.guild.id)]=[]
+                        if k in entr[str(ctx.guild.id)]:
+                            continue
+                        entr[str(ctx.guild.id)].append(str(k))
+                        lol=lol+out+" Date:"+date+"\n"
+                        with open((out+".pdf"),'wb') as pdf:
+                            pdf.write(req.content)
+                            await channel.send(file=discord.File(out+".pdf"))
+                            pdf.close()
+                        os.remove(out+".pdf")
+                    except Exception as e:
+                        print(traceback.print_exc())
+                if lol!="":
+                    embed=discord.Embed(title="New announcements",description=lol,color=discord.Color(value=re[8]))
+                    embed.set_thumbnail(url="https://entrar.in/logo_dir/entrar_white.png")
+                    await channel.send(embed=embed)
+                    await ctx.send("Done")
+                else:
+                    await channel.send(embed=discord.Embed(title="Empty",description="No new announcement",color=discord.Color(value=re[8])))
+                    await ctx.send("Done")
+        except Exception as e:
+            await ctx.send(embed=cembed(title="Oops", description="Something went wrong\n"+str(e),color=re[8],thumbnail="https://entrar.in/logo_dir/entrar_white.png"))
+            
+
+    @slash.slash(name="entrar", description="Latest announcements from Entrar")
+    async def yentrar(ctx,*,num=re[6]):
+        await ctx.defer()
+        await entrar(ctx)
+
     @slash.slash(name="imdb",description="Give a movie name")
     async def imdb_slash(ctx,movie):
         req()
@@ -588,13 +683,15 @@ if True:
             await ctx.send(embed=cembed(title="Oops", description="Something went wrong",color=re[8]))
 
     @client.command(aliases=['reddit'])
-    async def reddit_search(ctx,account="wholesomememes", show_as_list="",number=1):
+    async def reddit_search(ctx,account="wholesomememes",number=1):
         req()
-        description=""
         if number==1:
-            a=reddit(account)[0]
-            if len(a)<3:
-                await ctx.send(embed=cembed(title=a[0],color=re[8],picture=a[1]))
+            embeds=[]
+            a=reddit(account,single=False)
+            if a[2]:
+                for i in a:
+                    embeds+=[cembed(title=i[0],picture=i[1],color=re[8],thumbnail=client.user.avatar_url_as(format="png"))]
+                await pa(embeds,ctx)
             else:
                 await ctx.send(embed=cembed(title=a[0],color=re[8],description=a[1]))
         
@@ -605,11 +702,11 @@ if True:
       await message.add_reaction("◀️")
       await message.add_reaction("▶️")
       def check(reaction, user):          
-          return user == ctx.author and str(reaction.emoji) in ["◀️", "▶️"]
+          return user!=client.user and str(reaction.emoji) in ["◀️", "▶️"]
       while True:
           try:
-              reaction, user= await client.wait_for("reaction_add", timeout=360, check=check)
-              #await message.remove_reaction(reaction, user)
+              reaction, user= await client.wait_for("reaction_add", timeout=720, check=check)
+              await message.remove_reaction(reaction, user)
               if str(reaction.emoji) == "▶️" and pag+1!=len(embeds):
                   pag+=1
                   await message.edit(embed=embeds[pag])
@@ -618,6 +715,24 @@ if True:
                   await message.edit(embed=embeds[pag])
           except asyncio.TimeoutError:
              break
+             
+    @client.command(aliases=['trend'])
+    async def trending_github(ctx):
+        rec=requests.get("https://api.trending-github.com/github/repositories").json()
+        embeds=[]
+        for i in rec[0:20]:
+            name=i['name']
+            author=i['author']
+            thumbnail=i['avatar']
+            description=i['description']
+            forks=i['forks']
+            stars=i['stars']
+            language=i['language']
+            output=f"description: {description}\nforks: {forks}\nstars: {stars}\nlanguage: {language}\n\nAuthor: {author}"
+            embeds+=[cembed(title=name,description=output,color=re[8],thumbnail=thumbnail)]
+        await pa(embeds,ctx)
+
+
 
         
     @client.command(aliases=['l'])
@@ -630,12 +745,12 @@ if True:
             url=""
             if True:
                 if len(string)==0:
-                    search_url=("https://search.azlyrics.com/search.php?q="+(str(da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]).replace(" ","+")))
+                    search_url=("https://search.azlyrics.com/search.php?q="+convert_to_url(str(da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]])))
                     print(search_url)
                 else:
-                    search_url=("https://search.azlyrics.com/search.php?q="+string.replace(" ","+"))
+                    search_url=("https://search.azlyrics.com/search.php?q="+convert_to_url(string))
                     print(search_url)
-                html_code=urllib.request.urlopen(search_url).read().decode()
+                html_code=requests.get(search_url).content.decode()
                 pos_1=html_code.find('text-left visitedlyr')
                 pos_2=int(int(html_code.find('href="',pos_1))+len('href="'))
                 pos_3=html_code.find('"',pos_2)
@@ -946,6 +1061,9 @@ if True:
                 await ctx.send(embed=discord.Embed(title="Not removed", description="Only "+len(queue_song[str(ctx.guild.id)])+" song(s) in your queue",color=discord.Color(value=re[8])))
         else:
             await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the voice channel to modify queue",color=discord.Color(value=re[8])))
+
+    
+            
     @client.command(aliases=['curr'])
     async def currentmusic(ctx):
         req()
@@ -987,6 +1105,25 @@ if True:
         await ctx.defer()
         req()
         await loop(ctx)
+
+    @client.command()
+    async def show_playlist(ctx,name):   
+        num=0     
+        embeds=[]
+        if name in list(da.keys()):
+            st=""
+            for i in da[name]:
+                num+=1
+                if i in da1:
+                    st+=str(num)+". "+str(da1[i])+"\n"
+                if num%10==0 and num!=0:
+                    embeds.append(cembed(title="Playlist",description=st,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+                    st=""
+            await pa(embeds,ctx)
+        else:
+            await ctx.send(embed=cembed(title="Playlist",description="This playlist is not found",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+
+
             
     @client.command()
     async def autoplay(ctx):
@@ -1455,8 +1592,9 @@ if True:
         if mem.count(str(ctx.author))>0:
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.resume()
-            await ctx.send(embed=discord.Embed(title="Resume",color=discord.Color(value=re[8])))   
-            
+            await ctx.send(embed=discord.Embed(title="Resume",color=discord.Color(value=re[8])))
+
+        
     @client.command()    
     async def clear(ctx,text,num=10):
     	req()
@@ -2127,14 +2265,15 @@ if True:
     	else:add_role=discord.utils.get(ctx.guild.roles,name="dunce")
     	await member.remove_roles(add_role)
     	await ctx.send("Unmuted "+member.mention)
-    	print(member,"unmuted")
-    te="**COMMANDS**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n'compile <lang> ```#code```\n\n" \
-    "**ALIAS**: \n'g <text to search> \n'h to show this message \n'm <Expression> for python eval \n'w for Wikipedia\n':: for memes\n'sq for queue\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n" \
-    "**EXAMPLE**:\n'help\n'q\n'w Wikipedia\n'again\n'next\n'memes\n'q Song\n\n" \
-    "**UPDATES**:\nAlfred now supports youtube subscriptions\nAlfred can  now execute code and its open for everyone\nIts for everyone. Check it out using\n 'compile lang\n```#code here```\n Thank Shravan.\nAlfred has 24/7 games and roast feature now, currently games include chess only, we'll add more, DW\nUse prefix `{` for that.\nBtw if you didnt get slash commands get the new invite for Alfred from dev.\nEnjoy\n\n" \
-    "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'play <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue\n'play <index no.> to play certain song from the queue list\n" \
+    	print(member,"unmuted")    
+    help1="**COMMANDS**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n'compile <lang> ```#code```\n\n" 
+    help2="**ALIAS**: \n'g <text to search> \n'h to show this message \n'm <Expression> for python eval \n'w for Wikipedia\n':: for memes\n'q for queue\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n" 
+    help3="**EXAMPLE**:\n'help\n'q\n'w Wikipedia\n'again\n'next\n'memes\n'q Song\n\n" 
+    help4="**UPDATES**:\nAlfred now supports youtube subscriptions\nAlfred can  now execute code and its open for everyone\nIts for everyone. Check it out using\n 'compile lang\n```#code here```\n Thank Shravan.\nAlfred has 24/7 games and roast feature now, currently games include chess only, we'll add more, DW\nUse prefix `{` for that.\nBtw if you didnt get slash commands get the new invite for Alfred from dev.\nEnjoy\n\n" 
+    help5="**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'play <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue\n'play <index no.> to play certain song from the queue list\n" \
     "'addto playlist <Playlist name> to add current queue to playlist\n'addto queue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume\n'pause\n" \
     "'curr for current song.\n\n"
+    help_list=[help1,help2,help3,help4,help5]
 
     @slash.slash(name="help",description="Help from Alfred")
     async def help_slash(ctx):
@@ -2147,14 +2286,20 @@ if True:
     async def help(ctx):
         req()
         print("help")
-        em=discord.Embed(title="```Help```",description=te,color=discord.Color(value=re[8]))
-        em.set_thumbnail(url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903")
-        await ctx.send(embed=em)
+        embeds=[]
+        for i in help_list:
+            em=discord.Embed(title="```Help```",description=i,color=discord.Color(value=re[8]))
+            em.set_thumbnail(url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903")
+            embeds.append(em)
+        await pa(embeds, ctx)
     @client.group(invoke_without_command=True)
     async def h(ctx):
         req()
         print("help")
-        em=discord.Embed(title="**HELP** \n",description=te,color=discord.Color(value=re[8]))
-        em.set_thumbnail(url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903")
-        await ctx.send(embed=em)
+        embeds=[]
+        for i in help_list:
+            em=discord.Embed(title="```Help```",description=i,color=discord.Color(value=re[8]))
+            em.set_thumbnail(url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903")
+            embeds.append(em)
+        await pa(embeds, ctx)
     client.run(os.getenv('token'))
