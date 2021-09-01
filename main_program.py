@@ -2266,10 +2266,10 @@ if True:
     	await member.remove_roles(add_role)
     	await ctx.send("Unmuted "+member.mention)
     	print(member,"unmuted")    
-    help1="**COMMANDS**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n'compile <lang> ```#code```\n\n" 
+    help1="**COMMANDS**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n" 
     help2="**ALIAS**: \n'g <text to search> \n'h to show this message \n'm <Expression> for python eval \n'w for Wikipedia\n':: for memes\n'q for queue\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n" 
     help3="**EXAMPLE**:\n'help\n'q\n'w Wikipedia\n'again\n'next\n'memes\n'q Song\n\n" 
-    help4="**UPDATES**:\nAlfred now supports youtube subscriptions\nAlfred can  now execute code and its open for everyone\nIts for everyone. Check it out using\n 'compile lang\n```#code here```\n Thank Shravan.\nAlfred has 24/7 games and roast feature now, currently games include chess only, we'll add more, DW\nUse prefix `{` for that.\nBtw if you didnt get slash commands get the new invite for Alfred from dev.\nEnjoy\n\n" 
+    help4="**UPDATES**:\nAlfred now supports youtube subscriptions\nAlfred can  now execute code and its open for everyone\nIts for everyone. Check it out using\n '\nAlfred has 24/7 games and roast feature now, currently games include chess only, we'll add more, DW\nUse prefix `{` for that.\nBtw if you didnt get slash commands get the new invite for Alfred from dev.\nEnjoy\n\n" 
     help5="**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'play <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue\n'play <index no.> to play certain song from the queue list\n" \
     "'addto playlist <Playlist name> to add current queue to playlist\n'addto queue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume\n'pause\n" \
     "'curr for current song.\n\n"
