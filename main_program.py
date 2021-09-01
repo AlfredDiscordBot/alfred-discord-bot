@@ -1027,6 +1027,7 @@ if True:
             await ctx.send("Done")
         elif mode=="queue" and present==0:
             print(len(get_elem(str(text))))
+            song_list=""
             for i in range(0,len(get_elem(str(text)))):
                 link_add=get_elem(str(text))[i]
                 queue_song[str(ctx.guild.id)].append(link_add)
