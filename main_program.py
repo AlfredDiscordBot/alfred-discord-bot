@@ -37,10 +37,6 @@ import psutil
 import asyncio
 import cloudscraper
 
-my_secret = os.environ['token']
-print(my_secret)
-
-
 location_of_file=os.getcwd()
 try:
     import mysql.connector as m
