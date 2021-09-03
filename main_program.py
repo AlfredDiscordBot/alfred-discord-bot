@@ -21,7 +21,7 @@ from wikipedia import search, summary
 from io import StringIO
 from contextlib import redirect_stdout
 from External_functions import *
-#from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
+from discord_components import Button, Select, SelectOption, ComponentsBot, DiscordComponents
 import traceback
 import googlesearch
 import youtube_dl
@@ -262,7 +262,7 @@ if True:
     async def on_ready():
         print(client.user)
         channel = client.get_channel(dev_channel)
-        #DiscordComponents(client, change_discord_methods=True)
+        DiscordComponents(client)
         try:
             print("Starting Load from file")
             try:

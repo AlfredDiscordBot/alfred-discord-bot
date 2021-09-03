@@ -103,7 +103,7 @@ def main(client,color):
     import discord
     
     @client.command()
-    async def code(ctx,lang,*,code):
+    async def code(ctx,lang,*,code):        
         actual_code=filter_graves(code)       
         output=rce.execute_code(language=lang,code=actual_code)
         embed=discord.Embed(title="Result",description=output,color=discord.Color(value=color))
