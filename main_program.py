@@ -346,45 +346,7 @@ if True:
             except Exception as e:
                 server_youtube=client.get_channel(int(i[1])).guild.name
                 await client.get_channel(dev_channel).send(embed=discord.Embed(title="Error in Youtube loop",description=str(e)+"\n"+server_youtube,color=discord.Color(value=re[8])))
-        try:
-            aad=m.connect(host="localhost", user="root", passwd=os.getenv('mysql'),database="Discord")        
-            curs=aad.cursor()
-            if len(youtube)==0:
-                curs.execute("select * from youtube")
-                datas=curs.fetchall()
-                for data in datas:
-                    youtube.append(data)
-            else:
-                temp=[]
-                curs.execute("select * from youtube")
-                datas=curs.fetchall()
-                for data in datas:
-                    temp.append(data)
-                if temp!=youtube:
-                    curs.execute("delete from youtube")
-                    for i in youtube:
-                        curs.execute("Insert into youtube (url, channel) values ('"+str(i[0])+"', '"+str(i[1])+"')")
-                
-                    
-            if len(queue_song)!=0:            
-                asdf=str(re)
-                curs.execute("Delete from queue")
-                for j in list(queue_song.keys()):
-                    for i in queue_song[j]:
-                        curs.execute("Insert into queue (links,server) values ('"+i+"','"+j+"')")
-                curs.execute('update requ set variable="'+asdf+'" where  here=1')
-                
-            else:
-                curs.execute("Select distinct(server) from queue")
-                servers=cursor.fetchall()
-                for i in servers:
-                    curs.execute("Select link from queue where server='"+i[0]+"';")
-                    urls=curs.fetchall()
-                    for url in urls:
-                        queue_song[i[0]].append(url[0])
-            aad.commit()
-        except Exception as e:
-            print(e)
+        
     
                 
     @tasks.loop(seconds=10)
@@ -701,7 +663,7 @@ if True:
           return user!=client.user and str(reaction.emoji) in ["◀️", "▶️"]
       while True:
           try:
-              reaction, user= await client.wait_for("reaction_add", timeout=720, check=check)
+              reaction, user= await client.wait_for("reaction_add", timeout=360, check=check)
               await message.remove_reaction(reaction, user)
               if str(reaction.emoji) == "▶️" and pag+1!=len(embeds):
                   pag+=1
@@ -896,7 +858,7 @@ if True:
         if number==0:
             message=deleted_message[ctx.channel.id][-1]
             if len(message)<3:
-                await ctx.send("**"+message[0]+":**\n```"+message[1]+"```")
+                await ctx.send(embed=discord.Embed(description="**"+message[0]+":**\n"+message[1]+"",color=discord.Color(value=re[8])))
             else:
                 await ctx.send("**"+message[0]+":**")                    
                 await ctx.send(embed=message[1])
@@ -905,7 +867,7 @@ if True:
             for i in deleted_message[ctx.channel.id][::-1]:
                 nu+=1
                 if len(i)<3:
-                    await ctx.send("**"+i[0]+":**\n"+i[1])
+                    await ctx.send(embed=discord.Embed(description="**"+i[0]+":**\n"+i[1],color=discord.Color(value=re[8])))
                 else:
                     await ctx.send("**"+i[0]+":**")                    
                     await ctx.send(embed=i[1])
@@ -1589,17 +1551,7 @@ if True:
             voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
             voice.resume()
             await ctx.send(embed=discord.Embed(title="Resume",color=discord.Color(value=re[8])))
-
-        
-    @client.command()    
-    async def clear(ctx,text,num=10):
-    	req()
-    	await ctx.channel.purge(limit=1)
-    	if str(text)==re[1]:
-    	    if ctx.author.guild_permissions.manage_messages or ctx.author.id==432801163126243328: await ctx.channel.purge(limit=num)
-    	    else: await ctx.send(embed=discord.Embed(title="Permission Denied", description="You cant delete messages",color=discord.Color(value=re[8])))
-    	else:
-    	    await ctx.send("Wrong password")
+    
     	    
     @slash.slash(name="wikipedia", description="Get a topic from wikipedia")
     async def wiki_slash(ctx,text):
@@ -1636,10 +1588,20 @@ if True:
         
     @client.command()
     async def test(ctx):
-      embeds=[]
-      for i in range(0,10):
-          embeds.append(discord.Embed(title="Hi there",description=str(i),color=discord.Color(value=re[8])))
-      await pa(embeds,ctx)
+        embeds=[]
+        for i in range(0,10):
+            embeds.append(discord.Embed(title="Hi there",description=str(i),color=discord.Color(value=re[8])))
+        await pa(embeds,ctx)
+
+    @client.command()    
+    async def clear(ctx,text,num=10):
+    	req()
+    	await ctx.channel.purge(limit=1)
+    	if str(text)==re[1]:
+    	    if ctx.author.guild_permissions.manage_messages or ctx.author.id==432801163126243328: await ctx.channel.delete_messages([i async for i in ctx.channel.history(limit=num)])
+    	    else: await ctx.send(embed=discord.Embed(title="Permission Denied", description="You cant delete messages",color=discord.Color(value=re[8])))
+    	else:
+    	    await ctx.send("Wrong password")
 
     @client.event
     async def on_reaction_add(reaction, user):
@@ -2113,7 +2075,7 @@ if True:
             except Exception as e:
               print(e)
             for word in censor:
-                if word in msg.content.lower() and msg.guild.id in [822445271019421746,841026124174983188]:
+                if word in msg.content.lower() and msg.guild.id in [822445271019421746,841026124174983188,853670839891394591]:
                     await msg.delete()
             if "?" in msg.content.lower() and re[4]==1:
                 await msg.channel.send("thog dont caare")
