@@ -19,6 +19,7 @@ def main(client, re):
     thumbnail_of_embed = {}
     description_for_embed = {}
     footer_of_embed = {}
+    image={}
 
      # add helper functions for embed megafunction
     def validate_url(url:str) -> bool:
@@ -72,6 +73,28 @@ def main(client, re):
             color_of_embed.pop(ctx.guild.id)
             thumbnail_of_embed.pop(ctx.guild.id)
             description_for_embed.pop(ctx.guild.id)
+            footer_of_embed.pop(ctx.guild.id)
+            image.pop(ctx.guild.id)
+
+    @client.command()
+    async def embed_it(ctx,*,string):        
+        info=split_md(string)
+        if info['title']!='':
+           title_of_embed[ctx.guild.id]=info['title'] 
+        if info['description']!='':
+            description_for_embed[ctx.guild.id]=info['description']
+        if info['thumbnail']!='':
+            thumbnail_of_embed[ctx.guild.id]=info['thumbnail']
+        if info['footer']!='':
+            footer_of_embed[ctx.guild.id]=info['footer']
+        if info['image']!='':
+            image[ctx.guild.id]=info['image']
+        c=eval(info['color'])
+        print(c,type(c))
+        color_of_embed[ctx.guild.id]=discord.Color.from_rgb(*c)
+        await ctx.send(embed=discord.Embed(description="Done"))
+        
+
 
     @client.command(aliases=["color_for_embed"])
     async def set_color(ctx, color):
@@ -81,7 +104,7 @@ def main(client, re):
         ):
             try:
                 c = eval(color)
-                color_of_embed[ctx.guild.id] = discord.Color.from_rgb(c[0], c[1], c[2])
+                color_of_embed[ctx.guild.id] = discord.Color.from_rgb(*c)
                 await ctx.send(
                     embed=discord.Embed(
                         description="Color Set", color=discord.Color(value=re[8])
@@ -170,6 +193,11 @@ def main(client, re):
                 if ctx.guild.id in list(thumbnail_of_embed.keys()):
                     try:
                         embed.set_thumbnail(url=thumbnail_of_embed[ctx.guild.id])
+                    except Exception as e:
+                        await ctx.send(str(e))
+                if ctx.guild.id in list(image.keys()):
+                    try:
+                        embed.set_image(url=image[ctx.guild.id])
                     except Exception as e:
                         await ctx.send(str(e))
                 if ctx.guild.id in list(color_of_embed.keys()):
