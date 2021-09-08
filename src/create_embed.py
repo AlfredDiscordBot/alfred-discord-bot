@@ -65,7 +65,7 @@ def main(client, re):
 
     @client.command(aliases=["init_embed", "embed_init"])
     async def create_embed_init(ctx):
-        req[0]+=1
+        re[0]+=1
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == 432801163126243328
