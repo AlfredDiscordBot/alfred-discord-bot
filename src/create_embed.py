@@ -14,16 +14,12 @@ def validate_url(url:str) -> bool:
     """
     Checks if the url is valid or not
     """
-    from requests.models import PreparedRequest
-    from requests.exceptions import MissingSchema
-
-    def check_url(url: str) -> bool:
-        prepared_request = PreparedRequest()
-        try:
-            prepared_request.prepare_url(url, None)
-            return True
-        except MissingSchema as e:
-            return False
+    prepared_request = PreparedRequest()
+    try:
+        prepared_request.prepare_url(url, None)
+        return True
+    except MissingSchema as e:
+        return False
 
 
 def main(client, re):
