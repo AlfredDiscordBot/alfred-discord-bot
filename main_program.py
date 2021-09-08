@@ -3987,7 +3987,7 @@ if True:
                         color=discord.Color(value=re[8]),
                     )
                     em.set_thumbnail(
-                        url="https://banner2.cleanpng.com/20180715/phb/kisspng-python-javascript-logo-clojure-python-logo-download-5b4ba705f356d3.4338622815316846139967.jpg"
+                        url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
                     )
                     await ctx.send(embed=em)
                 except Exception as e:
@@ -4075,7 +4075,7 @@ if True:
                 color=discord.Color(value=re[8]),
             )
             em.set_thumbnail(
-                url="https://banner2.cleanpng.com/20180715/phb/kisspng-python-javascript-logo-clojure-python-logo-download-5b4ba705f356d3.4338622815316846139967.jpg"
+                url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
             )
             await ctx.send(embed=em)
         else:
