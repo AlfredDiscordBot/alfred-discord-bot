@@ -1,19 +1,70 @@
-def requirements():
+import discord
+from requests.models import PreparedRequest
+from requests.exceptions import MissingSchema
+
+class EmbedInfo:
+    def __init__(self, title:str = None, description:str = None, 
+                thumbnail:str = None, image:str = None, footer:str = None, 
+                color:tuple = (48, 213, 200)):
+        """
+        Creates an embed info object, with the provided information.
+        """
+        self.title = title
+        self.description = description
+        self.set_thumbnail(thumbnail)
+        self.set_image(image)
+        self.footer = footer
+        self.color = discord.Color(*color)
+
+    def set_thumbnail(self, url:str) -> None:
+        """
+        Set's the url for the thumbnail of the embed.
+        """
+        url = (url or ' ').strip()
+        self.thumbnail = url if validate_url(url) else None
+
+    def set_image(self, url:str) -> None:
+        """
+        Set's the url for the image of the embed.
+        """
+        url = (url or ' ').strip()
+        self.image = url if validate_url(url) else None
+
+    @property
+    def attributes(self) -> dict:
+        """
+        Returns the attributes for creating the embed, the
+        """
+        attr = ['color', 'title', 'description', 'thumbnail', 'image', 'footer']
+        info_dict = {}
+
+        for a in attr:
+            if value := self.__dict__.get(a, None):
+                info_dict[a] = value
+
+        return info_dict
+
+
+def requirements() -> str:
+    """
+    Returns the requirements of the main function.
+    """
     return "re"
 
 
+def validate_url(url:str) -> bool:
+    """
+    Checks if the url is valid or not
+    """
+    prepared_request = PreparedRequest()
+    try:
+        prepared_request.prepare_url(url, None)
+        return True
+    except MissingSchema as e:
+        return False
+
+
 def main(client, re):
-    import discord
-    import re as regex
-
-    URL_REGEX = regex.compile(
-        r'^(?:http|ftp)s?://' # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
-        r'localhost|' #localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
-        r'(?::\d+)?' # optional port
-        r'(?:/?|[/?]\S+)$', regex.IGNORECASE)
-
     title_of_embed = {}
     color_of_embed = {}
     thumbnail_of_embed = {}
@@ -21,12 +72,6 @@ def main(client, re):
     footer_of_embed = {}
     image={}
 
-     # add helper functions for embed megafunction
-    def validate_url(url:str) -> bool:
-        """
-        Checks if the given url is valid or not.
-        """
-        return regex.match(URL_REGEX, url) is not None
 
     def split_md(md:str) -> dict:
         """
