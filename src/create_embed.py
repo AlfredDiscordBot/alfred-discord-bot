@@ -23,17 +23,6 @@ def validate_url(url:str) -> bool:
 
 
 def main(client, re):
-    import discord
-    import re as regex
-
-    URL_REGEX = regex.compile(
-        r'^(?:http|ftp)s?://' # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
-        r'localhost|' #localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
-        r'(?::\d+)?' # optional port
-        r'(?:/?|[/?]\S+)$', regex.IGNORECASE)
-
     title_of_embed = {}
     color_of_embed = {}
     thumbnail_of_embed = {}
