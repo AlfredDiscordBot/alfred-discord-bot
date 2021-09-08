@@ -2,6 +2,48 @@ import discord
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 
+class EmbedInfo:
+    def __init__(self, title:str = None, description:str = None, 
+                thumbnail:str = None, image:str = None, footer:str = None, 
+                color:tuple = (48, 213, 200)):
+        """
+        Creates an embed info object, with the provided information.
+        """
+        self.title = title
+        self.description = description
+        self.set_thumbnail(thumbnail)
+        self.set_image(image)
+        self.footer = footer
+        self.color = discord.Color(*color)
+
+    def set_thumbnail(self, url:str) -> None:
+        """
+        Set's the url for the thumbnail of the embed.
+        """
+        url = (url or ' ').strip()
+        self.thumbnail = url if validate_url(url) else None
+
+    def set_image(self, url:str) -> None:
+        """
+        Set's the url for the image of the embed.
+        """
+        url = (url or ' ').strip()
+        self.image = url if validate_url(url) else None
+
+    @property
+    def attributes(self) -> dict:
+        """
+        Returns the attributes for creating the embed, the
+        """
+        attr = ['color', 'title', 'description', 'thumbnail', 'image', 'footer']
+        info_dict = {}
+
+        for a in attr:
+            if value := self.__dict__.get(a, None):
+                info_dict[a] = value
+
+        return info_dict
+
 
 def requirements() -> str:
     """
