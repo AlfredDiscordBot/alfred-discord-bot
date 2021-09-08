@@ -80,7 +80,7 @@ def main(client, re):
     @client.command()
     async def embed_it(ctx,*,string):        
         info=split_md(string)
-        req[0]+=1
+        re[0]+=1
         if info['title']!='':
            title_of_embed[ctx.guild.id]=info['title'] 
         if info['description']!='':
@@ -106,7 +106,7 @@ def main(client, re):
         ):
             try:
                 c = eval(color)
-                req[0]+=1
+                re[0]+=1
                 color_of_embed[ctx.guild.id] = discord.Color.from_rgb(*c)
                 await ctx.send(
                     embed=discord.Embed(
@@ -123,7 +123,7 @@ def main(client, re):
             or ctx.author.id == 432801163126243328
         ):
             title_of_embed[ctx.guild.id] = title
-            req[0]+=1
+            re[0]+=1
             await ctx.send(
                 embed=discord.Embed(
                     description="Title Set", color=discord.Color(value=re[8])
@@ -137,7 +137,7 @@ def main(client, re):
             or ctx.author.id == 432801163126243328
         ):
             description_for_embed[ctx.guild.id] = description
-            req[0]+=1 
+            re[0]+=1 
             await ctx.send(
                 embed=discord.Embed(
                     description="Description Set", color=discord.Color(value=re[8])
