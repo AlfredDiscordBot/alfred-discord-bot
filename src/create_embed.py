@@ -1,5 +1,29 @@
-def requirements():
+import discord
+from requests.models import PreparedRequest
+from requests.exceptions import MissingSchema
+
+
+def requirements() -> str:
+    """
+    Returns the requirements of the main function.
+    """
     return "re"
+
+
+def validate_url(url:str) -> bool:
+    """
+    Checks if the url is valid or not
+    """
+    from requests.models import PreparedRequest
+    from requests.exceptions import MissingSchema
+
+    def check_url(url: str) -> bool:
+        prepared_request = PreparedRequest()
+        try:
+            prepared_request.prepare_url(url, None)
+            return True
+        except MissingSchema as e:
+            return False
 
 
 def main(client, re):
@@ -21,12 +45,6 @@ def main(client, re):
     footer_of_embed = {}
     image={}
 
-     # add helper functions for embed megafunction
-    def validate_url(url:str) -> bool:
-        """
-        Checks if the given url is valid or not.
-        """
-        return regex.match(URL_REGEX, url) is not None
 
     def split_md(md:str) -> dict:
         """
