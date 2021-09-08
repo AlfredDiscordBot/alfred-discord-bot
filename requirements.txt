@@ -9,7 +9,7 @@ chardet==3.0.4
 charset-normalizer==2.0.3
 cloudscraper==1.2.58
 dateparser==1.0.0
-discord==1.0.1
+discord==1.7.3
 discord.py==1.7.3
 discord-components==2.0.5
 discord-py-interactions==3.0.2
