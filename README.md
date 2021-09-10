@@ -2,6 +2,8 @@
 
 ## All in One Discord bot
 
+Use replit branch, this is old
+
 [Link for invitation](https://discord.com/api/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)
 
 <img src="https://github.com/alvinbengeorge/alfred-discord-bot/blob/replit/Krypton.png">
