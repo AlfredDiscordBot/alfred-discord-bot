@@ -2,6 +2,8 @@
 
 ## All in One Discord bot
 
+[Link for invitation](https://discord.com/api/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)
+
 Includes:\
 _Python_\
 _MySQL_\
