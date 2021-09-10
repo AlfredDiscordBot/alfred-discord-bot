@@ -1415,7 +1415,7 @@ if True:
     @client.event
     async def on_member_remove(member):
         if member.guild.id == 743323684705402951:
-            channel = client.get_channel(849215252280770580)
+            channel = client.get_channel(885770265026498601)
         elif member.guild.id == 841026124174983188:
             channel = client.get_channel(841026124174983193)
         else:

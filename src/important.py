@@ -46,7 +46,7 @@ def main(client, re):
                 )
             )
 
-    @client.command(aliases=["github", "source_code", "sc", "source"])
+    @client.command(aliases=["src","github", "source_code", "sc", "source"])
     async def repo(ctx):
         embed = discord.Embed(
             title="Source Code for Alfred",
