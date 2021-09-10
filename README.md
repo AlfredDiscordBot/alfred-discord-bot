@@ -4,14 +4,22 @@
 
 [Link for invitation](https://discord.com/api/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)
 
-Includes:\
-_Python_\
-_MySQL_\
-_Music_\
-_Entrar Announcement for class 12 DPSE_\
+<img src="https://github.com/alvinbengeorge/alfred-discord-bot/blob/replit/Krypton.png">
+
+## Features: 
+
+\
+<img src="https://img.shields.io/badge/python-00aa55?style=for-the-badge&logo=python&logoColor=white">
+<img src="https://img.shields.io/badge/music-1b77dd?style=for-the-badge&logo=youtube&logoColor=white">
+<img src="https://img.shields.io/badge/Entrar_announcements_for_grade_12th-009944?style=for-the-badge&logo=entrar&logoColor=white">
+<img src="https://img.shields.io/badge/Fun_apis-1b77dd?style=for-the-badge&logo=api&logoColor=white">
+<img src="https://img.shields.io/badge/Plugins-00aa55?style=for-the-badge&logo=python&logoColor=white">
+
+<img src="https://img.shields.io/badge/Also_includes_dev_control_which_can_be_useful_for_recovering_data_and_restarting_the_program-000077?style=for-the-badge&logo=hey&logoColor=white"><br>
+
 *Also includes dev_op which can be useful for recovering data and restarting the program*
 
-**Setup:**
+## Setup:
 
 Set the path to a required location
 
