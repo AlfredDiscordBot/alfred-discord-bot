@@ -169,8 +169,15 @@ def main(client, re):
         print(c,type(c))
         color_of_embed[ctx.guild.id]=discord.Color.from_rgb(*c)
         await ctx.send(embed=discord.Embed(description="Done",color=discord.Color(value=re[8])))
-        
 
+    @client.command()
+    async def embed_ctest(ctx, *, string:str):
+        """
+        Uses the new custom class and makes embed out of it, does the same thing as `embed_it()`
+        """
+        info = EmbedInfo.from_md(string)
+        re[8] += 1
+        await ctx.send(embed=discord.Embed(*info.attributes))
 
     @client.command(aliases=["color_for_embed"])
     async def set_color(ctx, color):
