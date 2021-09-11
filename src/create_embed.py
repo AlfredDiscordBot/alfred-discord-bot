@@ -14,7 +14,7 @@ class EmbedInfo:
         self.set_thumbnail(thumbnail)
         self.set_image(image)
         self.footer = footer
-        self.color = discord.Color(*color)
+        self.color = discord.Color.from_rgb(*color)
 
     def set_thumbnail(self, url:str) -> None:
         """
