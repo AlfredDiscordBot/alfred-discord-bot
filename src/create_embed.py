@@ -44,6 +44,35 @@ class EmbedInfo:
 
         return info_dict
 
+    @classmethod
+    def from_md(cls, MD:str) -> EmbedInfo:
+        """
+        Creates EmbedInfo from a given MD string.
+        """
+        info = EmbedInfo()
+        # TODO: Improve the interface
+        try:
+            split = MD.split("\n\n")
+
+            info.title = split[0]
+            info.set_thumbnail(split[1])
+            info.description = split[1] if info.thumbnail else split[2]
+
+            try:
+                info.set_image(split[3])
+            except:
+                pass
+
+            try:
+                info.footer = split[3] if info.image else split[4]
+            except:
+                pass
+
+        except Exception as e:
+            print(e) # maybe make an error embed here...
+
+        return info
+
 
 def requirements() -> str:
     """
