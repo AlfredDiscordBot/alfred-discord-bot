@@ -177,7 +177,7 @@ def main(client, re):
         """
         info = EmbedInfo.from_md(string)
         re[8] += 1
-        await ctx.send(embed=discord.Embed(*info.attributes))
+        await ctx.send(embed=discord.Embed(**info.attributes))
 
     @client.command(aliases=["color_for_embed"])
     async def set_color(ctx, color):
