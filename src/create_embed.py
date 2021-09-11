@@ -44,6 +44,35 @@ class EmbedInfo:
 
         return info_dict
 
+    @classmethod
+    def from_md(cls, MD:str):
+        """
+        Creates EmbedInfo from a given MD string.
+        """
+        info = cls()
+        # TODO: Improve the interface
+        try:
+            split = MD.split("\n\n")
+
+            info.title = split[0]
+            info.set_thumbnail(split[1])
+            info.description = split[1] if info.thumbnail else split[2]
+
+            try:
+                info.set_image(split[3])
+            except:
+                pass
+
+            try:
+                info.footer = split[3] if info.image else split[4]
+            except:
+                pass
+
+        except Exception as e:
+            print(e) # maybe make an error embed here...
+
+        return info
+
 
 def requirements() -> str:
     """
@@ -140,8 +169,15 @@ def main(client, re):
         print(c,type(c))
         color_of_embed[ctx.guild.id]=discord.Color.from_rgb(*c)
         await ctx.send(embed=discord.Embed(description="Done",color=discord.Color(value=re[8])))
-        
 
+    @client.command()
+    async def embed_ctest(ctx, *, string:str):
+        """
+        Uses the new custom class and makes embed out of it, does the same thing as `embed_it()`
+        """
+        info = EmbedInfo.from_md(string)
+        re[8] += 1
+        await ctx.send(embed=discord.Embed(**info.attributes))
 
     @client.command(aliases=["color_for_embed"])
     async def set_color(ctx, color):
