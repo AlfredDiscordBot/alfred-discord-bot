@@ -45,11 +45,11 @@ class EmbedInfo:
         return info_dict
 
     @classmethod
-    def from_md(cls, MD:str) -> EmbedInfo:
+    def from_md(cls, MD:str):
         """
         Creates EmbedInfo from a given MD string.
         """
-        info = EmbedInfo()
+        info = cls()
         # TODO: Improve the interface
         try:
             split = MD.split("\n\n")
