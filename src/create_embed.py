@@ -18,9 +18,13 @@ class EmbedInfo:
         """
         self.title = title
         self.description = description
+        self.footer = footer
+        
+        self.image = None
+        self.thumbnail = None
         self.set_thumbnail(thumbnail)
         self.set_image(image)
-        self.footer = footer
+        
         self.color = discord.Color.from_rgb(*color)
 
     def set_thumbnail(self, url: str) -> None:
@@ -52,7 +56,7 @@ class EmbedInfo:
         return info_dict
 
     @classmethod
-    def from_md(cls, MD:str):
+    def from_md(cls, MD: str):
         """
         Creates EmbedInfo from a given MD string.
         """

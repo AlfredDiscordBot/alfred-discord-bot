@@ -355,32 +355,31 @@ async def on_ready():
         await mess.add_reaction(emoji.emojize(":laptop:"))
         print("Finished devop display")
         print("Starting imports")
-        if True:
-            imports = ""
-            sys.path.insert(1, location_of_file + "/src")
-            for i in os.listdir(location_of_file + "/src"):
-                if i.endswith(".py"):
-                    try:
-                        requi = __import__(i[0 : len(i) - 3]).requirements()
-                        if requi != "":
-                            requi = "," + requi
-                        eval("__import__(i[0:len(i)-3]).main(client" + requi + ")")
-                        imports = imports + i[0 : len(i) - 3] + "\n"
-                    except Exception as e:
-                        await channel.send(
-                            embed=discord.Embed(
-                                title="Error in plugin " + i[0 : len(i) - 3],
-                                description=str(e),
-                                color=discord.Color(value=re[8]),
-                            )
+        imports = ""
+        sys.path.insert(1, location_of_file + "/src")
+        for i in os.listdir(location_of_file + "/src"):
+            if i.endswith(".py"):
+                try:
+                    requi = __import__(i[0 : len(i) - 3]).requirements()
+                    if requi != "":
+                        requi = "," + requi
+                    eval("__import__(i[0:len(i)-3]).main(client" + requi + ")")
+                    imports = imports + i[0 : len(i) - 3] + "\n"
+                except Exception as e:
+                    await channel.send(
+                        embed=discord.Embed(
+                            title="Error in plugin " + i[0 : len(i) - 3],
+                            description=str(e),
+                            color=discord.Color(value=re[8]),
                         )
-            await channel.send(
-                embed=discord.Embed(
-                    title="Successfully imported",
-                    description=imports,
-                    color=discord.Color(value=re[8]),
-                )
+                    )
+        await channel.send(
+            embed=discord.Embed(
+                title="Successfully imported",
+                description=imports,
+                color=discord.Color(value=re[8]),
             )
+        )
     except Exception as e:
         mess = await channel.send(
             embed=discord.Embed(
@@ -4232,6 +4231,11 @@ help5 = (
 )
 help_list = [help1, help2, help3, help4, help5]
 
+try:
+    test_help=[]
+    
+except Exception as e:
+    print(e)
 
 @slash.slash(name="help", description="Help from Alfred")
 async def help_slash(ctx):
