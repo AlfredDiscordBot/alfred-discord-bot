@@ -2,10 +2,17 @@ import discord
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 
+
 class EmbedInfo:
-    def __init__(self, title:str = None, description:str = None, 
-                thumbnail:str = None, image:str = None, footer:str = None, 
-                color:tuple = (48, 213, 200)):
+    def __init__(
+        self,
+        title: str = None,
+        description: str = None,
+        thumbnail: str = None,
+        image: str = None,
+        footer: str = None,
+        color: tuple = (48, 213, 200),
+    ):
         """
         Creates an embed info object, with the provided information.
         """
@@ -16,18 +23,18 @@ class EmbedInfo:
         self.footer = footer
         self.color = discord.Color.from_rgb(*color)
 
-    def set_thumbnail(self, url:str) -> None:
+    def set_thumbnail(self, url: str) -> None:
         """
         Set's the url for the thumbnail of the embed.
         """
-        url = (url or ' ').strip()
+        url = (url or " ").strip()
         self.thumbnail = url if validate_url(url) else None
 
-    def set_image(self, url:str) -> None:
+    def set_image(self, url: str) -> None:
         """
         Set's the url for the image of the embed.
         """
-        url = (url or ' ').strip()
+        url = (url or " ").strip()
         self.image = url if validate_url(url) else None
 
     @property
@@ -35,7 +42,7 @@ class EmbedInfo:
         """
         Returns the attributes for creating the embed, the
         """
-        attr = ['color', 'title', 'description', 'thumbnail', 'image', 'footer']
+        attr = ["color", "title", "description", "thumbnail", "image", "footer"]
         info_dict = {}
 
         for a in attr:
@@ -81,7 +88,7 @@ def requirements() -> str:
     return "re"
 
 
-def validate_url(url:str) -> bool:
+def validate_url(url: str) -> bool:
     """
     Checks if the url is valid or not
     """
@@ -99,47 +106,46 @@ def main(client, re):
     thumbnail_of_embed = {}
     description_for_embed = {}
     footer_of_embed = {}
-    image={}
+    image = {}
 
-
-    def split_md(md:str) -> dict:
+    def split_md(md: str) -> dict:
         """
         splits the given markdown into a dictionary.
         """
         info = {
             "color": "(48,213,200)",
-            "image": '',
-            'title': '',
-            "thumbnail": '',
-            "description": '',
-            "footer": ''
+            "image": "",
+            "title": "",
+            "thumbnail": "",
+            "description": "",
+            "footer": "",
         }
         try:
             split = md.split("\n\n")
 
             info["title"] = split[0]
 
-            info['thumbnail'] = split[1] if validate_url(split[1]) else ''
+            info["thumbnail"] = split[1] if validate_url(split[1]) else ""
 
-            info['description'] = split[1] if info['thumbnail'] == '' else split[2]
+            info["description"] = split[1] if info["thumbnail"] == "" else split[2]
 
             try:
-                info['image'] = split[3] if validate_url(split[1]) else ''
+                info["image"] = split[3] if validate_url(split[1]) else ""
             except:
                 pass
 
             try:
-                info['footer'] = split[3] if info['image'] == '' else split[4]
+                info["footer"] = split[3] if info["image"] == "" else split[4]
             except:
                 pass
         except Exception as e:
-            print(e) # maybe make an error embed here...
+            print(e)  # maybe make an error embed here...
 
         return info
 
     @client.command(aliases=["init_embed", "embed_init"])
     async def create_embed_init(ctx):
-        re[0]+=1
+        re[0] += 1
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == 432801163126243328
@@ -187,7 +193,7 @@ def main(client, re):
         ):
             try:
                 c = eval(color)
-                re[0]+=1
+                re[0] += 1
                 color_of_embed[ctx.guild.id] = discord.Color.from_rgb(*c)
                 await ctx.send(
                     embed=discord.Embed(
@@ -204,7 +210,7 @@ def main(client, re):
             or ctx.author.id == 432801163126243328
         ):
             title_of_embed[ctx.guild.id] = title
-            re[0]+=1
+            re[0] += 1
             await ctx.send(
                 embed=discord.Embed(
                     description="Title Set", color=discord.Color(value=re[8])
@@ -218,7 +224,7 @@ def main(client, re):
             or ctx.author.id == 432801163126243328
         ):
             description_for_embed[ctx.guild.id] = description
-            re[0]+=1 
+            re[0] += 1
             await ctx.send(
                 embed=discord.Embed(
                     description="Description Set", color=discord.Color(value=re[8])

@@ -15,7 +15,7 @@ def main(client, re):
             "https://c.tenor.com/Mk3HGIMZ0mcAAAAC/fairy-oddparents-f-dancing.gif",
             "https://c.tenor.com/J4bVExaxn5oAAAAd/efemann-efe.gif",
             "https://c.tenor.com/H8DA2jkNgtwAAAAC/team-fortress2-pay-respects.gif",
-            "https://c.tenor.com/L68DS0H7Mp8AAAAC/triggered-letter-f.gif"
+            "https://c.tenor.com/L68DS0H7Mp8AAAAC/triggered-letter-f.gif",
         ]
         embed = discord.Embed(color=discord.Color(re[8]))
         url = random.choice(urls)
@@ -46,7 +46,7 @@ def main(client, re):
                 )
             )
 
-    @client.command(aliases=["src","github", "source_code", "sc", "source"])
+    @client.command(aliases=["src", "github", "source_code", "sc", "source"])
     async def repo(ctx):
         embed = discord.Embed(
             title="Source Code for Alfred",
