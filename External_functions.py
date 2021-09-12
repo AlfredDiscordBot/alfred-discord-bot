@@ -156,11 +156,14 @@ def get_it():
     return get_sessionid(username, password)
 
 
-def instagram_get(account, color, SESSIONID):
+def instagram_get1(account, color, SESSIONID):
     try:
         user = InstagramUser(account, sessionid=SESSIONID)
-        url = user.posts[0].post_url
-        if True:
+        all_posts = user.posts   
+        list_of_posts=[]
+        number=0
+        for i in all_posts[0:7]:          
+            url=i.post_url
             pos = Post(url)
             headers = {
                 "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36 Edg/87.0.664.57",
@@ -172,9 +175,11 @@ def instagram_get(account, color, SESSIONID):
             embed = discord.Embed(
                 title="Insta", description=descript, color=discord.Color(value=color)
             )
-            embed.set_image(url=user.posts[0].post_source)
+            embed.set_image(url=user.posts[number].post_source)
             embed.set_thumbnail(url=thumb)
-            return (embed, url)
+            list_of_posts.append((embed,url))
+            number+=1
+        return list_of_posts
 
     except Exception as e:
         print(e)

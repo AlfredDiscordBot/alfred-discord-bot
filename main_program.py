@@ -739,20 +739,23 @@ async def set_sessionid(ctx, sessionid):
 
 
 @client.command()
-async def instagram(ctx, account):
-    if True:
-        a = instagram_get(account, re[8], re[9])
+async def instagram(ctx, account):    
+    links = instagram_get1(account, re[8], re[9])
+    embeds=[]
+    for a in links:
         if a is not None and type(a) != type("aa"):
-            await ctx.send(embed=a[0])
+            embeds.append(a[0])
         elif type(a) != type("aa"):
             re[9] = a
         else:
+            break
             await ctx.send(
                 embed=discord.Embed(
                     description="Oops!, something is wrong.",
                     color=discord.Color(value=re[8]),
                 )
             )
+    await pa(embeds,ctx)
 
 
 @client.command()
@@ -946,7 +949,7 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
             for i in a:
                 embeds += [
                     cembed(
-                        title=i[0],
+                        description="**"+i[0]+"**",
                         picture=i[1],
                         color=re[8],
                         thumbnail=client.user.avatar_url_as(format="png"),
