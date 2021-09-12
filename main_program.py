@@ -9,6 +9,7 @@ default=
 
 
 import discord
+import helping_hand
 from random import choice
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand, SlashContext
@@ -4231,11 +4232,18 @@ help5 = (
 )
 help_list = [help1, help2, help3, help4, help5]
 
-try:
+
+
+@client.command()
+async def testing_help(ctx):
     test_help=[]
+    thumbnail="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
+    test_help.append(cembed(title="Help",description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '",thumbnail=thumbnail,picture=client.user.avatar_url_as(format="png"),color=re[8]))
+    test_help.append(cembed(title="Source Code for Alfred",description="[Here you go, click this link and it'll redirect you to the github page](https://github.com/alvinbengeorge/alfred-discord-bot)",color=re[8],thumbnail="https://github.githubassets.com/images/modules/open_graph/github-octocat.png",picture=client.user.avatar_url_as(format="png")))
+    test_help+=helping_hand.help_him(ctx,client,re)
+    await pa(test_help,ctx)
     
-except Exception as e:
-    print(e)
+
 
 @slash.slash(name="help", description="Help from Alfred")
 async def help_slash(ctx):
