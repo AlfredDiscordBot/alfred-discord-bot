@@ -1361,6 +1361,9 @@ async def snipe_slash(ctx, number=0):
 
 @client.command()
 async def snipe(ctx, number=0):
+    if number > 10:
+        await ctx.send(embed=cembed(picture="https://images.news18.com/ibnlive/uploads/2015/08/Chandler-2.gif",color=re[8]))
+        return ""
     if number == 0:
         message = deleted_message[ctx.channel.id][-1]
         if len(message) < 3:

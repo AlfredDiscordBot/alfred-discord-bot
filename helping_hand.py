@@ -1,4 +1,4 @@
-from External_functions import *
+from External_functions import cembed
 
 
 def help_him(ctx,client,re):
@@ -13,6 +13,8 @@ def help_him(ctx,client,re):
 
     wolfram_help=cembed(title="Wolfram",description="I've added a simple API of Wolfram in Alfred, you can use it through 'wolf <expression>",thumbnail=thumbnail,picture="https://venturebeat.com/wp-content/uploads/2019/09/wolfram-alpha.png?fit=400%2C200&strip=all",color=re[8])
 
+    code_help=cembed(title="Code",description="You can execute programs from various programming languages\n\nEx: 'code <language>\n```\n#code here\n```",color=re[8],thumbnail=thumbnail,picture="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg")
 
 
-    return [Emoji_help, instagram_help, reddit_help,wolfram_help]
+
+    return [Emoji_help, instagram_help, reddit_help,wolfram_help, code_help]
