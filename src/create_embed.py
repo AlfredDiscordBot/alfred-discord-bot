@@ -168,6 +168,7 @@ def main(client, re):
     @client.command()
     async def embed_it(ctx,*,string):        
         info=split_md(string)
+        print(info)
         re[0]+=1
         if info['title']!='':
            title_of_embed[ctx.guild.id]=info['title'] 

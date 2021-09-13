@@ -4203,28 +4203,38 @@ async def hey_alfred(ctx, *, text):
 @commands.has_permissions(kick_members=True)
 async def mute(ctx, member: discord.Member):
     req()
+    print("Memver id: ",member.id)
+    add_role=None
     if ctx.guild.id == 743323684705402951:
-        add_role = discord.utils.get(ctx.guild.roles, name="muted")
+        add_role = [i for i in ctx.guild.roles if i.id==876708632325148672][0]
+        await member.add_roles(add_role)
+        await ctx.send("Muted " + member.mention)
     if ctx.guild.id == 851315724119310367:
         add_role = discord.utils.get(ctx.guild.roles, name="Muted")
     else:
         add_role = discord.utils.get(ctx.guild.roles, name="dunce")
-    await member.add_roles(add_role)
-    await ctx.send("Muted " + member.mention)
-    print(member, "muted")
+        await member.add_roles(add_role)
+        await ctx.send("Muted " + member.mention)    
 
 
 @client.command(aliases=["um"])
 @commands.has_permissions(kick_members=True)
 async def unmute(ctx, member: discord.Member):
     req()
+    add_role=None
     if ctx.guild.id == 851315724119310367:
         add_role = discord.utils.get(ctx.guild.roles, name="Muted")
+        await member.remove_roles(add_role)
+        await ctx.send("Unmuted " + member.mention)
+    elif ctx.guild.id == 743323684705402951:
+        add_role = [i for i in ctx.guild.roles if i.id==876708632325148672][0]
+        await member.remove_roles(add_role)
+        await ctx.send("Unmuted " + member.mention)
     else:
         add_role = discord.utils.get(ctx.guild.roles, name="dunce")
-    await member.remove_roles(add_role)
-    await ctx.send("Unmuted " + member.mention)
-    print(member, "unmuted")
+        await member.remove_roles(add_role)
+        await ctx.send("Unmuted " + member.mention)
+        print(member, "unmuted")
 
 
 help1 = "**COMMANDS**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n"
