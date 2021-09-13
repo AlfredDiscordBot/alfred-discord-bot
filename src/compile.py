@@ -103,7 +103,7 @@ def filter_graves(code):
 
 
 def requirements():
-    return "re[8]"
+    return ["re[8]"]
 
 
 def main(client, color):
