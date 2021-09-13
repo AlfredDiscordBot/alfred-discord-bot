@@ -2,7 +2,11 @@ from wolframalpha import *
 
 
 def requirements():
-    return "re,wolfram,dev_channel"
+    return [
+        "re",
+        "wolfram",
+        "dev_channel",
+    ]
 
 
 def main(client, re, AiD, dev_channel):

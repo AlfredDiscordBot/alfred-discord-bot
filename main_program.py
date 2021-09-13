@@ -362,9 +362,10 @@ async def on_ready():
             if i.endswith(".py"):
                 try:
                     requi = __import__(i[0 : len(i) - 3]).requirements()
-                    if requi != "":
-                        requi = "," + requi
-                    eval("__import__(i[0:len(i)-3]).main(client" + requi + ")")
+                    # if requi != "":
+                    #     requi = "," + requi
+                    if requi is str: eval(f"__import__(i[0:len(i)-3]).main(client,{requi})")
+                    if requi is list: eval(f"__import__(i[0:len(i)-3]).main(client,{','.join(requi)})")
                     imports = imports + i[0 : len(i) - 3] + "\n"
                 except Exception as e:
                     await channel.send(

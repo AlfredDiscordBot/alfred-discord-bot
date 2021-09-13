@@ -93,7 +93,7 @@ def requirements() -> str:
     """
     Returns the requirements of the main function.
     """
-    return "re"
+    return ["re"]
 
 
 def validate_url(url: str) -> bool:

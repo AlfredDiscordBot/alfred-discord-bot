@@ -1,5 +1,5 @@
 def requirements():
-    return "re"
+    return ["re"]
 
 
 def main(client, re):
