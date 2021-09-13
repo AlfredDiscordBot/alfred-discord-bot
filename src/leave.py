@@ -1,5 +1,8 @@
 def requirements():
-    return "dev_users, re"
+    return [
+        "dev_users", 
+        "re"
+    ]
 
 
 def main(client, dev_users, re):
