@@ -20,11 +20,15 @@ class EmbedInfo:
         self.description = description
         self.footer = footer
         
-        self.image = None
-        self.thumbnail = None
         self.set_thumbnail(thumbnail)
         self.set_image(image)
         
+        self.color = discord.Color.from_rgb(*color)
+
+    def set_color(self, color:tuple) -> None:
+        """
+        Set's the color for the embed
+        """
         self.color = discord.Color.from_rgb(*color)
 
     def set_thumbnail(self, url: str) -> None:
@@ -50,7 +54,7 @@ class EmbedInfo:
         info_dict = {}
 
         for a in attr:
-            if value := self.__dict__.get(a, None):
+            if value := getattr(self, a, None):
                 info_dict[a] = value
 
         return info_dict
@@ -67,7 +71,7 @@ class EmbedInfo:
 
             info.title = split[0]
             info.set_thumbnail(split[1])
-            info.description = split[1] if info.thumbnail else split[2]
+            info.description = split[1] if not getattr(info, 'thumbnail', None) else split[2]
 
             try:
                 info.set_image(split[3])
@@ -75,7 +79,7 @@ class EmbedInfo:
                 pass
 
             try:
-                info.footer = split[3] if info.image else split[4]
+                info.footer = split[3] if not getattr(info, 'image', None) else split[4]
             except:
                 pass
 
