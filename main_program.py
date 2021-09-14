@@ -10,6 +10,7 @@ default=
 
 import discord
 import helping_hand
+import discord_slash
 from random import choice
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand, SlashContext
@@ -22,13 +23,7 @@ from wikipedia import search, summary
 from io import StringIO
 from contextlib import redirect_stdout
 from External_functions import *
-from discord_components import (
-    Button,
-    Select,
-    SelectOption,
-    ComponentsBot,
-    DiscordComponents,
-)
+from discord_components import *
 import traceback
 import googlesearch
 import youtube_dl
@@ -960,6 +955,29 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
         else:
             await ctx.send(embed=cembed(title=a[0], color=re[8], description=a[1]))
 
+@client.command()
+async def test_buttons(ctx):
+    embeds=[]
+    for i in range(0,10):
+        embeds.append(cembed(title="Hello",description=str(i),color=re[8]))
+    await pa1(embeds,ctx)
+
+async def pa1(embeds, ctx):
+    message = await ctx.send(embed=embeds[0],components=[Button(style=ButtonStyle.blue,label=">"),Button(style=ButtonStyle.blue,label="<")])
+    pag = 0
+    
+
+    while True:
+        try:
+            res = await client.wait_for("button_click")       
+            if res.component.label==">" and pag + 1 != len(embeds):
+                pag += 1
+                await message.edit(embed=embeds[pag])
+            elif res.component.label=="<" and pag != 0:
+                pag -= 1
+                await message.edit(embed=embeds[pag])
+        except asyncio.TimeoutError:
+            break
 
 async def pa(embeds, ctx):
     message = await ctx.send(embed=embeds[0])
