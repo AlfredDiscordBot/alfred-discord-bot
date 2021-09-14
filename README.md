@@ -35,7 +35,7 @@ sudo apt install ffmpeg
 
 or
 ```
-sudo dnf -y install ffmpeg\
+sudo dnf -y install ffmpeg
 sudo dnf -y install ffmpeg-devel 
 ```
 
