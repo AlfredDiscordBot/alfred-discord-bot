@@ -363,9 +363,7 @@ async def on_ready():
                 try:
                     requi = __import__(i[0 : len(i) - 3]).requirements()
                     # if requi != "":
-                    #     requi = "," + requi
-                    print(type(requi))
-                    print(f"__import__('{i[0:len(i)-3]}').main(client,{','.join(requi)})")
+                    #     requi = "," + requi                    
                     if type(requi) is str: eval(f"__import__('{i[0:len(i)-3]}').main(client,{requi})")
                     if type(requi) is list: eval(f"__import__('{i[0:len(i)-3]}').main(client,{','.join(requi)})")
                     imports = imports + i[0 : len(i) - 3] + "\n"
