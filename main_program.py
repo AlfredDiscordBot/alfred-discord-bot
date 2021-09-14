@@ -929,7 +929,7 @@ async def reddit_slash(ctx, account="wholesomememes"):
     try:
         await ctx.defer()
         await reddit_search(ctx, account)
-    except:
+    except Exception as e:
         await ctx.send(
             embed=cembed(title="Oops", description="Something went wrong", color=re[8])
         )
@@ -955,31 +955,29 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
         else:
             await ctx.send(embed=cembed(title=a[0], color=re[8], description=a[1]))
 
-@client.command()
-async def test_buttons(ctx):
-    embeds=[]
-    for i in range(0,10):
-        embeds.append(cembed(title="Hello",description=str(i),color=re[8]))
-    await pa1(embeds,ctx)
 
-async def pa1(embeds, ctx):
-    message = await ctx.send(embed=embeds[0],components=[Button(style=ButtonStyle.blue,label=">"),Button(style=ButtonStyle.blue,label="<")])
+async def pa(embeds, ctx):
+    message = await ctx.send(embed=embeds[0],components=[[Button(style=ButtonStyle.blue,label="<"),Button(style=ButtonStyle.blue,label=">")]])
     pag = 0
     
+    def check(res):
+        return message.id==res.message.id
 
     while True:
-        try:
-            res = await client.wait_for("button_click")       
+        try:                
+            res = await client.wait_for("button_click",check=check)
+            print(dir(res))
             if res.component.label==">" and pag + 1 != len(embeds):
                 pag += 1
-                await message.edit(embed=embeds[pag])
+                await res.edit_origin(embed=embeds[pag])
             elif res.component.label=="<" and pag != 0:
                 pag -= 1
-                await message.edit(embed=embeds[pag])
+                await res.edit_origin(embed=embeds[pag])
+            
         except asyncio.TimeoutError:
             break
 
-async def pa(embeds, ctx):
+async def pa1(embeds, ctx):
     message = await ctx.send(embed=embeds[0])
     pag = 0
     await message.add_reaction("◀️")
