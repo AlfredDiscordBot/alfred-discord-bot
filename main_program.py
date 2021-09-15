@@ -930,6 +930,7 @@ async def reddit_slash(ctx, account="wholesomememes"):
         await ctx.defer()
         await reddit_search(ctx, account)
     except Exception as e:
+        print(e)
         await ctx.send(
             embed=cembed(title="Oops", description="Something went wrong", color=re[8])
         )
@@ -951,13 +952,13 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
                         thumbnail=client.user.avatar_url_as(format="png"),
                     )
                 ]
-            await pa(embeds, ctx)
+            await pa1(embeds, ctx)
         else:
             await ctx.send(embed=cembed(title=a[0], color=re[8], description=a[1]))
 
 
 async def pa(embeds, ctx):
-    message = await ctx.send(embed=embeds[0],components=[[Button(style=ButtonStyle.blue,label="<"),Button(style=ButtonStyle.blue,label=">")]])
+    message = await ctx.send(embed=embeds[0],components=[[Button(style=ButtonStyle.green,label="<"),Button(style=ButtonStyle.green,label=">")]])
     pag = 0
     
     def check(res):
@@ -983,7 +984,7 @@ async def pa1(embeds, ctx):
     await message.add_reaction("▶️")
 
     def check(reaction, user):
-        return user != client.user and str(reaction.emoji) in ["◀️", "▶️"]
+        return user != client.user and str(reaction.emoji) in ["◀️", "▶️"] and reaction.message.id==message.id
 
     while True:
         try:
@@ -4325,7 +4326,7 @@ async def h(ctx):
             url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
         )
         embeds.append(em)
-    await pa(embeds, ctx)
+    await pa1(embeds, ctx)
 
 
 client.run(os.getenv("token"))
