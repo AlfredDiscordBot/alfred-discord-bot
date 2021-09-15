@@ -108,6 +108,17 @@ def validate_url(url: str) -> bool:
         return False
 
 
+def embed_from_info(info: EmbedInfo) -> discord.Embed:
+    properties = info.attributes
+    embed = discord.Embed(**properties)
+
+    if 'thumbnail' in properties: embed.set_thumbnail(url = info.thumbnail)
+    if 'image' in properties: embed.set_image(url = info.image)
+    if 'footer' in properties: embed.set_footer(text = info.footer)
+
+    return embed
+
+
 def main(client, re):
     title_of_embed = {}
     color_of_embed = {}
@@ -192,7 +203,7 @@ def main(client, re):
         """
         info = EmbedInfo.from_md(string)
         re[8] += 1
-        await ctx.send(embed=discord.Embed(**info.attributes))
+        await ctx.send(embed=embed_from_info(info))
 
     @client.command(aliases=["color_for_embed"])
     async def set_color(ctx, color):
