@@ -118,6 +118,9 @@ def validate_url(url: str) -> bool:
 
 
 def embed_from_info(info: EmbedInfo) -> discord.Embed:
+    """
+    returns a complete embed using the given EmbedInfo object
+    """
     properties = info.attributes
     embed = discord.Embed(**properties)
 
@@ -129,48 +132,13 @@ def embed_from_info(info: EmbedInfo) -> discord.Embed:
 
 
 def main(client, re):
-    title_of_embed = {}
-    color_of_embed = {}
-    thumbnail_of_embed = {}
-    description_for_embed = {}
-    footer_of_embed = {}
-    image = {}
     embeds = {}
 
-    def split_md(md: str) -> dict:
-        """
-        splits the given markdown into a dictionary.
-        """
-        info = {
-            "color": "(48,213,200)",
-            "image": "",
-            "title": "",
-            "thumbnail": "",
-            "description": "",
-            "footer": "",
-        }
-        try:
-            split = md.split("\n\n")
-
-            info["title"] = split[0]
-
-            info["thumbnail"] = split[1] if validate_url(split[1]) else ""
-
-            info["description"] = split[1] if info["thumbnail"] == "" else split[2]
-
-            try:
-                info["image"] = split[3] if validate_url(split[1]) else ""
-            except:
-                pass
-
-            try:
-                info["footer"] = split[3] if info["image"] == "" else split[4]
-            except:
-                pass
-        except Exception as e:
-            print(e)  # maybe make an error embed here...
-
-        return info
+    def quick_embed(description:str) -> discord.Embed:
+        return discord.Embed(
+            description = description,
+            color = discord.Color(value=re[8]),
+        )
 
     @client.command(aliases=["init_embed", "embed_init"])
     async def create_embed_init(ctx):
@@ -183,46 +151,11 @@ def main(client, re):
             embeds[ctx.guild.id] = EmbedInfo()
 
             await ctx.send(
-                embed=discord.Embed(
-                    description=f"Embed initialization complete \n{embeds[ctx.guild.id]}", color=discord.Color(value=re[8])
-                )
+                embed=quick_embed("Embed initialization complete")  # add embeds[ctx.guild.id] in description for debugging
             )
-    # @client.command(aliases=["init_embed", "embed_init"])
-    # async def create_embed_init(ctx):
-    #     re[0] += 1
-    #     if (
-    #         ctx.author.guild_permissions.manage_messages
-    #         or ctx.author.id == 432801163126243328
-    #     ):
-    #         title_of_embed.pop(ctx.guild.id)
-    #         color_of_embed.pop(ctx.guild.id)
-    #         thumbnail_of_embed.pop(ctx.guild.id)
-    #         description_for_embed.pop(ctx.guild.id)
-    #         footer_of_embed.pop(ctx.guild.id)
-    #         image.pop(ctx.guild.id)
 
-    @client.command()
-    async def embed_it(ctx,*,string):        
-        info=split_md(string)
-        print(info)
-        re[0]+=1
-        if info['title']!='':
-           title_of_embed[ctx.guild.id]=info['title'] 
-        if info['description']!='':
-            description_for_embed[ctx.guild.id]=info['description']
-        if info['thumbnail']!='':
-            thumbnail_of_embed[ctx.guild.id]=info['thumbnail']
-        if info['footer']!='':
-            footer_of_embed[ctx.guild.id]=info['footer']
-        if info['image']!='':
-            image[ctx.guild.id]=info['image']
-        c=eval(info['color'])
-        print(c,type(c))
-        color_of_embed[ctx.guild.id]=discord.Color.from_rgb(*c)
-        await ctx.send(embed=discord.Embed(description="Done",color=discord.Color(value=re[8])))
-
-    @client.command()
-    async def embed_ctest(ctx, *, string:str):
+    @client.command(aliases=['emd'])
+    async def embed_it(ctx, *, string:str):
         """
         Uses the new custom class and makes embed out of it, does the same thing as `embed_it()`
         """
@@ -233,17 +166,13 @@ def main(client, re):
             try:
                 re[0] += 1
                 embeds[ctx.guild.id] = EmbedInfo.from_md(string)
-                await ctx.send(
-                    embed=discord.Embed(
-                        description="Done", color=discord.Color(value=re[8])
-                    )
-                )
+
+                await ctx.send(embed=quick_embed("Done"))
             except Exception as e:
                 await ctx.send(str(e))
-        # await ctx.send(embed=embed_from_info(info))
 
     @client.command(aliases=["color_for_embed"])
-    async def set_color(ctx, color):
+    async def set_color(ctx, color:tuple):
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == 432801163126243328
@@ -254,33 +183,13 @@ def main(client, re):
                 if ctx.guild.id not in embeds: create_embed_init(ctx)
 
                 embeds[ctx.guild.id].set_color(*c)
-                await ctx.send(
-                    embed=discord.Embed(
-                        description="Color Set", color=discord.Color(value=re[8])
-                    )
-                )
+
+                await ctx.send(embed=quick_embed("Color Set to " + str(c)))
             except Exception as e:
                 await ctx.send(str(e))
-    # @client.command(aliases=["color_for_embed"])
-    # async def set_color(ctx, color):
-    #     if (
-    #         ctx.author.guild_permissions.manage_messages
-    #         or ctx.author.id == 432801163126243328
-    #     ):
-    #         try:
-    #             c = eval(color)
-    #             re[0] += 1
-    #             color_of_embed[ctx.guild.id] = discord.Color.from_rgb(*c)
-    #             await ctx.send(
-    #                 embed=discord.Embed(
-    #                     description="Color Set", color=discord.Color(value=re[8])
-    #                 )
-    #             )
-    #         except Exception as e:
-    #             await ctx.send(str(e))
 
     @client.command(aliases=["title"])
-    async def set_title(ctx, *, title):
+    async def set_title(ctx, *, title:str):
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == 432801163126243328
@@ -288,27 +197,10 @@ def main(client, re):
             if ctx.guild.id not in embeds: create_embed_init(ctx)
             embeds[ctx.guild.id].title = title
             re[0] += 1
-            await ctx.send(
-                embed=discord.Embed(
-                    description="Title Set", color=discord.Color(value=re[8])
-                )
-            )
-    # @client.command(aliases=["title"])
-    # async def set_title(ctx, *, title):
-    #     if (
-    #         ctx.author.guild_permissions.manage_messages
-    #         or ctx.author.id == 432801163126243328
-    #     ):
-    #         title_of_embed[ctx.guild.id] = title
-    #         re[0] += 1
-    #         await ctx.send(
-    #             embed=discord.Embed(
-    #                 description="Title Set", color=discord.Color(value=re[8])
-    #             )
-    #         )
+            await ctx.send(embed=quick_embed("Title Set to " + title))
 
     @client.command(aliases=["description"])
-    async def set_description(ctx, *, description):
+    async def set_description(ctx, *, description:str):
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == 432801163126243328
@@ -317,88 +209,38 @@ def main(client, re):
             embeds[ctx.guild.id].description = description
             re[0] += 1
             await ctx.send(
-                embed=discord.Embed(
-                    description="Description Set", color=discord.Color(value=re[8])
-                )
-            )
-    # @client.command(aliases=["description"])
-    # async def set_description(ctx, *, description):
-    #     if (
-    #         ctx.author.guild_permissions.manage_messages
-    #         or ctx.author.id == 432801163126243328
-    #     ):
-    #         description_for_embed[ctx.guild.id] = description
-    #         re[0] += 1
-    #         await ctx.send(
-    #             embed=discord.Embed(
-    #                 description="Description Set", color=discord.Color(value=re[8])
-    #             )
-    #         )
+                embed=quick_embed("Description Set to " + (description if len(description) < 21 else (description[:20] + '...')))
+                ) 
 
     @client.command(aliases=["footer"])
-    async def set_footer(ctx, *, footer):
+    async def set_footer(ctx, *, footer:str):
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == 432801163126243328
         ):
             if ctx.guild.id not in embeds: create_embed_init(ctx)
             embeds[ctx.guild.id].footer = footer
-            await ctx.send(
-                embed=discord.Embed(
-                    description="Footer Set", color=discord.Color(value=re[8])
-                )
-            )
-    # @client.command(aliases=["footer"])
-    # async def set_footer(ctx, *, footer):
-    #     if (
-    #         ctx.author.guild_permissions.manage_messages
-    #         or ctx.author.id == 432801163126243328
-    #     ):
-    #         footer_of_embed[ctx.guild.id] = footer
-    #         await ctx.send(
-    #             embed=discord.Embed(
-    #                 description="Footer Set", color=discord.Color(value=re[8])
-    #             )
-    #         )
+            await ctx.send(embed=quick_embed("Footer Set to " + footer))
 
     @client.command(aliases=["thumbnail"])
-    async def set_thumbnail(ctx, url):
+    async def set_thumbnail(ctx, url:str):
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == 432801163126243328
         ):
             if ctx.guild.id not in embeds: create_embed_init(ctx)
             embeds[ctx.guild.id].set_thumbnail(url)
-            await ctx.send(
-                embed=discord.Embed(
-                    description="Thumbnail Set", color=discord.Color(value=re[8])
-                )
-            )
-    # @client.command(aliases=["thumbnail"])
-    # async def set_thumbnail(ctx, url):
-    #     if (
-    #         ctx.author.guild_permissions.manage_messages
-    #         or ctx.author.id == 432801163126243328
-    #     ):
-    #         thumbnail_of_embed[ctx.guild.id] = url
-    #         await ctx.send(
-    #             embed=discord.Embed(
-    #                 description="Thumbnail Set", color=discord.Color(value=re[8])
-    #             )
-    #         )
+            await ctx.send(embed=quick_embed("Thumbnail Set"))
+    
     @client.command(aliases=["image"])
-    async def set_image(ctx, url):
+    async def set_image(ctx, url:str):
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == 432801163126243328
         ):
             if ctx.guild.id not in embeds: create_embed_init(ctx)
             embeds[ctx.guild.id].set_image(url)
-            await ctx.send(
-                embed=discord.Embed(
-                    description="Image Set", color=discord.Color(value=re[8])
-                )
-            )
+            await ctx.send(embed=quick_embed("Image Set"))
 
     @client.command(aliases=["send"])
     async def send_embed(ctx, channel: discord.TextChannel):
