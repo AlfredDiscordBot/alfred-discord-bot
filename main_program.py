@@ -966,7 +966,6 @@ async def pa(embeds, ctx):
     while True:
         try:                
             res = await client.wait_for("button_click",check=check)
-            print(dir(res))
             if res.component.label==">" and pag + 1 != len(embeds):
                 pag += 1
                 await res.edit_origin(embed=embeds[pag])
@@ -1822,6 +1821,15 @@ async def show_playlist(ctx, name):
                     )
                 )
                 st = ""
+        if len(da)<10:
+            embeds.append(
+                cembed(
+                    title="Playlist",
+                    description=st,
+                    color=re[8],
+                    thumbnail=client.user.avatar_url_as(format="png")
+                )
+            )
         await pa(embeds, ctx)
     else:
         await ctx.send(
