@@ -2,7 +2,7 @@
 
 ## All in One Discord bot
 
-[Link for invitation](https://discord.com/api/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)
+[![Link For Invitation](https://img.shields.io/badge/Invite%20to%20Your%20server-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/api/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)
 
 <img src="https://github.com/alvinbengeorge/alfred-discord-bot/blob/replit/Krypton.png">
 
