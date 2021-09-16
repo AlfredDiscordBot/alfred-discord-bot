@@ -112,6 +112,9 @@ def validate_url(url: str) -> bool:
 
 
 def get_color(color):
+    """
+    returns the value of color as discord.color or int
+    """
     default_color = discord.Color.from_rgb(48, 213, 200)
     
     if color is None: return default_color
@@ -122,6 +125,9 @@ def get_color(color):
 
 
 def set_url(set_func, url) -> None:
+    """
+    set's the url value in the given set function.
+    """
     if type(url) is str: 
         url = (url or " ").strip()
         if url_ := (url if validate_url(url) else None):
@@ -132,6 +138,9 @@ def set_url(set_func, url) -> None:
     return
 
 def embed_from_yaml(yaml: str, ctx_author) -> discord.Embed:
+    """
+    Generates an embed from given yaml string
+    """
     info = safe_load(yaml)
     info['color'] = get_color(info.get('color', None))
     print(info)
@@ -201,6 +210,9 @@ def main(client, re):
 
     @client.command(aliases=["yml_embed"])
     async def embed_using_yaml(ctx, channel: discord.TextChannel = None, *, yaml:str = None):
+        """
+        Create an emebd from given yaml string and send it in the provided channel.
+        """
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == 432801163126243328
