@@ -1,7 +1,8 @@
 import discord
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
-
+from compile import filter_graves
+from yaml import safe_load
 
 class EmbedInfo:
     def __init__(
@@ -98,13 +99,6 @@ class EmbedInfo:
         return info
 
 
-def requirements() -> str:
-    """
-    Returns the requirements of the main function.
-    """
-    return ["re"]
-
-
 def validate_url(url: str) -> bool:
     """
     Checks if the url is valid or not
@@ -115,6 +109,57 @@ def validate_url(url: str) -> bool:
         return True
     except MissingSchema as e:
         return False
+
+
+def get_color(color):
+    default_color = discord.Color.from_rgb(48, 213, 200)
+    
+    if color is None: return default_color
+    elif type(color) is int: return color
+    elif (type(color) is str) and (type(col := eval(color)) is tuple): return discord.Color.from_rgb(*col)
+    
+    return default_color
+
+
+def set_url(set_func, url) -> None:
+    if type(url) is str: 
+        url = (url or " ").strip()
+        if url_ := (url if validate_url(url) else None):
+            set_func(url = url_)
+    elif type(url) is dict:
+        set_func(**url)
+    
+    return
+
+def embed_from_yaml(yaml: str, ctx_author) -> discord.Embed:
+    info = safe_load(yaml)
+    info['color'] = get_color(info.get('color', None))
+    print(info)
+
+    embed = discord.Embed(**info)
+    
+    if (image := info.get('image', None)): set_url(embed.set_image, image)
+    if (thumbnail := info.get('thumbnail', None)): set_url(embed.set_thumbnail, thumbnail)
+    if (footer := info.get('footer', None)): embed.set_footer(text = footer)
+    if (author := info.get('author', None)): 
+        if author == True:
+            embed.set_author(name = ctx_author.name, icon_url = ctx_author.avatar_url)
+        elif type(author) == str and validate_url(author):
+            embed.set_author(icon_url = author)
+        elif type(author) == str:
+            embed.set_author(name = author)
+        else:
+            embed.set_author(**author)
+
+    return embed
+
+
+def requirements() -> str:
+
+    """
+    Returns the requirements of the main function.
+    """
+    return ["re"]
 
 
 def embed_from_info(info: EmbedInfo) -> discord.Embed:
@@ -153,6 +198,11 @@ def main(client, re):
             await ctx.send(
                 embed=quick_embed("Embed initialization complete")  # add embeds[ctx.guild.id] in description for debugging
             )
+
+    @client.command(aliases=["yml_embed"])
+    async def embed_using_yaml(ctx, channel: discord.TextChannel, *, yaml):
+        embed = embed_from_yaml(filter_graves(yaml), ctx.author)
+        await ctx.send(embed=embed)
 
     @client.command(aliases=['emd'])
     async def embed_it(ctx, *, string:str):
