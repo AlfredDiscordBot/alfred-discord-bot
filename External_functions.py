@@ -345,7 +345,7 @@ def protect(text):
         and str(text).find("client") == -1
         and str(text).find("quit") == -1
         and str(text).find("exit") == -1
-        and str(text).find("while True") == -1:
+        and str(text).find("while True") == -1
     )
 
 async def devop_mtext(client,channel,color):
