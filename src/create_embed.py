@@ -200,9 +200,24 @@ def main(client, re):
             )
 
     @client.command(aliases=["yml_embed"])
-    async def embed_using_yaml(ctx, channel: discord.TextChannel, *, yaml):
-        embed = embed_from_yaml(filter_graves(yaml), ctx.author)
-        await ctx.send(embed=embed)
+    async def embed_using_yaml(ctx, channel: discord.TextChannel = None, *, yaml:str = None):
+        if (
+            ctx.author.guild_permissions.manage_messages
+            or ctx.author.id == 432801163126243328
+        ):
+            if not channel: channel = ctx.channel # set default channel to current
+
+            if (send_channel := client.get_channel(channel.id)) != None:
+                embed = embed_from_yaml(filter_graves(yaml), ctx.author) if yaml else quick_embed("Nothing to embed")
+                await send_channel.send(embed=embed)
+            else:
+                await ctx.send(
+                    embed=discord.Embed( 
+                        title = "Oops",
+                        description = "This channel does not exist. Please check again",
+                        color = discord.Color(value=re[8]),
+                    )
+                )
 
     @client.command(aliases=['emd'])
     async def embed_it(ctx, *, string:str):
