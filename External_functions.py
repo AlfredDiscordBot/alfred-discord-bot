@@ -346,3 +346,31 @@ def protect(text):
         and str(text).find("quit") == -1
         and str(text).find("exit") == -1
     )
+
+async def devop_message(channel):
+    await channel.purge(limit=10000000000000000000)
+    text_dev = (
+        "You get to activate and reset certain functions in this channel \n"
+        "" + (emoji.emojize(":safety_vest:")) + " for recovery \n"
+        "⭕ for list of all servers \n"
+        "❌ for exiting \n"
+        "🔥 for restart\n"
+        "📊 for current load\n"
+        "❕ for current issues\n"
+        "" + emoji.emojize(":satellite:") + " for speedtest\n"
+        "" + emoji.emojize(":black_circle:") + " for clear screen\n"
+    )
+    embed = discord.Embed(
+        title="DEVOP", description=text_dev, color=discord.Color(value=re[8])
+    )
+    embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+    mess = await channel.send(embed=embed)
+    await mess.add_reaction(emoji.emojize(":safety_vest:"))
+    await mess.add_reaction("⭕")
+    await mess.add_reaction("❌")
+    await mess.add_reaction(emoji.emojize(":fire:"))
+    await mess.add_reaction(emoji.emojize(":bar_chart:"))
+    await mess.add_reaction("❕")
+    await mess.add_reaction(emoji.emojize(":satellite:"))
+    await mess.add_reaction(emoji.emojize(":black_circle:"))
+    await mess.add_reaction(emoji.emojize(":laptop:"))

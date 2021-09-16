@@ -323,6 +323,7 @@ async def on_ready():
         print(re)
         print(dev_users)
         print("\nStarting devop display")
+        #await devop_mtext(channel)
         await channel.purge(limit=10000000000000000000)
         text_dev = (
             "You get to activate and reset certain functions in this channel \n"
@@ -1618,7 +1619,7 @@ async def currentmusic(ctx):
         if len(check) < 3000 and len(check) > 0:
             description += check
         description += (
-            f"\nDuration: {str(info["duration"] // 60}min {str(info["duration"] % 60)}sec
+            f"\nDuration: {str(info['duration'] // 60)}min {str(info['duration'] % 60)}sec"
             + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n{info['dislike_count']} :thumbdown:"
         )
         await ctx.send(
