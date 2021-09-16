@@ -4,6 +4,8 @@ from requests.exceptions import MissingSchema
 from compile import filter_graves
 from yaml import safe_load
 
+SUPER_AUTHOR_ID = 432801163126243328  # Do Not CHange
+
 class EmbedInfo:
     def __init__(
         self,
@@ -199,7 +201,7 @@ def main(client, re):
         re[0] += 1
         if (
             ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == 432801163126243328
+            or ctx.author.id == SUPER_AUTHOR_ID
         ):
             # embeds.pop(ctx.guild.id)
             embeds[ctx.guild.id] = EmbedInfo()
@@ -215,7 +217,7 @@ def main(client, re):
         """
         if (
             ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == 432801163126243328
+            or ctx.author.id == SUPER_AUTHOR_ID
         ):
             if not channel: channel = ctx.channel # set default channel to current
 
@@ -238,7 +240,7 @@ def main(client, re):
         """
         if (
             ctx.author.guild_permissions.manage_messages 
-            or ctx.author.id == 432801163126243328
+            or ctx.author.id == SUPER_AUTHOR_ID
         ):
             try:
                 re[0] += 1
@@ -252,7 +254,7 @@ def main(client, re):
     async def set_color(ctx, color:tuple):
         if (
             ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == 432801163126243328
+            or ctx.author.id == SUPER_AUTHOR_ID
         ):
             try:
                 c = eval(color)
@@ -269,7 +271,7 @@ def main(client, re):
     async def set_title(ctx, *, title:str):
         if (
             ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == 432801163126243328
+            or ctx.author.id == SUPER_AUTHOR_ID
         ):
             if ctx.guild.id not in embeds: create_embed_init(ctx)
             embeds[ctx.guild.id].title = title
@@ -280,7 +282,7 @@ def main(client, re):
     async def set_description(ctx, *, description:str):
         if (
             ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == 432801163126243328
+            or ctx.author.id == SUPER_AUTHOR_ID
         ):
             if ctx.guild.id not in embeds: create_embed_init(ctx)
             embeds[ctx.guild.id].description = description
@@ -293,7 +295,7 @@ def main(client, re):
     async def set_footer(ctx, *, footer:str):
         if (
             ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == 432801163126243328
+            or ctx.author.id == SUPER_AUTHOR_ID
         ):
             if ctx.guild.id not in embeds: create_embed_init(ctx)
             embeds[ctx.guild.id].footer = footer
@@ -303,7 +305,7 @@ def main(client, re):
     async def set_thumbnail(ctx, url:str):
         if (
             ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == 432801163126243328
+            or ctx.author.id == SUPER_AUTHOR_ID
         ):
             if ctx.guild.id not in embeds: create_embed_init(ctx)
             embeds[ctx.guild.id].set_thumbnail(url)
@@ -313,7 +315,7 @@ def main(client, re):
     async def set_image(ctx, url:str):
         if (
             ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == 432801163126243328
+            or ctx.author.id == SUPER_AUTHOR_ID
         ):
             if ctx.guild.id not in embeds: create_embed_init(ctx)
             embeds[ctx.guild.id].set_image(url)
@@ -323,7 +325,7 @@ def main(client, re):
     async def send_embed(ctx, channel: discord.TextChannel):
         if (
             ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == 432801163126243328
+            or ctx.author.id == SUPER_AUTHOR_ID
         ):
             if client.get_channel(channel.id) != None:
                 send_channel = client.get_channel(channel.id)
