@@ -347,7 +347,7 @@ def protect(text):
         and str(text).find("exit") == -1
     )
 
-async def devop_message(channel):
+async def devop_mtext(client,channel,color):
     await channel.purge(limit=10000000000000000000)
     text_dev = (
         "You get to activate and reset certain functions in this channel \n"
@@ -361,7 +361,7 @@ async def devop_message(channel):
         "" + emoji.emojize(":black_circle:") + " for clear screen\n"
     )
     embed = discord.Embed(
-        title="DEVOP", description=text_dev, color=discord.Color(value=re[8])
+        title="DEVOP", description=text_dev, color=discord.Color(value=color)
     )
     embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
     mess = await channel.send(embed=embed)

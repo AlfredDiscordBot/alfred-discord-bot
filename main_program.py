@@ -323,33 +323,8 @@ async def on_ready():
         print(re)
         print(dev_users)
         print("\nStarting devop display")
-        #await devop_mtext(channel)
-        await channel.purge(limit=10000000000000000000)
-        text_dev = (
-            "You get to activate and reset certain functions in this channel \n"
-            "" + (emoji.emojize(":safety_vest:")) + " for recovery \n"
-            "⭕ for list of all servers \n"
-            "❌ for exiting \n"
-            "🔥 for restart\n"
-            "📊 for current load\n"
-            "❕ for current issues\n"
-            "" + emoji.emojize(":satellite:") + " for speedtest\n"
-            "" + emoji.emojize(":black_circle:") + " for clear screen\n"
-        )
-        embed = discord.Embed(
-            title="DEVOP", description=text_dev, color=discord.Color(value=re[8])
-        )
-        embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
-        mess = await channel.send(embed=embed)
-        await mess.add_reaction(emoji.emojize(":safety_vest:"))
-        await mess.add_reaction("⭕")
-        await mess.add_reaction("❌")
-        await mess.add_reaction(emoji.emojize(":fire:"))
-        await mess.add_reaction(emoji.emojize(":bar_chart:"))
-        await mess.add_reaction("❕")
-        await mess.add_reaction(emoji.emojize(":satellite:"))
-        await mess.add_reaction(emoji.emojize(":black_circle:"))
-        await mess.add_reaction(emoji.emojize(":laptop:"))
+        await devop_mtext(client,channel,re[8])
+        
         print("Finished devop display")
         print("Starting imports")
         imports = ""
@@ -395,14 +370,7 @@ async def on_ready():
 @tasks.loop(minutes=7)
 async def youtube_loop():
     list_of_programs = [
-        "blender",
-        "chrome",
-        "inkscape",
-        "firefox",
-        "idle3",
-        "brave",
-        "gedit",
-        "discord",
+        "blender"
     ]
     for i in list_of_programs:
         if get_if_process_exists(i):
@@ -1121,32 +1089,7 @@ async def remove_access_to_script(ctx, member: discord.Member):
 async def dev_op(ctx):
     print("devop", str(ctx.author))
     channel = client.get_channel(dev_channel)
-    await channel.purge(limit=10000000000000000000)
-    text_dev = (
-        "You get to activate and reset certain functions in this channel \n"
-        "" + (emoji.emojize(":safety_vest:")) + " for recovery \n"
-        "⭕ for list of all servers \n"
-        "❌ for exiting \n"
-        "🔥 for restart\n"
-        "📊 for current load\n"
-        "❕ for current issues\n"
-        "" + emoji.emojize(":satellite:") + " for speedtest\n"
-        "" + emoji.emojize(":black_circle:") + " for clear screen\n"
-    )
-    embed = discord.Embed(
-        title="DEVOP", description=text_dev, color=discord.Color(value=re[8])
-    )
-    embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
-    mess = await channel.send(embed=embed)
-    await mess.add_reaction(emoji.emojize(":safety_vest:"))
-    await mess.add_reaction("⭕")
-    await mess.add_reaction("❌")
-    await mess.add_reaction(emoji.emojize(":fire:"))
-    await mess.add_reaction(emoji.emojize(":bar_chart:"))
-    await mess.add_reaction("❕")
-    await mess.add_reaction(emoji.emojize(":satellite:"))
-    await mess.add_reaction(emoji.emojize(":black_circle:"))
-    await mess.add_reaction(emoji.emojize(":laptop:"))
+    await devop_mtext(client,channel,re[8])
 
 
 @client.command()
@@ -3743,34 +3686,7 @@ async def on_reaction_add(reaction, user):
                 if reaction.emoji == emoji.emojize(":black_circle:") and str(
                     reaction.message.channel.id
                 ) == str(channel.id):
-                    await channel.purge(limit=10000000000000000000)
-                    text_dev = (
-                        "You get to activate and reset certain functions in this channel \n"
-                        "" + (emoji.emojize(":safety_vest:")) + " for recovery \n"
-                        "⭕ for list of all servers \n"
-                        "❌ for exiting \n"
-                        "🔥 for restart\n"
-                        "📊 for current load\n"
-                        "❕ for current issues\n"
-                        "" + emoji.emojize(":satellite:") + " for speedtest\n"
-                        "" + emoji.emojize(":black_circle:") + " for clear screen\n"
-                    )
-                    embed = discord.Embed(
-                        title="DEVOP",
-                        description=text_dev,
-                        color=discord.Color(value=re[8]),
-                    )
-                    embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
-                    mess = await channel.send(embed=embed)
-                    await mess.add_reaction(emoji.emojize(":safety_vest:"))
-                    await mess.add_reaction("⭕")
-                    await mess.add_reaction("❌")
-                    await mess.add_reaction(emoji.emojize(":fire:"))
-                    await mess.add_reaction(emoji.emojize(":bar_chart:"))
-                    await mess.add_reaction("❕")
-                    await mess.add_reaction(emoji.emojize(":satellite:"))
-                    await mess.add_reaction(emoji.emojize(":black_circle:"))
-                    await mess.add_reaction(emoji.emojize(":laptop:"))
+                    await devop_mtext(client,channel,re[8])
     except Exception as e:
         channel = client.get_channel(834624717410926602)
         await channel.send(
