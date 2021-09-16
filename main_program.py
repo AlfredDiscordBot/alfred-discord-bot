@@ -293,9 +293,8 @@ def load_from_file(file_name=".backup.txt"):
 
 
 def youtube_download(ctx, url):
-    if True:
-        with youtube_dl.YoutubeDL(ydl_op) as ydl:
-            URL = youtube_info(url)["formats"][0]["url"]
+    with youtube_dl.YoutubeDL(ydl_op) as ydl:
+        URL = youtube_info(url)["formats"][0]["url"]
     return URL
 
 
@@ -1316,18 +1315,17 @@ async def games(ctx, game="", choice="bot"):
             if client.user != ctx.author:
                 global available
                 global sent
-                if True:
-                    board = reset_board()
-                    available = Emoji_list.copy()
-                    sent = await ctx.send(
-                        embed=discord.Embed(
-                            title="Tic Tac Toe by Rahul",
-                            description=board,
-                            color=discord.Color(value=re[8]),
-                        )
+                board = reset_board()
+                available = Emoji_list.copy()
+                sent = await ctx.send(
+                    embed=discord.Embed(
+                        title="Tic Tac Toe by Rahul",
+                        description=board,
+                        color=discord.Color(value=re[8]),
                     )
-                    for each in Emoji_list:
-                        await sent.add_reaction(emoji.emojize(each))
+                )
+                for each in Emoji_list:
+                    await sent.add_reaction(emoji.emojize(each))
     elif game == "Toss":
         if choice == "bot":
             if client.user != ctx.author:
@@ -2037,7 +2035,7 @@ async def previous(ctx):
 
 @client.command(aliases=["dict"])
 async def dictionary(ctx, *, text):
-    if True:
+    try:
         data = eval(
             requests.get(
                 "https://api.dictionaryapi.dev/api/v2/entries/en/"
@@ -2077,7 +2075,7 @@ async def dictionary(ctx, *, text):
                 thumbnail=client.user.avatar_url_as(format="png"),
             )
         )
-    else:
+    except Exception as e:
         print(e)
         await ctx.send(
             embed=cembed(
@@ -3363,41 +3361,40 @@ async def on_reaction_add(reaction, user):
                         )
             if reaction.emoji == "⏹":
                 req()
-                if True:
-                    if (
-                        str(user) != str(client.user)
-                        and reaction.message.author == client.user
-                    ):
-                        await reaction.remove(user)
-                        try:
-                            mem = [
-                                names.id
-                                for names in reaction.message.guild.voice_client.channel.members
-                            ]
-                        except:
-                            mem = []
-                        if mem.count(user.id) > 0:
-                            voice = reaction.message.guild.voice_client
-                            voice.stop()
-                            await voice.disconnect()
-                            await reaction.message.edit(
-                                embed=discord.Embed(
-                                    title="Disconnected",
-                                    description="Bye, Thank you for using Alfred",
-                                    color=discord.Color(value=re[8]),
-                                )
+                if (
+                    str(user) != str(client.user)
+                    and reaction.message.author == client.user
+                ):
+                    await reaction.remove(user)
+                    try:
+                        mem = [
+                            names.id
+                            for names in reaction.message.guild.voice_client.channel.members
+                        ]
+                    except:
+                        mem = []
+                    if mem.count(user.id) > 0:
+                        voice = reaction.message.guild.voice_client
+                        voice.stop()
+                        await voice.disconnect()
+                        await reaction.message.edit(
+                            embed=discord.Embed(
+                                title="Disconnected",
+                                description="Bye, Thank you for using Alfred",
+                                color=discord.Color(value=re[8]),
                             )
-                        else:
-                            await reaction.message.edit(
-                                embed=discord.Embed(
-                                    title="Permission denied",
-                                    description=(
-                                        "You need to join the voice channel "
-                                        + str(user.name)
-                                    ),
-                                    color=discord.Color(value=re[8]),
-                                )
+                        )
+                    else:
+                        await reaction.message.edit(
+                            embed=discord.Embed(
+                                title="Permission denied",
+                                description=(
+                                    "You need to join the voice channel "
+                                    + str(user.name)
+                                ),
+                                color=discord.Color(value=re[8]),
                             )
+                        )
             if (
                 reaction.emoji == emoji.emojize(":keycap_*:")
                 and reaction.message.author == client.user
