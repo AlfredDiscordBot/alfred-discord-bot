@@ -332,11 +332,11 @@ help_list = [help1, help2, help3, help4, help5]
 def protect(text):
     return (
         str(text).find("username") == -1
-        and str(text).find("os") == -1
+        and str(text).find("os.") == -1
         and str(text).find("ctx.") == -1
         and str(text).find("__import__") == -1
-        and str(text).find("sys") == -1
-        and str(text).find("psutil") == -1
+        and str(text).find("sys.") == -1
+        and str(text).find("psutil.") == -1
         and str(text).find("clear") == -1
         and str(text).find("dev_users") == -1
         and str(text).find("remove") == -1
@@ -345,6 +345,7 @@ def protect(text):
         and str(text).find("client") == -1
         and str(text).find("quit") == -1
         and str(text).find("exit") == -1
+        and str(text).find("while True") == -1:
     )
 
 async def devop_mtext(client,channel,color):
