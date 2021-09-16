@@ -1021,114 +1021,6 @@ async def trending_github(ctx):
     await pa(embeds, ctx)
 
 
-@client.command(aliases=["l"])
-async def lyrics(ctx, *, string=""):
-    print("Lyrics", str(ctx.author))
-    try:
-        req()
-        print(string)
-        search_url = ""
-        url = ""
-        if True:
-            if len(string) == 0:
-                search_url = (
-                    "https://search.azlyrics.com/search.php?q="
-                    + convert_to_url(
-                        str(
-                            da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]]
-                        )
-                    )
-                )
-                print(search_url)
-            else:
-                search_url = (
-                    "https://search.azlyrics.com/search.php?q=" + convert_to_url(string)
-                )
-                print(search_url)
-            html_code = requests.get(search_url).content.decode()
-            pos_1 = html_code.find("text-left visitedlyr")
-            pos_2 = int(int(html_code.find('href="', pos_1)) + len('href="'))
-            pos_3 = html_code.find('"', pos_2)
-            url = html_code[pos_2:pos_3]
-            if len(url) > 3:
-                lyri = urllib.request.urlopen(url).read().decode()
-                lyri1 = (
-                    lyri[
-                        int(
-                            lyri.find("Sorry about that. -->")
-                            + len("Sorry about that. -->")
-                        ) : lyri.find(
-                            "</div>", (int(lyri.find("Sorry about that. -->") + 10))
-                        )
-                    ]
-                    .replace("<br>", "")
-                    .replace("<i>", "_")
-                    .replace("</i>", "_")
-                )
-                title_of_song = (
-                    lyri[lyri.find("<title>") + len("<title>") : lyri.find("</title>")]
-                    + "\n"
-                )
-                if len(lyri) <= 1900:
-                    await ctx.send(
-                        embed=discord.Embed(
-                            title="**Lyrics**",
-                            description=(
-                                "**"
-                                + title_of_song
-                                + "**"
-                                + lyri1.replace("&quot;", '"')
-                            ),
-                            color=discord.Color(value=re[8]),
-                        )
-                    )
-                else:
-                    await ctx.send(
-                        embed=discord.Embed(
-                            title="**Lyrics**",
-                            description=("**" + title_of_song + "**" + lyri1[0:1900]),
-                            color=discord.Color(value=re[8]),
-                        )
-                    )
-                    await ctx.send(
-                        embed=discord.Embed(
-                            title="Continuation",
-                            description=("**" + title_of_song + "**" + lyri1[1900:]),
-                            color=discord.Color(value=re[8]),
-                        )
-                    )
-            else:
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="Not Found",
-                        description="Song not found, try lyrics <song name> to search properly",
-                        color=discord.Color(value=re[8]),
-                    )
-                )
-        else:
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Hmm",
-                    description="Enter the voice channel to use this function",
-                    color=discord.Color(value=re[8]),
-                )
-            )
-    except Exception as e:
-        channel = client.get_channel(dev_channel)
-        await ctx.send(
-            embed=discord.Embed(
-                title="Unavailable",
-                description="Couldnt find lyrics",
-                color=discord.Color(value=re[8]),
-            )
-        )
-        await channel.send(
-            embed=discord.Embed(
-                title="Lyrics failed",
-                description=str(e),
-                color=discord.Color(value=re[8]),
-            )
-        )
 
 
 @client.command(aliases=["c"])
@@ -1726,11 +1618,7 @@ async def currentmusic(ctx):
         if len(check) < 3000 and len(check) > 0:
             description += check
         description += (
-            "\nDuration: "
-            + str(info["duration"] // 60)
-            + "min "
-            + str(info["duration"] % 60)
-            + "sec"
+            f"\nDuration: {str(info["duration"] // 60}min {str(info["duration"] % 60)}sec
             + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n{info['dislike_count']} :thumbdown:"
         )
         await ctx.send(
@@ -4029,22 +3917,7 @@ async def python_shell(ctx, *, text):
     req()
     print("Python Shell", text, str(ctx.author))
     global dev_users
-    if (
-        str(text).find("username") == -1
-        and str(text).find("os") == -1
-        and str(text).find("ctx.") == -1
-        and str(text).find("__import__") == -1
-        and str(text).find("sys") == -1
-        and str(text).find("psutil") == -1
-        and str(text).find("clear") == -1
-        and str(text).find("dev_users") == -1
-        and str(text).find("remove") == -1
-        and str(text).find("class.") == -1
-        and str(text).find("subclass()") == -1
-        and str(text).find("client") == -1
-        and str(text).find("quit") == -1
-        and str(text).find("exit") == -1
-    ) or (
+    if protect(text) or (
         str(ctx.author.id) in dev_users
         and str(text).find("reboot") == -1
         and str(text).find("shut") == -1
@@ -4081,7 +3954,7 @@ async def python_shell(ctx, *, text):
                 )
             )
     else:
-        await ctx.channel.purge(limit=1)
+        await ctx.message.delete()
         await ctx.send(
             embed=discord.Embed(
                 title="Permission denied",
@@ -4096,21 +3969,8 @@ async def exe(ctx, *, text):
     req()
     global temp_dev
     if (
-        ctx.author.id in list(temp_dev.keys())
-        and not (
-            text.find("os.") != -1
-            and text.find("psutil") != -1
-            and text.find("import psutil") != -1
-            and text.find("import os") != -1
-            and text.find("__import__") != -1
-            and text.find("import sys") != -1
-            and str(text).find("subclass()") == -1
-            and str(text).find("client") == -1
-            and text.find("sys.") != -1
-            and text.find("subprocess.") != -1
-            and text.find("dev_users") != -1
-            and text.find("temp_dev") != -1
-        )
+        ctx.author.id in temp_dev
+        and protect(text)
     ) or (str(ctx.author.id) in dev_users):
         mysql_password = "Denied"
         if text.find("passwd=") != -1:
@@ -4263,19 +4123,6 @@ async def unmute(ctx, member: discord.Member):
         print(member, "unmuted")
 
 
-help1 = "**COMMANDS**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n"
-help2 = "**ALIAS**: \n'g <text to search> \n'h to show this message \n'm <Expression> for python eval \n'w for Wikipedia\n':: for memes\n'q for queue\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n"
-help3 = "**EXAMPLE**:\n'help\n'q\n'w Wikipedia\n'again\n'next\n'memes\n'q Song\n\n"
-help4 = "**UPDATES**:\nAlfred now supports youtube subscriptions\nAlfred can  now execute code and its open for everyone\nIts for everyone. Check it out using\n '\nAlfred has 24/7 games and roast feature now, currently games include chess only, we'll add more, DW\nUse prefix `{` for that.\nBtw if you didnt get slash commands get the new invite for Alfred from dev.\nEnjoy\n\n"
-help5 = (
-    "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'play <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue\n'play <index no.> to play certain song from the queue list\n"
-    "'addto playlist <Playlist name> to add current queue to playlist\n'addto queue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume\n'pause\n"
-    "'curr for current song.\n\n"
-)
-help_list = [help1, help2, help3, help4, help5]
-
-
-
 @client.command()
 async def testing_help(ctx):
     test_help=[]
@@ -4327,6 +4174,5 @@ async def h(ctx):
         )
         embeds.append(em)
     await pa1(embeds, ctx)
-
 
 client.run(os.getenv("token"))
