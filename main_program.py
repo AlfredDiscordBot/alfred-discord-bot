@@ -1448,7 +1448,8 @@ if True:
         
     @client.command(aliases=['::'])
     async def memes(ctx):
-        global link_for_cats            
+        global link_for_cats           
+        channel=client.get_channel(dev_channel) 
         if len(link_for_cats)==0:            
             try:
                 safe_stop=0
