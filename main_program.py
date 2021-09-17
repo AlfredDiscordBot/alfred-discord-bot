@@ -121,7 +121,7 @@ if True:
                 old_youtube_vid.append(data)
             aad.commit()
         except:
-            time.sleep(10)
+            time.sleep(1); print("Retry")
             mysql_load()
     mysql_load()
     #replace your id with this
@@ -784,7 +784,7 @@ if True:
                 st=r.content.decode()
                 for i in range(1,5):
                     a=st.find('<td class="text-wrap">'+str(i)+'</td>')
-                    b=st.find('<td class="text-wrap">'+str(i+1)+'</td>')
+                    b=st.find('<td class="text-wrap">'+str(i+1)+'</td>')                    
                     le=len('<td class="text-wrap">'+str(i+1)+'</td>')-1
                     if b==-1:
                         await ctx.send(embed=discord.Embed(title="End Of List",description="",color=discord.Color(value=re[8])))
@@ -896,7 +896,7 @@ if True:
                     await ctx.send(embed=i[1])
                 if nu==number:
                     break
-            if num==0:
+            if nu==0:
                 await ctx.send(embed=cembed(title="Oops", description="Oops sorry, I fell asleep ig, or idk",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
             
     @client.event
