@@ -876,6 +876,39 @@ async def load(ctx):
         embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
         await channel.send(embed=embed)
 
+@slash.slash(name="poll",description="use poll seperated with |")
+async def poll_slash(ctx,question,options, channel_to_send):
+    await poll(ctx,options,channel_to_send,question=question)
+
+
+@client.command()
+async def poll(ctx,options,channel_to_send:discord.TextChannel,*, question):
+    count={}
+    author_list=[]
+    channel=channel_to_send
+    options=options.split("|")
+    components=[]
+    for i in options:
+        components.append(Button(style=random.choice([ButtonStyle.green,ButtonStyle.blue]),label=i))
+        count[i]=0
+    mess=await channel.send(embed=cembed(title=f"Poll from {ctx.author.name}",description=question,color=re[8],thumbnail=client.user.avatar_url_as(format="png")),components=[components])
+    await ctx.send("Done")
+    def check(res):
+        return mess.id==res.message.id
+    while True:
+        res=await client.wait_for("button_click",check=check)
+        if res.component.label in count and res.author.id not in author_list:
+            author_list.append(res.author.id)
+            count[res.component.label]+=1
+        else:
+            continue            
+        description=question+"\n\n"
+        avg=sum(list(count.values()))//len(options)
+        avg=1 if avg==0 else avg
+        for i in list(count.keys()):
+            description+=f"{i}: "+chr(9606)*(count[i]//avg)+"\n"
+        await res.edit_origin(embed=cembed(title=f"Poll from {ctx.author.name}",description=description,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        
 
 @slash.slash(name="pr", description="Prints what you ask it to print")
 async def pr_slash(ctx, text):
@@ -1213,46 +1246,49 @@ async def snipe_slash(ctx, number=0):
 
 @client.command()
 async def snipe(ctx, number=0):
-    if number > 10:
-        await ctx.send(embed=cembed(picture="https://images.news18.com/ibnlive/uploads/2015/08/Chandler-2.gif",color=re[8]))
-        return ""
-    if number == 0:
-        message = deleted_message[ctx.channel.id][-1]
-        if len(message) < 3:
-            await ctx.send(
-                embed=discord.Embed(
-                    description="**" + message[0] + ":**\n" + message[1] + "",
-                    color=discord.Color(value=re[8]),
-                )
-            )
-        else:
-            await ctx.send("**" + message[0] + ":**")
-            await ctx.send(embed=message[1])
-    else:
-        nu = 0
-        for i in deleted_message[ctx.channel.id][::-1]:
-            nu += 1
-            if len(i) < 3:
+    if ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_messages:
+        if number > 10:
+            await ctx.send(embed=cembed(picture="https://images.news18.com/ibnlive/uploads/2015/08/Chandler-2.gif",color=re[8]))
+            return ""
+        if number == 0:
+            message = deleted_message[ctx.channel.id][-1]
+            if len(message) < 3:
                 await ctx.send(
                     embed=discord.Embed(
-                        description="**" + i[0] + ":**\n" + i[1],
+                        description="**" + message[0] + ":**\n" + message[1] + "",
                         color=discord.Color(value=re[8]),
                     )
                 )
             else:
-                await ctx.send("**" + i[0] + ":**")
-                await ctx.send(embed=i[1])
-            if nu == number:
-                break
-        if nu == 0:
-            await ctx.send(
-                embed=cembed(
-                    title="Oops",
-                    description="Oops sorry, I fell asleep ig, or idk",
-                    color=re[8],
-                    thumbnail=client.user.avatar_url_as(format="png"),
+                await ctx.send("**" + message[0] + ":**")
+                await ctx.send(embed=message[1])
+        else:
+            nu = 0
+            for i in deleted_message[ctx.channel.id][::-1]:
+                nu += 1
+                if len(i) < 3:
+                    await ctx.send(
+                        embed=discord.Embed(
+                            description="**" + i[0] + ":**\n" + i[1],
+                            color=discord.Color(value=re[8]),
+                        )
+                    )
+                else:
+                    await ctx.send("**" + i[0] + ":**")
+                    await ctx.send(embed=i[1])
+                if nu == number:
+                    break
+            if nu == 0:
+                await ctx.send(
+                    embed=cembed(
+                        title="Oops",
+                        description="Oops sorry, I fell asleep ig, or idk",
+                        color=re[8],
+                        thumbnail=client.user.avatar_url_as(format="png"),
+                    )
                 )
-            )
+    else:
+        await ctx.send(embed=cembed(title="Permissions Denied",description="Sorry guys, only admins can snipe now",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
 
 
 @client.event
@@ -1260,9 +1296,10 @@ async def on_message_delete(message):
     if not message.channel.id in list(deleted_message.keys()):
         deleted_message[message.channel.id] = []
     if len(message.embeds) <= 0:
-        deleted_message[message.channel.id].append(
-            (str(message.author), message.content)
-        )
+        if (not message.author.bot or not message.content.startswith("'c")):
+            deleted_message[message.channel.id].append(
+                (str(message.author), message.content)
+            )
     else:
         deleted_message[message.channel.id].append(
             (str(message.author), message.embeds[0], True)
@@ -2620,10 +2657,14 @@ async def clear(ctx, text, num=10):
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == 432801163126243328
-        ):
-            await ctx.channel.delete_messages(
+        ):            
+            confirmation=True
+            if int(num)>10:
+                confirmation = await wait_for_confirm(ctx, client, f"Do you want to delete {num} messages",color=re[8])
+            if confirmation:
+                await ctx.channel.delete_messages(
                 [i async for i in ctx.channel.history(limit=num)]
-            )
+                )
         else:
             await ctx.send(
                 embed=discord.Embed(
@@ -3747,20 +3788,24 @@ async def on_message(msg):
                 853670839891394591,
             ]:
                 await msg.delete()
-        if "?" in msg.content.lower() and re[4] == 1:
-            await msg.channel.send("thog dont caare")
-        elif "what" in msg.content.lower() and re[4] == 1:
-            await msg.channel.send("thog dont caare")
-        elif "how" in msg.content.lower() and re[4] == 1:
-            await msg.channel.send("thog dont caare")
-        elif "when" in msg.content.lower() and re[4] == 1:
-            await msg.channel.send("thog dont caare")
-        elif "why" in msg.content.lower() and re[4] == 1:
-            await msg.channel.send("thog dont caare")
-        elif "who" in msg.content.lower() and re[4] == 1:
-            await msg.channel.send("thog dont caare")
-        elif "where" in msg.content.lower() and re[4] == 1:
-            await msg.channel.send("thog dont caare")
+        if msg.guild.id in [858955930431258624]:
+            if "?" in msg.content.lower() and re[4] == 1:
+                await msg.channel.send("thog dont caare")
+            elif "why do chips".strip() in msg.content.lower():
+                await msg.channel.send("https://pics.me.me/thumb_why-do-chips-get-stale-gross-i-just-eat-a-49666262.png")
+                await msg.channel.send("thog dont caare")
+            elif "what" in msg.content.lower() and re[4] == 1:
+                await msg.channel.send("thog dont caare")
+            elif "how" in msg.content.lower() and re[4] == 1:
+                await msg.channel.send("thog dont caare")
+            elif "when" in msg.content.lower() and re[4] == 1:
+                await msg.channel.send("thog dont caare")
+            elif "why" in msg.content.lower() and re[4] == 1:
+                await msg.channel.send("thog dont caare")
+            elif "who" in msg.content.lower() and re[4] == 1:
+                await msg.channel.send("thog dont caare")
+            elif "where" in msg.content.lower() and re[4] == 1:
+                await msg.channel.send("thog dont caare")
         if f"<@!{client.user.id}>" in msg.content:
 
             embed = discord.Embed(
@@ -3803,27 +3848,30 @@ async def on_message(msg):
 
 @client.command()
 async def thog(ctx, *, text):
-    if re[1] == text:
-        re[4] = re[4] * -1
-        if re[4] == 1:
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Thog",
-                    description="Activated",
-                    color=discord.Color(value=re[8]),
+    if ctx.author.guild_permissions.administrator:
+        if re[1] == text:
+            re[4] = re[4] * -1
+            if re[4] == 1:
+                await ctx.send(
+                    embed=discord.Embed(
+                        title="Thog",
+                        description="Activated",
+                        color=discord.Color(value=re[8]),
+                    )
                 )
-            )
+            else:
+                await ctx.send(
+                    embed=discord.Embed(
+                        title="Thog",
+                        description="Deactivated",
+                        color=discord.Color(value=re[8]),
+                    )
+                )
         else:
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Thog",
-                    description="Deactivated",
-                    color=discord.Color(value=re[8]),
-                )
-            )
+            await ctx.message.delete()
+            await ctx.send("Wrong password")
     else:
-        await ctx.message.delete()
-        await ctx.send("Wrong password")
+        await ctx.send(embed=cembed(title="Permissions Denied",description="You cannot toggle thog",color=re[8]))
 
 
 @client.command(aliases=["m"])

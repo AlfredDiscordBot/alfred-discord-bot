@@ -375,3 +375,21 @@ async def devop_mtext(client,channel,color):
     await mess.add_reaction(emoji.emojize(":satellite:"))
     await mess.add_reaction(emoji.emojize(":black_circle:"))
     await mess.add_reaction(emoji.emojize(":laptop:"))
+
+async def wait_for_confirm(ctx,client,message,color=61620):
+    mess=await ctx.send(embed=discord.Embed(title="Confirmation",description=message,color=discord.Color(color)))
+    await mess.add_reaction(emoji.emojize(":check_mark_button:"))
+    await mess.add_reaction(emoji.emojize(":cross_mark:"))
+
+
+    def check(reaction,user):
+        return reaction.message.id==mess.id and reaction.emoji in [emoji.emojize(':check_mark_button:'),emoji.emojize(':cross_mark:')] and user==ctx.author
+    reaction,user=await client.wait_for("reaction_add",check=check)
+    if reaction.emoji==emoji.emojize(':check_mark_button:'):
+        await mess.delete()
+        return True
+    if reaction.emoji==emoji.emojize(":cross_mark:"):
+        await mess.delete()
+        await ctx.send(embed=discord.Embed(title="Ok cool",description="Aborted",color=discord.Color(color)))
+        return False
+    
