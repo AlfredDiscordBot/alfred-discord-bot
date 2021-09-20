@@ -144,8 +144,11 @@ def embed_from_yaml(yaml: str, ctx_author) -> discord.Embed:
     Generates an embed from given yaml string
     """
     info = safe_load(yaml)
+    info = {k.lower():v for k,v in info.items()}
+
     info['color'] = get_color(info.get('color', None))
-    print(info)
+    # print(info)
+    print(f"Creating Emebed for: '{ctx_author.name}' aka '{ctx_author.nick}' in '{ctx_author.guild}'")
 
     embed = discord.Embed(**info)
     
