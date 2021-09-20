@@ -1246,7 +1246,7 @@ async def snipe_slash(ctx, number=0):
 
 @client.command()
 async def snipe(ctx, number=0):
-    if ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_messages:
+    if ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_messages or ctx.guild.id not in [841026124174983188,822445271019421746]:
         if number > 10:
             await ctx.send(embed=cembed(picture="https://images.news18.com/ibnlive/uploads/2015/08/Chandler-2.gif",color=re[8]))
             return ""
