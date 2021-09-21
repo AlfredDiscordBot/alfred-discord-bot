@@ -208,7 +208,8 @@ def load_from_file1(file_name=".backup.txt"):
         print(start_from("re=","re=[1,2,3,4]"))
         txt_from_file = str(file.read()).split("\n")[:-1]
         for i in txt_from_file:
-            censor=start_from("censor=",i) if i.startswith("censor=")
+            censor=start_from("censor=",i) if i.startswith("censor=",i)
+            da=start_from("da=") if i.startswith("da=",i)
 
         
         
