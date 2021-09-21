@@ -207,9 +207,17 @@ def load_from_file1(file_name=".backup.txt"):
             return eval(i[len(text):])
         print(start_from("re=","re=[1,2,3,4]"))
         txt_from_file = str(file.read()).split("\n")[:-1]
+        print(txt_from_file[0].startswith("censor="))
         for i in txt_from_file:
-            censor=start_from("censor=",i) if i.startswith("censor=",i)
-            da=start_from("da=") if i.startswith("da=",i)
+            if i.startswith("censor=",i):
+                censor=start_from("censor=",i) 
+            if i.startswith("da=",i):
+                da=start_from("da=") 
+            if i.startswith("da1=",i): da1=start_from("da1=") 
+            if i.startswith("queue_song=",i):
+                queue_song=start_from("queue_song=")
+
+
 
         
         
