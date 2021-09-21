@@ -94,7 +94,7 @@ dictionary = dict(zip(Raw_Emoji_list, Emoji_list))
 intents = discord.Intents.default()
 intents.members = True
 client = commands.Bot(
-    command_prefix=["'", "alfred ", "Alfred "],
+    command_prefix=["'", "alfred ", "Alfred ",'dev '],
     intents=intents,
     case_insensitive=True,
 )
@@ -167,14 +167,13 @@ FFMPEG_OPTIONS = {
 }
 
 
-def save_to_file(a=""):
+def save_to_file(a=""):    
     global dev_users
     if ".backup.txt" in os.listdir("./"):
         os.remove("./.backup.txt")
     if ".recover.txt" in os.listdir("./") and a == "recover":
         os.remove("./.recover.txt")
-    if True:
-        file = open(".backup.txt", "w")
+    def start_writing(file):
         file.write("censor=" + str(censor) + "\n")
         file.write("da=" + str(da) + "\n")
         file.write("da1=" + str(da1) + "\n")
@@ -184,26 +183,15 @@ def save_to_file(a=""):
         file.write("dev_users=" + str(dev_users) + "\n")
         file.write("entr=" + str(entr) + "\n")
         file.close()
+    if True:
+        file = open(".backup.txt", "w")
+        start_writing(file)        
     if a == "recover":
         file = open(".recover.txt", "w")
-        file.write("censor=" + str(censor) + "\n")
-        file.write("da=" + str(da) + "\n")
-        file.write("da1=" + str(da1) + "\n")
-        file.write("queue_song=" + str(queue_song) + "\n")
-        file.write("a_channels=" + str(a_channels) + "\n")
-        file.write("re=" + str(re) + "\n")
-        file.write("dev_users=" + str(dev_users) + "\n")
-        file.write("entr=" + str(entr) + "\n")
+        start_writing(file)
     if a == "save":
         file = open(".safe.txt", "w")
-        file.write("censor=" + str(censor) + "\n")
-        file.write("da=" + str(da) + "\n")
-        file.write("da1=" + str(da1) + "\n")
-        file.write("queue_song=" + str(queue_song) + "\n")
-        file.write("a_channels=" + str(a_channels) + "\n")
-        file.write("re=" + str(re) + "\n")
-        file.write("dev_users=" + str(dev_users) + "\n")
-        file.write("entr=" + str(entr) + "\n")
+        start_writing(file)
 
 def load_from_file1(file_name=".backup.txt"):
     if file_name in os.listdir("./"):
@@ -216,17 +204,11 @@ def load_from_file1(file_name=".backup.txt"):
         global re
         global dev_users
         def start_from(text,i):
-            return eval(i[text.find(text)+len(text):-1])
-        txt_from_file = str(file.read()).split("\n")
-        for i in txt_from_file:
-            if i.startswith("censor"):
-                censor=start_from("censor=",i)
-            if i.startswith("da"):
-                da=start_from("da=",i)
-            if i.startswith("da1"):
-                da1=start_from("da1=",i)
-            if i.startswith("queue_song"):
-                queue_song=start_from("queue_song",i)            
+            print(i[len(text):])
+            return eval(i[len(text):])
+        print(start_from("re=","re=[1,2,3,4]"))
+        txt_from_file = str(file.read()).split("\n")[:-1]
+        
         
         
     #save_to_file()
@@ -901,23 +883,29 @@ async def load(ctx):
         embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
         await channel.send(embed=embed)
 
-@slash.slash(name="poll",description="use poll seperated with |")
+@slash.slash(name="polling",description="Options seperated with |")
 async def poll_slash(ctx,question,options, channel_to_send):
     await poll(ctx,options,channel_to_send,question=question)
 
 
 @client.command()
-async def poll(ctx,options,channel_to_send:discord.TextChannel,*, question):
+async def poll(ctx,options,channel_to_send,*, question):
     count={}
-    author_list=[]
+    req()
+    author_list=[]    
     channel=channel_to_send
-    options=options.split("|")
+    if type(channel_to_send)==str:
+        channel=ctx.channel
+        question=channel_to_send + question
+    if ctx.guild.id==858955930431258624:
+        channel=ctx.channel
+
+    options=options.replace("_",' ').split("|")
     components=[]
     for i in options:
         components.append(Button(style=random.choice([ButtonStyle.green,ButtonStyle.blue]),label=i))
         count[i]=0
     mess=await channel.send(embed=cembed(title=f"Poll from {ctx.author.name}",description=question,color=re[8],thumbnail=client.user.avatar_url_as(format="png")),components=[components])
-    await ctx.send("Done")
     def check(res):
         return mess.id==res.message.id
     while True:
