@@ -204,11 +204,12 @@ def load_from_file1(file_name=".backup.txt"):
         global re
         global dev_users
         def start_from(text,i):
-            print(i[len(text):])
             return eval(i[len(text):])
         print(start_from("re=","re=[1,2,3,4]"))
         txt_from_file = str(file.read()).split("\n")[:-1]
-        
+        for i in txt_from_file:
+            censor=start_from("censor=",i) if i.startswith("censor=")
+
         
         
     #save_to_file()
