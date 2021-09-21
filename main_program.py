@@ -193,7 +193,7 @@ def save_to_file(a=""):
         file = open(".safe.txt", "w")
         start_writing(file)
 
-def load_from_file1(file_name=".backup.txt"):
+def load_from_file(file_name=".backup.txt"):
     if file_name in os.listdir("./"):
         file = open(file_name, "r")
         global censor
@@ -205,107 +205,26 @@ def load_from_file1(file_name=".backup.txt"):
         global dev_users
         def start_from(text,i):
             return eval(i[len(text):])
-        print(start_from("re=","re=[1,2,3,4]"))
-        txt_from_file = str(file.read()).split("\n")[:-1]
-        print(txt_from_file[0].startswith("censor="))
-        for i in txt_from_file:
-            if i.startswith("censor=",i):
-                censor=start_from("censor=",i) 
-            if i.startswith("da=",i):
-                da=start_from("da=") 
-            if i.startswith("da1=",i): da1=start_from("da1=") 
-            if i.startswith("queue_song=",i):
-                queue_song=start_from("queue_song=")
-
-
-
-        
-        
-    #save_to_file()
-
-def load_from_file(file_name=".backup.txt"):
-    if file_name in os.listdir("./"):
-        file = open(file_name, "r")
-        global censor
-        global da
-        global da1
-        global queue_song
-        global entr
-        global re
-        global dev_users
-        txt_from_file = str(file.read())
-        # censor list
+        txt_from_file = [i for i in str(file.read()).split("\n") if i!='']
         try:
-            a1 = txt_from_file.find("censor=") + len("censor")
-            a2 = txt_from_file.find("]", (a1 + 1)) + 1
-            a1 = txt_from_file.find("[", a1, a2)
-            k_censor = eval(txt_from_file[a1:a2])
-            censor = k_censor
+            print(type(txt_from_file))
+            print(len(txt_from_file))
+            for i in txt_from_file:
+                if i.startswith("censor="):
+                    censor=start_from("censor=",i) 
+                if i.startswith("da="):
+                    da=start_from("da=",i)
+                if i.startswith("da1="): da1=start_from("da1=",i) 
+                if i.startswith("queue_song="):
+                    queue_song=start_from("queue_song=",i)
+                if i.startswith("entr="):
+                    entr=start_from("entr=",i)
+                if i.startswith("re="):
+                    re=start_from("re=",i)
+                if i.startswith("dev_users="):
+                    dev_users=start_from("dev_users=",i)                
         except:
-            print("Problem with censor list")
-        # da dictionary
-        try:
-            a1 = txt_from_file.find("da=") + len("da")
-            a2 = txt_from_file.find("}", (a1 + 1)) + 1
-            a1 = txt_from_file.find("{", a1, a2)
-            k_da = eval(txt_from_file[a1:a2])
-            da = k_da
-        except:
-            print("Problem with da")
-        # da1 dictionary
-        try:
-            a1 = txt_from_file.find("da1=") + len("da1")
-            a2 = txt_from_file.find("}", (a1 + 1)) + 1
-            a1 = txt_from_file.find("{", a1, a2)
-            k_da1 = eval(txt_from_file[a1:a2])
-            da1 = k_da1
-        except:
-            print("Problem with da1")
-        # entr list
-        try:
-            a1 = txt_from_file.find("entr=") + len("entr")
-            a2 = txt_from_file.find("}", (a1 + 1)) + 1
-            a1 = txt_from_file.find("{", a1, a2)
-            k_entr = eval(txt_from_file[a1:a2])
-            entr = k_entr
-        except:
-            print("Problem with entr")
-        # a_channels list
-        try:
-            a1 = txt_from_file.find("a_channels=") + len("a_channels")
-            a2 = txt_from_file.find("]", (a1 + 1)) + 1
-            a1 = txt_from_file.find("[", a1, a2)
-            k_a_channels = eval(txt_from_file[a1:a2])
-            a_channels = k_a_channels
-        except:
-            print("Problem with a_channels")
-        # dev_users list
-        try:
-            a1 = txt_from_file.find("dev_users=") + len("dev_users")
-            a2 = txt_from_file.find("]", (a1 + 1)) + 1
-            a1 = txt_from_file.find("[", a1, a2)
-            k_dev_users = eval(txt_from_file[a1:a2])
-            dev_users = k_dev_users
-        except:
-            print("Problem with dev_users")
-        # queue_song dictionary
-        try:
-            a1 = txt_from_file.find("queue_song=") + len("queue_song")
-            a2 = txt_from_file.find("}", (a1)) + 1
-            a1 = txt_from_file.find("{", a1, a2)
-            k_queue_song = eval(txt_from_file[a1:a2])
-            queue_song = k_queue_song
-        except:
-            print("Problem with queue song")
-        # re list
-        try:
-            a1 = txt_from_file.find("re=") + len("re")
-            a2 = txt_from_file.find("]", (a1 + 1)) + 1
-            a1 = txt_from_file.find("[", a1, a2)
-            k_re = eval(txt_from_file[a1:a2])
-            re = k_re
-        except:
-            print("Problem with re")
+            print(traceback.print_exc())       
     save_to_file()
 
 
