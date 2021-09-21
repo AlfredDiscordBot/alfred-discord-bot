@@ -205,6 +205,31 @@ def save_to_file(a=""):
         file.write("dev_users=" + str(dev_users) + "\n")
         file.write("entr=" + str(entr) + "\n")
 
+def load_from_file1(file_name=".backup.txt"):
+    if file_name in os.listdir("./"):
+        file = open(file_name, "r")
+        global censor
+        global da
+        global da1
+        global queue_song
+        global entr
+        global re
+        global dev_users
+        def start_from(text,i):
+            return eval(i[text.find(text)+len(text):-1])
+        txt_from_file = str(file.read()).split("\n")
+        for i in txt_from_file:
+            if i.startswith("censor"):
+                censor=start_from("censor=",i)
+            if i.startswith("da"):
+                da=start_from("da=",i)
+            if i.startswith("da1"):
+                da1=start_from("da1=",i)
+            if i.startswith("queue_song"):
+                queue_song=start_from("queue_song",i)            
+        
+        
+    #save_to_file()
 
 def load_from_file(file_name=".backup.txt"):
     if file_name in os.listdir("./"):
