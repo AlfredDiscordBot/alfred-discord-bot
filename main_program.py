@@ -205,7 +205,7 @@ def load_from_file(file_name=".backup.txt"):
         global dev_users
         def start_from(text,i):
             return eval(i[len(text):])
-        txt_from_file = [i for i in str(file.read()).split("\n") if i!='']
+        txt_from_file = [i for i in file.readlines() if i!='']
         try:
             print(type(txt_from_file))
             print(len(txt_from_file))
