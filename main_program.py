@@ -94,7 +94,7 @@ dictionary = dict(zip(Raw_Emoji_list, Emoji_list))
 intents = discord.Intents.default()
 intents.members = True
 client = commands.Bot(
-    command_prefix=["'", "alfred ", "Alfred ",'dev '],
+    command_prefix=["'", "alfred ", "Alfred "],
     intents=intents,
     case_insensitive=True,
 )
@@ -818,11 +818,12 @@ async def poll_slash(ctx,question,options, channel_to_send):
 
 
 @client.command()
-async def poll(ctx,options,channel_to_send,*, question):
+async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question):
     count={}
     req()
     author_list=[]    
     channel=channel_to_send
+    print(type(channel_to_send))
     if type(channel_to_send)==str:
         channel=ctx.channel
         question=channel_to_send + question
