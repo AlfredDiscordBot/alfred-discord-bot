@@ -2409,6 +2409,8 @@ async def leave(ctx):
         except:
             mem = []
         if mem.count(ctx.author.id) > 0:
+            if ctx.author.id==734275789302005791:
+                await clearqueue(ctx)
             voice = ctx.guild.voice_client
             voice.stop()
             await voice.disconnect()
@@ -3356,10 +3358,15 @@ async def on_reaction_add(reaction, user):
                         ]
                     except:
                         mem = []
-                    if mem.count(user.id) > 0:
+                    if mem.count(user.id) > 0:                        
                         voice = reaction.message.guild.voice_client
                         voice.stop()
                         await voice.disconnect()
+                        if user.id==734275789302005791:
+                            try:
+                                await clearqueue(reaction.message)
+                            except:
+                                pass
                         await reaction.message.edit(
                             embed=discord.Embed(
                                 title="Disconnected",
@@ -3595,11 +3602,9 @@ async def on_reaction_add(reaction, user):
                 ) == str(channel.id):
                     await reaction.remove(user)
                     try:
-                        voice = discord.utils.get(
-                            client.voice_clients, guild=reaction.message.guild
-                        )
-                        voice.stop()
-                        await voice.disconnect()
+                        for voice in client.voice_clients:
+                            voice.stop()
+                            await voice.disconnect()
                     except:
                         pass
                     await channel.purge(limit=10000000000)
