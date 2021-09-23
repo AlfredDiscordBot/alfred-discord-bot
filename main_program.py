@@ -835,7 +835,7 @@ async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question)
     for i in options:
         components.append(Button(style=random.choice([ButtonStyle.green,ButtonStyle.blue]),label=i))
         count[i]=0
-    mess=await channel.send(embed=cembed(title=f"Poll from {ctx.author.name}",description=question,color=re[8],thumbnail=client.user.avatar_url_as(format="png")),components=[components])
+    mess=await channel.send(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{question}```",color=re[8],thumbnail=client.user.avatar_url_as(format="png")),components=[components])
     def check(res):
         return mess.id==res.message.id
     while True:
@@ -848,9 +848,12 @@ async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question)
         description=question+"\n\n"
         avg=sum(list(count.values()))//len(options)
         avg=1 if avg==0 else avg
+        copy_count=equalise(list(count.keys()))
+        copied=0
         for i in list(count.keys()):
-            description+=f"{i}: "+chr(9606)*(count[i]//avg)+"\n"
-        await res.edit_origin(embed=cembed(title=f"Poll from {ctx.author.name}",description=description,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+            description+=f"{copy_count[copied]} |  "+chr(9606)*(count[i]//avg)+"\n\n"
+            copied+=1
+        await res.edit_origin(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{description}```",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         
 
 @slash.slash(name="pr", description="Prints what you ask it to print")

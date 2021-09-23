@@ -392,4 +392,9 @@ async def wait_for_confirm(ctx,client,message,color=61620):
         await mess.delete()
         await ctx.send(embed=discord.Embed(title="Ok cool",description="Aborted",color=discord.Color(color)))
         return False
-    
+
+
+def equalise(all_strings):
+    maximum=max(list(map(len,all_strings)))
+    return [i+" "*(maximum-len(i)) for i in all_strings]
+
