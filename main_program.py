@@ -851,7 +851,7 @@ async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question)
         copy_count=equalise(list(count.keys()))
         copied=0
         for i in list(count.keys()):
-            description+=f"{copy_count[copied]} |  "+chr(9606)*(count[i]//avg)+"\n\n"
+            description+=f"{copy_count[copied]} |"+chr(9606)*(count[i]//avg)+"\n"
             copied+=1
         await res.edit_origin(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{description}```",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         
@@ -956,7 +956,7 @@ async def trending_github(ctx):
     for i in rec[0:20]:
         name = i["name"]
         author = i["author"]
-        thumbnail = i["avatar"]
+        thumbnail = i["avatar"] if "avatar" in i.keys() else None
         description = i["description"]
         forks = i["forks"]
         stars = i["stars"]
@@ -1242,7 +1242,7 @@ async def on_message_delete(message):
     if not message.channel.id in list(deleted_message.keys()):
         deleted_message[message.channel.id] = []
     if len(message.embeds) <= 0:
-        if (not message.author.bot or not message.content.startswith("'c")):
+        if not message.author.bot:
             deleted_message[message.channel.id].append(
                 (str(message.author), message.content)
             )
@@ -1616,7 +1616,7 @@ async def loop_slash(ctx):
 
 
 @client.command()
-async def show_playlist(ctx, name):
+async def show_playlist(ctx, *, name):
     num = 0
     embeds = []
     if name in list(da.keys()):
