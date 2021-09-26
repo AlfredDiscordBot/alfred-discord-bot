@@ -2385,7 +2385,7 @@ async def restart_program(ctx, text):
     save_to_file()
     print("Restart")
     os.chdir(location_of_file)
-    os.system("nohup python Discord.py &")
+    os.system("python Discord.py &")
     await ctx.send(
         embed=cembed(
             title="Restarted",
@@ -3592,7 +3592,7 @@ async def on_reaction_add(reaction, user):
                     print("Restart " + str(user))
                     await channel.purge(limit=100000000)
                     os.chdir(location_of_file)
-                    os.system("nohup python " + location_of_file + "/Discord.py &")
+                    os.system("python " + location_of_file + "/Discord.py &")
                     await channel.send(
                         embed=discord.Embed(
                             title="Restart",
