@@ -812,9 +812,6 @@ async def load(ctx):
         embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
         await channel.send(embed=embed)
 
-@slash.slash(name="polling",description="Options seperated with |")
-async def poll_slash(ctx,question,options, channel_to_send):
-    await poll(ctx,options,channel_to_send,question=question)
 
 
 @client.command()
@@ -822,6 +819,7 @@ async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question)
     count={}
     req()
     author_list=[]    
+    names={}
     channel=channel_to_send
     print(type(channel_to_send))
     if type(channel_to_send)==str:
@@ -853,7 +851,17 @@ async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question)
         for i in list(count.keys()):
             description+=f"{copy_count[copied]} |"+chr(9606)*(count[i]//avg)+"\n"
             copied+=1
-        await res.edit_origin(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{description}```",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        for i in author_list:
+            if i not in names:
+                names[i]=client.get_user(i).name
+        people="\n"+"\n".join([names[i] for i in author_list])
+        st="\n"
+        copied=0
+        for i in list(count.keys()):
+            st+=f"{copy_count[copied]}:  {(count[i]*100)//len(author_list)}%\n"
+            copied+=1
+        description+=st
+        await res.edit_origin(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{description}```"+"\n"+people,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         
 
 @slash.slash(name="pr", description="Prints what you ask it to print")
@@ -2385,7 +2393,7 @@ async def restart_program(ctx, text):
     save_to_file()
     print("Restart")
     os.chdir(location_of_file)
-    os.system("python Discord.py &")
+    os.system("nohup python main.py &")
     await ctx.send(
         embed=cembed(
             title="Restarted",
@@ -2568,9 +2576,7 @@ async def check(ctx):
     print("check")
     em = discord.Embed(
         title="Online",
-        description=("Hi, " + str(ctx.author)[0 : str(ctx.author).find("#")])
-        + "\nLatency: "
-        + str(int(client.latency * 1000)),
+        description=f"Hi, {ctx.author.name}\nLatency: {client.latency}",
         color=discord.Color(value=re[8]),
     )
     await ctx.send(embed=em)
@@ -3592,7 +3598,7 @@ async def on_reaction_add(reaction, user):
                     print("Restart " + str(user))
                     await channel.purge(limit=100000000)
                     os.chdir(location_of_file)
-                    os.system("python " + location_of_file + "/Discord.py &")
+                    os.system("nohup python " + location_of_file + "/main.py &")
                     await channel.send(
                         embed=discord.Embed(
                             title="Restart",
