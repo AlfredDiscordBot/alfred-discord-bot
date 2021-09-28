@@ -2576,7 +2576,7 @@ async def check(ctx):
     print("check")
     em = discord.Embed(
         title="Online",
-        description=f"Hi, {ctx.author.name}\nLatency: {client.latency}",
+        description=f"Hi, {ctx.author.name}\nLatency: {int(client.latency*1000)}",
         color=discord.Color(value=re[8]),
     )
     await ctx.send(embed=em)
@@ -4047,7 +4047,7 @@ async def testing_help(ctx):
     test_help=[]
     thumbnail="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
     test_help.append(cembed(title="Help",description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '",thumbnail=thumbnail,picture=client.user.avatar_url_as(format="png"),color=re[8]))
-    test_help.append(cembed(title="Source Code for Alfred",description="[Here you go, click this link and it'll redirect you to the github page](https://github.com/alvinbengeorge/alfred-discord-bot)",color=re[8],thumbnail="https://github.githubassets.com/images/modules/open_graph/github-octocat.png",picture=client.user.avatar_url_as(format="png")))
+    test_help.append(cembed(title="Source Code for Alfred",description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",color=re[8],thumbnail="https://github.githubassets.com/images/modules/open_graph/github-octocat.png",picture=client.user.avatar_url_as(format="png")))
     test_help+=helping_hand.help_him(ctx,client,re)
     await pa(test_help,ctx)
     
