@@ -93,13 +93,6 @@ instagram_posts = []
 dictionary = dict(zip(Raw_Emoji_list, Emoji_list))
 intents = discord.Intents.default()
 intents.members = True
-client = commands.Bot(
-    command_prefix=["'", "alfred ", "Alfred "],
-    intents=intents,
-    case_insensitive=True,
-)
-
-slash = SlashCommand(client)
 temp_dev = {}
 censor = []
 old_youtube_vid = []
@@ -121,34 +114,9 @@ color_temp = ()
 link_for_cats = []
 vc_channel = {}
 wolfram = os.getenv("wolfram")
+prefix_dict={}
 
 
-def mysql_load():
-    try:
-        aad = m.connect(
-            host="localhost",
-            user="root",
-            passwd=os.getenv("mysql"),
-            database="Discord",
-        )
-        curs = aad.cursor()
-        if len(youtube) == 0:
-            curs.execute("select * from youtube")
-            datas = curs.fetchall()
-            for data in datas:
-                youtube.append(data)
-        curs.execute("select * from old")
-        datas = curs.fetchall()
-        for data in datas:
-            old_youtube_vid.append(data)
-        aad.commit()
-    except:
-        print("not yet")
-        # time.sleep(10)
-        # mysql_load()
-
-
-mysql_load()
 # replace your id with this
 dev_users = ["432801163126243328"]
 ydl_op = {
@@ -166,6 +134,15 @@ FFMPEG_OPTIONS = {
     "options": "-vn",
 }
 
+def prefix_check(client,message):
+    return prefix_dict.get(message.guild.id,["'", "alfred ", "Alfred "])
+
+client = commands.Bot(
+    command_prefix=prefix_check,
+    intents=intents,
+    case_insensitive=True,
+)
+slash = SlashCommand(client)
 
 def save_to_file(a=""):    
     global dev_users
@@ -174,6 +151,7 @@ def save_to_file(a=""):
     if ".recover.txt" in os.listdir("./") and a == "recover":
         os.remove("./.recover.txt")
     def start_writing(file):
+        file.write(f"prefix_dict={str(prefix_dict)}\n")
         file.write("censor=" + str(censor) + "\n")
         file.write("da=" + str(da) + "\n")
         file.write("da1=" + str(da1) + "\n")
@@ -181,7 +159,7 @@ def save_to_file(a=""):
         file.write("a_channels=" + str(a_channels) + "\n")
         file.write("re=" + str(re) + "\n")
         file.write("dev_users=" + str(dev_users) + "\n")
-        file.write("entr=" + str(entr) + "\n")
+        file.write("entr=" + str(entr) + "\n")   
         file.close()
     if True:
         file = open(".backup.txt", "w")
@@ -203,6 +181,7 @@ def load_from_file(file_name=".backup.txt"):
         global entr
         global re
         global dev_users
+        global prefix_dict
         def start_from(text,i):
             return eval(i[len(text):])
         txt_from_file = [i for i in file.readlines() if i!='']
@@ -210,6 +189,9 @@ def load_from_file(file_name=".backup.txt"):
             print(type(txt_from_file))
             print(len(txt_from_file))
             for i in txt_from_file:
+                if i.startswith("prefix_dict="):
+                    print(start_from('prefix_dict=',i))
+                    prefix_dict=start_from("prefix_dict=",i)
                 if i.startswith("censor="):
                     censor=start_from("censor=",i) 
                 if i.startswith("da="):
@@ -222,7 +204,8 @@ def load_from_file(file_name=".backup.txt"):
                 if i.startswith("re="):
                     re=start_from("re=",i)
                 if i.startswith("dev_users="):
-                    dev_users=start_from("dev_users=",i)                
+                    dev_users=start_from("dev_users=",i)      
+                
         except:
             print(traceback.print_exc())       
     save_to_file()
@@ -257,6 +240,7 @@ async def on_ready():
         print("Finished loading\n")
         print(re)
         print(dev_users)
+        print(prefix_dict)
         print("\nStarting devop display")
         await devop_mtext(client,channel,re[8])
         
@@ -320,43 +304,6 @@ async def youtube_loop():
                 name=str(len(client.guilds)) + " servers",
             )
         )
-    for i in youtube:
-        try:
-            a = get_youtube_url(i[0])[0]
-            channel_youtube = client.get_channel(int(i[1]))
-            if not (a, str(channel_youtube.guild.id)) in old_youtube_vid:
-                old_youtube_vid.append((a, str(channel_youtube.guild.id)))
-                aad = m.connect(
-                    host="localhost",
-                    user="root",
-                    passwd=os.getenv("mysql"),
-                    database="Discord",
-                )
-                curs = aad.cursor()
-                curs.execute(
-                    "insert into old (video,channel) values('"
-                    + a
-                    + "', '"
-                    + str(channel_youtube.guild.id)
-                    + "')"
-                )
-                await channel_youtube.send(
-                    embed=discord.Embed(
-                        description="New video out from " + i[0],
-                        color=discord.Color(value=re[8]),
-                    )
-                )
-                await channel_youtube.send(a)
-                aad.commit()
-        except Exception as e:
-            server_youtube = client.get_channel(int(i[1])).guild.name
-            await client.get_channel(dev_channel).send(
-                embed=discord.Embed(
-                    title="Error in Youtube loop",
-                    description=str(e) + "\n" + server_youtube,
-                    color=discord.Color(value=re[8]),
-                )
-            )
 
 
 @tasks.loop(seconds=10)
@@ -549,29 +496,6 @@ async def imdb_slash(ctx, movie):
                 description=str(e),
                 color=re[8],
                 thumbnail=client.user.avatar_url_as(format="png"),
-            )
-        )
-
-
-@client.command(aliases=["youtube"])
-async def subscribe(ctx, url, channel: discord.TextChannel):
-    if url.startswith("http"):
-        youtube.append((str(url), str(channel.id)))
-        await ctx.send(
-            embed=discord.Embed(
-                description="Added "
-                + url
-                + " to the list\nUpdates will be in "
-                + channel.name
-                + " channel",
-                color=discord.Color(value=re[8]),
-            )
-        )
-    else:
-        await ctx.send(
-            embed=discord.Embed(
-                description="Add the full link, including https",
-                color=discord.Color(value=re[8]),
             )
         )
 
@@ -811,7 +735,6 @@ async def load(ctx):
         )
         embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
         await channel.send(embed=embed)
-
 
 
 @client.command()
@@ -1886,46 +1809,22 @@ async def next(ctx):
             )
         )
 
+@client.command()
+async def set_prefix(ctx,pref):
+    if ctx.author.guild_permissions.administrator:
+        prefix_dict[ctx.guild.id]=pref
+        await ctx.send(embed=cembed(title="Done",description=f"Prefix set as {pref}",color=re[8]))
+    else:
+        await ctx.send(embed=cembed(title="Permissions Denied",description="You cannot change the prefix, you need to be an admin",color=re[8]))
 
 @client.command()
-async def set_profile(ctx, mode="k"):
-    p = psutil.Process()
-    if str(ctx.author.id) in dev_users:
-        if mode == "single":
-            p.cpu_affinity([3])
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Single",
-                    description="Set to single CPU mode",
-                    color=discord.Color(value=re[8]),
-                )
-            )
-        elif mode == "multi":
-            p.cpu_affinity([])
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Multi",
-                    description="Set to Multiple CPU mode",
-                    color=discord.Color(value=re[8]),
-                )
-            )
-        else:
-            p.cpu_affinity([])
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Multi",
-                    description="Set to Multiple CPU mode",
-                    color=discord.Color(value=re[8]),
-                )
-            )
+async def remove_prefix(ctx):
+    if ctx.author.guild_permissions.administrator:
+        if prefix_dict.get(ctx.guild.id,False):
+            prefix_dict.pop(ctx.guild.id)
+        await ctx.send(embed=cembed(title="Done",description=f"Prefix removed",color=re[8]))
     else:
-        await ctx.send(
-            embed=discord.Embed(
-                title="Oops",
-                description="You need to be a developer to change",
-                color=discord.Color(value=re[8]),
-            )
-        )
+        await ctx.send(embed=cembed(title="Permissions Denied",description="You cannot change the prefix, you need to be an admin",color=re[8]))
 
 
 @slash.slash(name="news", description="Latest news from a given subject")
@@ -2220,11 +2119,7 @@ async def play(ctx, *, ind):
         await channel.send(
             embed=discord.Embed(
                 title="Error in play function",
-                description=str(e)
-                + "\n"
-                + str(ctx.guild)
-                + ": "
-                + str(ctx.channel.name),
+                description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
                 color=discord.Color(value=re[8]),
             )
         )
@@ -2315,11 +2210,7 @@ async def again(ctx):
             await channel.send(
                 embed=discord.Embed(
                     title="Error in play function",
-                    description=str(e)
-                    + "\n"
-                    + str(ctx.guild)
-                    + ": "
-                    + str(ctx.channel.name),
+                    description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
                     color=discord.Color(value=re[8]),
                 )
             )
@@ -2451,11 +2342,7 @@ async def leave(ctx):
         await channel.send(
             embed=discord.Embed(
                 title="Error in leave",
-                description=str(e)
-                + "\n"
-                + str(ctx.guild)
-                + ": "
-                + str(ctx.channel.name),
+                description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
                 color=discord.Color(value=re[8]),
             )
         )
@@ -2617,7 +2504,7 @@ async def clear(ctx, text, num=10):
                 confirmation = await wait_for_confirm(ctx, client, f"Do you want to delete {num} messages",color=re[8])
             if confirmation:
                 await ctx.channel.delete_messages(
-                [i async for i in ctx.channel.history(limit=num)]
+                [i async for i in ctx.channel.history(limit=num) if not i.pinned]
                 )
         else:
             await ctx.send(
@@ -3540,17 +3427,12 @@ async def on_reaction_add(reaction, user):
                     )
                     ram = str(psutil.virtual_memory().percent)
                     swap = str(psutil.swap_memory().percent)
-                    usage = (
-                        "CPU Percentage: "
-                        + cpu_per
-                        + "%\nCPU Frequency: "
-                        + cpu_freq
-                        + "\nRAM Usage: "
-                        + ram
-                        + "%\nSwap Usage: "
-                        + swap
-                        + "%"
-                    )
+                    usage=f"""
+                    CPU Percentage: {cpu_per}
+                    CPU Frequency : {cpu_freq}
+                    RAM usage: {ram}
+                    Swap usage: {swap}
+                    """
                     await channel.send(
                         embed=discord.Embed(
                             title="Load",
@@ -3780,18 +3662,8 @@ async def on_message(msg):
             )
 
             await msg.channel.send(embed=embed)
-        if msg.content.find("'") == 0:
+        if msg.content.startswith(prefix_dict.get(msg.guild.id,"'")) == 0:
             save_to_file()
-            if len(entr) == 0 and len(re) < 9:
-                load_from_file(".recover.txt")
-        if (
-            start_time % 60 > 30
-            and start_time % 60 < 50
-            and len(entr) != 0
-            and len(queue_song) != 0
-            and len(da1) != 0
-            and len(re) >= 9
-        ):
             save_to_file("recover")
         await client.process_commands(msg)
     except Exception as e:

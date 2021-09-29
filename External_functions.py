@@ -398,3 +398,5 @@ def equalise(all_strings):
     maximum=max(list(map(len,all_strings)))
     return [i+" "*(maximum-len(i)) for i in all_strings]
 
+
+
