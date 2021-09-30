@@ -7,17 +7,22 @@ import discord
 import random
 import imdb
 import emoji
+import youtube_dl
 from dotenv import load_dotenv
 from instagramy import *
 from instascrape import *
 import urllib.parse
 
-
-def youtube_download(ctx, url):
-    with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        URL = youtube_info(url)["formats"][0]["url"]
-    return URL
-
+ydl_op = {
+    "format": "bestaudio/best",
+    "postprocessors": [
+        {
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "mp3",
+            "preferredquality": "384",
+        }
+    ],
+}
 
 def youtube_info(url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:

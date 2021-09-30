@@ -132,6 +132,11 @@ FFMPEG_OPTIONS = {
     "options": "-vn",
 }
 
+def youtube_download(ctx, url):
+    with youtube_dl.YoutubeDL(ydl_op) as ydl:
+        URL = youtube_info(url)["formats"][0]["url"]
+    return URL
+
 def prefix_check(client,message):
     return prefix_dict.get(message.guild.id,["'", "alfred ", "Alfred "])
 

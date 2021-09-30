@@ -254,18 +254,17 @@ def main(client, re):
                 await ctx.send(str(e))
 
     @client.command(aliases=["color_for_embed"])
-    async def set_color(ctx, color:tuple):
+    async def set_color(ctx, color):
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == SUPER_AUTHOR_ID
         ):
             try:
-                c = eval(color)
+                c = [int(i) for i in color.replace(")","").replace("(","").split(",")]
                 re[0] += 1
                 if ctx.guild.id not in embeds: create_embed_init(ctx)
-
+                print(c, type(c))
                 embeds[ctx.guild.id].set_color(*c)
-
                 await ctx.send(embed=quick_embed("Color Set to " + str(c)))
             except Exception as e:
                 await ctx.send(str(e))
