@@ -7,7 +7,6 @@ mysql=
 default=
 """
 
-
 import discord
 import helping_hand
 import discord_slash
@@ -84,7 +83,6 @@ def reset_board():
         if i % 3 == 0:
             board = board + "\n----    ----    ----\n"
     return board
-
 
 board = reset_board()
 global sent
@@ -171,7 +169,7 @@ def save_to_file(a=""):
         file = open(".safe.txt", "w")
         start_writing(file)
 
-def load_from_file(file_name=".backup.txt"):
+def load_from_file(file_name=".backup.txt",ss=0):
     if file_name in os.listdir("./"):
         file = open(file_name, "r")
         global censor
@@ -189,39 +187,30 @@ def load_from_file(file_name=".backup.txt"):
             print(type(txt_from_file))
             print(len(txt_from_file))
             for i in txt_from_file:
-                if i.startswith("prefix_dict="):
-                    print(start_from('prefix_dict=',i))
-                    prefix_dict=start_from("prefix_dict=",i)
-                if i.startswith("censor="):
-                    censor=start_from("censor=",i) 
-                if i.startswith("da="):
-                    da=start_from("da=",i)
-                if i.startswith("da1="): da1=start_from("da1=",i) 
-                if i.startswith("queue_song="):
-                    queue_song=start_from("queue_song=",i)
-                if i.startswith("entr="):
-                    entr=start_from("entr=",i)
-                if i.startswith("re="):
-                    re=start_from("re=",i)
-                if i.startswith("dev_users="):
-                    dev_users=start_from("dev_users=",i)      
+                try:
+                    if i.startswith("prefix_dict="):
+                        print(start_from('prefix_dict=',i))
+                        prefix_dict=start_from("prefix_dict=",i)
+                    if i.startswith("censor="):
+                        censor=start_from("censor=",i) 
+                    if i.startswith("da="):
+                        da=start_from("da=",i)
+                    if i.startswith("da1="): da1=start_from("da1=",i) 
+                    if i.startswith("queue_song="):
+                        queue_song=start_from("queue_song=",i)
+                    if i.startswith("entr="):
+                        entr=start_from("entr=",i)
+                    if i.startswith("re="):
+                        re=start_from("re=",i)
+                    if i.startswith("dev_users="):
+                        dev_users=start_from("dev_users=",i)   
+                except Exception as e:
+                    print(e)   
+                    load_from_file
                 
         except:
             print(traceback.print_exc())       
     save_to_file()
-
-
-def youtube_download(ctx, url):
-    with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        URL = youtube_info(url)["formats"][0]["url"]
-    return URL
-
-
-def youtube_info(url):
-    with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        info = ydl.extract_info(url, download=False)
-    return info
-
 
 @client.event
 async def on_ready():
@@ -736,7 +725,7 @@ async def load(ctx):
         embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
         await channel.send(embed=embed)
 
-
+@slash.slash(name="polling",description="Seperate options with |")
 @client.command()
 async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question):
     count={}
@@ -1178,9 +1167,9 @@ async def on_message_delete(message):
                 (str(message.author), message.content)
             )
     else:
-        deleted_message[message.channel.id].append(
-            (str(message.author), message.embeds[0], True)
-        )
+        if not message.author.bot:
+            deleted_message[message.channel.id].append(
+                (str(message.author), message.embeds[0], True))
 
 
 @client.event
@@ -3664,7 +3653,8 @@ async def on_message(msg):
             await msg.channel.send(embed=embed)
         if msg.content.startswith(prefix_dict.get(msg.guild.id,"'")) == 0:
             save_to_file()
-            save_to_file("recover")
+            if re[0]<10000:
+                save_to_file("recover")
         await client.process_commands(msg)
     except Exception as e:
         channel = client.get_channel(dev_channel)

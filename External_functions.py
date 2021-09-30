@@ -13,6 +13,17 @@ from instascrape import *
 import urllib.parse
 
 
+def youtube_download(ctx, url):
+    with youtube_dl.YoutubeDL(ydl_op) as ydl:
+        URL = youtube_info(url)["formats"][0]["url"]
+    return URL
+
+
+def youtube_info(url):
+    with youtube_dl.YoutubeDL(ydl_op) as ydl:
+        info = ydl.extract_info(url, download=False)
+    return info
+    
 def convert_to_url(name):
     name = urllib.parse.quote(name)
     return name
