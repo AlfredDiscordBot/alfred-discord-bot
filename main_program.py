@@ -38,6 +38,7 @@ import emoji
 import psutil
 import asyncio
 import cloudscraper
+import requests
 
 location_of_file = os.getcwd()
 try:
@@ -3592,6 +3593,12 @@ async def add_censor(ctx, *, text):
 
 @client.event
 async def on_message(msg):
+    auth = os.getenv('blender_bot_auth')
+    headers = {"Authorization": auth}
+    API_URL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
+    def query(payload):
+        response = requests.post(API_URL, headers=headers, json=payload)
+        return response.json()
     try:        
         for word in censor:
             if word in msg.content.lower() and msg.guild.id in [
@@ -3611,9 +3618,31 @@ async def on_message(msg):
                         if i in msg.content.lower():
                             await msg.channel.send("thog dont caare")
                             break
+        
+        if msg.content.lower().startswith("alfred"):
+            past_respose = []
+            generated = []
+            input_text = msg.content.lower().replace('alfred', ' ')
+            output = query({
+            "inputs": {
+                "past_user_inputs": past_respose,
+                "generated_responses": generated,
+                "text": input_text
+            },})
 
+            if len(past_respose) < 10:    
+                past_respose.append(input_text)
+                generated.append(output['generated_text'])
+            else:
+                past_respose.pop(0)
+                generated.pop(0)
+                past_respose.append(input_text)
+                generated.append(output['generated_text'])
+            await msg.channel.send(output['generated_text'])
+
+            
         if f"<@!{client.user.id}>" in msg.content:
-            prefi=prefix_dict.get(msg.guild.id,"'")
+
             embed = discord.Embed(
                 title="Hi!! I am Alfred.",
                 description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""", 
