@@ -144,10 +144,10 @@ def embed_from_yaml(yaml: str, ctx_author) -> discord.Embed:
     Generates an embed from given yaml string
     """
     info = safe_load(yaml)
-    info = {k.lower():v for k,v in info.items()}
+    info = {k.lower():v for k,v in info.items()} # make it case insensitive
 
     info['color'] = get_color(info.get('color', None))
-    # print(info)
+    # print(info) 
     print(f"Creating Emebed for: '{ctx_author.name}' aka '{ctx_author.nick}' in '{ctx_author.guild}'")
 
     embed = discord.Embed(**info)
@@ -164,6 +164,11 @@ def embed_from_yaml(yaml: str, ctx_author) -> discord.Embed:
             embed.set_author(name = author)
         else:
             embed.set_author(**author)
+
+    if (fields := info.get('fields', None)):
+        fields = {k.lower():v for k,v in fields.items()} # make it case insensitive
+        for field in fields:
+            embed.add_field(**field)
 
     return embed
 
@@ -275,7 +280,8 @@ def main(client, re):
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == SUPER_AUTHOR_ID
         ):
-            if ctx.guild.id not in embeds: create_embed_init(ctx)
+            if not embeds.get(ctx.guild.id, False): embeds[ctx.guild.id] = EmbedInfo()
+
             embeds[ctx.guild.id].title = title
             re[0] += 1
             await ctx.send(embed=quick_embed("Title Set to " + title))
@@ -286,7 +292,8 @@ def main(client, re):
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == SUPER_AUTHOR_ID
         ):
-            if ctx.guild.id not in embeds: create_embed_init(ctx)
+            if not embeds.get(ctx.guild.id, False): embeds[ctx.guild.id] = EmbedInfo()
+            
             embeds[ctx.guild.id].description = description
             re[0] += 1
             await ctx.send(
@@ -299,7 +306,8 @@ def main(client, re):
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == SUPER_AUTHOR_ID
         ):
-            if ctx.guild.id not in embeds: create_embed_init(ctx)
+            if not embeds.get(ctx.guild.id, False): embeds[ctx.guild.id] = EmbedInfo()
+            
             embeds[ctx.guild.id].footer = footer
             await ctx.send(embed=quick_embed("Footer Set to " + footer))
 
@@ -309,7 +317,8 @@ def main(client, re):
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == SUPER_AUTHOR_ID
         ):
-            if ctx.guild.id not in embeds: create_embed_init(ctx)
+            if not embeds.get(ctx.guild.id, False): embeds[ctx.guild.id] = EmbedInfo()
+            
             embeds[ctx.guild.id].set_thumbnail(url)
             await ctx.send(embed=quick_embed("Thumbnail Set"))
     
@@ -319,7 +328,8 @@ def main(client, re):
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == SUPER_AUTHOR_ID
         ):
-            if ctx.guild.id not in embeds: create_embed_init(ctx)
+            if not embeds.get(ctx.guild.id, False): embeds[ctx.guild.id] = EmbedInfo()
+    
             embeds[ctx.guild.id].set_image(url)
             await ctx.send(embed=quick_embed("Image Set"))
 
