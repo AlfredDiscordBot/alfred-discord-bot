@@ -3903,21 +3903,11 @@ async def test_embed(ctx):
     await ctx.send(embed=embed)
 
 
-@client.command(aliases=["alfred"])
-async def hey_alfred(ctx, *, text):
-    import randomstuff
-
-    client = randomstuff.Client(api_key=os.getenv("cpi"))
-    text = text.replace("alfred", "")
-    response = client.get_ai_response(text, name="Alfred")
-    await ctx.send(response.message)
-
-
 @client.command(aliases=["mu"])
 @commands.has_permissions(kick_members=True)
 async def mute(ctx, member: discord.Member):
     req()
-    print("Memver id: ",member.id)
+    print("Member id: ",member.id)
     add_role=None
     if ctx.guild.id == 743323684705402951:
         add_role = [i for i in ctx.guild.roles if i.id==876708632325148672][0]
