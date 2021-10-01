@@ -147,7 +147,7 @@ def embed_from_yaml(yaml: str, ctx_author) -> discord.Embed:
     info = {k.lower():v for k,v in info.items()} # make it case insensitive
 
     info['color'] = get_color(info.get('color', None))
-    print(info)
+    # print(info) 
     print(f"Creating Emebed for: '{ctx_author.name}' aka '{ctx_author.nick}' in '{ctx_author.guild}'")
 
     embed = discord.Embed(**info)
