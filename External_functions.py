@@ -415,4 +415,13 @@ def equalise(all_strings):
     return [i+" "*(maximum-len(i)) for i in all_strings]
 
 
-
+def extract_color(color):
+    try:
+        color_temp = (
+            int("0x" + str(hex(color))[2:4], 16),
+            int("0x" + str(hex(color))[4:6], 16),
+            int("0x" + str(hex(color))[6:8], 16),
+        )
+        return color_temp
+    except:
+        pass

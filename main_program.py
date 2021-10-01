@@ -39,6 +39,7 @@ import psutil
 import asyncio
 import cloudscraper
 import requests
+import aiohttp
 
 location_of_file = os.getcwd()
 try:
@@ -140,7 +141,7 @@ def youtube_download(ctx, url):
     return URL
 
 def prefix_check(client,message):
-    return prefix_dict.get(message.guild.id,["'", "alfred ", "Alfred "])
+    return prefix_dict.get(message.guild.id,["'"])
 
 client = commands.Bot(
     command_prefix=prefix_check,
@@ -620,6 +621,27 @@ async def show_webhooks(ctx):
     webhooks = await ctx.channel.webhooks()
     await ctx.send(str(webhooks))
 
+@client.command()
+async def theme_color2(ctx,*,tup1=""):
+    def get_that_emoji(name):
+        return discord.utils.get(client.emojis, name=name)
+        
+    if tup1=="":
+        tup1=extract_color(re[8])
+    else:
+        tup1=[int(i) for i in tup1.replace("(","").replace(")","").split(",")]
+        message=await ctx.send(
+            embed=discord.Embed(
+                title="Color Init",
+                description="You must have three values in the form of tuple",
+                color=discord.Color(value=re[8]),
+            )
+        )
+        emojis_color=[emoji.emojize(i) for i in [":red_triangle_pointed_up:",":red_triangle_pointed_down:"]]+[get_that_emoji(i) for i in ['green_down','green_up','blue_up','blue_down']]
+        for i in emojis_color:
+            await message.add_reaction(i)
+
+        
 
 @client.command(aliases=["color", "||"])
 async def theme_color(ctx, *, tup1):
@@ -3591,14 +3613,18 @@ async def add_censor(ctx, *, text):
     await ctx.send(embed=em)
 
 
+async def transformer(api, header, json):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(api, headers = header, json = json) as resp:
+            return await resp.json()
+
+
 @client.event
 async def on_message(msg):
     auth = os.getenv('blender_bot_auth')
-    headers = {"Authorization": auth}
+    headeras = {"Authorization": auth}
     API_URL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
-    def query(payload):
-        response = requests.post(API_URL, headers=headers, json=payload)
-        return response.json()
+
     try:        
         for word in censor:
             if word in msg.content.lower() and msg.guild.id in [
@@ -3622,15 +3648,17 @@ async def on_message(msg):
         if msg.content.lower().startswith("alfred"):
             past_respose = []
             generated = []
-            input_text = msg.content.lower().replace('alfred', ' ')
-            output = query({
+            input_text = msg.content.lower().replace('alfred', '')
+            payload = {
             "inputs": {
                 "past_user_inputs": past_respose,
                 "generated_responses": generated,
                 "text": input_text
-            },})
+            },}
 
-            if len(past_respose) < 10:    
+            output = await transformer(API_URL, header = headeras, json = payload)
+            
+            if len(past_respose) < 100:    
                 past_respose.append(input_text)
                 generated.append(output['generated_text'])
             else:
