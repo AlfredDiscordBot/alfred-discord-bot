@@ -3645,7 +3645,7 @@ async def on_message(msg):
 
             embed = discord.Embed(
                 title="Hi!! I am Alfred.",
-                description=f"Prefix is '\nFor more help, type {prefix_dict[msg.guild.id]}help",
+                description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""", 
                 color=discord.Color(value=re[8]),
             )
             embed.set_image(
