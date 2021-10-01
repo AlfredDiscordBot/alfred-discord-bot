@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from instagramy import *
 from instascrape import *
 import urllib.parse
+import urllib
 
 ydl_op = {
     "format": "bestaudio/best",
@@ -23,6 +24,8 @@ ydl_op = {
         }
     ],
 }
+SVG2PNG_API_URI = os.getenv("svg2pnguri")
+SVG2PNG_API_TOKEN = os.getenv("svg2pngtoken")
 
 def youtube_info(url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
@@ -425,3 +428,12 @@ def extract_color(color):
         return color_temp
     except:
         pass
+
+def svg2png(url:str):
+    """Convert SVG image (url) to PNG format."""
+    # print(SVG2PNG_API_URI, SVG2PNG_API_TOKEN)
+    res = requests.get(SVG2PNG_API_URI, params=[
+        ('url', url),
+        ('token', SVG2PNG_API_TOKEN)
+    ])
+    return res.content

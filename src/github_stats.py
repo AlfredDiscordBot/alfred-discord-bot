@@ -126,6 +126,12 @@ def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
     )
 
 
+def requirements():
+    return ["re"]
+
+def main(client, re):
+    pass
+
 if __name__ == "__main__":
     r1 = (str(get_user_stats("Shravan-1908")))
     r2 = (str(get_repo_stats("Shravan-1908/iris")))

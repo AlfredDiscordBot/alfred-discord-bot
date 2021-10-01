@@ -40,6 +40,7 @@ import asyncio
 import cloudscraper
 import requests
 import aiohttp
+from io import BytesIO
 
 location_of_file = os.getcwd()
 try:
@@ -335,6 +336,10 @@ async def dev_loop():
             temp_dev.pop(i)
     save_to_file()
 
+@client.command()
+async def svg(ctx, *, url):
+    img = svg2png(url)
+    await ctx.send(file=discord.File(BytesIO(img), 'svg.png'))
 
 @dev_loop.before_loop
 async def wait_for_ready():
@@ -555,6 +560,12 @@ async def uemoji(ctx, emoji_name, number=0):
             )
         )
 
+# @slash.slash(name="svg2png", description="Convert SVG image to png format")
+# async def svg2png_slash(ctx, url):
+#     req()
+#     await ctx.defer()
+#     img = svg2png(url)
+#     await ctx.send(file=discord.File(BytesIO(img), 'svg.png'))    
 
 @client.command()
 async def set_sessionid(ctx, sessionid):
