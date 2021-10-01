@@ -127,5 +127,7 @@ def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
 
 
 if __name__ == "__main__":
-    print(get_user_stats("Shravan-1908"))
-    print(get_repo_stats("Shravan-1908/iris"))
+    r1 = (str(get_user_stats("Shravan-1908")))
+    r2 = (str(get_repo_stats("Shravan-1908/iris")))
+    print(r1)
+    print(r2)
