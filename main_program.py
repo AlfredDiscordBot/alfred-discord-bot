@@ -3666,11 +3666,11 @@ async def on_message(msg):
                 generated.pop(0)
                 past_respose.append(input_text)
                 generated.append(output['generated_text'])
-            await msg.channel.send(output['generated_text'])
+            await msg.reply(output['generated_text'])
 
             
         if f"<@!{client.user.id}>" in msg.content:
-
+            prefi=prefix_dict.get(msg.guild.id,"'")
             embed = discord.Embed(
                 title="Hi!! I am Alfred.",
                 description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""", 
