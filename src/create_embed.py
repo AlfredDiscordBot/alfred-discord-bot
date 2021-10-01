@@ -139,16 +139,14 @@ def set_url(set_func, url) -> None:
     
     return
 
-def embed_from_yaml(yaml: str, ctx_author) -> discord.Embed:
+def embed_from_dict(info: dict, ctx_author = None) -> discord.Embed:
     """
-    Generates an embed from given yaml string
+    Generates an embed from given dict
     """
-    info = safe_load(yaml)
     info = {k.lower():v for k,v in info.items()} # make it case insensitive
 
     info['color'] = get_color(info.get('color', None))
     # print(info) 
-    print(f"Creating Emebed for: '{ctx_author.name}' aka '{ctx_author.nick}' in '{ctx_author.guild}'")
 
     embed = discord.Embed(**info)
     
@@ -171,6 +169,12 @@ def embed_from_yaml(yaml: str, ctx_author) -> discord.Embed:
             embed.add_field(**field)
 
     return embed
+
+
+def embed_from_yaml(yaml: str, ctx_author):
+    info = safe_load(yaml)
+    print(f"Creating Emebed for: '{ctx_author.name}' aka '{ctx_author.nick}' in '{ctx_author.guild}'")
+    return embed_from_dict(info, ctx_author)
 
 
 def requirements() -> str:

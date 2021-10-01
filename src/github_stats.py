@@ -1,7 +1,8 @@
 from typing import List, Union
 import requests
 from dataclasses import dataclass
-
+import discord
+from create_embed import embed_from_dict
 
 @dataclass
 class GitHubUserStats:
@@ -129,8 +130,32 @@ def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
 def requirements():
     return ["re"]
 
+
+def repo_stats_dict(stats: GitHubRepoStats):
+    info = {}
+    info['title'] = f"{stats.owner}/{stats.name}"
+    info['description'] = stats.description
+    info['url'] = stats.html_url
+    info['thumbnail'] = 'https://www.nicepng.com/png/full/52-520535_free-files-github-github-icon-png-white.png'
+    info['fields'] = [
+        {
+            'name': 'Stats', 
+            'value': f"Language: {stats.language} \nOwner: {stats.owner} \nFork: {stats.forks_count} \nStars: {stats.stargazers_count}"
+        },
+        {
+            "name": 'Dates', 
+            'value': f"Created: {stats.created_at} \nUpdated: {stats.created_at} \nPushed: {stats.pushed_at}"
+        }
+    ]
+    return info
+
+
 def main(client, re):
-    pass
+    @client.command(alias='repo')
+    async def github_repo(ctx, *, username):
+        stats = get_repo_stats(username)
+        embed = embed_from_dict(repo_stats_dict(stats))
+        await ctx.send(embed=embed)
 
 if __name__ == "__main__":
     r1 = (str(get_user_stats("Shravan-1908")))
