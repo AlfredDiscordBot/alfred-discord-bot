@@ -166,8 +166,8 @@ def embed_from_yaml(yaml: str, ctx_author) -> discord.Embed:
             embed.set_author(**author)
 
     if (fields := info.get('fields', None)):
-        fields = {k.lower():v for k,v in fields.items()} # make it case insensitive
         for field in fields:
+            field = {k.lower():v for k, v in field.items()} # make it case insensitive
             embed.add_field(**field)
 
     return embed
