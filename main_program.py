@@ -560,12 +560,14 @@ async def uemoji(ctx, emoji_name, number=0):
             )
         )
 
+
 # @slash.slash(name="svg2png", description="Convert SVG image to png format")
 # async def svg2png_slash(ctx, url):
 #     req()
 #     await ctx.defer()
 #     img = svg2png(url)
 #     await ctx.send(file=discord.File(BytesIO(img), 'svg.png'))    
+
 
 @client.command()
 async def set_sessionid(ctx, sessionid):
