@@ -7,6 +7,7 @@ mysql=
 default=
 """
 
+import pickle
 import discord
 import helping_hand
 import discord_slash
@@ -134,7 +135,7 @@ FFMPEG_OPTIONS = {
 
 def youtube_download(ctx, url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        URL = youtube_info(url)["formats"][0]["url"]
+        URL = ydl.extract_info(url, download=False)["formats"][0]["url"]
     return URL
 
 def prefix_check(client,message):
@@ -147,14 +148,17 @@ client = commands.Bot(
 )
 slash = SlashCommand(client)
 
-def save_to_file(a=""):    
+def get_name(url):
+    a=urllib.request.urlopen(url).read().decode()
+    return a[a.find("<title>")+len("<title>"):a.find("</title>")].replace("&amp;", "&").replace(" - YouTube", "").replace("&#39;", "'")
+
+def save_to_file(a=""):
     global dev_users
     if ".backup.txt" in os.listdir("./"):
         os.remove("./.backup.txt")
     if ".recover.txt" in os.listdir("./") and a == "recover":
         os.remove("./.recover.txt")
-    def start_writing(file):
-        file.write(f"prefix_dict={str(prefix_dict)}\n")
+    def start_writing(file):        
         file.write("censor=" + str(censor) + "\n")
         file.write("da=" + str(da) + "\n")
         file.write("da1=" + str(da1) + "\n")
@@ -162,7 +166,8 @@ def save_to_file(a=""):
         file.write("a_channels=" + str(a_channels) + "\n")
         file.write("re=" + str(re) + "\n")
         file.write("dev_users=" + str(dev_users) + "\n")
-        file.write("entr=" + str(entr) + "\n")   
+        file.write(f"prefix_dict={str(prefix_dict)}\n")
+        #file.write("entr=" + str(entr) + "\n")   
         file.close()
     if True:
         file = open(".backup.txt", "w")
@@ -192,30 +197,30 @@ def load_from_file(file_name=".backup.txt",ss=0):
             print(type(txt_from_file))
             print(len(txt_from_file))
             for i in txt_from_file:
-                try:
-                    if i.startswith("prefix_dict="):
-                        print(start_from('prefix_dict=',i))
-                        prefix_dict=start_from("prefix_dict=",i)
-                    if i.startswith("censor="):
-                        censor=start_from("censor=",i) 
-                    if i.startswith("da="):
-                        da=start_from("da=",i)
-                    if i.startswith("da1="): da1=start_from("da1=",i) 
-                    if i.startswith("queue_song="):
-                        queue_song=start_from("queue_song=",i)
-                    if i.startswith("entr="):
-                        entr=start_from("entr=",i)
-                    if i.startswith("re="):
-                        re=start_from("re=",i)
-                    if i.startswith("dev_users="):
-                        dev_users=start_from("dev_users=",i)   
-                except Exception as e:
-                    print(e)   
-                    load_from_file
+                if i.startswith("prefix_dict="):
+                    print(start_from('prefix_dict=',i))
+                    prefix_dict=start_from("prefix_dict=",i)
+                if i.startswith("censor="):
+                    censor=start_from("censor=",i) 
+                if i.startswith("da="):
+                    da=start_from("da=",i)
+                if i.startswith("da1="):
+                    da1=start_from("da1=",i) 
+                if i.startswith("queue_song="):
+                    queue_song=start_from("queue_song=",i)
+                #if i.startswith("entr="):
+                #    entr=start_from("entr=",i)
+                if i.startswith("re="):
+                    re=start_from("re=",i)
+                if i.startswith("dev_users="):
+                    dev_users=start_from("dev_users=",i)
+                    
                 
-        except:
-            print(traceback.print_exc())       
+        except Exception as e:
+            print(traceback.print_exc())
     save_to_file()
+
+load_from_file()
 
 @client.event
 async def on_ready():
@@ -326,6 +331,7 @@ async def dev_loop():
                 )
             )
             temp_dev.pop(i)
+    save_to_file()
 
 
 @dev_loop.before_loop
@@ -680,6 +686,7 @@ async def recover(ctx):
     print("Recover", str(ctx.author))
     try:
         load_from_file(".recover.txt")
+        await ctx.send(embed=cembed(description="Recovery Done",color=re[8]))
     except Exception as e:
         channel = client.get_channel(dev_channel)
         await channel.send(
@@ -945,12 +952,7 @@ async def add_access_to_script(ctx, member: discord.Member, ti="5"):
         mess = await ctx.send(
             embed=discord.Embed(
                 title="Done",
-                description=str(ctx.author.mention)
-                + " gave script access to "
-                + str(member.mention)
-                + "\nTime remaining: "
-                + str(int(ti) * 60)
-                + "s",
+                desription=f"{ctx.author.mention} gave script access to {member.mention}\nTimeRemaining: {int(ti)*60}s",
                 color=discord.Color(value=re[8]),
             )
         )
@@ -2034,11 +2036,7 @@ async def play(ctx, *, ind):
                     ):
                         da1[
                             queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
-                        ] = youtube_info(
-                            queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
-                        )[
-                            "title"
-                        ]
+                        ] = get_name(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
                     mess = await ctx.send(
                         embed=discord.Embed(
                             title="Playing",
@@ -2081,7 +2079,7 @@ async def play(ctx, *, ind):
                     video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
                     url = "https://www.youtube.com/watch?v=" + video[0]
                     URL = youtube_download(ctx, url)
-                    name_of_the_song = youtube_info(url)["title"]
+                    name_of_the_song = get_name(url)
                     voice.stop()
                     voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
                     await ctx.send(
@@ -3168,25 +3166,11 @@ async def on_reaction_add(reaction, user):
                             ]
                             in da1.keys()
                         ):
-                            aa = str(
-                                urllib.request.urlopen(
-                                    queue_song[str(reaction.message.guild.id)]
-                                )
-                                .read()
-                                .decode()
-                            )
-                            starting = aa.find("<title>") + len("<title>")
-                            ending = aa.find("</title>")
                             da1[
                                 queue_song[str(reaction.message.guild.id)][
                                     re[3][str(reaction.message.guild.id)]
                                 ]
-                            ] = (
-                                aa[starting:ending]
-                                .replace("&#39;", "'")
-                                .replace(" - YouTube", "")
-                                .replace("&amp;", "&")
-                            )
+                            ] = get_name(queue_song[str(reaction.message.guild.id)])
                         re[3][str(reaction.message.guild.id)] += 1
                         if re[3][str(reaction.message.guild.id)] >= len(
                             queue_song[str(reaction.message.guild.id)]
@@ -3608,12 +3592,7 @@ async def add_censor(ctx, *, text):
 
 @client.event
 async def on_message(msg):
-    try:
-        try:
-            pass
-            # Jay do stuff here
-        except Exception as e:
-            print(e)
+    try:        
         for word in censor:
             if word in msg.content.lower() and msg.guild.id in [
                 822445271019421746,
@@ -3621,29 +3600,23 @@ async def on_message(msg):
                 853670839891394591,
             ]:
                 await msg.delete()
-        if msg.guild.id in [858955930431258624]:
+        if msg.guild.id in [822445271019421746]:
             if "?" in msg.content.lower() and re[4] == 1:
                 await msg.channel.send("thog dont caare")
             elif "why do chips".strip() in msg.content.lower():
                 await msg.channel.send("https://pics.me.me/thumb_why-do-chips-get-stale-gross-i-just-eat-a-49666262.png")
-                await msg.channel.send("thog dont caare")
-            elif "what" in msg.content.lower() and re[4] == 1:
-                await msg.channel.send("thog dont caare")
-            elif "how" in msg.content.lower() and re[4] == 1:
-                await msg.channel.send("thog dont caare")
-            elif "when" in msg.content.lower() and re[4] == 1:
-                await msg.channel.send("thog dont caare")
-            elif "why" in msg.content.lower() and re[4] == 1:
-                await msg.channel.send("thog dont caare")
-            elif "who" in msg.content.lower() and re[4] == 1:
-                await msg.channel.send("thog dont caare")
-            elif "where" in msg.content.lower() and re[4] == 1:
-                await msg.channel.send("thog dont caare")
+            else:
+                if re[4] == 1:
+                    for i in ['what','how','when','why','who','where']:
+                        if i in msg.content.lower():
+                            await msg.channel.send("thog dont caare")
+                            break
+
         if f"<@!{client.user.id}>" in msg.content:
 
             embed = discord.Embed(
                 title="Hi!! I am Alfred.",
-                description="Prefix is '\nFor more help, type 'help",
+                description=f"Prefix is '\nFor more help, type {prefix_dict[msg.guild.id]}help",
                 color=discord.Color(value=re[8]),
             )
             embed.set_image(
@@ -3657,8 +3630,7 @@ async def on_message(msg):
 
             await msg.channel.send(embed=embed)
         if msg.content.startswith(prefix_dict.get(msg.guild.id,"'")) == 0:
-            save_to_file()
-            if re[0]<10000:
+            if re[0]>10000:
                 save_to_file("recover")
         await client.process_commands(msg)
     except Exception as e:
