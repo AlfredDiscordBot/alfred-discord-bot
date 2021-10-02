@@ -3837,7 +3837,7 @@ async def gen(ctx, *, text):
            "parameters": {"max_new_tokens": 250, "return_full_text": True}}
     
     output = await genpost(API_URL2, header2, payload2)
-    await ctx.send(embed=cembed(title="Generated text",description=output[0]['generated_text'],color=re[8]))
+    await ctx.reply(embed=cembed(title="Generated text",description=output[0]['generated_text'],color=re[8]))
 
 
 @client.command()
