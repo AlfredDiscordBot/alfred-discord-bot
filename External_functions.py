@@ -13,7 +13,7 @@ from instagramy import *
 from instascrape import *
 import urllib.parse
 import urllib
-
+import aiohttp
 ydl_op = {
     "format": "bestaudio/best",
     "postprocessors": [
@@ -437,3 +437,9 @@ def svg2png(url:str):
         ('token', SVG2PNG_API_TOKEN)
     ])
     return res.content
+
+async def genpost(api, header, json):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(api, headers = header, json=json) as resp:
+            return await resp.json()
+        
