@@ -1453,12 +1453,10 @@ async def clearqueue(ctx):
 @client.command()
 async def remove(ctx, n):
     req()
-    mem = [
-        (str(i.name) + "#" + str(i.discriminator))
-        for i in discord.utils.get(
-            ctx.guild.voice_channels, id=vc_channel[str(ctx.guild.id)]
-        ).members
-    ]
+    try:
+        mem = [str(names) for names in ctx.voice_client.channel.members]
+    except:
+        mem = []
     if mem.count(str(ctx.author)) > 0:
         if int(n) < len(queue_song[str(ctx.guild.id)]):
             await ctx.send(
