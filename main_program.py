@@ -2501,21 +2501,6 @@ async def check_slash(ctx):
     await ctx.defer()
     await check(ctx)
 
-
-@client.command()
-async def test(ctx):
-    embeds = []
-    for i in range(0, 10):
-        embeds.append(
-            discord.Embed(
-                title="Hi there",
-                description=str(i),
-                color=discord.Color(value=re[8]),
-            )
-        )
-    await pa(embeds, ctx)
-
-
 @client.command()
 async def clear(ctx, text, num=10):
     req()
@@ -3632,6 +3617,7 @@ async def transformer(api, header, json):
 
 @client.event
 async def on_message(msg):
+    global auth
     auth = os.getenv('blender_bot_auth')
     headeras = {"Authorization": auth}
     API_URL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
@@ -3847,6 +3833,15 @@ async def exe(ctx, *, text):
                 color=discord.Color(value=re[8]),
             )
         )
+@client.command()
+async def gen(ctx, *, text):
+    API_URL2 = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B"
+    header2 = {"Authorization": auth}
+    payload2 = {"inputs": text,
+           "parameters": {"max_new_tokens": 250, "return_full_text": True}}
+    
+    output = await genpost(API_URL2, header2, payload2)
+    await ctx.send(embed=cembed(title="Generated text",description=output[0]['generated_text'],color=re[8]))
 
 
 @client.command()
@@ -3858,19 +3853,15 @@ async def get_req(ctx):
     )
     await ctx.send(embed=em)
 
-
 def r(x):
     return radians(x)
-
 
 def d(x):
     return degrees(x)
 
-
 def addt(p1, p2):
     da[p1] = p2
     return "Done"
-
 
 def get_elem(k):
     return da.get(k, "Not assigned yet")
@@ -3887,7 +3878,6 @@ def req():
 
 def g_req():
     return re[0]
-
 
 @client.command()
 async def test_embed(ctx):
