@@ -3417,11 +3417,7 @@ async def on_reaction_add(reaction, user):
                 ) == str(channel.id):
                     await reaction.remove(user)
                     cpu_per = str(int(psutil.cpu_percent()))
-                    cpu_freq = (
-                        str(int(psutil.cpu_freq().current))
-                        + "/"
-                        + str(int(psutil.cpu_freq().max))
-                    )
+                    cpu_freq=f"{str(int(psutil.cpu_freq()))}/{str(int(psutil.cpu_freq()))}"
                     ram = str(psutil.virtual_memory().percent)
                     swap = str(psutil.swap_memory().percent)
                     usage=f"""
@@ -3878,17 +3874,6 @@ def req():
 
 def g_req():
     return re[0]
-
-@client.command()
-async def test_embed(ctx):
-    embed = cembed(
-        title="Title of the embed",
-        description="This is to check if the embed function works",
-        thumbnail=client.user.avatar_url_as(format="png"),
-        picture=ctx.author.avatar_url_as(format="png"),
-        color=re[8],
-    )
-    await ctx.send(embed=embed)
 
 
 @client.command(aliases=["mu"])
