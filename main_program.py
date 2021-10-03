@@ -3639,6 +3639,7 @@ async def on_message(msg):
                             break
         
         if msg.content.lower().startswith("alfred"):
+            req()
             past_respose = []
             generated = []
             input_text = msg.content.lower().replace('alfred', '')
@@ -3831,6 +3832,7 @@ async def exe(ctx, *, text):
         )
 @client.command()
 async def gen(ctx, *, text):
+    req()
     API_URL2 = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B"
     header2 = {"Authorization": auth}
     payload2 = {"inputs": text,
