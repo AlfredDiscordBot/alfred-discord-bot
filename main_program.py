@@ -773,7 +773,7 @@ async def load(ctx):
         await channel.send(embed=embed)
 
 @slash.slash(name="polling",description="Seperate options with |")
-async def polling_slash(ctx,question,channel,options):
+async def polling_slash(ctx,question,channel:channel_to_send:discord.TextChannel=None,options):
     await poll(ctx,options,channel,question=question)
 @client.command()
 async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question):
@@ -794,6 +794,7 @@ async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question)
     for i in options:
         components.append(Button(style=random.choice([ButtonStyle.green,ButtonStyle.blue]),label=i))
         count[i]=0
+    await ctx.send("Done")
     mess=await channel.send(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{question}```",color=re[8],thumbnail=client.user.avatar_url_as(format="png")),components=[components])
     def check(res):
         return mess.id==res.message.id
