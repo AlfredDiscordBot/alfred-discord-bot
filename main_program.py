@@ -3610,12 +3610,16 @@ async def transformer(api, header, json):
         async with session.post(api, headers = header, json = json) as resp:
             return await resp.json()
 
+global past_respose, generated
+
+past_respose = []
+generated = []
 
 @client.event
 async def on_message(msg):
     global auth
-    auth = os.getenv('blender_bot_auth')
-    headeras = {"Authorization": auth}
+    auth = os.getenv('transformers_auth')
+    headeras = {"Authorization": f"Bearer {auth}"}
     API_URL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
 
     try:        
@@ -3638,28 +3642,32 @@ async def on_message(msg):
                             await msg.channel.send("thog dont caare")
                             break
         
-        if msg.content.lower().startswith("alfred"):
-            req()
-            past_respose = []
-            generated = []
+
+        if msg.content.lower().startswith('alfred'):
+
+            
             input_text = msg.content.lower().replace('alfred', '')
             payload = {
-            "inputs": {
-                "past_user_inputs": past_respose,
-                "generated_responses": generated,
-                "text": input_text
-            },}
+            'inputs': {
+                'past_user_inputs': past_respose,
+                'generated_responses': generated,
+                'text': input_text
+            },"parameters": {"repetition_penalty": 1.33}
+            
+            }
 
             output = await transformer(API_URL, header = headeras, json = payload)
             
-            if len(past_respose) < 100:    
+            if len(past_respose) < 1000:
                 past_respose.append(input_text)
                 generated.append(output['generated_text'])
             else:
-                past_respose.pop(0)
-                generated.pop(0)
-                past_respose.append(input_text)
-                generated.append(output['generated_text'])
+              past_respose.pop(0)
+              generated.pop(0)
+              past_respose.append(input_text)
+              generated.append(output['generated_text'])
+            
+            print(output)
             await msg.reply(output['generated_text'])
 
             
@@ -3839,6 +3847,7 @@ async def gen(ctx, *, text):
            "parameters": {"max_new_tokens": 250, "return_full_text": True}}
     
     output = await genpost(API_URL2, header2, payload2)
+    print(output)
     await ctx.reply(embed=cembed(title="Generated text",description=output[0]['generated_text'],color=re[8]))
 
 
