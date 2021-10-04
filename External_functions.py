@@ -14,6 +14,8 @@ from instascrape import *
 import urllib.parse
 import urllib
 import aiohttp
+
+
 ydl_op = {
     "format": "bestaudio/best",
     "postprocessors": [
@@ -415,7 +417,10 @@ async def wait_for_confirm(ctx,client,message,color=61620):
 
 def equalise(all_strings):
     maximum=max(list(map(len,all_strings)))
-    return [i+" "*(maximum-len(i)) for i in all_strings]
+    a={}
+    _=[a.update({i:i+" "*(maximum-len(i))}) for i in all_strings]
+    return a
+    
 
 
 def extract_color(color):

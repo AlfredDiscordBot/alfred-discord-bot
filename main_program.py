@@ -809,19 +809,13 @@ async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question)
         avg=sum(list(count.values()))//len(options)
         avg=1 if avg==0 else avg
         copy_count=equalise(list(count.keys()))
-        copied=0
         for i in list(count.keys()):
-            description+=f"{copy_count[copied]} |"+chr(9606)*(count[i]//avg)+"\n"
-            copied+=1
-        for i in author_list:
-            if i not in names:
-                names[i]=client.get_user(i).name
+            description+=f"{copy_count[i]} |"+chr(9606)*(count[i]//avg)+"\n"
+        _=[names.update({i: client.get_user(i).name}) for i in author_list if i not in names]
         people="\n"+"\n".join([names[i] for i in author_list])
         st="\n"
-        copied=0
         for i in list(count.keys()):
-            st+=f"{copy_count[copied]}:  {(count[i]*100)//len(author_list)}%\n"
-            copied+=1
+            st+=f"{copy_count[i]}:  {(count[i]*100)//len(author_list)}%\n"
         people=st+"\n"+people
         await res.edit_origin(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{description}```"+"\n"+people,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         
