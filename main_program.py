@@ -3617,7 +3617,6 @@ generated = []
 
 @client.event
 async def on_message(msg):
-    global auth
     auth = os.getenv('transformers_auth')
     headeras = {"Authorization": f"Bearer {auth}"}
     API_URL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
@@ -3842,12 +3841,11 @@ async def exe(ctx, *, text):
 async def gen(ctx, *, text):
     req()
     API_URL2 = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B"
-    header2 = {"Authorization": auth}
+    header2 = {"Authorization": f"Bearer {os.environ['transformers_auth']}"}
     payload2 = {"inputs": text,
            "parameters": {"max_new_tokens": 250, "return_full_text": True}}
     
     output = await genpost(API_URL2, header2, payload2)
-    print(output)
     await ctx.reply(embed=cembed(title="Generated text",description=output[0]['generated_text'],color=re[8]))
 
 
