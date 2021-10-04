@@ -5,12 +5,12 @@ sjdoskenv=
 sjdoskenv1=
 mysql=
 default=
+dev=
 """
 
 import pickle
 import discord
 import helping_hand
-import discord_slash
 from random import choice
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand, SlashContext
@@ -45,7 +45,6 @@ from io import BytesIO
 location_of_file = os.getcwd()
 try:
     import mysql.connector as m
-
     load_dotenv()
 except:
     pass
@@ -104,7 +103,7 @@ entr = {}
 da1 = {}
 queue_song = {}
 temporary_list = []
-dev_channel = 834624717410926602
+dev_channel = int(os.getenv("dev"))
 re = [0, "OK", 1, {}, -1, "", "205", 1, 5360, "48515587275%3A0AvceDiA27u1vT%3A26"]
 a_channels = [822500785765875749, 822446957288357888]
 cat = {}
@@ -149,7 +148,7 @@ client = commands.Bot(
     intents=intents,
     case_insensitive=True,
 )
-slash = SlashCommand(client)
+slash = SlashCommand(client,sync_commands=True)
 
 def get_name(url):
     a=urllib.request.urlopen(url).read().decode()
@@ -578,23 +577,28 @@ async def set_sessionid(ctx, sessionid):
 
 
 @client.command()
-async def instagram(ctx, account):    
-    links = instagram_get1(account, re[8], re[9])
-    embeds=[]
-    for a in links:
-        if a is not None and type(a) != type("aa"):
-            embeds.append(a[0])
-        elif type(a) != type("aa"):
-            re[9] = a
-        else:
-            break
-            await ctx.send(
-                embed=discord.Embed(
-                    description="Oops!, something is wrong.",
-                    color=discord.Color(value=re[8]),
+async def instagram(ctx, account):
+    try:
+        links = instagram_get1(account, re[8], re[9])
+        embeds=[]
+        for a in links:
+            if a is not None and type(a) != type("aa"):
+                embeds.append(a[0])
+            elif type(a) != type("aa"):
+                re[9] = a
+            else:
+                break
+                await ctx.send(
+                    embed=discord.Embed(
+                        description="Oops!, something is wrong.",
+                        color=discord.Color(value=re[8]),
+                    )
                 )
-            )
-    await pa(embeds,ctx)
+        await pa(embeds,ctx)
+    except Exception as e:
+        embed=cembed(title="Error in instagram", description=f"{e}\n{ctx.guild.name}: {ctx.channel}",color=re[8],thumbnail=client.user.avatar_url_as(format="png"))
+        await ctx.send(embed=embed)
+        await client.get_channel(dev_channel).send(embed=embed)
 
 
 @client.command()
@@ -745,17 +749,12 @@ async def load(ctx):
         )
         ram = str(psutil.virtual_memory().percent)
         swap = str(psutil.swap_memory().percent)
-        usage = (
-            "CPU Percentage: "
-            + cpu_per
-            + "%\nCPU Frequency: "
-            + cpu_freq
-            + "\nRAM Usage: "
-            + ram
-            + "%\nSwap Usage: "
-            + swap
-            + "%"
-        )
+        usage=f"""
+        CPU Percentage: {cpu_per}
+        CPU Frequency : {cpu_freq}
+        RAM usage: {ram}
+        Swap usage: {swap}
+        """
         embed = discord.Embed(
             title="Current load",
             description=usage,
@@ -774,6 +773,8 @@ async def load(ctx):
         await channel.send(embed=embed)
 
 @slash.slash(name="polling",description="Seperate options with |")
+async def polling_slash(ctx,question,channel,options):
+    await poll(ctx,options,channel,question=question)
 @client.command()
 async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question):
     count={}
@@ -917,7 +918,7 @@ async def pa1(embeds, ctx):
 async def trending_github(ctx):
     rec = requests.get("https://api.trending-github.com/github/repositories").json()
     embeds = []
-    for i in rec[0:20]:
+    for i in rec[0:25]:
         name = i["name"]
         author = i["author"]
         thumbnail = i["avatar"] if "avatar" in i.keys() else None
@@ -1085,61 +1086,6 @@ async def docs(ctx, name):
             )
         )
 
-
-@client.command(aliases=[";"])
-async def mysql(ctx, *, text):
-    print("MySQL", str(ctx.author))
-    if str(ctx.author.guild.id) != "727061931373887531":
-        if (
-            (
-                text.lower().find("create user") != -1
-                and text.lower().find("create database") != -1
-                and text.lower().find("use mysql") != -1
-                and text.lower().find("user") != -1
-            )
-            or (str(ctx.author.id) in dev_users and ctx.guild.id == 822445271019421746)
-            or (str(ctx.author.id) in dev_users)
-        ):
-            output = ""
-            global cursor
-            try:
-                cursor.execute(text)
-                for i in cursor:
-                    output = output + str(i) + "\n"
-                md.commit()
-                embed = discord.Embed(
-                    title="MySQL",
-                    description=output,
-                    color=discord.Color(value=re[8]),
-                )
-                embed.set_thumbnail(
-                    url="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Database-mysql.svg/1200px-Database-mysql.svg.png"
-                )
-                await ctx.send(embed=embed)
-            except Exception as e:
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="Error",
-                        description=str(e),
-                        color=discord.Color(value=re[8]),
-                    )
-                )
-        else:
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Permission Denied",
-                    description="",
-                    color=discord.Color(value=re[8]),
-                )
-            )
-    else:
-        await ctx.send(
-            embed=discord.Embed(
-                title="Disabled",
-                description="You've disabled MySQL",
-                color=discord.Color(value=re[8]),
-            )
-        )
 
 
 @slash.slash(name="Snipe", description="Get the last few deleted messages")
@@ -3413,7 +3359,7 @@ async def on_reaction_add(reaction, user):
                 ) == str(channel.id):
                     await reaction.remove(user)
                     cpu_per = str(int(psutil.cpu_percent()))
-                    cpu_freq=f"{str(int(psutil.cpu_freq()))}/{str(int(psutil.cpu_freq()))}"
+                    cpu_freq=f"{str(int(psutil.cpu_freq().current))}/{str(int(psutil.cpu_freq().max))}"
                     ram = str(psutil.virtual_memory().percent)
                     swap = str(psutil.swap_memory().percent)
                     usage=f"""
@@ -3554,7 +3500,7 @@ async def on_reaction_add(reaction, user):
                 ) == str(channel.id):
                     await devop_mtext(client,channel,re[8])
     except Exception as e:
-        channel = client.get_channel(834624717410926602)
+        channel = client.get_channel(dev_channel)
         await channel.send(
             embed=discord.Embed(
                 title="Error in on_reaction_add",
@@ -3853,12 +3799,6 @@ async def get_req(ctx):
         title="Requests", description=str(number), color=discord.Color(value=re[8])
     )
     await ctx.send(embed=em)
-
-def r(x):
-    return radians(x)
-
-def d(x):
-    return degrees(x)
 
 def addt(p1, p2):
     da[p1] = p2
