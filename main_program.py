@@ -773,7 +773,7 @@ async def load(ctx):
         await channel.send(embed=embed)
 
 @slash.slash(name="polling",description="Seperate options with |")
-async def polling_slash(ctx,question,channel:discord.TextChannel=None,options):
+async def polling_slash(ctx,question,channel:discord.TextChannel,options):
     await poll(ctx,options,channel,question=question)
 @client.command()
 async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question):
