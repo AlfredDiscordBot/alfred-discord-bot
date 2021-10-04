@@ -778,7 +778,7 @@ async def load(ctx):
 async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question):
     count={}
     req()
-    author_list=[]    
+    author_list={}
     names={}
     channel=channel_to_send
     print(type(channel_to_send))
@@ -797,12 +797,14 @@ async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question)
     def check(res):
         return mess.id==res.message.id
     while True:
-        res=await client.wait_for("button_click",check=check)
-        if res.component.label in count and res.author.id not in author_list:
-            author_list.append(res.author.id)
+        res=await client.wait_for("button_click",check=check)        
+        if res.component.label in count and res.author.id not in author_list:            
+            author_list[res.author.id]=res.component.label
             count[res.component.label]+=1
-        else:
-            continue            
+        else:            
+            count[author_list[res.author.id]]-=1
+            count[res.component.label]+=1
+            author_list[res.author.id]=res.component.label
         description=question+"\n\n"
         avg=sum(list(count.values()))//len(options)
         avg=1 if avg==0 else avg
@@ -820,7 +822,7 @@ async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question)
         for i in list(count.keys()):
             st+=f"{copy_count[copied]}:  {(count[i]*100)//len(author_list)}%\n"
             copied+=1
-        description+=st
+        people=st+"\n"+people
         await res.edit_origin(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{description}```"+"\n"+people,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         
 
@@ -1150,13 +1152,13 @@ async def mysql(ctx, *, text):
 async def snipe_slash(ctx, number=0):
     req()
     await ctx.defer()
-    await snipe(ctx, number)
+    await snipe(ctx, int(number))
 
 
 @client.command()
 async def snipe(ctx, number=0):
     if ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_messages or ctx.guild.id not in [841026124174983188,822445271019421746]:
-        if number > 10:
+        if int(number) > 10:
             await ctx.send(embed=cembed(picture="https://images.news18.com/ibnlive/uploads/2015/08/Chandler-2.gif",color=re[8]))
             return ""
         if number == 0:
@@ -3541,10 +3543,10 @@ async def on_reaction_add(reaction, user):
                     if not ".recover.txt" in os.listdir():
                         issues = issues + "Recovery file not found"
                     else:
-                        if len(entr) == 0 and len() == 0 and len(re) < 4:
+                        if re[0]<10000 and len(re) < 4:
                             issues = issues + "Recovery required, attempting recovery\n"
                             load_from_file(".recover.txt")
-                            if len(entr) == 0 and len() == 0 and len(re) < 4:
+                            if re[0]<10000 and len(re) < 4:
                                 issues = issues + "Recovery failed\n"
                     await channel.send(
                         embed=discord.Embed(
