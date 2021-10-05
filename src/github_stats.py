@@ -169,20 +169,20 @@ def repo_stats_dict(stats: GitHubRepoStats, color:int = None):
 
     return info
 
-def user_stats_dict(stats: GitHubUserStats, color:int = None):
+def user_stats_dict(stats: GitHubUserStats, color:int = None, uname:str = ''):
     info = {}
     if color: info['color'] = color
 
-    info['title'] = stats.name 
+    info['title'] = stats.name or uname
     info['thumbnail'] = stats.avatar_url
     info['url'] = stats.html_url
 
-    info['description'] = f"{stats.bio} \n\n{stats.name} has {stats.public_repos} public repos and {stats.public_gists} public gists"
+    info['description'] = f"{stats.bio or ' '} \n\n{stats.name} has {stats.public_repos} public repos and {stats.public_gists} public gists"
 
     info['fields'] = [
         {
             "name": "More",
-            "value": f"Followers: {stats.followers} \nFollowing: {stats.following} \nCompany: {stats.company} \nLocation: {stats.location}"
+            "value": f"Followers: {stats.followers} \nFollowing: {stats.following} \nCompany: {stats.company or ' '} \nLocation: {stats.location or ' '}"
         }
     ]
 
@@ -207,7 +207,7 @@ def main(client, re):
         stats = get_user_stats(username)
 
         if stats:
-            embed = embed_from_dict(user_stats_dict(stats))
+            embed = embed_from_dict(user_stats_dict(stats, re[8], username))
         else:
             embed = embed_from_dict({'title': "User Not Found", 'description': f"Unable to find user '{username}'", 'color': re[8]})
 
