@@ -171,7 +171,12 @@ def main(client, re):
     @client.command(alias='ghrepo')
     async def github_repo(ctx, *, repo):
         stats = get_repo_stats(repo)
-        embed = embed_from_dict(repo_stats_dict(stats, re[8]))
+        
+        if stats:
+            embed = embed_from_dict(repo_stats_dict(stats, re[8]))
+        else:
+            embed = embed_from_dict({'title': "Repo Not Found", 'description': f"Unable to find repo '{repo}'", 'color': re[8]})
+
         await ctx.send(embed=embed)
 
 if __name__ == "__main__":
