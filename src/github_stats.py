@@ -109,6 +109,9 @@ def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
     
     if not repo_stats: return None
 
+    if not repo_stats.get('license', None):
+        repo_stats['license'] = {}
+
     return GitHubRepoStats(
         name=repo_stats.get("name", ''),
         description=repo_stats.get("description", ''),
@@ -123,7 +126,7 @@ def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
         open_issues=repo_stats.get("open_issues", ''),
         watchers=repo_stats.get("watchers", ''),
         subscribers_count=repo_stats.get("subscribers_count", ''),
-        license=repo_stats.get("license", {}).get('name', ''),
+        license=repo_stats["license"].get('name', ''),
         topics=repo_stats.get("topics", ''),
         homepage=repo_stats.get("homepage", ''),
         owner=repo_stats.get("owner", '').get('login', ''),
@@ -137,7 +140,7 @@ def requirements():
 def repo_stats_dict(stats: GitHubRepoStats, color:int = None):
     info = {}
     info['title'] = f"{stats.owner}/{stats.name}"
-    info['description'] = f"{stats.description}\n\nSize: {stats.size} \n" 
+    info['description'] = f"{stats.description} \nLicense: {stats.license} \n" 
     
     if homepage := stats.homepage:
         info['description'] = info['description'] + 'Homepage: ' + homepage + "\n"
