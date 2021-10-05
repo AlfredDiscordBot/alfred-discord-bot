@@ -5,12 +5,12 @@ sjdoskenv=
 sjdoskenv1=
 mysql=
 default=
+dev=
 """
 
 import pickle
 import discord
 import helping_hand
-import discord_slash
 from random import choice
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand, SlashContext
@@ -45,7 +45,6 @@ from io import BytesIO
 location_of_file = os.getcwd()
 try:
     import mysql.connector as m
-
     load_dotenv()
 except:
     pass
@@ -104,7 +103,7 @@ entr = {}
 da1 = {}
 queue_song = {}
 temporary_list = []
-dev_channel = 834624717410926602
+dev_channel = int(os.getenv("dev"))
 re = [0, "OK", 1, {}, -1, "", "205", 1, 5360, "48515587275%3A0AvceDiA27u1vT%3A26"]
 a_channels = [822500785765875749, 822446957288357888]
 cat = {}
@@ -149,7 +148,7 @@ client = commands.Bot(
     intents=intents,
     case_insensitive=True,
 )
-slash = SlashCommand(client)
+slash = SlashCommand(client,sync_commands=True)
 
 def get_name(url):
     a=urllib.request.urlopen(url).read().decode()
@@ -560,12 +559,14 @@ async def uemoji(ctx, emoji_name, number=0):
             )
         )
 
+
 # @slash.slash(name="svg2png", description="Convert SVG image to png format")
 # async def svg2png_slash(ctx, url):
 #     req()
 #     await ctx.defer()
 #     img = svg2png(url)
 #     await ctx.send(file=discord.File(BytesIO(img), 'svg.png'))    
+
 
 @client.command()
 async def set_sessionid(ctx, sessionid):
@@ -576,23 +577,28 @@ async def set_sessionid(ctx, sessionid):
 
 
 @client.command()
-async def instagram(ctx, account):    
-    links = instagram_get1(account, re[8], re[9])
-    embeds=[]
-    for a in links:
-        if a is not None and type(a) != type("aa"):
-            embeds.append(a[0])
-        elif type(a) != type("aa"):
-            re[9] = a
-        else:
-            break
-            await ctx.send(
-                embed=discord.Embed(
-                    description="Oops!, something is wrong.",
-                    color=discord.Color(value=re[8]),
+async def instagram(ctx, account):
+    try:
+        links = instagram_get1(account, re[8], re[9])
+        embeds=[]
+        for a in links:
+            if a is not None and type(a) != type("aa"):
+                embeds.append(a[0])
+            elif type(a) != type("aa"):
+                re[9] = a
+            else:
+                break
+                await ctx.send(
+                    embed=discord.Embed(
+                        description="Oops!, something is wrong.",
+                        color=discord.Color(value=re[8]),
+                    )
                 )
-            )
-    await pa(embeds,ctx)
+        await pa(embeds,ctx)
+    except Exception as e:
+        embed=cembed(title="Error in instagram", description=f"{e}\n{ctx.guild.name}: {ctx.channel}",color=re[8],thumbnail=client.user.avatar_url_as(format="png"))
+        await ctx.send(embed=embed)
+        await client.get_channel(dev_channel).send(embed=embed)
 
 
 @client.command()
@@ -743,17 +749,12 @@ async def load(ctx):
         )
         ram = str(psutil.virtual_memory().percent)
         swap = str(psutil.swap_memory().percent)
-        usage = (
-            "CPU Percentage: "
-            + cpu_per
-            + "%\nCPU Frequency: "
-            + cpu_freq
-            + "\nRAM Usage: "
-            + ram
-            + "%\nSwap Usage: "
-            + swap
-            + "%"
-        )
+        usage=f"""
+        CPU Percentage: {cpu_per}
+        CPU Frequency : {cpu_freq}
+        RAM usage: {ram}
+        Swap usage: {swap}
+        """
         embed = discord.Embed(
             title="Current load",
             description=usage,
@@ -772,11 +773,13 @@ async def load(ctx):
         await channel.send(embed=embed)
 
 @slash.slash(name="polling",description="Seperate options with |")
+async def polling_slash(ctx,question,channel:discord.TextChannel,options):
+    await poll(ctx,options,channel,question=question)
 @client.command()
 async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question):
     count={}
     req()
-    author_list=[]    
+    author_list={}
     names={}
     channel=channel_to_send
     print(type(channel_to_send))
@@ -791,34 +794,31 @@ async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question)
     for i in options:
         components.append(Button(style=random.choice([ButtonStyle.green,ButtonStyle.blue]),label=i))
         count[i]=0
+    await ctx.send("Done")
     mess=await channel.send(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{question}```",color=re[8],thumbnail=client.user.avatar_url_as(format="png")),components=[components])
     def check(res):
         return mess.id==res.message.id
     while True:
-        res=await client.wait_for("button_click",check=check)
-        if res.component.label in count and res.author.id not in author_list:
-            author_list.append(res.author.id)
+        res=await client.wait_for("button_click",check=check)        
+        if res.component.label in count and res.author.id not in author_list:            
+            author_list[res.author.id]=res.component.label
             count[res.component.label]+=1
-        else:
-            continue            
+        else:            
+            count[author_list[res.author.id]]-=1
+            count[res.component.label]+=1
+            author_list[res.author.id]=res.component.label
         description=question+"\n\n"
         avg=sum(list(count.values()))//len(options)
         avg=1 if avg==0 else avg
         copy_count=equalise(list(count.keys()))
-        copied=0
         for i in list(count.keys()):
-            description+=f"{copy_count[copied]} |"+chr(9606)*(count[i]//avg)+"\n"
-            copied+=1
-        for i in author_list:
-            if i not in names:
-                names[i]=client.get_user(i).name
+            description+=f"{copy_count[i]} |"+chr(9606)*(count[i]//avg)+"\n"
+        _=[names.update({i: client.get_user(i).name}) for i in author_list if i not in names]
         people="\n"+"\n".join([names[i] for i in author_list])
         st="\n"
-        copied=0
         for i in list(count.keys()):
-            st+=f"{copy_count[copied]}:  {(count[i]*100)//len(author_list)}%\n"
-            copied+=1
-        description+=st
+            st+=f"{copy_count[i]}:  {(count[i]*100)//len(author_list)}%\n"
+        people=st+"\n"+people
         await res.edit_origin(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{description}```"+"\n"+people,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         
 
@@ -919,7 +919,7 @@ async def pa1(embeds, ctx):
 async def trending_github(ctx):
     rec = requests.get("https://api.trending-github.com/github/repositories").json()
     embeds = []
-    for i in rec[0:20]:
+    for i in rec[0:25]:
         name = i["name"]
         author = i["author"]
         thumbnail = i["avatar"] if "avatar" in i.keys() else None
@@ -1088,73 +1088,18 @@ async def docs(ctx, name):
         )
 
 
-@client.command(aliases=[";"])
-async def mysql(ctx, *, text):
-    print("MySQL", str(ctx.author))
-    if str(ctx.author.guild.id) != "727061931373887531":
-        if (
-            (
-                text.lower().find("create user") != -1
-                and text.lower().find("create database") != -1
-                and text.lower().find("use mysql") != -1
-                and text.lower().find("user") != -1
-            )
-            or (str(ctx.author.id) in dev_users and ctx.guild.id == 822445271019421746)
-            or (str(ctx.author.id) in dev_users)
-        ):
-            output = ""
-            global cursor
-            try:
-                cursor.execute(text)
-                for i in cursor:
-                    output = output + str(i) + "\n"
-                md.commit()
-                embed = discord.Embed(
-                    title="MySQL",
-                    description=output,
-                    color=discord.Color(value=re[8]),
-                )
-                embed.set_thumbnail(
-                    url="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Database-mysql.svg/1200px-Database-mysql.svg.png"
-                )
-                await ctx.send(embed=embed)
-            except Exception as e:
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="Error",
-                        description=str(e),
-                        color=discord.Color(value=re[8]),
-                    )
-                )
-        else:
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Permission Denied",
-                    description="",
-                    color=discord.Color(value=re[8]),
-                )
-            )
-    else:
-        await ctx.send(
-            embed=discord.Embed(
-                title="Disabled",
-                description="You've disabled MySQL",
-                color=discord.Color(value=re[8]),
-            )
-        )
-
 
 @slash.slash(name="Snipe", description="Get the last few deleted messages")
 async def snipe_slash(ctx, number=0):
     req()
     await ctx.defer()
-    await snipe(ctx, number)
+    await snipe(ctx, int(number))
 
 
 @client.command()
 async def snipe(ctx, number=0):
     if ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_messages or ctx.guild.id not in [841026124174983188,822445271019421746]:
-        if number > 10:
+        if int(number) > 10:
             await ctx.send(embed=cembed(picture="https://images.news18.com/ibnlive/uploads/2015/08/Chandler-2.gif",color=re[8]))
             return ""
         if number == 0:
@@ -1451,12 +1396,10 @@ async def clearqueue(ctx):
 @client.command()
 async def remove(ctx, n):
     req()
-    mem = [
-        (str(i.name) + "#" + str(i.discriminator))
-        for i in discord.utils.get(
-            ctx.guild.voice_channels, id=vc_channel[str(ctx.guild.id)]
-        ).members
-    ]
+    try:
+        mem = [str(names) for names in ctx.voice_client.channel.members]
+    except:
+        mem = []
     if mem.count(str(ctx.author)) > 0:
         if int(n) < len(queue_song[str(ctx.guild.id)]):
             await ctx.send(
@@ -2501,21 +2444,6 @@ async def check_slash(ctx):
     await ctx.defer()
     await check(ctx)
 
-
-@client.command()
-async def test(ctx):
-    embeds = []
-    for i in range(0, 10):
-        embeds.append(
-            discord.Embed(
-                title="Hi there",
-                description=str(i),
-                color=discord.Color(value=re[8]),
-            )
-        )
-    await pa(embeds, ctx)
-
-
 @client.command()
 async def clear(ctx, text, num=10):
     req()
@@ -3432,11 +3360,7 @@ async def on_reaction_add(reaction, user):
                 ) == str(channel.id):
                     await reaction.remove(user)
                     cpu_per = str(int(psutil.cpu_percent()))
-                    cpu_freq = (
-                        str(int(psutil.cpu_freq().current))
-                        + "/"
-                        + str(int(psutil.cpu_freq().max))
-                    )
+                    cpu_freq=f"{str(int(psutil.cpu_freq().current))}/{str(int(psutil.cpu_freq().max))}"
                     ram = str(psutil.virtual_memory().percent)
                     swap = str(psutil.swap_memory().percent)
                     usage=f"""
@@ -3560,10 +3484,10 @@ async def on_reaction_add(reaction, user):
                     if not ".recover.txt" in os.listdir():
                         issues = issues + "Recovery file not found"
                     else:
-                        if len(entr) == 0 and len() == 0 and len(re) < 4:
+                        if re[0]<10000 and len(re) < 4:
                             issues = issues + "Recovery required, attempting recovery\n"
                             load_from_file(".recover.txt")
-                            if len(entr) == 0 and len() == 0 and len(re) < 4:
+                            if re[0]<10000 and len(re) < 4:
                                 issues = issues + "Recovery failed\n"
                     await channel.send(
                         embed=discord.Embed(
@@ -3577,7 +3501,7 @@ async def on_reaction_add(reaction, user):
                 ) == str(channel.id):
                     await devop_mtext(client,channel,re[8])
     except Exception as e:
-        channel = client.get_channel(834624717410926602)
+        channel = client.get_channel(dev_channel)
         await channel.send(
             embed=discord.Embed(
                 title="Error in on_reaction_add",
@@ -3629,11 +3553,15 @@ async def transformer(api, header, json):
         async with session.post(api, headers = header, json = json) as resp:
             return await resp.json()
 
+global past_respose, generated
+
+past_respose = []
+generated = []
 
 @client.event
 async def on_message(msg):
-    auth = os.getenv('blender_bot_auth')
-    headeras = {"Authorization": auth}
+    auth = os.getenv('transformers_auth')
+    headeras = {"Authorization": f"Bearer {auth}"}
     API_URL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
 
     try:        
@@ -3656,27 +3584,32 @@ async def on_message(msg):
                             await msg.channel.send("thog dont caare")
                             break
         
-        if msg.content.lower().startswith("alfred"):
-            past_respose = []
-            generated = []
+
+        if msg.content.lower().startswith('alfred'):
+
+            
             input_text = msg.content.lower().replace('alfred', '')
             payload = {
-            "inputs": {
-                "past_user_inputs": past_respose,
-                "generated_responses": generated,
-                "text": input_text
-            },}
+            'inputs': {
+                'past_user_inputs': past_respose,
+                'generated_responses': generated,
+                'text': input_text
+            },"parameters": {"repetition_penalty": 1.33}
+            
+            }
 
             output = await transformer(API_URL, header = headeras, json = payload)
             
-            if len(past_respose) < 100:    
+            if len(past_respose) < 1000:
                 past_respose.append(input_text)
                 generated.append(output['generated_text'])
             else:
-                past_respose.pop(0)
-                generated.pop(0)
-                past_respose.append(input_text)
-                generated.append(output['generated_text'])
+              past_respose.pop(0)
+              generated.pop(0)
+              past_respose.append(input_text)
+              generated.append(output['generated_text'])
+            
+            print(output)
             await msg.reply(output['generated_text'])
 
             
@@ -3847,6 +3780,16 @@ async def exe(ctx, *, text):
                 color=discord.Color(value=re[8]),
             )
         )
+@client.command()
+async def gen(ctx, *, text):
+    req()
+    API_URL2 = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B"
+    header2 = {"Authorization": f"Bearer {os.environ['transformers_auth']}"}
+    payload2 = {"inputs": text,
+           "parameters": {"max_new_tokens": 250, "return_full_text": True}}
+    
+    output = await genpost(API_URL2, header2, payload2)
+    await ctx.reply(embed=cembed(title="Generated text",description=output[0]['generated_text'],color=re[8]))
 
 
 @client.command()
@@ -3858,19 +3801,9 @@ async def get_req(ctx):
     )
     await ctx.send(embed=em)
 
-
-def r(x):
-    return radians(x)
-
-
-def d(x):
-    return degrees(x)
-
-
 def addt(p1, p2):
     da[p1] = p2
     return "Done"
-
 
 def get_elem(k):
     return da.get(k, "Not assigned yet")
@@ -3889,33 +3822,11 @@ def g_req():
     return re[0]
 
 
-@client.command()
-async def test_embed(ctx):
-    embed = cembed(
-        title="Title of the embed",
-        description="This is to check if the embed function works",
-        thumbnail=client.user.avatar_url_as(format="png"),
-        picture=ctx.author.avatar_url_as(format="png"),
-        color=re[8],
-    )
-    await ctx.send(embed=embed)
-
-
-@client.command(aliases=["alfred"])
-async def hey_alfred(ctx, *, text):
-    import randomstuff
-
-    client = randomstuff.Client(api_key=os.getenv("cpi"))
-    text = text.replace("alfred", "")
-    response = client.get_ai_response(text, name="Alfred")
-    await ctx.send(response.message)
-
-
 @client.command(aliases=["mu"])
 @commands.has_permissions(kick_members=True)
 async def mute(ctx, member: discord.Member):
     req()
-    print("Memver id: ",member.id)
+    print("Member id: ",member.id)
     add_role=None
     if ctx.guild.id == 743323684705402951:
         add_role = [i for i in ctx.guild.roles if i.id==876708632325148672][0]
