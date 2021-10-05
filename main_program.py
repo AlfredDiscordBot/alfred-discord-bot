@@ -137,7 +137,8 @@ FFMPEG_OPTIONS = {
 
 def youtube_download(ctx, url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        URL = ydl.extract_info(url, download=False)["formats"][0]["url"]
+        info=ydl.extract_info(url, download=False) 
+        URL = info["formats"][0]["url"]
     return URL
 
 def prefix_check(client,message):
@@ -1496,11 +1497,11 @@ def repeat(ctx, voice):
             .replace("&amp;", "&")
         )
     time.sleep(1)
-    if re[7] == 1 and not voice.is_playing():
+    if re[7].get(ctx.guild.id,-1) == 1 and not voice.is_playing():
         re[3][str(ctx.guild.id)] += 1
         if re[3][str(ctx.guild.id)] >= len(queue_song[str(ctx.guild.id)]):
             re[3][str(ctx.guild.id)] = 0
-    if re[2] == 1 or re[7] == 1:
+    if re[2].get(ctx.guild.id,-1) == 1 or re[7].get(ctx.guild.id,-1) == 1:
         if not voice.is_playing():
             URL = youtube_download(
                 ctx, queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
@@ -1574,10 +1575,10 @@ async def autoplay(ctx):
     req()
     if ctx.author.id in [i.id for i in ctx.voice_client.channel.members]:
         st = ""
-        re[7] = re[7] * -1
-        if re[7] == 1:
-            re[2] = -1
-        if re[7] < 0:
+        re[7][ctx.guild.id] = re[7].get(ctx.guild.id,-1) * -1
+        if re[7].get(ctx.guild.id,-1) == 1:
+            re[2][ctx.guild.id] = -1
+        if re[7][ctx.guild.id] < 0:
             st = "Off"
         else:
             st = "_On_"
@@ -1601,10 +1602,10 @@ async def loop(ctx):
     req()
     if ctx.author.id in [i.id for i in ctx.voice_client.channel.members]:
         st = ""
-        re[2] = re[2] * -1
-        if re[2] == 1:
-            re[7] = -1
-        if re[2] < 0:
+        re[2][ctx.guild.id] = re[2].get(ctx.guild.id,-1) * -1
+        if re[2].get(ctx.guild.id,1) == 1:
+            re[7][ctx.guild.id] = -1
+        if re[2].get(ctx.guild.id,1) < 0:
             st = "Off"
         else:
             st = "_On_"
