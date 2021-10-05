@@ -29,11 +29,13 @@ ydl_op = {
 SVG2PNG_API_URI = os.getenv("svg2pnguri")
 SVG2PNG_API_TOKEN = os.getenv("svg2pngtoken")
 
+
 def youtube_info(url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
         info = ydl.extract_info(url, download=False)
     return info
-    
+
+
 def convert_to_url(name):
     name = urllib.parse.quote(name)
     return name
@@ -180,11 +182,11 @@ def get_it():
 def instagram_get1(account, color, SESSIONID):
     try:
         user = InstagramUser(account, sessionid=SESSIONID)
-        all_posts = user.posts   
-        list_of_posts=[]
-        number=0
-        for i in all_posts[0:7]:          
-            url=i.post_url
+        all_posts = user.posts
+        list_of_posts = []
+        number = 0
+        for i in all_posts[0:7]:
+            url = i.post_url
             pos = Post(url)
             headers = {
                 "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36 Edg/87.0.664.57",
@@ -198,8 +200,8 @@ def instagram_get1(account, color, SESSIONID):
             )
             embed.set_image(url=user.posts[number].post_source)
             embed.set_thumbnail(url=thumb)
-            list_of_posts.append((embed,url))
-            number+=1
+            list_of_posts.append((embed, url))
+            number += 1
         return list_of_posts
 
     except Exception as e:
@@ -350,6 +352,7 @@ help5 = (
 )
 help_list = [help1, help2, help3, help4, help5]
 
+
 def protect(text):
     return (
         str(text).find("username") == -1
@@ -369,7 +372,8 @@ def protect(text):
         and str(text).find("while True") == -1
     )
 
-async def devop_mtext(client,channel,color):
+
+async def devop_mtext(client, channel, color):
     await channel.purge(limit=10000000000000000000)
     text_dev = (
         "You get to activate and reset certain functions in this channel \n"
@@ -397,30 +401,43 @@ async def devop_mtext(client,channel,color):
     await mess.add_reaction(emoji.emojize(":black_circle:"))
     await mess.add_reaction(emoji.emojize(":laptop:"))
 
-async def wait_for_confirm(ctx,client,message,color=61620):
-    mess=await ctx.send(embed=discord.Embed(title="Confirmation",description=message,color=discord.Color(color)))
+
+async def wait_for_confirm(ctx, client, message, color=61620):
+    mess = await ctx.send(
+        embed=discord.Embed(
+            title="Confirmation", description=message, color=discord.Color(color)
+        )
+    )
     await mess.add_reaction(emoji.emojize(":check_mark_button:"))
     await mess.add_reaction(emoji.emojize(":cross_mark:"))
 
+    def check(reaction, user):
+        return (
+            reaction.message.id == mess.id
+            and reaction.emoji
+            in [emoji.emojize(":check_mark_button:"), emoji.emojize(":cross_mark:")]
+            and user == ctx.author
+        )
 
-    def check(reaction,user):
-        return reaction.message.id==mess.id and reaction.emoji in [emoji.emojize(':check_mark_button:'),emoji.emojize(':cross_mark:')] and user==ctx.author
-    reaction,user=await client.wait_for("reaction_add",check=check)
-    if reaction.emoji==emoji.emojize(':check_mark_button:'):
+    reaction, user = await client.wait_for("reaction_add", check=check)
+    if reaction.emoji == emoji.emojize(":check_mark_button:"):
         await mess.delete()
         return True
-    if reaction.emoji==emoji.emojize(":cross_mark:"):
+    if reaction.emoji == emoji.emojize(":cross_mark:"):
         await mess.delete()
-        await ctx.send(embed=discord.Embed(title="Ok cool",description="Aborted",color=discord.Color(color)))
+        await ctx.send(
+            embed=discord.Embed(
+                title="Ok cool", description="Aborted", color=discord.Color(color)
+            )
+        )
         return False
 
 
 def equalise(all_strings):
-    maximum=max(list(map(len,all_strings)))
-    a={}
-    _=[a.update({i:i+" "*(maximum-len(i))}) for i in all_strings]
+    maximum = max(list(map(len, all_strings)))
+    a = {}
+    _ = [a.update({i: i + " " * (maximum - len(i))}) for i in all_strings]
     return a
-    
 
 
 def extract_color(color):
@@ -434,17 +451,17 @@ def extract_color(color):
     except:
         pass
 
-def svg2png(url:str):
+
+def svg2png(url: str):
     """Convert SVG image (url) to PNG format."""
     # print(SVG2PNG_API_URI, SVG2PNG_API_TOKEN)
-    res = requests.get(SVG2PNG_API_URI, params=[
-        ('url', url),
-        ('token', SVG2PNG_API_TOKEN)
-    ])
+    res = requests.get(
+        SVG2PNG_API_URI, params=[("url", url), ("token", SVG2PNG_API_TOKEN)]
+    )
     return res.content
+
 
 async def genpost(api, header, json):
     async with aiohttp.ClientSession() as session:
-        async with session.post(api, headers = header, json=json) as resp:
+        async with session.post(api, headers=header, json=json) as resp:
             return await resp.json()
-        
