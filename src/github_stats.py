@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Optional
 import requests
 from dataclasses import dataclass
 import discord
@@ -16,7 +16,7 @@ class GitHubUserStats:
     bio: str
     company: str
     location: str
-    email: str
+    email: Optional[str]
 
     def __repr__(self) -> str:
         result = ""
@@ -73,7 +73,7 @@ class GitHubRepoStats:
     open_issues: int
     watchers: int
     subscribers_count: int
-    license: str
+    license: Optional[str]
     topics: List[str]
     homepage: str
 
@@ -106,24 +106,27 @@ def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
         return None
 
     repo_stats: dict = r.json()
+    
+    if not repo_stats: return None
+
     return GitHubRepoStats(
-        name=repo_stats["name"],
-        description=repo_stats["description"],
-        language=repo_stats["language"],
-        stargazers_count=repo_stats["stargazers_count"],
-        forks_count=repo_stats["forks_count"],
-        html_url=repo_stats["html_url"],
-        created_at=repo_stats["created_at"],
-        updated_at=repo_stats["updated_at"],
-        pushed_at=repo_stats["pushed_at"],
-        size=repo_stats["size"],
-        open_issues=repo_stats["open_issues"],
-        watchers=repo_stats["watchers"],
-        subscribers_count=repo_stats["subscribers_count"],
-        license=repo_stats["license"]["name"],
-        topics=repo_stats["topics"],
-        homepage=repo_stats["homepage"],
-        owner=repo_stats["owner"]["login"],
+        name=repo_stats.get("name", ''),
+        description=repo_stats.get("description", ''),
+        language=repo_stats.get("language", ''),
+        stargazers_count=repo_stats.get("stargazers_count", ''),
+        forks_count=repo_stats.get("forks_count", ''),
+        html_url=repo_stats.get("html_url", ''),
+        created_at=repo_stats.get("created_at", ''),
+        updated_at=repo_stats.get("updated_at", ''),
+        pushed_at=repo_stats.get("pushed_at", ''),
+        size=repo_stats.get("size", ''),
+        open_issues=repo_stats.get("open_issues", ''),
+        watchers=repo_stats.get("watchers", ''),
+        subscribers_count=repo_stats.get("subscribers_count", ''),
+        license=repo_stats.get("license", {}).get('name', ''),
+        topics=repo_stats.get("topics", ''),
+        homepage=repo_stats.get("homepage", ''),
+        owner=repo_stats.get("owner", '').get('login', ''),
     )
 
 
@@ -166,6 +169,26 @@ def repo_stats_dict(stats: GitHubRepoStats, color:int = None):
 
     return info
 
+def user_stats_dict(stats: GitHubUserStats, color:int = None):
+    info = {}
+    if color: info['color'] = color
+
+    info['title'] = stats.name 
+    info['thumbnail'] = stats.avatar_url
+    info['url'] = stats.html_url
+
+    info['description'] = f"{stats.bio} \n\n{stats.name} has {stats.public_repos} public repos and {stats.public_gists} public gists"
+
+    info['fields'] = [
+        {
+            "name": "More",
+            "value": f"Followers: {stats.followers} \nFollowing: {stats.following} \nCompany: {stats.company} \nLocation: {stats.location}"
+        }
+    ]
+
+    if email := stats.email: info['footer'] = f"email: {email}"
+
+    return info
 
 def main(client, re):
     @client.command(aliases=['ghrepo'])
@@ -176,6 +199,17 @@ def main(client, re):
             embed = embed_from_dict(repo_stats_dict(stats, re[8]))
         else:
             embed = embed_from_dict({'title': "Repo Not Found", 'description': f"Unable to find repo '{repo}'", 'color': re[8]})
+
+        await ctx.send(embed=embed)
+
+    @client.command(aliases=['ghuser'])
+    async def github_user(ctx, *, username:str):
+        stats = get_user_stats(username)
+
+        if stats:
+            embed = embed_from_dict(user_stats_dict(stats))
+        else:
+            embed = embed_from_dict({'title': "User Not Found", 'description': f"Unable to find user '{username}'", 'color': re[8]})
 
         await ctx.send(embed=embed)
 
