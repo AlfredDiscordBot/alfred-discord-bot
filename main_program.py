@@ -155,6 +155,7 @@ async def get_name(url):
     async with aiohttp.ClientSession().get(url) as response:
         a=await response.text()
         print(type(a))
+        session.close()
     return a[a.find("<title>")+len("<title>"):a.find("</title>")].replace("&amp;", "&").replace(" - YouTube", "").replace("&#39;", "'")
 
 @client.command()
