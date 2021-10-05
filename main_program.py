@@ -45,6 +45,7 @@ from io import BytesIO
 location_of_file = os.getcwd()
 try:
     import mysql.connector as m
+
     load_dotenv()
 except:
     pass
@@ -87,6 +88,7 @@ def reset_board():
             board = board + "\n----    ----    ----\n"
     return board
 
+
 board = reset_board()
 global sent
 sent = None
@@ -115,7 +117,7 @@ color_temp = ()
 link_for_cats = []
 vc_channel = {}
 wolfram = os.getenv("wolfram")
-prefix_dict={}
+prefix_dict = {}
 
 
 # replace your id with this
@@ -135,41 +137,53 @@ FFMPEG_OPTIONS = {
     "options": "-vn",
 }
 
+
 def youtube_download(ctx, url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
         URL = ydl.extract_info(url, download=False)["formats"][0]["url"]
     return URL
 
-def prefix_check(client,message):
-    return prefix_dict.get(message.guild.id,["'"])
+
+def prefix_check(client, message):
+    return prefix_dict.get(message.guild.id, ["'"])
+
 
 client = commands.Bot(
     command_prefix=prefix_check,
     intents=intents,
     case_insensitive=True,
 )
-slash = SlashCommand(client,sync_commands=True)
+slash = SlashCommand(client, sync_commands=True)
+
 
 async def get_name(url):
-    a=""
+    a = ""
     async with aiohttp.ClientSession().get(url) as response:
-        a=await response.text()
+        a = await response.text()
         print(type(a))
         session.close()
-    return a[a.find("<title>")+len("<title>"):a.find("</title>")].replace("&amp;", "&").replace(" - YouTube", "").replace("&#39;", "'")
+    return (
+        a[a.find("<title>") + len("<title>") : a.find("</title>")]
+        .replace("&amp;", "&")
+        .replace(" - YouTube", "")
+        .replace("&#39;", "'")
+    )
+
 
 @client.command()
-async def trial(ctx,url):
-  a=await get_name(url)
-  await ctx.send(a)
-  
+async def trial(ctx, url):
+    a = await get_name(url)
+    await ctx.send(a)
+
+
 def save_to_file(a=""):
     global dev_users
     if ".backup.txt" in os.listdir("./"):
         os.remove("./.backup.txt")
     if ".recover.txt" in os.listdir("./") and a == "recover":
         os.remove("./.recover.txt")
-    def start_writing(file):        
+
+    def start_writing(file):
         file.write("censor=" + str(censor) + "\n")
         file.write("da=" + str(da) + "\n")
         file.write("da1=" + str(da1) + "\n")
@@ -178,11 +192,12 @@ def save_to_file(a=""):
         file.write("re=" + str(re) + "\n")
         file.write("dev_users=" + str(dev_users) + "\n")
         file.write(f"prefix_dict={str(prefix_dict)}\n")
-        #file.write("entr=" + str(entr) + "\n")   
+        # file.write("entr=" + str(entr) + "\n")
         file.close()
+
     if True:
         file = open(".backup.txt", "w")
-        start_writing(file)        
+        start_writing(file)
     if a == "recover":
         file = open(".recover.txt", "w")
         start_writing(file)
@@ -190,7 +205,8 @@ def save_to_file(a=""):
         file = open(".safe.txt", "w")
         start_writing(file)
 
-def load_from_file(file_name=".backup.txt",ss=0):
+
+def load_from_file(file_name=".backup.txt", ss=0):
     if file_name in os.listdir("./"):
         file = open(file_name, "r")
         global censor
@@ -201,37 +217,40 @@ def load_from_file(file_name=".backup.txt",ss=0):
         global re
         global dev_users
         global prefix_dict
-        def start_from(text,i):
-            return eval(i[len(text):])
-        txt_from_file = [i for i in file.readlines() if i!='']
+
+        def start_from(text, i):
+            return eval(i[len(text) :])
+
+        txt_from_file = [i for i in file.readlines() if i != ""]
         try:
             print(type(txt_from_file))
             print(len(txt_from_file))
             for i in txt_from_file:
                 if i.startswith("prefix_dict="):
-                    print(start_from('prefix_dict=',i))
-                    prefix_dict=start_from("prefix_dict=",i)
+                    print(start_from("prefix_dict=", i))
+                    prefix_dict = start_from("prefix_dict=", i)
                 if i.startswith("censor="):
-                    censor=start_from("censor=",i) 
+                    censor = start_from("censor=", i)
                 if i.startswith("da="):
-                    da=start_from("da=",i)
+                    da = start_from("da=", i)
                 if i.startswith("da1="):
-                    da1=start_from("da1=",i) 
+                    da1 = start_from("da1=", i)
                 if i.startswith("queue_song="):
-                    queue_song=start_from("queue_song=",i)
-                #if i.startswith("entr="):
+                    queue_song = start_from("queue_song=", i)
+                # if i.startswith("entr="):
                 #    entr=start_from("entr=",i)
                 if i.startswith("re="):
-                    re=start_from("re=",i)
+                    re = start_from("re=", i)
                 if i.startswith("dev_users="):
-                    dev_users=start_from("dev_users=",i)
-                    
-                
+                    dev_users = start_from("dev_users=", i)
+
         except Exception as e:
             print(traceback.print_exc())
     save_to_file()
 
+
 load_from_file()
+
 
 @client.event
 async def on_ready():
@@ -252,8 +271,8 @@ async def on_ready():
         print(dev_users)
         print(prefix_dict)
         print("\nStarting devop display")
-        await devop_mtext(client,channel,re[8])
-        
+        await devop_mtext(client, channel, re[8])
+
         print("Finished devop display")
         print("Starting imports")
         imports = ""
@@ -263,9 +282,13 @@ async def on_ready():
                 try:
                     requi = __import__(i[0 : len(i) - 3]).requirements()
                     # if requi != "":
-                    #     requi = "," + requi                    
-                    if type(requi) is str: eval(f"__import__('{i[0:len(i)-3]}').main(client,{requi})")
-                    if type(requi) is list: eval(f"__import__('{i[0:len(i)-3]}').main(client,{','.join(requi)})")
+                    #     requi = "," + requi
+                    if type(requi) is str:
+                        eval(f"__import__('{i[0:len(i)-3]}').main(client,{requi})")
+                    if type(requi) is list:
+                        eval(
+                            f"__import__('{i[0:len(i)-3]}').main(client,{','.join(requi)})"
+                        )
                     imports = imports + i[0 : len(i) - 3] + "\n"
                 except Exception as e:
                     await channel.send(
@@ -298,9 +321,7 @@ async def on_ready():
 
 @tasks.loop(minutes=7)
 async def youtube_loop():
-    list_of_programs = [
-        "blender"
-    ]
+    list_of_programs = ["blender"]
     for i in list_of_programs:
         if get_if_process_exists(i):
             await client.change_presence(
@@ -344,10 +365,12 @@ async def dev_loop():
             temp_dev.pop(i)
     save_to_file()
 
+
 @client.command()
 async def svg(ctx, *, url):
     img = svg2png(url)
-    await ctx.send(file=discord.File(BytesIO(img), 'svg.png'))
+    await ctx.send(file=discord.File(BytesIO(img), "svg.png"))
+
 
 @dev_loop.before_loop
 async def wait_for_ready():
@@ -570,11 +593,11 @@ async def uemoji(ctx, emoji_name, number=0):
 
 
 @slash.slash(name="svg2png", description="Convert SVG image to png format")
-async def svg2png_slash(ctx:SlashContext, url):
+async def svg2png_slash(ctx: SlashContext, url):
     req()
     await ctx.defer()
     img = svg2png(url)
-    await ctx.send(file=discord.File(BytesIO(img), 'svg.png'))    
+    await ctx.send(file=discord.File(BytesIO(img), "svg.png"))
 
 
 @client.command()
@@ -589,7 +612,7 @@ async def set_sessionid(ctx, sessionid):
 async def instagram(ctx, account):
     try:
         links = instagram_get1(account, re[8], re[9])
-        embeds=[]
+        embeds = []
         for a in links:
             if a is not None and type(a) != type("aa"):
                 embeds.append(a[0])
@@ -603,9 +626,14 @@ async def instagram(ctx, account):
                         color=discord.Color(value=re[8]),
                     )
                 )
-        await pa(embeds,ctx)
+        await pa(embeds, ctx)
     except Exception as e:
-        embed=cembed(title="Error in instagram", description=f"{e}\n{ctx.guild.name}: {ctx.channel}",color=re[8],thumbnail=client.user.avatar_url_as(format="png"))
+        embed = cembed(
+            title="Error in instagram",
+            description=f"{e}\n{ctx.guild.name}: {ctx.channel}",
+            color=re[8],
+            thumbnail=client.user.avatar_url_as(format="png"),
+        )
         await ctx.send(embed=embed)
         await client.get_channel(dev_channel).send(embed=embed)
 
@@ -647,27 +675,33 @@ async def show_webhooks(ctx):
     webhooks = await ctx.channel.webhooks()
     await ctx.send(str(webhooks))
 
+
 @client.command()
-async def theme_color2(ctx,*,tup1=""):
+async def theme_color2(ctx, *, tup1=""):
     def get_that_emoji(name):
         return discord.utils.get(client.emojis, name=name)
-        
-    if tup1=="":
-        tup1=extract_color(re[8])
+
+    if tup1 == "":
+        tup1 = extract_color(re[8])
     else:
-        tup1=[int(i) for i in tup1.replace("(","").replace(")","").split(",")]
-        message=await ctx.send(
+        tup1 = [int(i) for i in tup1.replace("(", "").replace(")", "").split(",")]
+        message = await ctx.send(
             embed=discord.Embed(
                 title="Color Init",
                 description="You must have three values in the form of tuple",
                 color=discord.Color(value=re[8]),
             )
         )
-        emojis_color=[emoji.emojize(i) for i in [":red_triangle_pointed_up:",":red_triangle_pointed_down:"]]+[get_that_emoji(i) for i in ['green_down','green_up','blue_up','blue_down']]
+        emojis_color = [
+            emoji.emojize(i)
+            for i in [":red_triangle_pointed_up:", ":red_triangle_pointed_down:"]
+        ] + [
+            get_that_emoji(i)
+            for i in ["green_down", "green_up", "blue_up", "blue_down"]
+        ]
         for i in emojis_color:
             await message.add_reaction(i)
 
-        
 
 @client.command(aliases=["color", "||"])
 async def theme_color(ctx, *, tup1):
@@ -735,7 +769,7 @@ async def recover(ctx):
     print("Recover", str(ctx.author))
     try:
         load_from_file(".recover.txt")
-        await ctx.send(embed=cembed(description="Recovery Done",color=re[8]))
+        await ctx.send(embed=cembed(description="Recovery Done", color=re[8]))
     except Exception as e:
         channel = client.get_channel(dev_channel)
         await channel.send(
@@ -758,7 +792,7 @@ async def load(ctx):
         )
         ram = str(psutil.virtual_memory().percent)
         swap = str(psutil.swap_memory().percent)
-        usage=f"""
+        usage = f"""
         CPU Percentage: {cpu_per}
         CPU Frequency : {cpu_freq}
         RAM usage: {ram}
@@ -781,55 +815,81 @@ async def load(ctx):
         embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
         await channel.send(embed=embed)
 
-@slash.slash(name="polling",description="Seperate options with |")
-async def polling_slash(ctx,question,channel:discord.TextChannel,options):
-    await poll(ctx,options,channel,question=question)
-@client.command()
-async def poll(ctx,options,channel_to_send:discord.TextChannel=None,*, question):
-    count={}
-    req()
-    author_list={}
-    names={}
-    channel=channel_to_send
-    print(type(channel_to_send))
-    if type(channel_to_send)==str:
-        channel=ctx.channel
-        question=channel_to_send + question
-    if ctx.guild.id==858955930431258624:
-        channel=ctx.channel
 
-    options=options.replace("_",' ').split("|")
-    components=[]
+@slash.slash(name="polling", description="Seperate options with |")
+async def polling_slash(ctx, question, channel: discord.TextChannel, options):
+    await poll(ctx, options, channel, question=question)
+
+
+@client.command()
+async def poll(ctx, options, channel_to_send: discord.TextChannel = None, *, question):
+    count = {}
+    req()
+    author_list = {}
+    names = {}
+    channel = channel_to_send
+    print(type(channel_to_send))
+    if type(channel_to_send) == str:
+        channel = ctx.channel
+        question = channel_to_send + question
+    if ctx.guild.id == 858955930431258624:
+        channel = ctx.channel
+
+    options = options.replace("_", " ").split("|")
+    components = []
     for i in options:
-        components.append(Button(style=random.choice([ButtonStyle.green,ButtonStyle.blue]),label=i))
-        count[i]=0
+        components.append(
+            Button(style=random.choice([ButtonStyle.green, ButtonStyle.blue]), label=i)
+        )
+        count[i] = 0
     await ctx.send("Done")
-    mess=await channel.send(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{question}```",color=re[8],thumbnail=client.user.avatar_url_as(format="png")),components=[components])
+    mess = await channel.send(
+        embed=cembed(
+            title=f"Poll from {ctx.author.name}",
+            description=f"```yaml\n{question}```",
+            color=re[8],
+            thumbnail=client.user.avatar_url_as(format="png"),
+        ),
+        components=[components],
+    )
+
     def check(res):
-        return mess.id==res.message.id
+        return mess.id == res.message.id
+
     while True:
-        res=await client.wait_for("button_click",check=check)        
-        if res.component.label in count and res.author.id not in author_list:            
-            author_list[res.author.id]=res.component.label
-            count[res.component.label]+=1
-        else:            
-            count[author_list[res.author.id]]-=1
-            count[res.component.label]+=1
-            author_list[res.author.id]=res.component.label
-        description=question+"\n\n"
-        avg=sum(list(count.values()))//len(options)
-        avg=1 if avg==0 else avg
-        copy_count=equalise(list(count.keys()))
+        res = await client.wait_for("button_click", check=check)
+        if res.component.label in count and res.author.id not in author_list:
+            author_list[res.author.id] = res.component.label
+            count[res.component.label] += 1
+        else:
+            count[author_list[res.author.id]] -= 1
+            count[res.component.label] += 1
+            author_list[res.author.id] = res.component.label
+        description = question + "\n\n"
+        avg = sum(list(count.values())) // len(options)
+        avg = 1 if avg == 0 else avg
+        copy_count = equalise(list(count.keys()))
         for i in list(count.keys()):
-            description+=f"{copy_count[i]} |"+chr(9606)*(count[i]//avg)+"\n"
-        _=[names.update({i: client.get_user(i).name}) for i in author_list if i not in names]
-        people="\n"+"\n".join([names[i] for i in author_list])
-        st="\n"
+            description += f"{copy_count[i]} |" + chr(9606) * (count[i] // avg) + "\n"
+        _ = [
+            names.update({i: client.get_user(i).name})
+            for i in author_list
+            if i not in names
+        ]
+        people = "\n" + "\n".join([names[i] for i in author_list])
+        st = "\n"
         for i in list(count.keys()):
-            st+=f"{copy_count[i]}:  {(count[i]*100)//len(author_list)}%\n"
-        people=st+"\n"+people
-        await res.edit_origin(embed=cembed(title=f"Poll from {ctx.author.name}",description=f"```yaml\n{description}```"+"\n"+people,color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
-        
+            st += f"{copy_count[i]}:  {(count[i]*100)//len(author_list)}%\n"
+        people = st + "\n" + people
+        await res.edit_origin(
+            embed=cembed(
+                title=f"Poll from {ctx.author.name}",
+                description=f"```yaml\n{description}```" + "\n" + people,
+                color=re[8],
+                thumbnail=client.user.avatar_url_as(format="png"),
+            )
+        )
+
 
 @slash.slash(name="pr", description="Prints what you ask it to print")
 async def pr_slash(ctx, text):
@@ -868,7 +928,7 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
             for i in a:
                 embeds += [
                     cembed(
-                        description="**"+i[0]+"**",
+                        description="**" + i[0] + "**",
                         picture=i[1],
                         color=re[8],
                         thumbnail=client.user.avatar_url_as(format="png"),
@@ -880,24 +940,33 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
 
 
 async def pa(embeds, ctx):
-    message = await ctx.send(embed=embeds[0],components=[[Button(style=ButtonStyle.green,label="<"),Button(style=ButtonStyle.green,label=">")]])
+    message = await ctx.send(
+        embed=embeds[0],
+        components=[
+            [
+                Button(style=ButtonStyle.green, label="<"),
+                Button(style=ButtonStyle.green, label=">"),
+            ]
+        ],
+    )
     pag = 0
-    
+
     def check(res):
-        return message.id==res.message.id
+        return message.id == res.message.id
 
     while True:
-        try:                
-            res = await client.wait_for("button_click",check=check)
-            if res.component.label==">" and pag + 1 != len(embeds):
+        try:
+            res = await client.wait_for("button_click", check=check)
+            if res.component.label == ">" and pag + 1 != len(embeds):
                 pag += 1
                 await res.edit_origin(embed=embeds[pag])
-            elif res.component.label=="<" and pag != 0:
+            elif res.component.label == "<" and pag != 0:
                 pag -= 1
                 await res.edit_origin(embed=embeds[pag])
-            
+
         except asyncio.TimeoutError:
             break
+
 
 async def pa1(embeds, ctx):
     message = await ctx.send(embed=embeds[0])
@@ -906,7 +975,11 @@ async def pa1(embeds, ctx):
     await message.add_reaction("▶️")
 
     def check(reaction, user):
-        return user != client.user and str(reaction.emoji) in ["◀️", "▶️"] and reaction.message.id==message.id
+        return (
+            user != client.user
+            and str(reaction.emoji) in ["◀️", "▶️"]
+            and reaction.message.id == message.id
+        )
 
     while True:
         try:
@@ -941,8 +1014,6 @@ async def trending_github(ctx):
             cembed(title=name, description=output, color=re[8], thumbnail=thumbnail)
         ]
     await pa(embeds, ctx)
-
-
 
 
 @client.command(aliases=["c"])
@@ -1037,7 +1108,7 @@ async def remove_access_to_script(ctx, member: discord.Member):
 async def dev_op(ctx):
     print("devop", str(ctx.author))
     channel = client.get_channel(dev_channel)
-    await devop_mtext(client,channel,re[8])
+    await devop_mtext(client, channel, re[8])
 
 
 @client.command()
@@ -1097,7 +1168,6 @@ async def docs(ctx, name):
         )
 
 
-
 @slash.slash(name="Snipe", description="Get the last few deleted messages")
 async def snipe_slash(ctx, number=0):
     req()
@@ -1107,9 +1177,18 @@ async def snipe_slash(ctx, number=0):
 
 @client.command()
 async def snipe(ctx, number=0):
-    if ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_messages or ctx.guild.id not in [841026124174983188,822445271019421746]:
+    if (
+        ctx.author.guild_permissions.administrator
+        or ctx.author.guild_permissions.manage_messages
+        or ctx.guild.id not in [841026124174983188, 822445271019421746]
+    ):
         if int(number) > 10:
-            await ctx.send(embed=cembed(picture="https://images.news18.com/ibnlive/uploads/2015/08/Chandler-2.gif",color=re[8]))
+            await ctx.send(
+                embed=cembed(
+                    picture="https://images.news18.com/ibnlive/uploads/2015/08/Chandler-2.gif",
+                    color=re[8],
+                )
+            )
             return ""
         if number == 0:
             message = deleted_message[ctx.channel.id][-1]
@@ -1149,7 +1228,14 @@ async def snipe(ctx, number=0):
                     )
                 )
     else:
-        await ctx.send(embed=cembed(title="Permissions Denied",description="Sorry guys, only admins can snipe now",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        await ctx.send(
+            embed=cembed(
+                title="Permissions Denied",
+                description="Sorry guys, only admins can snipe now",
+                color=re[8],
+                thumbnail=client.user.avatar_url_as(format="png"),
+            )
+        )
 
 
 @client.event
@@ -1164,7 +1250,8 @@ async def on_message_delete(message):
     else:
         if not message.author.bot:
             deleted_message[message.channel.id].append(
-                (str(message.author), message.embeds[0], True))
+                (str(message.author), message.embeds[0], True)
+            )
 
 
 @client.event
@@ -1548,13 +1635,13 @@ async def show_playlist(ctx, *, name):
                     )
                 )
                 st = ""
-        if len(da)<10:
+        if len(da) < 10:
             embeds.append(
                 cembed(
                     title="Playlist",
                     description=st,
                     color=re[8],
-                    thumbnail=client.user.avatar_url_as(format="png")
+                    thumbnail=client.user.avatar_url_as(format="png"),
                 )
             )
         await pa(embeds, ctx)
@@ -1791,22 +1878,40 @@ async def next(ctx):
             )
         )
 
+
 @client.command()
-async def set_prefix(ctx,pref):
+async def set_prefix(ctx, pref):
     if ctx.author.guild_permissions.administrator:
-        prefix_dict[ctx.guild.id]=pref
-        await ctx.send(embed=cembed(title="Done",description=f"Prefix set as {pref}",color=re[8]))
+        prefix_dict[ctx.guild.id] = pref
+        await ctx.send(
+            embed=cembed(title="Done", description=f"Prefix set as {pref}", color=re[8])
+        )
     else:
-        await ctx.send(embed=cembed(title="Permissions Denied",description="You cannot change the prefix, you need to be an admin",color=re[8]))
+        await ctx.send(
+            embed=cembed(
+                title="Permissions Denied",
+                description="You cannot change the prefix, you need to be an admin",
+                color=re[8],
+            )
+        )
+
 
 @client.command()
 async def remove_prefix(ctx):
     if ctx.author.guild_permissions.administrator:
-        if prefix_dict.get(ctx.guild.id,False):
+        if prefix_dict.get(ctx.guild.id, False):
             prefix_dict.pop(ctx.guild.id)
-        await ctx.send(embed=cembed(title="Done",description=f"Prefix removed",color=re[8]))
+        await ctx.send(
+            embed=cembed(title="Done", description=f"Prefix removed", color=re[8])
+        )
     else:
-        await ctx.send(embed=cembed(title="Permissions Denied",description="You cannot change the prefix, you need to be an admin",color=re[8]))
+        await ctx.send(
+            embed=cembed(
+                title="Permissions Denied",
+                description="You cannot change the prefix, you need to be an admin",
+                color=re[8],
+            )
+        )
 
 
 @slash.slash(name="news", description="Latest news from a given subject")
@@ -2022,7 +2127,9 @@ async def play(ctx, *, ind):
                     ):
                         da1[
                             queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
-                        ] = await get_name(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
+                        ] = await get_name(
+                            queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
+                        )
                     mess = await ctx.send(
                         embed=discord.Embed(
                             title="Playing",
@@ -2290,7 +2397,7 @@ async def leave(ctx):
         except:
             mem = []
         if mem.count(ctx.author.id) > 0:
-            if ctx.author.id==734275789302005791:
+            if ctx.author.id == 734275789302005791:
                 await clearqueue(ctx)
             voice = ctx.guild.voice_client
             voice.stop()
@@ -2453,6 +2560,7 @@ async def check_slash(ctx):
     await ctx.defer()
     await check(ctx)
 
+
 @client.command()
 async def clear(ctx, text, num=10):
     req()
@@ -2461,13 +2569,15 @@ async def clear(ctx, text, num=10):
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == 432801163126243328
-        ):            
-            confirmation=True
-            if int(num)>10:
-                confirmation = await wait_for_confirm(ctx, client, f"Do you want to delete {num} messages",color=re[8])
+        ):
+            confirmation = True
+            if int(num) > 10:
+                confirmation = await wait_for_confirm(
+                    ctx, client, f"Do you want to delete {num} messages", color=re[8]
+                )
             if confirmation:
                 await ctx.channel.delete_messages(
-                [i async for i in ctx.channel.history(limit=num) if not i.pinned]
+                    [i async for i in ctx.channel.history(limit=num) if not i.pinned]
                 )
         else:
             await ctx.send(
@@ -3141,7 +3251,9 @@ async def on_reaction_add(reaction, user):
                                 queue_song[str(reaction.message.guild.id)][
                                     re[3][str(reaction.message.guild.id)]
                                 ]
-                            ] = await get_name(queue_song[str(reaction.message.guild.id)])
+                            ] = await get_name(
+                                queue_song[str(reaction.message.guild.id)]
+                            )
                         re[3][str(reaction.message.guild.id)] += 1
                         if re[3][str(reaction.message.guild.id)] >= len(
                             queue_song[str(reaction.message.guild.id)]
@@ -3204,11 +3316,11 @@ async def on_reaction_add(reaction, user):
                         ]
                     except:
                         mem = []
-                    if mem.count(user.id) > 0:                        
+                    if mem.count(user.id) > 0:
                         voice = reaction.message.guild.voice_client
                         voice.stop()
                         await voice.disconnect()
-                        if user.id==734275789302005791:
+                        if user.id == 734275789302005791:
                             try:
                                 await clearqueue(reaction.message)
                             except:
@@ -3319,10 +3431,10 @@ async def on_reaction_add(reaction, user):
                 ) == str(channel.id):
                     await reaction.remove(user)
                     cpu_per = str(int(psutil.cpu_percent()))
-                    cpu_freq=f"{str(int(psutil.cpu_freq().current))}/{str(int(psutil.cpu_freq().max))}"
+                    cpu_freq = f"{str(int(psutil.cpu_freq().current))}/{str(int(psutil.cpu_freq().max))}"
                     ram = str(psutil.virtual_memory().percent)
                     swap = str(psutil.swap_memory().percent)
-                    usage=f"""
+                    usage = f"""
                     CPU Percentage: {cpu_per}
                     CPU Frequency : {cpu_freq}
                     RAM usage: {ram}
@@ -3443,10 +3555,10 @@ async def on_reaction_add(reaction, user):
                     if not ".recover.txt" in os.listdir():
                         issues = issues + "Recovery file not found"
                     else:
-                        if re[0]<10000 and len(re) < 4:
+                        if re[0] < 10000 and len(re) < 4:
                             issues = issues + "Recovery required, attempting recovery\n"
                             load_from_file(".recover.txt")
-                            if re[0]<10000 and len(re) < 4:
+                            if re[0] < 10000 and len(re) < 4:
                                 issues = issues + "Recovery failed\n"
                     await channel.send(
                         embed=discord.Embed(
@@ -3458,7 +3570,7 @@ async def on_reaction_add(reaction, user):
                 if reaction.emoji == emoji.emojize(":black_circle:") and str(
                     reaction.message.channel.id
                 ) == str(channel.id):
-                    await devop_mtext(client,channel,re[8])
+                    await devop_mtext(client, channel, re[8])
     except Exception as e:
         channel = client.get_channel(dev_channel)
         await channel.send(
@@ -3506,6 +3618,7 @@ async def add_censor(ctx, *, text):
     )
     await ctx.send(embed=em)
 
+
 @client.command()
 async def changeM(ctx, *, num):
     if str(ctx.author.id) in dev_users:
@@ -3514,58 +3627,63 @@ async def changeM(ctx, *, num):
         if num == 1:
             re[10] = 1
             await ctx.send(
-                        embed=discord.Embed(
-                            title="Model change",
-                            description="Changed to blenderbot",
-                            color=discord.Color(value=re[8]),
-                        ))
+                embed=discord.Embed(
+                    title="Model change",
+                    description="Changed to blenderbot",
+                    color=discord.Color(value=re[8]),
+                )
+            )
         elif num == 2:
-            re[10]=2
+            re[10] = 2
             await ctx.send(
-                        embed=discord.Embed(
-                            title="Model change",
-                            description="Changed to dialo-gpt",
-                            color=discord.Color(value=re[8]),
-                        ))
+                embed=discord.Embed(
+                    title="Model change",
+                    description="Changed to dialo-gpt",
+                    color=discord.Color(value=re[8]),
+                )
+            )
         else:
 
             await ctx.send(
-                        embed=discord.Embed(
-                            title="Model change",
-                            description="Bruh thats not a valid option",
-                            color=discord.Color(value=re[8]),
-                        ))
+                embed=discord.Embed(
+                    title="Model change",
+                    description="Bruh thats not a valid option",
+                    color=discord.Color(value=re[8]),
+                )
+            )
 
     else:
         await ctx.send(
-                        embed=discord.Embed(
-                            title="Model change",
-                            description="F off thout isn't un dev user",
-                            color=discord.Color(value=re[8]),
-                        ))
-
+            embed=discord.Embed(
+                title="Model change",
+                description="F off thout isn't un dev user",
+                color=discord.Color(value=re[8]),
+            )
+        )
 
 
 async def transformer(api, header, json):
     async with aiohttp.ClientSession() as session:
-        async with session.post(api, headers = header, json = json) as resp:
+        async with session.post(api, headers=header, json=json) as resp:
             return await resp.json()
+
 
 global past_respose, generated
 
 past_respose = []
 generated = []
 
+
 @client.event
 async def on_message(msg):
-    auth = os.getenv('transformers_auth')
+    auth = os.getenv("transformers_auth")
     headeras = {"Authorization": f"Bearer {auth}"}
     if re[10] == 1:
         API_URL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
     else:
         API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-large"
 
-    try:        
+    try:
         for word in censor:
             if word in msg.content.lower() and msg.guild.id in [
                 822445271019421746,
@@ -3577,48 +3695,47 @@ async def on_message(msg):
             if "?" in msg.content.lower() and re[4] == 1:
                 await msg.channel.send("thog dont caare")
             elif "why do chips".strip() in msg.content.lower():
-                await msg.channel.send("https://pics.me.me/thumb_why-do-chips-get-stale-gross-i-just-eat-a-49666262.png")
+                await msg.channel.send(
+                    "https://pics.me.me/thumb_why-do-chips-get-stale-gross-i-just-eat-a-49666262.png"
+                )
             else:
                 if re[4] == 1:
-                    for i in ['what','how','when','why','who','where']:
+                    for i in ["what", "how", "when", "why", "who", "where"]:
                         if i in msg.content.lower():
                             await msg.channel.send("thog dont caare")
                             break
-        
 
-        if msg.content.lower().startswith('alfred'):
+        if msg.content.lower().startswith("alfred"):
 
-            
-            input_text = msg.content.lower().replace('alfred', '')
+            input_text = msg.content.lower().replace("alfred", "")
             payload = {
-            'inputs': {
-                'past_user_inputs': past_respose,
-                'generated_responses': generated,
-                'text': input_text
-            },"parameters": {"repetition_penalty": 1.33}
-            
+                "inputs": {
+                    "past_user_inputs": past_respose,
+                    "generated_responses": generated,
+                    "text": input_text,
+                },
+                "parameters": {"repetition_penalty": 1.33},
             }
 
-            output = await transformer(API_URL, header = headeras, json = payload)
-            
+            output = await transformer(API_URL, header=headeras, json=payload)
+
             if len(past_respose) < 1000:
                 past_respose.append(input_text)
-                generated.append(output['generated_text'])
+                generated.append(output["generated_text"])
             else:
-              past_respose.pop(0)
-              generated.pop(0)
-              past_respose.append(input_text)
-              generated.append(output['generated_text'])
-            
-            print(output)
-            await msg.reply(output['generated_text'])
+                past_respose.pop(0)
+                generated.pop(0)
+                past_respose.append(input_text)
+                generated.append(output["generated_text"])
 
-            
+            print(output)
+            await msg.reply(output["generated_text"])
+
         if f"<@!{client.user.id}>" in msg.content:
-            prefi=prefix_dict.get(msg.guild.id,"'")
+            prefi = prefix_dict.get(msg.guild.id, "'")
             embed = discord.Embed(
                 title="Hi!! I am Alfred.",
-                description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""", 
+                description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""",
                 color=discord.Color(value=re[8]),
             )
             embed.set_image(
@@ -3631,7 +3748,7 @@ async def on_message(msg):
             )
 
             await msg.channel.send(embed=embed)
-        if msg.content.startswith(prefix_dict.get(msg.guild.id,"'")) == 0:            
+        if msg.content.startswith(prefix_dict.get(msg.guild.id, "'")) == 0:
             save_to_file("recover")
         await client.process_commands(msg)
     except Exception as e:
@@ -3668,7 +3785,13 @@ async def thog(ctx, *, text):
             await ctx.message.delete()
             await ctx.send("Wrong password")
     else:
-        await ctx.send(embed=cembed(title="Permissions Denied",description="You cannot toggle thog",color=re[8]))
+        await ctx.send(
+            embed=cembed(
+                title="Permissions Denied",
+                description="You cannot toggle thog",
+                color=re[8],
+            )
+        )
 
 
 @client.command(aliases=["m"])
@@ -3727,10 +3850,9 @@ async def python_shell(ctx, *, text):
 async def exe(ctx, *, text):
     req()
     global temp_dev
-    if (
-        ctx.author.id in temp_dev
-        and protect(text)
-    ) or (str(ctx.author.id) in dev_users):
+    if (ctx.author.id in temp_dev and protect(text)) or (
+        str(ctx.author.id) in dev_users
+    ):
         mysql_password = "Denied"
         if text.find("passwd=") != -1:
             mysql_password = os.getenv("mysql")
@@ -3780,16 +3902,24 @@ async def exe(ctx, *, text):
                 color=discord.Color(value=re[8]),
             )
         )
+
+
 @client.command()
 async def gen(ctx, *, text):
     req()
     API_URL2 = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B"
     header2 = {"Authorization": f"Bearer {os.environ['transformers_auth']}"}
-    payload2 = {"inputs": text,
-           "parameters": {"max_new_tokens": 250, "return_full_text": True}}
-    
+    payload2 = {
+        "inputs": text,
+        "parameters": {"max_new_tokens": 250, "return_full_text": True},
+    }
+
     output = await genpost(API_URL2, header2, payload2)
-    await ctx.reply(embed=cembed(title="Generated text",description=output[0]['generated_text'],color=re[8]))
+    await ctx.reply(
+        embed=cembed(
+            title="Generated text", description=output[0]["generated_text"], color=re[8]
+        )
+    )
 
 
 @client.command()
@@ -3801,9 +3931,11 @@ async def get_req(ctx):
     )
     await ctx.send(embed=em)
 
+
 def addt(p1, p2):
     da[p1] = p2
     return "Done"
+
 
 def get_elem(k):
     return da.get(k, "Not assigned yet")
@@ -3826,10 +3958,10 @@ def g_req():
 @commands.has_permissions(kick_members=True)
 async def mute(ctx, member: discord.Member):
     req()
-    print("Member id: ",member.id)
-    add_role=None
+    print("Member id: ", member.id)
+    add_role = None
     if ctx.guild.id == 743323684705402951:
-        add_role = [i for i in ctx.guild.roles if i.id==876708632325148672][0]
+        add_role = [i for i in ctx.guild.roles if i.id == 876708632325148672][0]
         await member.add_roles(add_role)
         await ctx.send("Muted " + member.mention)
     if ctx.guild.id == 851315724119310367:
@@ -3837,20 +3969,20 @@ async def mute(ctx, member: discord.Member):
     else:
         add_role = discord.utils.get(ctx.guild.roles, name="dunce")
         await member.add_roles(add_role)
-        await ctx.send("Muted " + member.mention)    
+        await ctx.send("Muted " + member.mention)
 
 
 @client.command(aliases=["um"])
 @commands.has_permissions(kick_members=True)
 async def unmute(ctx, member: discord.Member):
     req()
-    add_role=None
+    add_role = None
     if ctx.guild.id == 851315724119310367:
         add_role = discord.utils.get(ctx.guild.roles, name="Muted")
         await member.remove_roles(add_role)
         await ctx.send("Unmuted " + member.mention)
     elif ctx.guild.id == 743323684705402951:
-        add_role = [i for i in ctx.guild.roles if i.id==876708632325148672][0]
+        add_role = [i for i in ctx.guild.roles if i.id == 876708632325148672][0]
         await member.remove_roles(add_role)
         await ctx.send("Unmuted " + member.mention)
     else:
@@ -3862,13 +3994,28 @@ async def unmute(ctx, member: discord.Member):
 
 @client.command()
 async def testing_help(ctx):
-    test_help=[]
-    thumbnail="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
-    test_help.append(cembed(title="Help",description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '",thumbnail=thumbnail,picture=client.user.avatar_url_as(format="png"),color=re[8]))
-    test_help.append(cembed(title="Source Code for Alfred",description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",color=re[8],thumbnail="https://github.githubassets.com/images/modules/open_graph/github-octocat.png",picture=client.user.avatar_url_as(format="png")))
-    test_help+=helping_hand.help_him(ctx,client,re)
-    await pa(test_help,ctx)
-    
+    test_help = []
+    thumbnail = "https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
+    test_help.append(
+        cembed(
+            title="Help",
+            description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '",
+            thumbnail=thumbnail,
+            picture=client.user.avatar_url_as(format="png"),
+            color=re[8],
+        )
+    )
+    test_help.append(
+        cembed(
+            title="Source Code for Alfred",
+            description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",
+            color=re[8],
+            thumbnail="https://github.githubassets.com/images/modules/open_graph/github-octocat.png",
+            picture=client.user.avatar_url_as(format="png"),
+        )
+    )
+    test_help += helping_hand.help_him(ctx, client, re)
+    await pa(test_help, ctx)
 
 
 @slash.slash(name="help", description="Help from Alfred")
@@ -3911,5 +4058,6 @@ async def h(ctx):
         )
         embeds.append(em)
     await pa1(embeds, ctx)
+
 
 client.run(os.getenv("token"))
