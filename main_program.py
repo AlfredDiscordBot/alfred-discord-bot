@@ -159,10 +159,11 @@ slash = SlashCommand(client, sync_commands=True)
 
 async def get_name(url):
     a = ""
-    async with aiohttp.ClientSession().get(url) as response:
+    async with aiohttp.ClientSession() as session:
+        response=await session.get(url)
         a = await response.text()
         print(type(a))
-        session.close()
+        await session.close()
     return (
         a[a.find("<title>") + len("<title>") : a.find("</title>")]
         .replace("&amp;", "&")
