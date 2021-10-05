@@ -3505,6 +3505,45 @@ async def add_censor(ctx, *, text):
     )
     await ctx.send(embed=em)
 
+@client.command()
+async def changeM(ctx, *, num):
+    if str(ctx.author.id) in dev_users:
+        num = int(num)
+
+        if num == 1:
+            re[10] = 1
+            await ctx.send(
+                        embed=discord.Embed(
+                            title="Model change",
+                            description="Changed to blenderbot",
+                            color=discord.Color(value=re[8]),
+                        ))
+        elif num == 2:
+            re[10]=2
+            await ctx.send(
+                        embed=discord.Embed(
+                            title="Model change",
+                            description="Changed to dialo-gpt",
+                            color=discord.Color(value=re[8]),
+                        ))
+        else:
+
+            await ctx.send(
+                        embed=discord.Embed(
+                            title="Model change",
+                            description="Bruh thats not a valid option",
+                            color=discord.Color(value=re[8]),
+                        ))
+
+    else:
+        await ctx.send(
+                        embed=discord.Embed(
+                            title="Model change",
+                            description="F off thout isn't un dev user",
+                            color=discord.Color(value=re[8]),
+                        ))
+
+
 
 async def transformer(api, header, json):
     async with aiohttp.ClientSession() as session:
@@ -3520,7 +3559,10 @@ generated = []
 async def on_message(msg):
     auth = os.getenv('transformers_auth')
     headeras = {"Authorization": f"Bearer {auth}"}
-    API_URL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
+    if re[10] == 1:
+        API_URL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
+    else:
+        API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-large"
 
     try:        
         for word in censor:
