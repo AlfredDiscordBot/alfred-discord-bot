@@ -150,10 +150,18 @@ client = commands.Bot(
 )
 slash = SlashCommand(client,sync_commands=True)
 
-def get_name(url):
-    a=urllib.request.urlopen(url).read().decode()
+async def get_name(url):
+    a=""
+    async with aiohttp.ClientSession().get(url) as response:
+        a=await response.text()
+        print(type(a))
     return a[a.find("<title>")+len("<title>"):a.find("</title>")].replace("&amp;", "&").replace(" - YouTube", "").replace("&#39;", "'")
 
+@client.command()
+async def trial(ctx,url):
+  a=await get_name(url)
+  await ctx.send(a)
+  
 def save_to_file(a=""):
     global dev_users
     if ".backup.txt" in os.listdir("./"):
@@ -560,12 +568,12 @@ async def uemoji(ctx, emoji_name, number=0):
         )
 
 
-# @slash.slash(name="svg2png", description="Convert SVG image to png format")
-# async def svg2png_slash(ctx, url):
-#     req()
-#     await ctx.defer()
-#     img = svg2png(url)
-#     await ctx.send(file=discord.File(BytesIO(img), 'svg.png'))    
+@slash.slash(name="svg2png", description="Convert SVG image to png format")
+async def svg2png_slash(ctx:SlashContext, url):
+    req()
+    await ctx.defer()
+    img = svg2png(url)
+    await ctx.send(file=discord.File(BytesIO(img), 'svg.png'))    
 
 
 @client.command()
@@ -1631,7 +1639,7 @@ async def queue(ctx, *, name=""):
         st = ""
         await ctx.send("Added to queue")
         num = 0
-        name_of_the_song = youtube_info(url)["title"]
+        name_of_the_song = await get_name(url)
         print(name_of_the_song, ":", url)
         da1[url] = name_of_the_song
         queue_song[str(ctx.guild.id)].append(url)
@@ -2013,7 +2021,7 @@ async def play(ctx, *, ind):
                     ):
                         da1[
                             queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
-                        ] = get_name(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
+                        ] = await get_name(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
                     mess = await ctx.send(
                         embed=discord.Embed(
                             title="Playing",
@@ -2056,7 +2064,7 @@ async def play(ctx, *, ind):
                     video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
                     url = "https://www.youtube.com/watch?v=" + video[0]
                     URL = youtube_download(ctx, url)
-                    name_of_the_song = get_name(url)
+                    name_of_the_song = await get_name(url)
                     voice.stop()
                     voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
                     await ctx.send(
@@ -3132,7 +3140,7 @@ async def on_reaction_add(reaction, user):
                                 queue_song[str(reaction.message.guild.id)][
                                     re[3][str(reaction.message.guild.id)]
                                 ]
-                            ] = get_name(queue_song[str(reaction.message.guild.id)])
+                            ] = await get_name(queue_song[str(reaction.message.guild.id)])
                         re[3][str(reaction.message.guild.id)] += 1
                         if re[3][str(reaction.message.guild.id)] >= len(
                             queue_song[str(reaction.message.guild.id)]
@@ -3244,15 +3252,7 @@ async def on_reaction_add(reaction, user):
                     if len(queue_song[str(reaction.message.guild.id)]) < 27:
                         for i in queue_song[str(reaction.message.guild.id)]:
                             if not i in da1.keys():
-                                aa = str(urllib.request.urlopen(i).read().decode())
-                                starting = aa.find("<title>") + len("<title>")
-                                ending = aa.find("</title>")
-                                da1[i] = (
-                                    aa[starting:ending]
-                                    .replace("&#39;", "'")
-                                    .replace(" - YouTube", "")
-                                    .replace("&amp;", "&")
-                                )
+                                da1[i] = await get_name(i)
                             st = st + str(num) + ". " + da1[i] + "\n"
                             num += 1
                     else:
@@ -3264,21 +3264,7 @@ async def on_reaction_add(reaction, user):
                                 if re[3][str(reaction.message.guild.id)] < 10:
                                     if num < 15:
                                         if not i in da1.keys():
-                                            aa = str(
-                                                urllib.request.urlopen(i)
-                                                .read()
-                                                .decode()
-                                            )
-                                            starting = aa.find("<title>") + len(
-                                                "<title>"
-                                            )
-                                            ending = aa.find("</title>")
-                                            da1[i] = (
-                                                aa[starting:ending]
-                                                .replace("&#39;", "'")
-                                                .replace(" - YouTube", "")
-                                                .replace("&amp;", "&")
-                                            )
+                                            da1[i] = await get_name(i)
                                         st = st + str(num) + ". " + da1[i] + "\n"
                                 elif re[3][str(reaction.message.guild.id)] > (
                                     len(queue_song[str(reaction.message.guild.id)]) - 10
@@ -3288,21 +3274,7 @@ async def on_reaction_add(reaction, user):
                                         - 15
                                     ):
                                         if not i in da1.keys():
-                                            aa = str(
-                                                urllib.request.urlopen(i)
-                                                .read()
-                                                .decode()
-                                            )
-                                            starting = aa.find("<title>") + len(
-                                                "<title>"
-                                            )
-                                            ending = aa.find("</title>")
-                                            da1[i] = (
-                                                aa[starting:ending]
-                                                .replace("&#39;", "'")
-                                                .replace(" - YouTube", "")
-                                                .replace("&amp;", "&")
-                                            )
+                                            da1[i] = await get_name(i)
                                         st = st + str(num) + ". " + da1[i] + "\n"
                                 else:
                                     if (
@@ -3311,21 +3283,7 @@ async def on_reaction_add(reaction, user):
                                         < re[3][str(reaction.message.guild.id)] + 10
                                     ):
                                         if not i in da1.keys():
-                                            aa = str(
-                                                urllib.request.urlopen(i)
-                                                .read()
-                                                .decode()
-                                            )
-                                            starting = aa.find("<title>") + len(
-                                                "<title>"
-                                            )
-                                            ending = aa.find("</title>")
-                                            da1[i] = (
-                                                aa[starting:ending]
-                                                .replace("&#39;", "'")
-                                                .replace(" - YouTube", "")
-                                                .replace("&amp;", "&")
-                                            )
+                                            da1[i] = await get_name(i)
                                         st = st + str(num) + ". " + da1[i] + "\n"
                             except Exception as e:
                                 pass
@@ -3630,9 +3588,8 @@ async def on_message(msg):
             )
 
             await msg.channel.send(embed=embed)
-        if msg.content.startswith(prefix_dict.get(msg.guild.id,"'")) == 0:
-            if re[0]>10000:
-                save_to_file("recover")
+        if msg.content.startswith(prefix_dict.get(msg.guild.id,"'")) == 0:            
+            save_to_file("recover")
         await client.process_commands(msg)
     except Exception as e:
         channel = client.get_channel(dev_channel)
