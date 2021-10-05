@@ -1,4 +1,7 @@
-from src.github_stats import *
+import sys
+sys.path.append('./src')
+
+from github_stats import *
 
 def test_github_user_stats():
 	resp = get_user_stats("Shravan-1908")
