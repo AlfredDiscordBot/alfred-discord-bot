@@ -402,30 +402,33 @@ async def devop_mtext(client, channel, color):
     await mess.add_reaction(emoji.emojize(":laptop:"))
 
 
-async def wait_for_confirm(ctx, client, message, color=61620):
-    mess = await ctx.send(
+async def wait_for_confirm(ctx, client, message, color=61620,usr=None):
+    mess = await ctx.channel.send(
         embed=discord.Embed(
             title="Confirmation", description=message, color=discord.Color(color)
         )
     )
     await mess.add_reaction(emoji.emojize(":check_mark_button:"))
-    await mess.add_reaction(emoji.emojize(":cross_mark:"))
+    await mess.add_reaction(emoji.emojize(":cross_mark_button:"))
+
+    person=usr
 
     def check(reaction, user):
+        a = user == ctx.author if person is None else person == user
         return (
             reaction.message.id == mess.id
             and reaction.emoji
-            in [emoji.emojize(":check_mark_button:"), emoji.emojize(":cross_mark:")]
-            and user == ctx.author
+            in [emoji.emojize(":check_mark_button:"), emoji.emojize(":cross_mark_button:")]
+            and a
         )
 
     reaction, user = await client.wait_for("reaction_add", check=check)
     if reaction.emoji == emoji.emojize(":check_mark_button:"):
         await mess.delete()
         return True
-    if reaction.emoji == emoji.emojize(":cross_mark:"):
+    if reaction.emoji == emoji.emojize(":cross_mark_button:"):
         await mess.delete()
-        await ctx.send(
+        await ctx.channel.send(
             embed=discord.Embed(
                 title="Ok cool", description="Aborted", color=discord.Color(color)
             )

@@ -57,12 +57,6 @@ except:
     print("failed")
 googlenews = GoogleNews()
 start_time = time.time()
-try:
-    md = m.connect(host="localhost", user="root", passwd=os.getenv("mysql"))
-    conn = md
-    cursor = md.cursor()
-except:
-    pass
 X = "❌"
 O = "⭕"
 global coin_toss_message, coin_message
@@ -677,52 +671,23 @@ async def show_webhooks(ctx):
     webhooks = await ctx.channel.webhooks()
     await ctx.send(str(webhooks))
 
-
-@client.command()
-async def theme_color2(ctx, *, tup1=""):
-    def get_that_emoji(name):
-        return discord.utils.get(client.emojis, name=name)
-
-    if tup1 == "":
-        tup1 = extract_color(re[8])
-    else:
-        tup1 = [int(i) for i in tup1.replace("(", "").replace(")", "").split(",")]
-        message = await ctx.send(
-            embed=discord.Embed(
-                title="Color Init",
-                description="You must have three values in the form of tuple",
-                color=discord.Color(value=re[8]),
-            )
-        )
-        emojis_color = [
-            emoji.emojize(i)
-            for i in [":red_triangle_pointed_up:", ":red_triangle_pointed_down:"]
-        ] + [
-            get_that_emoji(i)
-            for i in ["green_down", "green_up", "blue_up", "blue_down"]
-        ]
-        for i in emojis_color:
-            await message.add_reaction(i)
-
+@slash.slash(name="color",description="Change color theme", guild_ids= [822445271019421746])
+async def color_slash(ctx, rgb_color=""):
+    await ctx.defer()
+    await theme_color(ctx,tup1=rgb_color)
 
 @client.command(aliases=["color", "||"])
-async def theme_color(ctx, *, tup1):
+async def theme_color(ctx, *, tup1=""):
     try:
         global color_temp
-        req()
-        try:
-            color_temp = (
-                int("0x" + str(hex(re[8]))[2:4], 16),
-                int("0x" + str(hex(re[8]))[4:6], 16),
-                int("0x" + str(hex(re[8]))[6:8], 16),
-            )
-        except:
-            pass
+        color_temp=extract_color(str(re[8]))
+        await ctx.send(embed=cembed(description="Setting Color",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        req()        
         print("Theme color", str(ctx.author))
         if re[8] < 1000:
             re[8] = 1670655
         global color_message
-        tup = eval(tup1)
+        tup = [int(i) for i in tup1.replace("(", "").replace(")", "").split(",")] if tup1 != "" else ()
         if len(tup) < 3:
             color_message = await ctx.send(
                 embed=discord.Embed(
@@ -749,7 +714,7 @@ async def theme_color(ctx, *, tup1):
             )
         else:
             color_temp = tup
-            re[8] = discord.Color.from_rgb(int(tup[0]), int(tup[1]), int(tup[2])).value
+            re[8] = discord.Color.from_rgb(*tup).value
             embed = discord.Embed(
                 title="New Color",
                 description=str(tup),
@@ -2579,7 +2544,7 @@ async def clear(ctx, text, num=10):
                 )
             if confirmation:
                 await ctx.channel.delete_messages(
-                    [i async for i in ctx.channel.history(limit=num) if not i.pinned]
+                    [i async for i in ctx.channel.history(limit=num) if not i.pinned][:100]
                 )
         else:
             await ctx.send(
@@ -3502,6 +3467,12 @@ async def on_reaction_add(reaction, user):
                     reaction.message.channel.id
                 ) == str(channel.id):
                     await reaction.remove(user)
+                    if len(client.voice_clients)>0:
+                        confirmation = await wait_for_confirm(
+                            reaction.message, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8], usr=user                        
+                        )
+                        if not confirmation:
+                            return
                     try:
                         for voice in client.voice_clients:
                             voice.stop()
