@@ -168,7 +168,7 @@ def repo_stats_dict(stats: GitHubRepoStats, color:int = None):
 
 
 def main(client, re):
-    @client.command(alias='ghrepo')
+    @client.command(aliases=['ghrepo'])
     async def github_repo(ctx, *, repo):
         stats = get_repo_stats(repo)
         
