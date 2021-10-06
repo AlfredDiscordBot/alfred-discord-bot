@@ -1,3 +1,11 @@
+"""
+error_logger.py 
+helper class to log the errors in devop channel.
+
+Author: Yash Pawar
+Originally Written: 06 October 2021
+Last Edited: 06 October 2021
+"""
 import discord 
 import traceback
 from discord.channel import TextChannel

@@ -2,6 +2,10 @@
 Alfred Discord Bot
 
 rewrite
+
+Author: Yash Pawar
+Originally Written: 06 October 2021
+Last Edited: 06 October 2021
 """
 
 import discord
@@ -44,6 +48,7 @@ async def errur2(ctx, text_channel, *, text):
     raise TypeError("haha well " + str(text_channel) + text)
 
 @CLIENT.command(aliases=["m"])
+@logger.track_command
 async def python_shell(ctx, *, text):
     print("Python Shell", text, str(ctx.author))
     try:
