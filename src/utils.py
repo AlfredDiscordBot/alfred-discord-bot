@@ -6,6 +6,8 @@ Author: Yash Pawar
 Originally Written: 06 October 2021
 Last Edited: 06 October 2021
 """
+from requests.models import PreparedRequest
+from requests.exceptions import MissingSchema
 
 def insensitive_dict(sensitive_dict: dict) -> dict:
     """
@@ -14,3 +16,14 @@ def insensitive_dict(sensitive_dict: dict) -> dict:
     :param sensitive_dict: the dictionary which is to be make insensitive.
     """
     return { k.lower(): v for k, v in sensitive_dict.items() }
+
+def is_valid_url(url: str) -> bool:
+    """
+    Checks if the url is valid or not
+    """
+    prepared_request = PreparedRequest()
+    try:
+        prepared_request.prepare_url(url, None)
+        return True
+    except MissingSchema as e:
+        return False
