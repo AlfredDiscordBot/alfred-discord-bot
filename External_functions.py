@@ -470,3 +470,22 @@ async def genpost(api, header, json):
     async with aiohttp.ClientSession() as session:
         async with session.post(api, headers=header, json=json) as resp:
             return await resp.json()
+
+
+async def get_name(url):
+    '''
+    get Youtube Video Name through Async
+    '''
+    a = ""
+    async with aiohttp.ClientSession() as session:
+        response=await session.get(url)
+        a = await response.text()
+        print(type(a))
+        await session.close()
+    return (
+        a[a.find("<title>") + len("<title>") : a.find("</title>")]
+        .replace("&amp;", "&")
+        .replace(" - YouTube", "")
+        .replace("&#39;", "'")
+    )
+

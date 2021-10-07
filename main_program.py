@@ -138,6 +138,16 @@ def youtube_download(ctx, url):
         URL = info["formats"][0]["url"]
     return URL
 
+def youtube_download1(ctx, url):
+    with youtube_dl.YoutubeDL(ydl_op) as ydl:
+        info=ydl.extract_info(url, download=False)
+        name=info['title']
+        URL = info["formats"][0]["url"]
+    return (URL, name)
+
+async def search_vid(name):
+    pass
+
 
 def prefix_check(client, message):
     return prefix_dict.get(message.guild.id, ["'"])
@@ -149,27 +159,6 @@ client = commands.Bot(
     case_insensitive=True,
 )
 slash = SlashCommand(client, sync_commands=True)
-
-
-async def get_name(url):
-    a = ""
-    async with aiohttp.ClientSession() as session:
-        response=await session.get(url)
-        a = await response.text()
-        print(type(a))
-        await session.close()
-    return (
-        a[a.find("<title>") + len("<title>") : a.find("</title>")]
-        .replace("&amp;", "&")
-        .replace(" - YouTube", "")
-        .replace("&#39;", "'")
-    )
-
-
-@client.command()
-async def trial(ctx, url):
-    a = await get_name(url)
-    await ctx.send(a)
 
 
 def save_to_file(a=""):
@@ -966,7 +955,10 @@ async def pa1(embeds, ctx):
 
 @client.command(aliases=["trend"])
 async def trending_github(ctx):
-    rec = requests.get("https://api.trending-github.com/github/repositories").json()
+    rec=""
+    async with aiohttp.ClientSession() as session:
+        rec=await session.get(url).json()
+        await session.close()
     embeds = []
     for i in rec[0:25]:
         name = i["name"]
@@ -1685,7 +1677,7 @@ async def queue(ctx, *, name=""):
     except:
         mem = []
     if mem.count(str(ctx.author)) > 0 and name != "":
-        name = name.replace(" ", "+")
+        name = convert_to_url(name)
         sear = "https://www.youtube.com/results?search_query=" + name
         htm = urllib.request.urlopen(sear)
         video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
@@ -1701,7 +1693,7 @@ async def queue(ctx, *, name=""):
         for i in queue_song[str(ctx.guild.id)]:
             if num >= len(queue_song[str(ctx.guild.id)]) - 10:
                 if not i in da1.keys():
-                    da1[i] = youtube_info(i)["title"]
+                    da1[i] = await get_name(i)
                 st = st + str(num) + ". " + da1[i].replace("&quot", "'") + "\n"
             num += 1
         # st=st+str(num)+". "+da1[i]+"\n"
@@ -2131,15 +2123,13 @@ async def play(ctx, *, ind):
                 name = ind
                 if name.find("rick") == -1:
                     voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-                    voice.stop()
-                    name = name.replace(" ", "+")
+                    name = convert_to_url(name)
                     htm = urllib.request.urlopen(
                         "https://www.youtube.com/results?search_query=" + name
                     )
                     video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
                     url = "https://www.youtube.com/watch?v=" + video[0]
-                    URL = youtube_download(ctx, url)
-                    name_of_the_song = await get_name(url)
+                    URL, name_of_the_song = youtube_download1(ctx, url)
                     voice.stop()
                     voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
                     await ctx.send(
@@ -3544,7 +3534,14 @@ async def on_reaction_add(reaction, user):
                     reaction.message.channel.id
                 ) == str(channel.id):
                     await devop_mtext(client, channel, re[8])
-    except Exception as e:
+    except PermissionError:
+        await ctx.send(embed=cembed(
+            title="Missing Permissions",
+            description="Alfred is missing permissions, please try to fix this, best recommended is to add Admin to the bot",
+            color=re[8],
+            thumbnail=client.user.avatar_url_as(format="png"))
+        )
+    except Exception as e:        
         channel = client.get_channel(dev_channel)
         await channel.send(
             embed=discord.Embed(
