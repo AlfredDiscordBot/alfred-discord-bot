@@ -44,5 +44,29 @@ def help_him(ctx, client, re):
         thumbnail=thumbnail,
         picture="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
     )
+    
+    prefix_help = cembed(
+        title="Set_Prefix",
+        description="You can change the prefix of the bot for the server using set_prefix command.\nYou can also remove it using remove_prefix\n**Warning**: Only an admin can change",
+        color=re[8],
+        thumbnail=thumbnail,
+        picture="https://i.kym-cdn.com/entries/icons/original/000/036/173/cover2.jpg"
+    )
+    
+    music_help = cembed(
+        title="Music commands",
+        description="""You can use the following commands for controlling music
+        Pause, Resume
+        Play command to play a song in your queue through index no. or you can put a song after that to play it instantly
+        Queue command to add a song to the queue
+        Remove command to remove a song from the queue
 
-    return [Emoji_help, instagram_help, reddit_help, wolfram_help, code_help]
+        *Spotify not supported yet :frown:*
+        """,
+        thumbnail=thumbnail,
+        color=re[8],
+        picture="https://i.pinimg.com/originals/f1/90/97/f19097b29a4b606f8a91252fab526c6f.jpg"
+    )
+        
+
+    return [Emoji_help, music_help, instagram_help, reddit_help, wolfram_help, code_help, prefix_help]
