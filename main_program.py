@@ -3546,7 +3546,6 @@ async def yey(ctx):
 @client.command()
 async def lol(ctx):
     req()
-    print("L😂L")
     em = discord.Embed(title="***L😂L***", color=discord.Color(value=re[8]))
     await ctx.send(embed=em)
 
