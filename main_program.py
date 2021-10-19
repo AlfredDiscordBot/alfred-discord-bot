@@ -3559,6 +3559,11 @@ async def yey(ctx):
     em = discord.Embed(title="*yey*", color=discord.Color(value=re[8]))
     await ctx.send(embed=em)
 
+@client.command()
+async def lol(ctx):
+    req()
+    em = discord.Embed(title="***L😂L***", color=discord.Color(value=re[8]))
+    await ctx.send(embed=em)
 
 @client.command(aliases=["g"])
 async def google(ctx, *, text):
