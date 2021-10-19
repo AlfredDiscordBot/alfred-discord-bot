@@ -112,6 +112,7 @@ link_for_cats = []
 vc_channel = {}
 wolfram = os.getenv("wolfram")
 prefix_dict = {}
+mute_role = {743323684705402951: 876708632325148672, 851315724119310367: 0}
 
 
 # replace your id with this
@@ -169,6 +170,7 @@ def save_to_file(a=""):
         os.remove("./.recover.txt")
 
     def start_writing(file):
+        file.write(f"mute_role={str(mute_role)}\n")
         file.write("censor=" + str(censor) + "\n")
         file.write("da=" + str(da) + "\n")
         file.write("da1=" + str(da1) + "\n")
@@ -176,7 +178,7 @@ def save_to_file(a=""):
         file.write("a_channels=" + str(a_channels) + "\n")
         file.write("re=" + str(re) + "\n")
         file.write("dev_users=" + str(dev_users) + "\n")
-        file.write(f"prefix_dict={str(prefix_dict)}\n")
+        file.write(f"prefix_dict={str(prefix_dict)}\n")  
         # file.write("entr=" + str(entr) + "\n")
         file.close()
 
@@ -194,6 +196,7 @@ def save_to_file(a=""):
 def load_from_file(file_name=".backup.txt", ss=0):
     if file_name in os.listdir("./"):
         file = open(file_name, "r")
+        global mute_role
         global censor
         global da
         global da1
@@ -222,6 +225,8 @@ def load_from_file(file_name=".backup.txt", ss=0):
                     da1 = start_from("da1=", i)
                 if i.startswith("queue_song="):
                     queue_song = start_from("queue_song=", i)
+                if i.startswith("mute_role="):
+                    mute_role = start_from("mute_role=", i)
                 # if i.startswith("entr="):
                 #    entr=start_from("entr=",i)
                 if i.startswith("re="):
@@ -723,18 +728,22 @@ async def theme_color(ctx, *, tup1=""):
 @client.command(aliases=["$$"])
 async def recover(ctx):
     print("Recover", str(ctx.author))
-    try:
-        load_from_file(".recover.txt")
-        await ctx.send(embed=cembed(description="Recovery Done", color=re[8]))
-    except Exception as e:
-        channel = client.get_channel(dev_channel)
-        await channel.send(
-            embed=discord.Embed(
-                title="Recovery failed",
-                description=str(e),
-                color=discord.Color(value=re[8]),
+    if str(ctx.author.id) in dev_users:
+        try:
+            load_from_file(".recover.txt")
+            await ctx.send(embed=cembed(description="Recovery Done", color=re[8]))
+        except Exception as e:
+            channel = client.get_channel(dev_channel)
+            await channel.send(
+                embed=discord.Embed(
+                    title="Recovery failed",
+                    description=str(e),
+                    color=discord.Color(value=re[8]),
+                )
             )
-        )
+    else:
+        await ctx.send(embed=cembed(title="Permissions Denied",description="You cannot use this command, its only for developers",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        await client.get_channel(dev_channel).send(embed=cembed(description=f"{ctx.author.name} from {ctx.guild.name} tried to use Recover command"))
 
 
 @client.command()
@@ -1065,39 +1074,47 @@ async def remove_access_to_script(ctx, member: discord.Member):
 
 @client.command()
 async def dev_op(ctx):
-    print("devop", str(ctx.author))
-    channel = client.get_channel(dev_channel)
-    await devop_mtext(client, channel, re[8])
+    if str(ctx.guild.id) in dev_users:
+        print("devop", str(ctx.author))
+        channel = client.get_channel(dev_channel)
+        await devop_mtext(client, channel, re[8])
+    else:
+        await ctx.send(embed=cembed(title="Permission Denied",description="You cannot use the devop function, only a developer can",color=re[8]))
 
 
 @client.command()
 async def reset_from_backup(ctx):
     print("reset_from_backup", str(ctx.author))
     channel = client.get_channel(dev_channel)
-    try:
-        load_from_file()
-        await ctx.send(
-            embed=discord.Embed(
-                title="Done",
-                description="Reset from backup: done",
-                color=discord.Color(value=re[8]),
+    if str(ctx.author.id) in dev_users:
+        try:
+            load_from_file()
+            await ctx.send(
+                embed=discord.Embed(
+                    title="Done",
+                    description="Reset from backup: done",
+                    color=discord.Color(value=re[8]),
+                )
             )
-        )
-        await channel.send(
-            embed=discord.Embed(
-                title="Done",
-                description="Reset from backup: done\nBy: " + str(ctx.author),
-                color=discord.Color(value=re[8]),
+            await channel.send(
+                embed=discord.Embed(
+                    title="Done",
+                    description="Reset from backup: done\nBy: " + str(ctx.author),
+                    color=discord.Color(value=re[8]),
+                )
             )
-        )
-    except Exception as e:
-        await channel.send(
-            embed=discord.Embed(
-                title="Reset_from_backup failed",
-                description=str(e),
-                color=discord.Color(value=re[8]),
+        except Exception as e:
+            await channel.send(
+                embed=discord.Embed(
+                    title="Reset_from_backup failed",
+                    description=str(e),
+                    color=discord.Color(value=re[8]),
+                )
             )
-        )
+    else:
+        await ctx.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+
+        await channel.send(embed=cembed(description=f"{ctx.author.name} from {ctx.guild.name} tried to use reset_from_backup command",color=re[8]))
 
 
 @client.command()
@@ -1163,7 +1180,6 @@ async def snipe(ctx, number=0):
             else:
                 await ctx.send("**" + i[0] + ":**")
                 await ctx.send(embed=i[1])
-            print(number)
             if number <= 0:
                 break
     else:
@@ -3749,11 +3765,7 @@ async def python_shell(ctx, *, text):
     req()
     print("Python Shell", text, str(ctx.author))
     global dev_users
-    if protect(text) or (
-        str(ctx.author.id) in dev_users
-        and str(text).find("reboot") == -1
-        and str(text).find("shut") == -1
-    ):
+    if str(ctx.author.id) in dev_users:
         if str(ctx.author.guild.id) != "727061931373887531":
             try:
                 text = text.replace("```py", "")
@@ -3853,7 +3865,6 @@ async def exe(ctx, *, text):
             )
         )
 
-
 @client.command()
 async def gen(ctx, *, text):
     req()
@@ -3903,6 +3914,14 @@ def req():
 def g_req():
     return re[0]
 
+@client.command(aliases=['muter'])
+async def set_mute_role(ctx,role_for_mute: discord.Role):
+    if ctx.author.guild_permissions.administrator:
+        mute_role[ctx.guild.id] = role_for_mute.id
+        await ctx.send(embed=cembed(title="Done",description=f"Mute role set as {role_for_mute.mention}",color=re[8]))
+    else:
+        await ctx.send(embed=cembed(title="Permissions Denied",description="You need to be an admin to set mute role",color=re[8]))
+
 
 @client.command(aliases=["mu"])
 @commands.has_permissions(kick_members=True)
@@ -3910,12 +3929,10 @@ async def mute(ctx, member: discord.Member):
     req()
     print("Member id: ", member.id)
     add_role = None
-    if ctx.guild.id == 743323684705402951:
-        add_role = [i for i in ctx.guild.roles if i.id == 876708632325148672][0]
+    if ctx.guild.id in mute_role:
+        add_role = [i for i in ctx.guild.roles if i.id == mute_role[ctx.guild.id]][0]
         await member.add_roles(add_role)
         await ctx.send("Muted " + member.mention)
-    if ctx.guild.id == 851315724119310367:
-        add_role = discord.utils.get(ctx.guild.roles, name="Muted")
     else:
         add_role = discord.utils.get(ctx.guild.roles, name="dunce")
         await member.add_roles(add_role)
@@ -3927,12 +3944,8 @@ async def mute(ctx, member: discord.Member):
 async def unmute(ctx, member: discord.Member):
     req()
     add_role = None
-    if ctx.guild.id == 851315724119310367:
-        add_role = discord.utils.get(ctx.guild.roles, name="Muted")
-        await member.remove_roles(add_role)
-        await ctx.send("Unmuted " + member.mention)
-    elif ctx.guild.id == 743323684705402951:
-        add_role = [i for i in ctx.guild.roles if i.id == 876708632325148672][0]
+    if ctx.guild.id in mute_role:
+        add_role = [i for i in ctx.guild.roles if i.id == mute_role[ctx.guild.id]][0]
         await member.remove_roles(add_role)
         await ctx.send("Unmuted " + member.mention)
     else:
