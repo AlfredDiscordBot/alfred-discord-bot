@@ -1144,48 +1144,28 @@ async def snipe(ctx, number=0):
         if int(number) > 10:
             await ctx.send(
                 embed=cembed(
+                    description = "Cannot snipe more than 10 messages",
                     picture="https://images.news18.com/ibnlive/uploads/2015/08/Chandler-2.gif",
                     color=re[8],
                 )
             )
-            return ""
-        if number == 0:
-            message = deleted_message[ctx.channel.id][-1]
-            if len(message) < 3:
+            return 
+        message = deleted_message.get(ctx.channel.id,[("Empty","Nothing to snipe here")])[::-1]
+        for i in message:
+            number -= 1
+            if len(i) < 3:
                 await ctx.send(
                     embed=discord.Embed(
-                        description="**" + message[0] + ":**\n" + message[1] + "",
+                        description="**" + i[0] + ":**\n" + i[1],
                         color=discord.Color(value=re[8]),
                     )
                 )
             else:
-                await ctx.send("**" + message[0] + ":**")
-                await ctx.send(embed=message[1])
-        else:
-            nu = 0
-            for i in deleted_message[ctx.channel.id][::-1]:
-                nu += 1
-                if len(i) < 3:
-                    await ctx.send(
-                        embed=discord.Embed(
-                            description="**" + i[0] + ":**\n" + i[1],
-                            color=discord.Color(value=re[8]),
-                        )
-                    )
-                else:
-                    await ctx.send("**" + i[0] + ":**")
-                    await ctx.send(embed=i[1])
-                if nu == number:
-                    break
-            if nu == 0:
-                await ctx.send(
-                    embed=cembed(
-                        title="Oops",
-                        description="Oops sorry, I fell asleep ig, or idk",
-                        color=re[8],
-                        thumbnail=client.user.avatar_url_as(format="png"),
-                    )
-                )
+                await ctx.send("**" + i[0] + ":**")
+                await ctx.send(embed=i[1])
+            print(number)
+            if number <= 0:
+                break
     else:
         await ctx.send(
             embed=cembed(
@@ -3689,7 +3669,7 @@ async def on_message(msg):
 
             output = await transformer(API_URL, header=headeras, json=payload)
 
-            if len(past_respose) < 1000:
+            if len(past_respose) < 50:
                 past_respose.append(input_text)
                 generated.append(output["generated_text"])
             else:
