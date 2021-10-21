@@ -14,7 +14,6 @@ import helping_hand
 from random import choice
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand, SlashContext
-from googlesearch import search
 from GoogleNews import GoogleNews
 from dotenv import load_dotenv
 from math import *
@@ -962,28 +961,6 @@ async def pa1(embeds, ctx):
             break
 
 
-@client.command(aliases=["trend"])
-async def trending_github(ctx):
-    rec=""
-    async with aiohttp.ClientSession() as session:
-        rec=await session.get(url).json()
-        await session.close()
-    embeds = []
-    for i in rec[0:25]:
-        name = i["name"]
-        author = i["author"]
-        thumbnail = i["avatar"] if "avatar" in i.keys() else None
-        description = i["description"]
-        forks = i["forks"]
-        stars = i["stars"]
-        language = i["language"]
-        output = f"description: {description}\nforks: {forks}\nstars: {stars}\nlanguage: {language}\n\nAuthor: {author}"
-        embeds += [
-            cembed(title=name, description=output, color=re[8], thumbnail=thumbnail)
-        ]
-    await pa(embeds, ctx)
-
-
 @client.command(aliases=["c"])
 async def cover_up(ctx):
     await ctx.message.delete()
@@ -1074,7 +1051,7 @@ async def remove_access_to_script(ctx, member: discord.Member):
 
 @client.command()
 async def dev_op(ctx):
-    if str(ctx.guild.id) in dev_users:
+    if str(ctx.author.id) in dev_users:
         print("devop", str(ctx.author))
         channel = client.get_channel(dev_channel)
         await devop_mtext(client, channel, re[8])
@@ -3565,15 +3542,6 @@ async def lol(ctx):
     em = discord.Embed(title="***L😂L***", color=discord.Color(value=re[8]))
     await ctx.send(embed=em)
 
-@client.command(aliases=["g"])
-async def google(ctx, *, text):
-    req()
-    print(text, str(ctx.author))
-    li = "**" + text + "** \n\n"
-    for i in googlesearch.search(text, num=6, stop=6, pause=0):
-        li = li + i + " \n"
-    await ctx.send(li)
-
 
 @client.command(aliases=["cen"])
 async def add_censor(ctx, *, text):
@@ -3848,19 +3816,16 @@ async def exe(ctx, *, text):
                     )
                 )
         output = f.getvalue()
+        embeds=[]
         if output == "":
             output = "_"
-        if len(output) > 2000:
-            output = output[0:2000]
-        em = discord.Embed(
-            title="Output",
-            description=str(output),
-            color=discord.Color(value=re[8]),
-        )
-        em.set_thumbnail(
-            url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
-        )
-        await ctx.send(embed=em)
+        for i in range(len(output)//2000):
+            em = cembed(title="Python",description=output[i*2000:i*2000+2000],color=re[8])
+            em.set_thumbnail(
+                url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
+            )
+            embeds.append(em)
+        await pa(embeds,ctx)
     else:
         await ctx.send(
             embed=discord.Embed(

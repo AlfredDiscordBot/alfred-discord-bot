@@ -6,6 +6,11 @@ def main(client, re):
     import discord
     import requests
     import urllib.parse
+    import asyncio
+    import aiohttp
+    from googlesearch import search
+
+    import External_functions as ef
 
     def convert_to_url(name):
         name = urllib.parse.quote(name)
@@ -114,3 +119,67 @@ def main(client, re):
         )
         embed.set_thumbnail(url="https://i.imgur.com/u1TPbIp.png?1")
         await ctx.send(embed=embed)
+
+    @client.command(aliases=["g"])
+    async def google(ctx, *, text):
+        re[0]+=1
+        li = []
+        print(text, str(ctx.author))
+        for i in search(text, num=5, stop=5, pause=0):
+            #https://render-tron.appspot.com/screenshot/https://discord.com/?width=1458&height=690
+            embed=ef.cembed(title="Google",
+            description=i,
+            color=re[8],
+            thumbnail=client.user.avatar_url_as(format="png"),
+            picture=f"https://render-tron.appspot.com/screenshot/{i}/?width=1458&height=690")
+            li.append(embed)
+        await pa1(li,ctx)
+
+    async def pa1(embeds, ctx):
+        message = await ctx.send(embed=embeds[0])
+        pag = 0
+        await message.add_reaction("◀️")
+        await message.add_reaction("▶️")
+
+        def check(reaction, user):
+            return (
+                user != client.user
+                and str(reaction.emoji) in ["◀️", "▶️"]
+                and reaction.message.id == message.id
+            )
+
+        while True:
+            try:
+                reaction, user = await client.wait_for(
+                    "reaction_add", timeout=360, check=check
+                )
+                await message.remove_reaction(reaction, user)
+                if str(reaction.emoji) == "▶️" and pag + 1 != len(embeds):
+                    pag += 1
+                    await message.edit(embed=embeds[pag])
+                elif str(reaction.emoji) == "◀️" and pag != 0:
+                    pag -= 1
+                    await message.edit(embed=embeds[pag])
+            except asyncio.TimeoutError:
+                break
+    @client.command(aliases=["trend"])
+    async def trending_github(ctx):
+        rec=""
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://api.trending-github.com/github/repositories") as resp:
+                rec = await resp.json()
+            await session.close()
+        embeds = []
+        for i in rec[0:25]:
+            name = i["name"]
+            author = i["author"]
+            thumbnail = i["avatar"] if "avatar" in i.keys() else None
+            description = i["description"]
+            forks = i["forks"]
+            stars = i["stars"]
+            language = i["language"]
+            output = f"description: {description}\nforks: {forks}\nstars: {stars}\nlanguage: {language}\n\nAuthor: {author}"
+            embeds += [
+                ef.cembed(title=name, description=output, color=re[8], thumbnail=thumbnail)
+            ]
+        await pa1(embeds, ctx)
