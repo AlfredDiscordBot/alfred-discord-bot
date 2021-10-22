@@ -180,6 +180,6 @@ def main(client, re):
             language = i["language"]
             output = f"description: {description}\nforks: {forks}\nstars: {stars}\nlanguage: {language}\n\nAuthor: {author}"
             embeds += [
-                ef.cembed(title=f"{author}/{name}", description=output, color=re[8], thumbnail=thumbnail, url=f"gtihub.com/{author}/{name}")
+                ef.cembed(title=f"{author}/{name}", description=output, color=re[8], thumbnail=thumbnail, url=f"https://gtihub.com/{author}/{name}")
             ]
         await pa1(embeds, ctx)
