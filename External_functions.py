@@ -245,7 +245,7 @@ def get_if_process_exists(name):
 
 
 def cembed(
-    title="", description="", thumbnail="", picture="", color=discord.Color.dark_theme()
+    title="", description="", thumbnail="", picture="", url="", color=discord.Color.dark_theme()
 ):
     embed = discord.Embed()
     if color != discord.Color.dark_theme():
@@ -258,6 +258,8 @@ def cembed(
         embed.set_thumbnail(url=thumbnail)
     if picture != "":
         embed.set_image(url=picture)
+    if url != "":
+        embed.url = url
     return embed
 
 
