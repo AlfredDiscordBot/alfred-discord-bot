@@ -19,7 +19,8 @@ def main(client, re):
     @client.command()
     async def kanye(ctx):
         re[0] += 1
-        text = eval(requests.get("https://api.kanye.rest").content.decode())["quote"]
+        text = eval(requests.get(
+            "https://api.kanye.rest").content.decode())["quote"]
         embed = discord.Embed(
             title="Kanye Rest", description=text, color=discord.Color(value=re[8])
         )
@@ -33,7 +34,8 @@ def main(client, re):
         try:
             re[0] += 1
             text = eval(
-                requests.get(f"https://api.agify.io/?name={name}").content.decode()
+                requests.get(
+                    f"https://api.agify.io/?name={name}").content.decode()
             )
             st = ""
             for i in text:
@@ -122,18 +124,19 @@ def main(client, re):
 
     @client.command(aliases=["g"])
     async def google(ctx, *, text):
-        re[0]+=1
+        re[0] += 1
         li = []
         print(text, str(ctx.author))
         for i in search(text, num=5, stop=5, pause=0):
-            #https://render-tron.appspot.com/screenshot/https://discord.com/?width=1458&height=690
-            embed=ef.cembed(title="Google",
-            description=i,
-            color=re[8],
-            thumbnail=client.user.avatar_url_as(format="png"),
-            picture=f"https://render-tron.appspot.com/screenshot/{i}/?width=1458&height=690")
+            # https://render-tron.appspot.com/screenshot/https://discord.com/?width=1458&height=690
+            embed = ef.cembed(title="Google",
+                              description=i,
+                              color=re[8],
+                              thumbnail=client.user.avatar_url_as(
+                                  format="png"),
+                              picture=f"https://render-tron.appspot.com/screenshot/{i}/?width=1458&height=690")
             li.append(embed)
-        await pa1(li,ctx)
+        await pa1(li, ctx)
 
     async def pa1(embeds, ctx):
         message = await ctx.send(embed=embeds[0])
@@ -162,24 +165,3 @@ def main(client, re):
                     await message.edit(embed=embeds[pag])
             except asyncio.TimeoutError:
                 break
-    @client.command(aliases=["trend"])
-    async def trending_github(ctx):
-        rec=""
-        async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.trending-github.com/github/repositories") as resp:
-                rec = await resp.json()
-            await session.close()
-        embeds = []
-        for i in rec[0:25]:
-            name = i["name"]
-            author = i["author"]
-            thumbnail = i["avatar"] if "avatar" in i.keys() else None
-            description = i["description"]
-            forks = i["forks"]
-            stars = i["stars"]
-            language = i["language"]
-            output = f"description: {description}\nforks: {forks}\nstars: {stars}\nlanguage: {language}\n\nAuthor: {author}"
-            embeds += [
-                ef.cembed(title=f"{author}/{name}", description=output, color=re[8], thumbnail=thumbnail, url=f"https://github.com/{author}/{name}")
-            ]
-        await pa1(embeds, ctx)
