@@ -59,15 +59,17 @@ def main(client: commands, re):
     async def pa1(embeds, ctx):
         message = await ctx.send(embed=embeds[0])
         pag = 0
+
+        await message.add_reaction("⏮️")
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
-        await message.add_reaction("⏮️")
+
         await message.add_reaction("⏭️")
 
         def check(reaction, user):
             return (
                 user != client.user
-                and str(reaction.emoji) in ["◀️", "▶️", "⏭️", "⏮️"]
+                and str(reaction.emoji) in ["◀️", "▶️", "⏮️", "⏭️"]
                 and reaction.message.id == message.id
             )
 
@@ -83,17 +85,17 @@ def main(client: commands, re):
                 elif str(reaction.emoji) == "◀️" and pag != 0:
                     pag -= 1
                     await message.edit(embed=embeds[pag])
-                elif str(reaction.emoji) == "⏭":
+                elif str(reaction.emoji) == "⏭️":
                     pag = 24
                     await message.edit(embed=embeds[pag])
-                elif str(reaction.emoji) == "⏮":
+                elif str(reaction.emoji) == "⏮️":
                     pag = 0
-                    await message.edit(embeds=embeds[pag])
+                    await message.edit(embed=embeds[pag])
             except asyncio.TimeoutError:
                 break
 
-    @client.command()
-    async def trending_github_new4(ctx):
+    @client.command(aliases=["trend", "ght"])
+    async def trending_github(ctx):
         rec = {}
         async with aiohttp.ClientSession() as session:
             async with session.get("https://api.trending-github.com/github/repositories") as resp:
