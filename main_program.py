@@ -42,6 +42,7 @@ import aiohttp
 from io import BytesIO
 from spotify_client import SpotifyAPI
 
+
 location_of_file = os.getcwd()
 try:
     import mysql.connector as m

@@ -11,6 +11,12 @@ import itertools
 import requests
 import base64
 import datetime
+from threading import Thread
+from youtube_search import YoutubeSearch
+from keep_alive import keep_alive
+# from musixmatch import Musixmatch
+import lyricsgenius
+import pylyrics3
 
 
 class SpotifyAPI(object):
@@ -152,3 +158,70 @@ class SpotifyAPI(object):
         return r.json()
 
 
+client_id = '63c65f9460d94484a147d52ae11078c7'
+client_secret = 'f4f1c8d154ef4ea99adc501de1e0a5eb'
+spotify = SpotifyAPI(client_id, client_secret)
+
+
+def fetch_spotify_playlist(link, num):
+    if num > 100:
+        songs = []
+        images = []
+        album_names = []
+        artist_names = []
+        track_names = []
+        loops_req = int(num // 100 + 1)
+        offset = 0
+        for loop in range(loops_req):
+            data = spotify.playlist(link=link, num=100, offset=offset)
+            for item in range(100):
+                try:
+                    none_object = data['items'][item]['track']
+                except IndexError:
+                    pass
+                if none_object == None:
+                    pass
+                else:
+                    try:
+                        track_name = data['items'][item]['track']['name']
+                        artist_name = data['items'][item]['track']['artists'][0]['name']
+                        image = data['items'][item]['track']['album']['images'][1]['url']
+                        album_name = data['items'][item]['track']['album']['name']
+                        songs.append(f'{track_name} - {artist_name}')
+                        images.append(image)
+                        album_names.append(album_name)
+                        artist_names.append(artist_name)
+                        track_names.append(track_name)
+                        success = True
+                    except IndexError:
+                        pass
+            offset += 100
+    else:
+        songs = []
+        images = []
+        album_names = []
+        artist_names = []
+        track_names = []
+        data = spotify.playlist(link=link, num=num, offset=0)
+        for item in range(num):
+            try:
+                track_name = data['items'][item]['track']['name']
+                artist_name = data['items'][item]['track']['artists'][0]['name']
+                image = data['items'][item]['track']['album']['images'][1]['url']
+                album_name = data['items'][item]['track']['album']['name']
+                songs.append(f'{track_name} - {artist_name}')
+                images.append(image)
+                album_names.append(album_name)
+                artist_names.append(artist_name)
+                track_names.append(track_name)
+                success = True
+            except IndexError:
+                pass
+    # urls = []
+    # base = 'https://www.youtube.com'
+    # for song in songs:
+    #     result = YoutubeSearch(song, max_results=1).to_dict()
+    #     suffix = result[0]['url_suffix']
+    #     link = base + suffix
+    #     urls.append(link)
+    return songs
