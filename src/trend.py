@@ -92,7 +92,7 @@ def main(client: commands, re):
             except asyncio.TimeoutError:
                 break
 
-    @client.command()
+    @client.command(aliases=["trend", "ght"])
     async def trending_github_new4(ctx):
         rec = {}
         async with aiohttp.ClientSession() as session:
