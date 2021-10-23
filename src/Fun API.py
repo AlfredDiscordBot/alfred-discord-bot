@@ -1,21 +1,26 @@
+from functools import lru_cache
+import discord
+from discord import Color
+from discord.ext import commands
+import aiohttp
+import asyncio
+from bs4 import BeautifulSoup
+import datetime
+import requests
+import urllib.parse
+from googlesearch import search
+import External_functions as ef
+
 def requirements():
     return ["re"]
-
-
+  
+  
 def main(client, re):
-    import discord
-    import requests
-    import urllib.parse
-    import asyncio
-    import aiohttp
-    from googlesearch import search
-
-    import External_functions as ef
-
     def convert_to_url(name):
         name = urllib.parse.quote(name)
         return name
-
+      
+      
     @client.command()
     async def kanye(ctx):
         re[0] += 1
@@ -28,13 +33,14 @@ def main(client, re):
             url="https://i.pinimg.com/originals/3b/84/e1/3b84e1b85fb0a8068044df8b6cd8869f.jpg"
         )
         await ctx.send(embed=embed)
-
+        
+        
     @client.command()
     async def age(ctx, name):
         try:
             re[0] += 1
             text = eval(
-                requests.get(
+                 requests.get(
                     f"https://api.agify.io/?name={name}").content.decode()
             )
             st = ""
@@ -53,7 +59,8 @@ def main(client, re):
                     color=discord.Color(value=re[8]),
                 )
             )
-
+            
+            
     @client.command()
     async def pokemon(ctx, pokemon):
         re[0] + re[0] + 1
@@ -86,7 +93,8 @@ def main(client, re):
                     color=discord.Color(value=re[8]),
                 )
             )
-
+            
+            
     @client.command()
     async def ip(ctx, *, ip):
         re[0] + re[0] + 1
@@ -111,7 +119,8 @@ def main(client, re):
             )
             embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
             await ctx.send(embed=embed)
-
+            
+            
     @client.command(aliases=["cat"])
     async def cat_fact(ctx):
         re[0] + re[0] + 1
@@ -122,13 +131,14 @@ def main(client, re):
         embed.set_thumbnail(url="https://i.imgur.com/u1TPbIp.png?1")
         await ctx.send(embed=embed)
 
+        
     @client.command(aliases=["g"])
     async def google(ctx, *, text):
         re[0] += 1
         li = []
         print(text, str(ctx.author))
         for i in search(text, num=5, stop=5, pause=0):
-            # https://render-tron.appspot.com/screenshot/https://discord.com/?width=1458&height=690
+             # https://render-tron.appspot.com/screenshot/https://discord.com/?width=1458&height=690
             embed = ef.cembed(title="Google",
                               description=i,
                               color=re[8],
@@ -138,19 +148,18 @@ def main(client, re):
             li.append(embed)
         await pa1(li, ctx)
 
+        
     async def pa1(embeds, ctx):
         message = await ctx.send(embed=embeds[0])
         pag = 0
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
-
         def check(reaction, user):
             return (
                 user != client.user
                 and str(reaction.emoji) in ["◀️", "▶️"]
                 and reaction.message.id == message.id
             )
-
         while True:
             try:
                 reaction, user = await client.wait_for(
@@ -165,3 +174,4 @@ def main(client, re):
                     await message.edit(embed=embeds[pag])
             except asyncio.TimeoutError:
                 break
+                

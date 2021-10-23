@@ -59,9 +59,11 @@ def main(client: commands, re):
     async def pa1(embeds, ctx):
         message = await ctx.send(embed=embeds[0])
         pag = 0
+
         await message.add_reaction("⏮️")
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
+
         await message.add_reaction("⏭️")
 
         def check(reaction, user):
@@ -93,7 +95,7 @@ def main(client: commands, re):
                 break
 
     @client.command(aliases=["trend", "ght"])
-    async def trending_github_new4(ctx):
+    async def trending_github(ctx):
         rec = {}
         async with aiohttp.ClientSession() as session:
             async with session.get("https://api.trending-github.com/github/repositories") as resp:
