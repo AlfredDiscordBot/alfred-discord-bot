@@ -228,7 +228,8 @@ def main(client, re):
         await ctx.send(embed=embed)
 
     @client.command(aliases=["ghuser", "ghu"])
-    async def github_user(ctx, *, username: str):
+    async def github_user(ctx, *, username: str = ''):
+        if username  == '': username = "octocat"
         stats = get_user_stats(username)
 
         if stats:
