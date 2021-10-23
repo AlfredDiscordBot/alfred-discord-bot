@@ -40,6 +40,7 @@ import cloudscraper
 import requests
 import aiohttp
 from io import BytesIO
+from spotify_client.py import 
 
 location_of_file = os.getcwd()
 try:
