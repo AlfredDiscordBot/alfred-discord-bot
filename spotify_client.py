@@ -6,6 +6,7 @@ import random
 import discord
 from discord.ext import commands
 import asyncio
+import aiohttp
 import functools
 import itertools
 import requests
@@ -17,7 +18,7 @@ from keep_alive import keep_alive
 # from musixmatch import Musixmatch
 import lyricsgenius
 import pylyrics3
-
+import External_functions as ef
 
 class SpotifyAPI(object):
     access_token = None

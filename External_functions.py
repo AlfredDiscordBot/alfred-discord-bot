@@ -490,3 +490,10 @@ async def get_name(url):
         .replace("&#39;", "'")
     )
 
+async def get_async(url,headers = {},kind = "content",session = aiohttp.ClientSession()):
+    async with session as session:
+        async with session.get(url, headers) as resp:
+            if kind == "json":
+                return await resp.json()
+            else:
+                return await resp.text()
