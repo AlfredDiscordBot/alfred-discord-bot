@@ -13,10 +13,6 @@ def requirements():
     return ["re"]
 
 
-def hex_to_rgb(hex: str):
-    return tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
-
-
 @lru_cache(maxsize=128)
 def get_repo_image_url(url):
     text = requests.get(url)
@@ -36,7 +32,8 @@ def trend_embed(
     name="",
     forks=0,
     stars=0,
-    language=""
+    language="",
+    text=""
 ):
     image_url = get_repo_image_url(url)
     embed = discord.Embed()
@@ -54,6 +51,7 @@ def trend_embed(
         name="Stars ⭐", value=f"[{stars}]({url}/stargazers)", inline=True)
     embed.add_field(
         name="Forks 🍴", value=f"[{forks}]({url}/network/members)", inline=True)
+    embed.set_footer(text=text)
     return embed
 
 
@@ -63,11 +61,13 @@ def main(client: commands, re):
         pag = 0
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
+        await message.add_reaction("⏮️")
+        await message.add_reaction("⏭️")
 
         def check(reaction, user):
             return (
                 user != client.user
-                and str(reaction.emoji) in ["◀️", "▶️"]
+                and str(reaction.emoji) in ["◀️", "▶️", "⏭️", "⏮️"]
                 and reaction.message.id == message.id
             )
 
@@ -83,18 +83,24 @@ def main(client: commands, re):
                 elif str(reaction.emoji) == "◀️" and pag != 0:
                     pag -= 1
                     await message.edit(embed=embeds[pag])
+                elif str(reaction.emoji) == "⏭":
+                    pag = 24
+                    await message.edit(embed=embeds[pag])
+                elif str(reaction.emoji) == "⏮":
+                    pag = 0
+                    await message.edit(embeds=embeds[pag])
             except asyncio.TimeoutError:
                 break
 
     @client.command()
-    async def trending_github_new2(ctx):
+    async def trending_github_new4(ctx):
         rec = {}
         async with aiohttp.ClientSession() as session:
             async with session.get("https://api.trending-github.com/github/repositories") as resp:
                 rec = await resp.json()
             await session.close()
         embeds = []
-        for i in rec[0:25]:
+        for index, i in enumerate(rec[0:25]):
             name = i["name"]
             author = i["author"]
             thumbnail = i["avatar"] if "avatar" in i.keys() else None
@@ -112,7 +118,11 @@ def main(client: commands, re):
                             color=int(
                                 "eb4034" if color is None else color.lstrip("#"), 16),
                             author_url=f"https://github.com/{author}",
-                            icon_url=thumbnail, name=author, stars=stars, forks=forks, language=language)
+                            icon_url=thumbnail,
+                            name=author,
+                            stars=stars,
+                            forks=forks,
+                            language=language,
+                            text=f"{index + 1} of 25")
             ]
         await pa1(embeds, ctx)
-

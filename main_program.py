@@ -40,6 +40,7 @@ import cloudscraper
 import requests
 import aiohttp
 from io import BytesIO
+from spotify_client import SpotifyAPI
 
 location_of_file = os.getcwd()
 try:
@@ -131,6 +132,74 @@ FFMPEG_OPTIONS = {
     "options": "-vn",
 }
 
+
+client_id = '63c65f9460d94484a147d52ae11078c7'
+client_secret = 'f4f1c8d154ef4ea99adc501de1e0a5eb'
+spotify = SpotifyAPI(client_id, client_secret)
+
+
+def fetch_spotify_playlist(link, num):
+    if num > 100:
+        songs = []
+        images = []
+        album_names = []
+        artist_names = []
+        track_names = []
+        loops_req = int(num // 100 + 1)
+        offset = 0
+        for loop in range(loops_req):
+            data = spotify.playlist(link=link, num=100, offset=offset)
+            for item in range(100):
+                try:
+                    none_object = data['items'][item]['track']
+                except IndexError:
+                    pass
+                if none_object == None:
+                    pass
+                else:
+                    try:
+                        track_name = data['items'][item]['track']['name']
+                        artist_name = data['items'][item]['track']['artists'][0]['name']
+                        image = data['items'][item]['track']['album']['images'][1]['url']
+                        album_name = data['items'][item]['track']['album']['name']
+                        songs.append(f'{track_name} - {artist_name}')
+                        images.append(image)
+                        album_names.append(album_name)
+                        artist_names.append(artist_name)
+                        track_names.append(track_name)
+                        success = True
+                    except IndexError:
+                        pass
+            offset += 100
+    else:
+        songs = []
+        images = []
+        album_names = []
+        artist_names = []
+        track_names = []
+        data = spotify.playlist(link=link, num=num, offset=0)
+        for item in range(num):
+            try:
+                track_name = data['items'][item]['track']['name']
+                artist_name = data['items'][item]['track']['artists'][0]['name']
+                image = data['items'][item]['track']['album']['images'][1]['url']
+                album_name = data['items'][item]['track']['album']['name']
+                songs.append(f'{track_name} - {artist_name}')
+                images.append(image)
+                album_names.append(album_name)
+                artist_names.append(artist_name)
+                track_names.append(track_name)
+                success = True
+            except IndexError:
+                pass
+    # urls = []
+    # base = 'https://www.youtube.com'
+    # for song in songs:
+    #     result = YoutubeSearch(song, max_results=1).to_dict()
+    #     suffix = result[0]['url_suffix']
+    #     link = base + suffix
+    #     urls.append(link)
+    return songs
 
 def youtube_download(ctx, url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
@@ -1650,19 +1719,54 @@ async def queue(ctx, *, name=""):
     except:
         mem = []
     if mem.count(str(ctx.author)) > 0 and name != "":
-        name = convert_to_url(name)
-        sear = "https://www.youtube.com/results?search_query=" + name
-        htm = urllib.request.urlopen(sear)
-        video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
-        url = "https://www.youtube.com/watch?v=" + video[0]
+        if 'spotify' in name:
+            if 'playlist' in name:
+                await ctx.send('Enqueued the given Spotify playlist.')
+                try:
+                  for song in fetch_spotify_playlist(name, 500):
+                    try:
+                        name = convert_to_url(song)
+                        sear = "https://www.youtube.com/results?search_query=" + name
+                        htm = urllib.request.urlopen(sear)
+                        video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
+                        url = "https://www.youtube.com/watch?v=" + video[0]
+                        st = ""
+                        num = 0
+                        name_of_the_song = await get_name(url)
+                        print(name_of_the_song, ":", url)
+                        da1[url] = name_of_the_song
+                        queue_song[str(ctx.guild.id)].append(url)
+                    except:
+                        pass
+                except:
+                    pass
+            elif 'track' in name:
+                name = spotify.spotify_track(name)
+                name = convert_to_url(name)
+                sear = "https://www.youtube.com/results?search_query=" + name
+                htm = urllib.request.urlopen(sear)
+                video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
+                url = "https://www.youtube.com/watch?v=" + video[0]
+                st = ""
+                num = 0
+                name_of_the_song = await get_name(url)
+                print(name_of_the_song, ":", url)
+                da1[url] = name_of_the_song
+                queue_song[str(ctx.guild.id)].append(url)
+        else:       
+            name = convert_to_url(name)
+            sear = "https://www.youtube.com/results?search_query=" + name
+            htm = urllib.request.urlopen(sear)
+            video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
+            url = "https://www.youtube.com/watch?v=" + video[0]
 
-        st = ""
-        await ctx.send("Added to queue")
-        num = 0
-        name_of_the_song = await get_name(url)
-        print(name_of_the_song, ":", url)
-        da1[url] = name_of_the_song
-        queue_song[str(ctx.guild.id)].append(url)
+            st = ""
+            await ctx.send("Added to queue")
+            num = 0
+            name_of_the_song = await get_name(url)
+            print(name_of_the_song, ":", url)
+            da1[url] = name_of_the_song
+            queue_song[str(ctx.guild.id)].append(url)
         for i in queue_song[str(ctx.guild.id)]:
             if num >= len(queue_song[str(ctx.guild.id)]) - 10:
                 if not i in da1.keys():
