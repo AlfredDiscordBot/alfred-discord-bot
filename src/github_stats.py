@@ -194,7 +194,7 @@ def user_stats_dict(stats: GitHubUserStats, color: int = None, uname: str = ""):
 
     info[
         "description"
-    ] = f"{stats.bio or ' '} \n\n{stats.name} has {stats.public_repos} public repos and {stats.public_gists} public gists"
+    ] = f"```{stats.bio or ' '}``` \n{stats.name} has {stats.public_repos} public repos and {stats.public_gists} public gists"
 
     info["fields"] = [
         {
