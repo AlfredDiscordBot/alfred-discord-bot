@@ -157,6 +157,7 @@ class SpotifyAPI(object):
             return {}
         return r.json()
 
+
 client_id = '63c65f9460d94484a147d52ae11078c7'
 client_secret = 'f4f1c8d154ef4ea99adc501de1e0a5eb'
 spotify = SpotifyAPI(client_id, client_secret)
