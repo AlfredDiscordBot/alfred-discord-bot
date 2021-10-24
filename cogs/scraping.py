@@ -191,3 +191,6 @@ class Scraping(commands.Cog):
             url="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
         )
         await ctx.send(embed=em)
+
+def setup(client):
+    client.add_cog(Scraping(client))

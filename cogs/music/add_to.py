@@ -47,3 +47,6 @@ class AddTo(commands.cog):
                         color=discord.Color(value=re[8]),
                     )
                 )
+
+def setup(bot):
+    bot.add_cog(Addto(bot))

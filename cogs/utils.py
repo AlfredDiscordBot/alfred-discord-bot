@@ -9,7 +9,7 @@ from main_program import re, dev_users, ydl_op, req, dev_channel, load_from_file
     g_req
 
 
-class Utils(commands.cog):
+class Utils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -320,3 +320,7 @@ class Utils(commands.cog):
             title="Requests", description=str(number), color=discord.Color(value=re[8])
         )
         await ctx.send(embed=em)
+
+
+def setup(client):
+    client.add_cog(Utils(client))

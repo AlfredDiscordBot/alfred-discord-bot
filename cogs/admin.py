@@ -5,7 +5,7 @@ from External_functions import cembed, wait_for_confirm
 from main_program import mute_role, re, req
 
 
-class Admin(commands.cog):
+class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -78,3 +78,7 @@ class Admin(commands.cog):
                 )
         else:
             await ctx.send("Wrong password")
+
+
+def setup(client):
+    client.add_cog(Admin(client))

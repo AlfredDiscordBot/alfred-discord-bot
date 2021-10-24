@@ -8,7 +8,7 @@ from External_functions import cembed, equalise
 from main_program import req, re
 
 
-class Polls(commands.cog):
+class Polls(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -85,3 +85,6 @@ class Polls(commands.cog):
                     thumbnail=self.bot.user.avatar_url_as(format="png"),
                 )
             )
+
+def setup(client):
+    client.add_cog(Polls(client))

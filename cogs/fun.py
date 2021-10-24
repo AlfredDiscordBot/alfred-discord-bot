@@ -1,11 +1,11 @@
-import discord
+    import discord
 from discord.ext import commands
 
 from External_functions import cembed
 from main_program import req, re
 
 
-class Fun(commands.cog):
+class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -54,3 +54,6 @@ class Fun(commands.cog):
                     color=re[8],
                 )
             )
+
+def setup(client):
+    client.add_cog(Fun(client))

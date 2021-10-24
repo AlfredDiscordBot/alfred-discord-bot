@@ -5,7 +5,7 @@ import discord
 from main_program import req, re
 
 
-class Emoji(commands.cog):
+class Emoji(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -69,3 +69,6 @@ class Emoji(commands.cog):
     @commands.command(aliases=["say"])
     async def pr(self, ctx, *, text):
         await ctx.send(text)
+
+def setup(client):
+    client.add_cog(Emoji(client))

@@ -12,7 +12,7 @@ from main_program import get_dev_users, set_dev_users, re, temp_dev, load_from_f
     location_of_file, req, dev_users, pa
 
 
-class Sudo(commands.cog):
+class Sudo(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -296,3 +296,6 @@ class Sudo(commands.cog):
                 )
             )
 
+
+def setup(client):
+    client.add_cog(Sudo(client))

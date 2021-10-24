@@ -10,7 +10,7 @@ from External_functions import cembed, reddit, memes3, memes2, memes1
 from main_program import req, re, client, save_to_file
 
 
-class Memes(commands.cog):
+class Memes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.link_for_cats = ""
@@ -131,3 +131,7 @@ class Memes(commands.cog):
                 )
         await ctx.send(choice(self.link_for_cats))
         save_to_file()
+
+
+def setup(client):
+    client.add_cog(Memes(client))

@@ -26,31 +26,8 @@ import psutil
 import asyncio
 import aiohttp
 import speedtest
-
-from cogs.music.add_to import AddTo
-from cogs.music.again import Again
-from cogs.music.autoplay import AutoPlay
-from cogs.music.connect import Connect
-from cogs.music.currentmusic import CurrentMusic
-from cogs.music.leave import Leave
-from cogs.music.loop import Loop
-from cogs.music.queue import Queue
-from cogs.music.remove import Remove
-from cogs.music.repeat import Repeat
 from spotify_client import *
 
-# from spotify_client import SpotifyAPI
-from cogs.admin import Admin
-from cogs.ai import AI
-from cogs.emoji import Emoji
-from cogs.entar import Entrar
-from cogs.fun import Fun
-from cogs.games import Games
-from cogs.memes import Memes
-from cogs.polls import Polls
-from cogs.scraping import Scraping
-from cogs.sudo import Sudo
-from cogs.utils import Utils
 
 location_of_file = os.getcwd()
 try:
@@ -63,7 +40,7 @@ except:
 try:
     st_speed = speedtest.Speedtest()
 except:
-    print("failed")
+    print("Speedtest failed")
 googlenews = GoogleNews()
 start_time = time.time()
 X = "❌"
@@ -109,7 +86,7 @@ da1 = {}
 queue_song: dict[Any, Any] = {}
 temporary_list = []
 dev_channel = int(os.getenv("dev"))
-re = [0, "OK", 1, {}, -1, "", "205", 1, 5360, "48515587275%3A0AvceDiA27u1vT%3A26"]
+re = [0, "OK", {}, {}, -1, "", "205", {}, 5360, "48515587275%3A0AvceDiA27u1vT%3A26"]
 a_channels = [822500785765875749, 822446957288357888]
 cat = {}
 youtube = []
@@ -140,72 +117,6 @@ FFMPEG_OPTIONS = {
 }
 
 
-# spotify = SpotifyAPI(client_id, client_secret)
-
-
-# def fetch_spotify_playlist(link, num):
-#     if num > 100:
-#         songs = []
-#         images = []
-#         album_names = []
-#         artist_names = []
-#         track_names = []
-#         loops_req = int(num // 100 + 1)
-#         offset = 0
-#         for loop in range(loops_req):
-#             data = spotify.playlist(link=link, num=100, offset=offset)
-#             for item in range(100):
-#                 try:
-#                     none_object = data['items'][item]['track']
-#                 except IndexError:
-#                     pass
-#                 if none_object == None:
-#                     pass
-#                 else:
-#                     try:
-#                         track_name = data['items'][item]['track']['name']
-#                         artist_name = data['items'][item]['track']['artists'][0]['name']
-#                         image = data['items'][item]['track']['album']['images'][1]['url']
-#                         album_name = data['items'][item]['track']['album']['name']
-#                         songs.append(f'{track_name} - {artist_name}')
-#                         images.append(image)
-#                         album_names.append(album_name)
-#                         artist_names.append(artist_name)
-#                         track_names.append(track_name)
-#                         success = True
-#                     except IndexError:
-#                         pass
-#             offset += 100
-#     else:
-#         songs = []
-#         images = []
-#         album_names = []
-#         artist_names = []
-#         track_names = []
-#         data = spotify.playlist(link=link, num=num, offset=0)
-#         for item in range(num):
-#             try:
-#                 track_name = data['items'][item]['track']['name']
-#                 artist_name = data['items'][item]['track']['artists'][0]['name']
-#                 image = data['items'][item]['track']['album']['images'][1]['url']
-#                 album_name = data['items'][item]['track']['album']['name']
-#                 songs.append(f'{track_name} - {artist_name}')
-#                 images.append(image)
-#                 album_names.append(album_name)
-#                 artist_names.append(artist_name)
-#                 track_names.append(track_name)
-#                 success = True
-#             except IndexError:
-#                 pass
-#     # urls = []
-#     # base = 'https://www.youtube.com'
-#     # for song in songs:
-#     #     result = YoutubeSearch(song, max_results=1).to_dict()
-#     #     suffix = result[0]['url_suffix']
-#     #     link = base + suffix
-#     #     urls.append(link)
-#     return songs
-
 def youtube_download(ctx, url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
         info = ydl.extract_info(url, download=False)
@@ -235,7 +146,6 @@ client = commands.Bot(
     case_insensitive=True,
 )
 slash = SlashCommand(client, sync_commands=True)
-client.load_extension('cog')
 
 
 def save_to_file(a=""):
@@ -323,26 +233,12 @@ async def on_ready():
     print(client.user)
     channel = client.get_channel(dev_channel)
     DiscordComponents(client)
-    client.add_cog(Admin(client))
-    client.add_cog(AI(client))
-    client.add_cog(Emoji(client))
-    client.add_cog(Entrar(client))
-    client.add_cog(Fun(client))
-    client.add_cog(Games(client))
-    client.add_cog(Memes(client))
-    client.add_cog(Polls(client))
-    client.add_cog(Scraping(client))
-    client.add_cog(Sudo(client))
-    client.add_cog(Utils(client))
-    client.add_cog(AddTo(client))
-    client.add_cog(Again(client))
-    client.add_cog(AutoPlay(client))
-    client.add_cog(Connect(client))
-    client.add_cog(CurrentMusic(client))
-    client.add_cog(Leave(client))
-    client.add_cog(Loop(client))
-    client.add_cog(Queue(client))
-    client.add_cog(Repeat(client))
+    for filename in os.listdir("./cogs"):
+        try:
+            if filename.endswith('.py'):
+                client.load_extension(f'cogs.{filename[:-3]}')
+        except Exception as e:
+            print(e)
     try:
         print("Starting Load from file")
         try:

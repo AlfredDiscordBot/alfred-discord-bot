@@ -5,7 +5,7 @@ from discord.ext import commands
 from main_program import reset_board, Emoji_list, re, coin_toss_message, coin_message, set_coin_toss_message
 
 
-class Games(commands.cog):
+class Games(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -50,3 +50,5 @@ class Games(commands.cog):
                     color=discord.Color(value=re[8]),
                 )
             )
+def setup(client):
+    client.add_cog(Games(client))

@@ -9,7 +9,7 @@ from External_functions import genpost, cembed
 from main_program import re, censor, prefix_dict, save_to_file, dev_channel, get_dev_users, req
 
 
-class AI(commands.cog):
+class AI(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.past_response = []
@@ -164,3 +164,7 @@ class AI(commands.cog):
                 title="Generated text", description=output[0]["generated_text"], color=re[8]
             )
         )
+
+
+def setup(client):
+    client.add_cog(Fun(client))

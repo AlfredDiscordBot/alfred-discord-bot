@@ -88,10 +88,8 @@ def quad(eq):
         return "This equation has two roots: " + str(root1) + "," + str(root2)
 
 
-def memes2():
-    st = requests.get(
-        "https://cheezburger.com/14858757/40-dumb-memes-for-distractible-scrollers"
-    ).content.decode()
+async def memes2():
+    st = await get_async("https://cheezburger.com/14858757/40-dumb-memes-for-distractible-scrollers")
     stop = 0
     link = []
     for i in range(0, 40):
@@ -104,8 +102,8 @@ def memes2():
     return link
 
 
-def memes1():
-    st = requests.get("http://www.quickmeme.com/").content.decode()
+async def memes1():
+    st = await get_async("http://www.quickmeme.com/")
     stop = 0
     link = []
     for i in range(10):
@@ -116,10 +114,10 @@ def memes1():
     return link
 
 
-def memes3():
-    st = requests.get(
+async def memes3():
+    st = await get_async(
         "https://www.paulbarrs.com/business/funny-memes-website-design"
-    ).content.decode()
+    )
     stop = 0
     link = []
     for i in range(20):
