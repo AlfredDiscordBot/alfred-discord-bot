@@ -134,4 +134,4 @@ class Memes(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(Memes(client))
+    bot.add_cog(Memes(bot))

@@ -1,4 +1,4 @@
-    import discord
+import discord
 from discord.ext import commands
 
 from External_functions import cembed
@@ -7,7 +7,7 @@ from main_program import req, re
 
 class Fun(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.client = bot
 
     @commands.command()
     async def yey(self, ctx):
@@ -55,5 +55,5 @@ class Fun(commands.Cog):
                 )
             )
 
-def setup(client):
-    client.add_cog(Fun(client))
+def setup(bot):
+    client.add_cog(Fun(bot))

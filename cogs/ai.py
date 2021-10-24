@@ -166,5 +166,5 @@ class AI(commands.Cog):
         )
 
 
-def setup(client):
-    client.add_cog(Fun(client))
+def setup(bot):
+    client.add_cog(Fun(bot))

@@ -7,6 +7,7 @@ mysql=
 default=
 dev=
 """
+
 import traceback
 from typing import Dict, Any
 
@@ -83,10 +84,10 @@ deleted_message = {}
 da = {}
 entr = {}
 da1 = {}
-queue_song: dict[Any, Any] = {}
+queue_song = {}
 temporary_list = []
 dev_channel = int(os.getenv("dev"))
-re = [0, "OK", {}, {}, -1, "", "205", {}, 5360, "48515587275%3A0AvceDiA27u1vT%3A26"]
+re = [0, "OK", {}, {}, -1, "", "205", {}, 5360, "48515587275%3A0AvceDiA27u1vT%3A26",1]
 a_channels = [822500785765875749, 822446957288357888]
 cat = {}
 youtube = []
@@ -234,11 +235,10 @@ async def on_ready():
     channel = client.get_channel(dev_channel)
     DiscordComponents(client)
     for filename in os.listdir("./cogs"):
-        try:
-            if filename.endswith('.py'):
-                client.load_extension(f'cogs.{filename[:-3]}')
-        except Exception as e:
-            print(e)
+        
+        if filename.endswith('.py'):
+            client.load_extension(f'cogs.{filename[:-3]}')
+
     try:
         print("Starting Load from file")
         try:

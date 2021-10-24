@@ -50,5 +50,5 @@ class Games(commands.Cog):
                     color=discord.Color(value=re[8]),
                 )
             )
-def setup(client):
-    client.add_cog(Games(client))
+def setup(bot):
+    client.add_cog(Games(bot))
