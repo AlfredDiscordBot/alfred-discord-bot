@@ -40,7 +40,7 @@ import cloudscraper
 import requests
 import aiohttp
 from io import BytesIO
-# from spotify_client import SpotifyAPI
+from spotify_client import *
 
 
 location_of_file = os.getcwd()
@@ -1712,6 +1712,8 @@ async def loop(ctx):
 @client.command(aliases=["q"])
 async def queue(ctx, *, name=""):
     req()
+    st = ""
+    num = 0
     try:
         mem = [str(names) for names in ctx.voice_client.channel.members]
     except:
@@ -1721,29 +1723,30 @@ async def queue(ctx, *, name=""):
             if 'playlist' in name:
                 await ctx.send('Enqueued the given Spotify playlist.')
                 try:
-                  for song in fetch_spotify_playlist(name, 500):
-                    try:
-                        name = convert_to_url(song)
-                        sear = "https://www.youtube.com/results?search_query=" + name
-                        htm = urllib.request.urlopen(sear)
-                        video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
-                        url = "https://www.youtube.com/watch?v=" + video[0]
-                        st = ""
-                        num = 0
-                        name_of_the_song = await get_name(url)
-                        print(name_of_the_song, ":", url)
-                        da1[url] = name_of_the_song
-                        queue_song[str(ctx.guild.id)].append(url)
-                    except:
-                        pass
-                except:
-                    pass
+                    songs = await fetch_spotify_playlist(name, 500)
+                    for song in songs:
+                        try:
+                            name = convert_to_url(song)
+                            sear = "https://www.youtube.com/results?search_query=" + name
+                            htm = await get_async(sear)
+                            video = regex.findall(r"watch\?v=(\S{11})", htm)
+                            url = "https://www.youtube.com/watch?v=" + video[0]
+                            st = ""
+                            num = 0
+                            name_of_the_song = await get_name(url)
+                            da1[url] = name_of_the_song
+                            queue_song[str(ctx.guild.id)].append(url)
+                        except Exception as e:
+                            print(e)
+                            break
+                except Exception as e:
+                    print(e)
             elif 'track' in name:
                 name = spotify.spotify_track(name)
                 name = convert_to_url(name)
                 sear = "https://www.youtube.com/results?search_query=" + name
-                htm = urllib.request.urlopen(sear)
-                video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
+                htm = await get_async(sear)
+                video = regex.findall(r"watch\?v=(\S{11})", htm)
                 url = "https://www.youtube.com/watch?v=" + video[0]
                 st = ""
                 num = 0
@@ -1755,7 +1758,7 @@ async def queue(ctx, *, name=""):
             name = convert_to_url(name)
             sear = "https://www.youtube.com/results?search_query=" + name
             htm = urllib.request.urlopen(sear)
-            video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
+            video = regex.findall(r"watch\?v=(\S{11})", htm)
             url = "https://www.youtube.com/watch?v=" + video[0]
 
             st = ""
@@ -3921,7 +3924,7 @@ async def exe(ctx, *, text):
         embeds=[]
         if output == "":
             output = "_"
-        for i in range(len(output)//2000):
+        for i in range(len(output)//2000+1):
             em = cembed(title="Python",description=output[i*2000:i*2000+2000],color=re[8])
             em.set_thumbnail(
                 url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"

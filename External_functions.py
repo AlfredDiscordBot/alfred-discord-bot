@@ -477,12 +477,7 @@ async def get_name(url):
     '''
     get Youtube Video Name through Async
     '''
-    a = ""
-    async with aiohttp.ClientSession() as session:
-        response=await session.get(url)
-        a = await response.text()
-        print(type(a))
-        await session.close()
+    a = await get_async(url)
     return (
         a[a.find("<title>") + len("<title>") : a.find("</title>")]
         .replace("&amp;", "&")
@@ -490,10 +485,21 @@ async def get_name(url):
         .replace("&#39;", "'")
     )
 
-async def get_async(url,headers = {},kind = "content",session = aiohttp.ClientSession()):
-    async with session as session:
-        async with session.get(url, headers) as resp:
-            if kind == "json":
-                return await resp.json()
+async def get_async(url,headers = {},kind = "content"):
+    '''
+    Simple Async get request
+    '''
+    output = ""
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(url) as resp:
+            if resp.status in list(range(200,299)):
+                if kind == "json":                
+                    output = await resp.json()
+                else:
+                    output = await resp.text()
             else:
-                return await resp.text()
+                output = None
+        await session.close()
+    return output
+
+            

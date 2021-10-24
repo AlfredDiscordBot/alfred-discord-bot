@@ -13,12 +13,12 @@ import requests
 import base64
 import datetime
 from threading import Thread
-from youtube_search import YoutubeSearch
-from keep_alive import keep_alive
+#from youtube_search import YoutubeSearch
 # from musixmatch import Musixmatch
-import lyricsgenius
-import pylyrics3
+#import lyricsgenius
+#import pylyrics3
 import External_functions as ef
+import os
 
 class SpotifyAPI(object):
     access_token = None
@@ -85,7 +85,7 @@ class SpotifyAPI(object):
             return self.get_access_token()
         return token
 
-    def spotify_track(self, link):
+    async def spotify_track(self, link):
         access_token = self.get_access_token()
         id = link[31:53]
         headers = {
@@ -94,14 +94,13 @@ class SpotifyAPI(object):
         endpoint = 'https://api.spotify.com/v1/tracks'
 
         lookup_url = f"{endpoint}/{id}"
-        r = requests.get(lookup_url, headers=headers)
-        if r.status_code in range(200, 299):
-            data = r.json()
+        data = await ef.get_async(url = lookup_url, headers=headers, kind="json")
+        if data is not None:
             track_name = data['name']
             artist_name = data['artists'][0]['name']
             return f"{track_name} - {artist_name}"
 
-    def spotify_track_lyric(self, link):
+    async def spotify_track_lyric(self, link):
         access_token = self.get_access_token()
         id = link[31:53]
         headers = {
@@ -110,14 +109,13 @@ class SpotifyAPI(object):
         endpoint = 'https://api.spotify.com/v1/tracks'
 
         lookup_url = f"{endpoint}/{id}"
-        r = requests.get(lookup_url, headers=headers)
-        if r.status_code in range(200, 299):
-            data = r.json()
+        data = await ef.get_async(url = lookup_url, headers=headers, kind="json")
+        if data is not None:
             track_name = data['name']
             artist_name = data['artists'][0]['name']
             return [track_name, artist_name]
 
-    def search(self, query, search_type='track'):
+    async def search(self, query, search_type='track'):
         access_token = self.get_access_token()
         headers = {
             'Authorization': f'Bearer {access_token}'
@@ -130,15 +128,12 @@ class SpotifyAPI(object):
             'limit':1
         })
         lookup_url = f"{endpoint}?{data}"
-        r = requests.get(lookup_url, headers=headers)
-        # if r.status_code not in range(200, 299):
-        #     return {}
-        data = r.json()
+        data = await ef.get_async(url = lookup_url, headers=headers, kind="json")
         return data
 
 
 
-    def playlist(self, link, num, offset):
+    async def playlist(self, link, num, offset):
         link_main = link[34:]
         target_URI = ''
         for char in link_main:
@@ -153,18 +148,17 @@ class SpotifyAPI(object):
         endpoint = 'https://api.spotify.com/v1/playlists/'
         append = f"/tracks?market=ES&fields=items(track(name,artists,album(name,images)))&limit={num}&offset={offset}"
         lookup_url = f"{endpoint}{target_URI}{append}"
-        r = requests.get(lookup_url, headers=headers)
-        if r.status_code not in range(200, 299):
+        data = await ef.get_async(lookup_url, headers=headers, kind="json")
+        if data is None:
             return {}
-        return r.json()
+        return data
 
-
-client_id = '63c65f9460d94484a147d52ae11078c7'
-client_secret = 'f4f1c8d154ef4ea99adc501de1e0a5eb'
+client_id = os.getenv('spotify')
+client_secret = os.getenv('spotify1')
 spotify = SpotifyAPI(client_id, client_secret)
 
 
-def fetch_spotify_playlist(link, num):
+async def fetch_spotify_playlist(link, num):
     if num > 100:
         songs = []
         images = []
@@ -174,7 +168,7 @@ def fetch_spotify_playlist(link, num):
         loops_req = int(num // 100 + 1)
         offset = 0
         for loop in range(loops_req):
-            data = spotify.playlist(link=link, num=100, offset=offset)
+            data = await spotify.playlist(link=link, num=100, offset=offset)
             for item in range(100):
                 try:
                     none_object = data['items'][item]['track']
