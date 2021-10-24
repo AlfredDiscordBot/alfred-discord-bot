@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from External_functions import cembed
+from External_functions import cembed, wait_for_confirm
 from main_program import mute_role, re, req
 
 
@@ -49,3 +49,32 @@ class Admin(commands.cog):
             await member.remove_roles(add_role)
             await ctx.send("Unmuted " + member.mention)
             print(member, "unmuted")
+
+    @commands.command()
+    async def clear(self, ctx, text, num=10):
+        req()
+        await ctx.channel.purge(limit=1)
+        if str(text) == re[1]:
+            if (
+                    ctx.author.guild_permissions.manage_messages
+                    or ctx.author.id == 432801163126243328
+            ):
+                confirmation = True
+                if int(num) > 10:
+                    confirmation = await wait_for_confirm(
+                        ctx, self.bot, f"Do you want to delete {num} messages", color=re[8]
+                    )
+                if confirmation:
+                    await ctx.channel.delete_messages(
+                        [i async for i in ctx.channel.history(limit=num) if not i.pinned][:100]
+                    )
+            else:
+                await ctx.send(
+                    embed=discord.Embed(
+                        title="Permission Denied",
+                        description="You cant delete messages",
+                        color=discord.Color(value=re[8]),
+                    )
+                )
+        else:
+            await ctx.send("Wrong password")

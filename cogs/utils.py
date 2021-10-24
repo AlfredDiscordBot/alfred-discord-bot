@@ -1,12 +1,12 @@
+import discord
 import psutil
 from discord import emoji
 from discord.ext import commands
+from discord_slash import cog_ext
 
 from External_functions import cembed, extract_color
 from main_program import re, dev_users, ydl_op, req, dev_channel, load_from_file, deleted_message, prefix_dict, censor, \
     g_req
-import discord
-from discord_slash import cog_ext, SlashContext
 
 
 class Utils(commands.cog):

@@ -8,29 +8,23 @@ default=
 dev=
 """
 import traceback
+from typing import Dict, Any
 
 import helping_hand
 from random import choice
 from discord.ext import commands, tasks
-from discord_slash import SlashCommand, SlashContext
+from discord_slash import SlashCommand
 from GoogleNews import GoogleNews
-from io import StringIO
-from contextlib import redirect_stdout
 from External_functions import *
 from discord_components import *
 import youtube_dl
 import os
-import re as regex
-import urllib.request
 import time
 import sys
 import emoji
 import psutil
 import asyncio
-import cloudscraper
-import requests
 import aiohttp
-from io import BytesIO
 import speedtest
 
 # from spotify_client import SpotifyAPI
@@ -100,7 +94,7 @@ deleted_message = {}
 da = {}
 entr = {}
 da1 = {}
-queue_song = {}
+queue_song: dict[Any, Any] = {}
 temporary_list = []
 dev_channel = int(os.getenv("dev"))
 re = [0, "OK", 1, {}, -1, "", "205", 1, 5360, "48515587275%3A0AvceDiA27u1vT%3A26"]
@@ -211,8 +205,8 @@ def youtube_download1(ctx, url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
         info = ydl.extract_info(url, download=False)
         name = info['title']
-        URL = info["formats"][0]["url"]
-    return (URL, name)
+        url = info["formats"][0]["url"]
+    return url, name
 
 
 async def search_vid(name):
@@ -317,6 +311,17 @@ async def on_ready():
     print(client.user)
     channel = client.get_channel(dev_channel)
     DiscordComponents(client)
+    client.add_cog(Admin(client))
+    client.add_cog(AI(client))
+    client.add_cog(Emoji(client))
+    client.add_cog(Entrar(client))
+    client.add_cog(Fun(client))
+    client.add_cog(Games(client))
+    client.add_cog(Memes(client))
+    client.add_cog(Polls(client))
+    client.add_cog(Scraping(client))
+    client.add_cog(Sudo(client))
+    client.add_cog(Utils(client))
     try:
         print("Starting Load from file")
         try:
@@ -378,17 +383,6 @@ async def on_ready():
     print("Prepared")
     youtube_loop.start()
 
-client.add_cog(Admin(client))
-client.add_cog(AI(client))
-client.add_cog(Emoji(client))
-client.add_cog(Entrar(client))
-client.add_cog(Fun(client))
-client.add_cog(Games(client))
-client.add_cog(Memes(client))
-client.add_cog(Polls(client))
-client.add_cog(Scraping(client))
-client.add_cog(Sudo(client))
-client.add_cog(Utils(client))
 
 @tasks.loop(minutes=7)
 async def youtube_loop():
@@ -521,7 +515,7 @@ async def pa1(embeds, ctx):
 
 @client.event
 async def on_message_delete(message):
-    if not message.channel.id in list(deleted_message.keys()):
+    if message.channel.id not in list(deleted_message.keys()):
         deleted_message[message.channel.id] = []
     if len(message.embeds) <= 0:
         if not message.author.bot:
