@@ -8,29 +8,20 @@ default=
 dev=
 """
 
-import pickle
-import discord
 import helping_hand
 from random import choice
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand, SlashContext
 from GoogleNews import GoogleNews
-from dotenv import load_dotenv
-from math import *
-from statistics import *
 from wikipedia import search, summary
 from io import StringIO
 from contextlib import redirect_stdout
 from External_functions import *
 from discord_components import *
-import traceback
-import googlesearch
 import youtube_dl
 import os
 import re as regex
 import urllib.request
-import requests
-import ffmpeg
 import time
 import sys
 import emoji
@@ -40,6 +31,8 @@ import cloudscraper
 import requests
 import aiohttp
 from io import BytesIO
+import speedtest
+
 # from spotify_client import SpotifyAPI
 
 
@@ -50,7 +43,6 @@ try:
     load_dotenv()
 except:
     pass
-import speedtest
 
 try:
     st_speed = speedtest.Speedtest()
@@ -63,11 +55,11 @@ O = "⭕"
 global coin_toss_message, coin_message
 coin_toss_message = None
 coin_message = (
-    "Pick "
-    + emoji.emojize(":face_with_head-bandage:")
-    + " for heads \nPick "
-    + emoji.emojize(":hibiscus:")
-    + " for tails"
+        "Pick "
+        + emoji.emojize(":face_with_head-bandage:")
+        + " for heads \nPick "
+        + emoji.emojize(":hibiscus:")
+        + " for tails"
 )
 global board, Emoji_list
 Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
@@ -115,7 +107,6 @@ wolfram = os.getenv("wolfram")
 prefix_dict = {}
 mute_role = {743323684705402951: 876708632325148672, 851315724119310367: 0}
 
-
 # replace your id with this
 dev_users = ["432801163126243328"]
 ydl_op = {
@@ -132,6 +123,7 @@ FFMPEG_OPTIONS = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
     "options": "-vn",
 }
+
 
 # spotify = SpotifyAPI(client_id, client_secret)
 
@@ -201,16 +193,18 @@ FFMPEG_OPTIONS = {
 
 def youtube_download(ctx, url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        info=ydl.extract_info(url, download=False) 
+        info = ydl.extract_info(url, download=False)
         URL = info["formats"][0]["url"]
     return URL
 
+
 def youtube_download1(ctx, url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        info=ydl.extract_info(url, download=False)
-        name=info['title']
+        info = ydl.extract_info(url, download=False)
+        name = info['title']
         URL = info["formats"][0]["url"]
     return (URL, name)
+
 
 async def search_vid(name):
     pass
@@ -226,6 +220,7 @@ client = commands.Bot(
     case_insensitive=True,
 )
 slash = SlashCommand(client, sync_commands=True)
+client.load_extension('cog')
 
 
 def save_to_file(a=""):
@@ -244,7 +239,7 @@ def save_to_file(a=""):
         file.write("a_channels=" + str(a_channels) + "\n")
         file.write("re=" + str(re) + "\n")
         file.write("dev_users=" + str(dev_users) + "\n")
-        file.write(f"prefix_dict={str(prefix_dict)}\n")  
+        file.write(f"prefix_dict={str(prefix_dict)}\n")
         # file.write("entr=" + str(entr) + "\n")
         file.close()
 
@@ -273,7 +268,7 @@ def load_from_file(file_name=".backup.txt", ss=0):
         global prefix_dict
 
         def start_from(text, i):
-            return eval(i[len(text) :])
+            return eval(i[len(text):])
 
         txt_from_file = [i for i in file.readlines() if i != ""]
         try:
@@ -336,20 +331,20 @@ async def on_ready():
         for i in os.listdir(location_of_file + "/src"):
             if i.endswith(".py"):
                 try:
-                    requi = __import__(i[0 : len(i) - 3]).requirements()
+                    requi = __import__(i[0: len(i) - 3]).requirements()
                     # if requi != "":
                     #     requi = "," + requi
                     if type(requi) is str:
-                        eval(f"__import__('{i[0:len(i)-3]}').main(client,{requi})")
+                        eval(f"__import__('{i[0:len(i) - 3]}').main(client,{requi})")
                     if type(requi) is list:
                         eval(
-                            f"__import__('{i[0:len(i)-3]}').main(client,{','.join(requi)})"
+                            f"__import__('{i[0:len(i) - 3]}').main(client,{','.join(requi)})"
                         )
-                    imports = imports + i[0 : len(i) - 3] + "\n"
+                    imports = imports + i[0: len(i) - 3] + "\n"
                 except Exception as e:
                     await channel.send(
                         embed=discord.Embed(
-                            title="Error in plugin " + i[0 : len(i) - 3],
+                            title="Error in plugin " + i[0: len(i) - 3],
                             description=str(e),
                             color=discord.Color(value=re[8]),
                         )
@@ -404,9 +399,9 @@ async def dev_loop():
                 embed=discord.Embed(
                     title="Done",
                     description=str(person.mention)
-                    + "\nTime remaining: "
-                    + str(temp_dev[i][0])
-                    + "s",
+                                + "\nTime remaining: "
+                                + str(temp_dev[i][0])
+                                + "s",
                     color=discord.Color(value=re[8]),
                 )
             )
@@ -422,12 +417,6 @@ async def dev_loop():
     save_to_file()
 
 
-@client.command()
-async def svg(ctx, *, url):
-    img = svg2png(url)
-    await ctx.send(file=discord.File(BytesIO(img), "svg.png"))
-
-
 @dev_loop.before_loop
 async def wait_for_ready():
     await client.wait_until_ready()
@@ -438,160 +427,8 @@ async def wait_for_ready():
     await client.wait_until_ready()
 
 
-@client.command()
-async def imdb(ctx, *, movie):
-    await ctx.send(embed=imdb_embed(movie))
 
 
-@client.command()
-async def entrar(ctx, *, num=re[6]):
-    print("Entrar", str(ctx.author))
-    global re
-    re[0] = re[0] + 1
-    lol = ""
-    header = {
-        "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36",
-        "referer": "https://entrar.in",
-    }
-    suvzsjv = {
-        "username": os.getenv("sjdoskenv"),
-        "password": os.getenv("sjdoskenv1"),
-        "captcha": "0",
-    }
-    announcement_data = {"announcementlist": "true", "session": "205"}
-    re[6] = num
-    announcement_data["session"] = str(num)
-    # class="label-input100"
-    try:
-        with requests.Session() as s:
-            scraper = cloudscraper.create_scraper(sess=s)
-            r = scraper.get("https://entrar.in/login/login", headers=header)
-            st = r.content.decode()
-            start_captcha = st.find(
-                '<span class="label-input100" style="font-size: 18px;">'
-            ) + len('<span class="label-input100" style="font-size: 20px;">')
-            end_captcha = st.find("=", start_captcha)
-            suvzsjv["captcha"] = str(eval(st[start_captcha:end_captcha]))
-            url = "https://entrar.in/login/auth/"
-            r = scraper.post(url, data=suvzsjv, headers=header)
-            r = scraper.get("https://entrar.in/", headers=header)
-            r = scraper.post(
-                "https://entrar.in/parent_portal/announcement", headers=header
-            )
-            r = scraper.get(
-                "https://entrar.in/parent_portal/announcement", headers=header
-            )
-            await asyncio.sleep(2)
-            r = scraper.post(
-                "https://entrar.in/parent_portal/announcement",
-                data=announcement_data,
-                headers=header,
-            )
-            channel = discord.utils.get(ctx.guild.channels, name="announcement")
-            if ctx.guild.id == 727061931373887531:
-                channel = discord.utils.get(ctx.guild.channels, name="bot")
-            elif ctx.guild.id == 743323684705402951:
-                channel = client.get_channel(868085346867490866)
-            st = r.content.decode()
-            for i in range(1, 5):
-                await asyncio.sleep(1)
-                a = st.find('<td class="text-wrap">' + str(i) + "</td>")
-                b = st.find('<td class="text-wrap">' + str(i + 1) + "</td>")
-                print(a, b)
-                le = len('<td class="text-wrap">' + str(i + 1) + "</td>") - 1
-                if b == -1:
-                    await ctx.send(
-                        embed=discord.Embed(
-                            title="End Of List",
-                            description="",
-                            color=discord.Color(value=re[8]),
-                        )
-                    )
-                    break
-                c = st.find("&nbsp;&nbsp; ", a, b) + len("&nbsp;&nbsp; ")
-                d = st.find("<", c, b)
-                out = st[c:d].strip()
-                e = a + le
-                f = st.find("<td>", e, e + 15) + len("<td>")
-                g = st.find("</td>", e, e + 45)
-                date = st[f:g]
-                h = st.find('<a target="_blank" href="', a, b) + len(
-                    '<a target="_blank" href="'
-                )
-                j = st.find('"', h, b)
-                try:
-                    link = str(st[h:j])
-                    print(link)
-                    if (
-                        link
-                        == 'id="simpletable" class="table table-striped table-bordered nowrap'
-                    ):
-                        continue
-                    req = scraper.get(link)
-                    k = out + date
-                    if not str(ctx.guild.id) in entr:
-                        entr[str(ctx.guild.id)] = []
-                    if k in entr[str(ctx.guild.id)]:
-                        continue
-                    entr[str(ctx.guild.id)].append(str(k))
-                    lol = lol + out + " Date:" + date + "\n"
-                    with open((out + ".pdf"), "wb") as pdf:
-                        pdf.write(req.content)
-                        await channel.send(file=discord.File(out + ".pdf"))
-                        pdf.close()
-                    os.remove(out + ".pdf")
-                except Exception as e:
-                    print(traceback.print_exc())
-            if lol != "":
-                embed = discord.Embed(
-                    title="New announcements",
-                    description=lol,
-                    color=discord.Color(value=re[8]),
-                )
-                embed.set_thumbnail(url="https://entrar.in/logo_dir/entrar_white.png")
-                await channel.send(embed=embed)
-                await ctx.send("Done")
-            else:
-                await channel.send(
-                    embed=discord.Embed(
-                        title="Empty",
-                        description="No new announcement",
-                        color=discord.Color(value=re[8]),
-                    )
-                )
-                await ctx.send("Done")
-    except Exception as e:
-        await ctx.send(
-            embed=cembed(
-                title="Oops",
-                description="Something went wrong\n" + str(e),
-                color=re[8],
-                thumbnail="https://entrar.in/logo_dir/entrar_white.png",
-            )
-        )
-
-
-@slash.slash(name="entrar", description="Latest announcements from Entrar")
-async def yentrar(ctx, *, num=re[6]):
-    await ctx.defer()
-    await entrar(ctx)
-
-
-@slash.slash(name="imdb", description="Give a movie name")
-async def imdb_slash(ctx, movie):
-    req()
-    await ctx.defer()
-    try:
-        await ctx.send(embed=imdb_embed(movie))
-    except Exception as e:
-        await ctx.send(
-            embed=cembed(
-                title="Oops",
-                description=str(e),
-                color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png"),
-            )
-        )
 
 
 @slash.slash(name="emoji", description="Get Emojis from other servers")
@@ -648,50 +485,8 @@ async def uemoji(ctx, emoji_name, number=0):
         )
 
 
-@slash.slash(name="svg2png", description="Convert SVG image to png format")
-async def svg2png_slash(ctx: SlashContext, url):
-    req()
-    await ctx.defer()
-    img = svg2png(url)
-    await ctx.send(file=discord.File(BytesIO(img), "svg.png"))
 
 
-@client.command()
-async def set_sessionid(ctx, sessionid):
-    re[9] = sessionid
-    await ctx.send(
-        embed=discord.Embed(description="SessionID set", color=discord.Color(re[8]))
-    )
-
-
-@client.command()
-async def instagram(ctx, account):
-    try:
-        links = instagram_get1(account, re[8], re[9])
-        embeds = []
-        for a in links:
-            if a is not None and type(a) != type("aa"):
-                embeds.append(a[0])
-            elif type(a) != type("aa"):
-                re[9] = a
-            else:
-                break
-                await ctx.send(
-                    embed=discord.Embed(
-                        description="Oops!, something is wrong.",
-                        color=discord.Color(value=re[8]),
-                    )
-                )
-        await pa(embeds, ctx)
-    except Exception as e:
-        embed = cembed(
-            title="Error in instagram",
-            description=f"{e}\n{ctx.guild.name}: {ctx.channel}",
-            color=re[8],
-            thumbnail=client.user.avatar_url_as(format="png"),
-        )
-        await ctx.send(embed=embed)
-        await client.get_channel(dev_channel).send(embed=embed)
 
 
 @client.command()
@@ -731,18 +526,21 @@ async def show_webhooks(ctx):
     webhooks = await ctx.channel.webhooks()
     await ctx.send(str(webhooks))
 
-@slash.slash(name="color",description="Change color theme", guild_ids= [822445271019421746])
+
+@slash.slash(name="color", description="Change color theme", guild_ids=[822445271019421746])
 async def color_slash(ctx, rgb_color=""):
     await ctx.defer()
-    await theme_color(ctx,tup1=rgb_color)
+    await theme_color(ctx, tup1=rgb_color)
+
 
 @client.command(aliases=["color", "||"])
 async def theme_color(ctx, *, tup1=""):
     try:
         global color_temp
-        color_temp=extract_color(str(re[8]))
-        await ctx.send(embed=cembed(description="Setting Color",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
-        req()        
+        color_temp = extract_color(str(re[8]))
+        await ctx.send(
+            embed=cembed(description="Setting Color", color=re[8], thumbnail=client.user.avatar_url_as(format="png")))
+        req()
         print("Theme color", str(ctx.author))
         if re[8] < 1000:
             re[8] = 1670655
@@ -808,8 +606,11 @@ async def recover(ctx):
                 )
             )
     else:
-        await ctx.send(embed=cembed(title="Permissions Denied",description="You cannot use this command, its only for developers",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
-        await client.get_channel(dev_channel).send(embed=cembed(description=f"{ctx.author.name} from {ctx.guild.name} tried to use Recover command"))
+        await ctx.send(
+            embed=cembed(title="Permissions Denied", description="You cannot use this command, its only for developers",
+                         color=re[8], thumbnail=client.user.avatar_url_as(format="png")))
+        await client.get_channel(dev_channel).send(
+            embed=cembed(description=f"{ctx.author.name} from {ctx.guild.name} tried to use Recover command"))
 
 
 @client.command()
@@ -819,7 +620,7 @@ async def load(ctx):
     try:
         cpu_per = str(int(psutil.cpu_percent()))
         cpu_freq = (
-            str(int(psutil.cpu_freq().current)) + "/" + str(int(psutil.cpu_freq().max))
+                str(int(psutil.cpu_freq().current)) + "/" + str(int(psutil.cpu_freq().max))
         )
         ram = str(psutil.virtual_memory().percent)
         swap = str(psutil.swap_memory().percent)
@@ -910,7 +711,7 @@ async def poll(ctx, options, channel_to_send: discord.TextChannel = None, *, que
         people = "\n" + "\n".join([names[i] for i in author_list])
         st = "\n"
         for i in list(count.keys()):
-            st += f"{copy_count[i]}:  {(count[i]*100)//len(author_list)}%\n"
+            st += f"{copy_count[i]}:  {(count[i] * 100) // len(author_list)}%\n"
         people = st + "\n" + people
         await res.edit_origin(
             embed=cembed(
@@ -1007,9 +808,9 @@ async def pa1(embeds, ctx):
 
     def check(reaction, user):
         return (
-            user != client.user
-            and str(reaction.emoji) in ["◀️", "▶️"]
-            and reaction.message.id == message.id
+                user != client.user
+                and str(reaction.emoji) in ["◀️", "▶️"]
+                and reaction.message.id == message.id
         )
 
     while True:
@@ -1078,7 +879,7 @@ async def add_access_to_script(ctx, member: discord.Member, ti="5"):
         mess = await ctx.send(
             embed=discord.Embed(
                 title="Done",
-                desription=f"{ctx.author.mention} gave script access to {member.mention}\nTimeRemaining: {int(ti)*60}s",
+                desription=f"{ctx.author.mention} gave script access to {member.mention}\nTimeRemaining: {int(ti) * 60}s",
                 color=discord.Color(value=re[8]),
             )
         )
@@ -1100,8 +901,8 @@ async def remove_access_to_script(ctx, member: discord.Member):
             embed=discord.Embed(
                 title="Removed Access",
                 description=str(ctx.author.mention)
-                + " removed access from "
-                + str(member.mention),
+                            + " removed access from "
+                            + str(member.mention),
                 color=discord.Color(value=re[8]),
             )
         )
@@ -1123,7 +924,8 @@ async def dev_op(ctx):
         channel = client.get_channel(dev_channel)
         await devop_mtext(client, channel, re[8])
     else:
-        await ctx.send(embed=cembed(title="Permission Denied",description="You cannot use the devop function, only a developer can",color=re[8]))
+        await ctx.send(embed=cembed(title="Permission Denied",
+                                    description="You cannot use the devop function, only a developer can", color=re[8]))
 
 
 @client.command()
@@ -1156,9 +958,13 @@ async def reset_from_backup(ctx):
                 )
             )
     else:
-        await ctx.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        await ctx.send(
+            embed=cembed(title="Permission Denied", description="Only developers can access this function", color=re[8],
+                         thumbnail=client.user.avatar_url_as(format="png")))
 
-        await channel.send(embed=cembed(description=f"{ctx.author.name} from {ctx.guild.name} tried to use reset_from_backup command",color=re[8]))
+        await channel.send(
+            embed=cembed(description=f"{ctx.author.name} from {ctx.guild.name} tried to use reset_from_backup command",
+                         color=re[8]))
 
 
 @client.command()
@@ -1198,20 +1004,20 @@ async def snipe_slash(ctx, number=0):
 @client.command()
 async def snipe(ctx, number=0):
     if (
-        ctx.author.guild_permissions.administrator
-        or ctx.author.guild_permissions.manage_messages
-        or ctx.guild.id not in [841026124174983188, 822445271019421746]
+            ctx.author.guild_permissions.administrator
+            or ctx.author.guild_permissions.manage_messages
+            or ctx.guild.id not in [841026124174983188, 822445271019421746]
     ):
         if int(number) > 10:
             await ctx.send(
                 embed=cembed(
-                    description = "Cannot snipe more than 10 messages",
+                    description="Cannot snipe more than 10 messages",
                     picture="https://images.news18.com/ibnlive/uploads/2015/08/Chandler-2.gif",
                     color=re[8],
                 )
             )
-            return 
-        message = deleted_message.get(ctx.channel.id,[("Empty","Nothing to snipe here")])[::-1]
+            return
+        message = deleted_message.get(ctx.channel.id, [("Empty", "Nothing to snipe here")])[::-1]
         for i in message:
             number -= 1
             if len(i) < 3:
@@ -1362,7 +1168,7 @@ async def connect_music(ctx, channel=""):
                     embed=discord.Embed(
                         title="",
                         description="Connected\nBitrate of the channel: "
-                        + str(ctx.voice_client.channel.bitrate // 1000),
+                                    + str(ctx.voice_client.channel.bitrate // 1000),
                         color=discord.Color(value=re[8]),
                     )
                 )
@@ -1384,7 +1190,7 @@ async def connect_music(ctx, channel=""):
                     embed=discord.Embed(
                         title="",
                         description="Connected\nBitrate of the channel: "
-                        + str(ctx.voice_client.channel.bitrate // 1000),
+                                    + str(ctx.voice_client.channel.bitrate // 1000),
                         color=discord.Color(value=re[8]),
                     )
                 )
@@ -1408,10 +1214,10 @@ async def connect_music(ctx, channel=""):
             embed=discord.Embed(
                 title="Connect music",
                 description=str(e)
-                + "\n"
-                + str(ctx.guild.name)
-                + ": "
-                + str(ctx.channel.name),
+                            + "\n"
+                            + str(ctx.guild.name)
+                            + ": "
+                            + str(ctx.channel.name),
                 color=discord.Color(value=re[8]),
             )
         )
@@ -1511,8 +1317,8 @@ async def remove(ctx, n):
                 embed=discord.Embed(
                     title="Not removed",
                     description="Only "
-                    + len(queue_song[str(ctx.guild.id)])
-                    + " song(s) in your queue",
+                                + len(queue_song[str(ctx.guild.id)])
+                                + " song(s) in your queue",
                     color=discord.Color(value=re[8]),
                 )
             )
@@ -1531,19 +1337,19 @@ async def currentmusic(ctx):
     req()
     if len(queue_song[str(ctx.guild.id)]) > 0:
         description = (
-            "[Current index: "
-            + str(re[3][str(ctx.guild.id)])
-            + "]("
-            + queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
-            + ")\n"
+                "[Current index: "
+                + str(re[3][str(ctx.guild.id)])
+                + "]("
+                + queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
+                + ")\n"
         )
         info = youtube_info(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]])
         check = "\n\nDescription: \n" + info["description"] + "\n"
         if len(check) < 3000 and len(check) > 0:
             description += check
         description += (
-            f"\nDuration: {str(info['duration'] // 60)}min {str(info['duration'] % 60)}sec"
-            + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n{info['dislike_count']} :thumbdown:"
+                f"\nDuration: {str(info['duration'] // 60)}min {str(info['duration'] % 60)}sec"
+                + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n{info['dislike_count']} :thumbdown:"
         )
         await ctx.send(
             embed=cembed(
@@ -1570,23 +1376,23 @@ def repeat(ctx, voice):
             urllib.request.urlopen(
                 queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
             )
-            .read()
-            .decode()
+                .read()
+                .decode()
         )
         starting = aa.find("<title>") + len("<title>")
         ending = aa.find("</title>")
         da1[queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]] = (
             aa[starting:ending]
-            .replace("&#39;", "'")
-            .replace(" - YouTube", "")
-            .replace("&amp;", "&")
+                .replace("&#39;", "'")
+                .replace(" - YouTube", "")
+                .replace("&amp;", "&")
         )
     time.sleep(1)
-    if re[7].get(ctx.guild.id,-1) == 1 and not voice.is_playing():
+    if re[7].get(ctx.guild.id, -1) == 1 and not voice.is_playing():
         re[3][str(ctx.guild.id)] += 1
         if re[3][str(ctx.guild.id)] >= len(queue_song[str(ctx.guild.id)]):
             re[3][str(ctx.guild.id)] = 0
-    if re[2].get(ctx.guild.id,-1) == 1 or re[7].get(ctx.guild.id,-1) == 1:
+    if re[2].get(ctx.guild.id, -1) == 1 or re[7].get(ctx.guild.id, -1) == 1:
         if not voice.is_playing():
             URL = youtube_download(
                 ctx, queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
@@ -1660,8 +1466,8 @@ async def autoplay(ctx):
     req()
     if ctx.author.id in [i.id for i in ctx.voice_client.channel.members]:
         st = ""
-        re[7][ctx.guild.id] = re[7].get(ctx.guild.id,-1) * -1
-        if re[7].get(ctx.guild.id,-1) == 1:
+        re[7][ctx.guild.id] = re[7].get(ctx.guild.id, -1) * -1
+        if re[7].get(ctx.guild.id, -1) == 1:
             re[2][ctx.guild.id] = -1
         if re[7][ctx.guild.id] < 0:
             st = "Off"
@@ -1687,10 +1493,10 @@ async def loop(ctx):
     req()
     if ctx.author.id in [i.id for i in ctx.voice_client.channel.members]:
         st = ""
-        re[2][ctx.guild.id] = re[2].get(ctx.guild.id,-1) * -1
-        if re[2].get(ctx.guild.id,1) == 1:
+        re[2][ctx.guild.id] = re[2].get(ctx.guild.id, -1) * -1
+        if re[2].get(ctx.guild.id, 1) == 1:
             re[7][ctx.guild.id] = -1
-        if re[2].get(ctx.guild.id,1) < 0:
+        if re[2].get(ctx.guild.id, 1) < 0:
             st = "Off"
         else:
             st = "_On_"
@@ -1721,21 +1527,21 @@ async def queue(ctx, *, name=""):
             if 'playlist' in name:
                 await ctx.send('Enqueued the given Spotify playlist.')
                 try:
-                  for song in fetch_spotify_playlist(name, 500):
-                    try:
-                        name = convert_to_url(song)
-                        sear = "https://www.youtube.com/results?search_query=" + name
-                        htm = urllib.request.urlopen(sear)
-                        video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
-                        url = "https://www.youtube.com/watch?v=" + video[0]
-                        st = ""
-                        num = 0
-                        name_of_the_song = await get_name(url)
-                        print(name_of_the_song, ":", url)
-                        da1[url] = name_of_the_song
-                        queue_song[str(ctx.guild.id)].append(url)
-                    except:
-                        pass
+                    for song in fetch_spotify_playlist(name, 500):
+                        try:
+                            name = convert_to_url(song)
+                            sear = "https://www.youtube.com/results?search_query=" + name
+                            htm = urllib.request.urlopen(sear)
+                            video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
+                            url = "https://www.youtube.com/watch?v=" + video[0]
+                            st = ""
+                            num = 0
+                            name_of_the_song = await get_name(url)
+                            print(name_of_the_song, ":", url)
+                            da1[url] = name_of_the_song
+                            queue_song[str(ctx.guild.id)].append(url)
+                        except:
+                            pass
                 except:
                     pass
             elif 'track' in name:
@@ -1751,7 +1557,7 @@ async def queue(ctx, *, name=""):
                 print(name_of_the_song, ":", url)
                 da1[url] = name_of_the_song
                 queue_song[str(ctx.guild.id)].append(url)
-        else:       
+        else:
             name = convert_to_url(name)
             sear = "https://www.youtube.com/results?search_query=" + name
             htm = urllib.request.urlopen(sear)
@@ -1808,7 +1614,7 @@ async def queue(ctx, *, name=""):
                                 da1[i] = youtube_info(i)["title"]
                             st = st + str(num) + ". " + da1[i] + "\n"
                     elif re[3][str(ctx.guild.id)] > (
-                        len(queue_song[str(ctx.guild.id)]) - 10
+                            len(queue_song[str(ctx.guild.id)]) - 10
                     ):
                         if num > (len(queue_song[str(ctx.guild.id)]) - 15):
                             if not i in da1.keys():
@@ -1816,8 +1622,8 @@ async def queue(ctx, *, name=""):
                             st = st + str(num) + ". " + da1[i] + "\n"
                     else:
                         if (
-                            num > re[3][str(ctx.guild.id)] - 10
-                            and num < re[3][str(ctx.guild.id)] + 10
+                                num > re[3][str(ctx.guild.id)] - 10
+                                and num < re[3][str(ctx.guild.id)] + 10
                         ):
                             if not i in da1.keys():
                                 da1[i] = youtube_info(i)["title"]
@@ -1867,8 +1673,8 @@ async def next(ctx):
                     embed=discord.Embed(
                         title="Last song",
                         description="Only "
-                        + str(len(queue_song[str(ctx.guild.id)]))
-                        + " songs in your queue",
+                                    + str(len(queue_song[str(ctx.guild.id)]))
+                                    + " songs in your queue",
                         color=discord.Color(value=re[8]),
                     )
                 )
@@ -1904,10 +1710,10 @@ async def next(ctx):
             embed=discord.Embed(
                 title="Error in next function",
                 description=str(e)
-                + "\n"
-                + str(ctx.guild)
-                + ": "
-                + str(ctx.channel.name),
+                            + "\n"
+                            + str(ctx.guild)
+                            + ": "
+                            + str(ctx.channel.name),
                 color=discord.Color(value=re[8]),
             )
         )
@@ -1993,8 +1799,8 @@ async def previous(ctx):
                     )
                 )
             if (
-                not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
-                in da1.keys()
+                    not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
+                        in da1.keys()
             ):
                 da1[
                     queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
@@ -2035,10 +1841,10 @@ async def previous(ctx):
             embed=discord.Embed(
                 title="Error in previous function",
                 description=str(e)
-                + "\n"
-                + str(ctx.guild)
-                + ": "
-                + str(ctx.channel.name),
+                            + "\n"
+                            + str(ctx.guild)
+                            + ": "
+                            + str(ctx.channel.name),
                 color=discord.Color(value=re[8]),
             )
         )
@@ -2060,7 +1866,7 @@ async def dictionary(ctx, *, text):
             if "phonetics" in data.keys():
                 if "text" in data["phonetics"][0]:
                     phonetics = (
-                        "**Phonetics:**\n" + data["phonetics"][0]["text"] + "\n\n"
+                            "**Phonetics:**\n" + data["phonetics"][0]["text"] + "\n\n"
                     )
                     description += phonetics
             if "origin" in list(data.keys()):
@@ -2130,9 +1936,9 @@ async def search_queue(ctx, part):
 async def play(ctx, *, ind):
     req()
     if (
-        discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild) == None
-        and ctx.author.voice
-        and ctx.author.voice.channel
+            discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild) == None
+            and ctx.author.voice
+            and ctx.author.voice.channel
     ):
         if not str(ctx.guild.id) in queue_song:
             queue_song[str(ctx.guild.id)] = []
@@ -2156,8 +1962,8 @@ async def play(ctx, *, ind):
                         ctx, queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
                     )
                     if (
-                        not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
-                        in da1.keys()
+                            not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
+                                in da1.keys()
                     ):
                         da1[
                             queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
@@ -2267,8 +2073,8 @@ async def again(ctx):
                     ctx.voice_client.channel.bitrate // 1000
                 )
                 if (
-                    not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
-                    in da1.keys()
+                        not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
+                            in da1.keys()
                 ):
                     da1[
                         queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
@@ -2281,9 +2087,9 @@ async def again(ctx):
                     embed=cembed(
                         title="Playing",
                         description=da1[
-                            queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
-                        ]
-                        + bitrate,
+                                        queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
+                                    ]
+                                    + bitrate,
                         color=re[8],
                         thumbnail=client.user.avatar_url_as(format="png"),
                     )
@@ -2377,11 +2183,11 @@ async def memes(ctx):
             link_for_cats += memes3()
             print("Finished meme3")
         except Exception as e:
-            await channel.send(
+            await ctx.send(
                 embed=cembed(
                     title="Meme issues",
                     description="Something went wrong during importing memes\n"
-                    + str(e),
+                                + str(e),
                     color=re[8],
                     thumbnail=client.user.avatar_url_as(format="png"),
                 )
@@ -2492,18 +2298,18 @@ async def pause(ctx):
 @client.command(aliases=["*"])
 async def change_nickname(ctx, member: discord.Member, *, nickname):
     if (
-        ctx.author.guild_permissions.change_nickname
-        or ctx.author.id == 432801163126243328
+            ctx.author.guild_permissions.change_nickname
+            or ctx.author.id == 432801163126243328
     ):
         await member.edit(nick=nickname)
         await ctx.send(
             embed=discord.Embed(
                 title="Nickname Changed",
                 description=(
-                    "Nickname changed to "
-                    + member.mention
-                    + " by "
-                    + ctx.author.mention
+                        "Nickname changed to "
+                        + member.mention
+                        + " by "
+                        + ctx.author.mention
                 ),
                 color=discord.Color(value=re[8]),
             )
@@ -2580,7 +2386,7 @@ async def check(ctx):
     print("check")
     em = discord.Embed(
         title="Online",
-        description=f"Hi, {ctx.author.name}\nLatency: {int(client.latency*1000)}",
+        description=f"Hi, {ctx.author.name}\nLatency: {int(client.latency * 1000)}",
         color=discord.Color(value=re[8]),
     )
     await ctx.send(embed=em)
@@ -2599,8 +2405,8 @@ async def clear(ctx, text, num=10):
     await ctx.channel.purge(limit=1)
     if str(text) == re[1]:
         if (
-            ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == 432801163126243328
+                ctx.author.guild_permissions.manage_messages
+                or ctx.author.id == 432801163126243328
         ):
             confirmation = True
             if int(num) > 10:
@@ -2632,9 +2438,9 @@ async def on_reaction_add(reaction, user):
             save_to_file()
             global Emoji_list
             if (
-                reaction.emoji == emoji.emojize(":upwards_button:")
-                and len(queue_song[str(reaction.message.guild.id)]) > 0
-                and reaction.message.author == client.user
+                    reaction.emoji == emoji.emojize(":upwards_button:")
+                    and len(queue_song[str(reaction.message.guild.id)]) > 0
+                    and reaction.message.author == client.user
             ):
                 await reaction.remove(user)
                 if not reaction.message in list(pages.keys()):
@@ -2644,13 +2450,13 @@ async def on_reaction_add(reaction, user):
                         pages[reaction.message] -= 1
                 st = ""
                 for i in range(
-                    pages[reaction.message] * 10,
-                    (pages[reaction.message] * 10) + 10,
+                        pages[reaction.message] * 10,
+                        (pages[reaction.message] * 10) + 10,
                 ):
                     try:
                         if (
-                            not queue_song[str(reaction.message.guild.id)][i]
-                            in da1.keys()
+                                not queue_song[str(reaction.message.guild.id)][i]
+                                    in da1.keys()
                         ):
                             da1[
                                 queue_song[str(reaction.message.guild.id)][i]
@@ -2660,11 +2466,11 @@ async def on_reaction_add(reaction, user):
                                 "title"
                             ]
                         st = (
-                            st
-                            + str(i)
-                            + ". "
-                            + da1[queue_song[str(reaction.message.guild.id)][i]]
-                            + "\n"
+                                st
+                                + str(i)
+                                + ". "
+                                + da1[queue_song[str(reaction.message.guild.id)][i]]
+                                + "\n"
                         )
                     except Exception as e:
                         print(e)
@@ -2676,30 +2482,30 @@ async def on_reaction_add(reaction, user):
                     )
                 )
             if (
-                reaction.emoji == emoji.emojize(":downwards_button:")
-                and len(queue_song[str(reaction.message.guild.id)]) > 0
-                and reaction.message.author == client.user
+                    reaction.emoji == emoji.emojize(":downwards_button:")
+                    and len(queue_song[str(reaction.message.guild.id)]) > 0
+                    and reaction.message.author == client.user
             ):
                 await reaction.remove(user)
                 if not reaction.message in list(pages.keys()):
                     pages[reaction.message] = 0
                 else:
                     if pages[reaction.message] * 10 < len(
-                        queue_song[str(reaction.message.guild.id)]
+                            queue_song[str(reaction.message.guild.id)]
                     ):
                         pages[reaction.message] += 1
                     else:
                         pages[reaction.message] = (
-                            len(queue_song[str(reaction.message.guild.id)]) // 10
+                                len(queue_song[str(reaction.message.guild.id)]) // 10
                         )
                 st = ""
                 for i in range(
-                    pages[reaction.message] * 10,
-                    (pages[reaction.message] * 10) + 10,
+                        pages[reaction.message] * 10,
+                        (pages[reaction.message] * 10) + 10,
                 ):
                     try:
                         if not queue_song[str(reaction.message.guild.id)][i] in list(
-                            da1.keys()
+                                da1.keys()
                         ):
                             da1[
                                 queue_song[str(reaction.message.guild.id)][i]
@@ -2709,11 +2515,11 @@ async def on_reaction_add(reaction, user):
                                 "title"
                             ]
                         st = (
-                            st
-                            + str(i)
-                            + ". "
-                            + da1[queue_song[str(reaction.message.guild.id)][i]]
-                            + "\n"
+                                st
+                                + str(i)
+                                + ". "
+                                + da1[queue_song[str(reaction.message.guild.id)][i]]
+                                + "\n"
                         )
                     except Exception as e:
                         print(e)
@@ -2728,9 +2534,9 @@ async def on_reaction_add(reaction, user):
                 )
 
             if (
-                reaction.emoji
-                in [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
-                and reaction.message.author.id == client.user.id
+                    reaction.emoji
+                    in [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
+                    and reaction.message.author.id == client.user.id
             ):
                 global board, available, sent, dictionary
                 if user != client.user:
@@ -2805,13 +2611,13 @@ async def on_reaction_add(reaction, user):
                 await reaction.remove(user)
                 if len(queue_song[str(reaction.message.guild.id)]) > 0:
                     description = (
-                        "[Current index: "
-                        + str(re[3][str(reaction.message.guild.id)])
-                        + "]("
-                        + queue_song[str(reaction.message.guild.id)][
-                            re[3][str(reaction.message.guild.id)]
-                        ]
-                        + ")\n"
+                            "[Current index: "
+                            + str(re[3][str(reaction.message.guild.id)])
+                            + "]("
+                            + queue_song[str(reaction.message.guild.id)][
+                                re[3][str(reaction.message.guild.id)]
+                            ]
+                            + ")\n"
                     )
                     info = youtube_info(
                         queue_song[str(reaction.message.guild.id)][
@@ -2822,12 +2628,12 @@ async def on_reaction_add(reaction, user):
                     if len(check) < 3000 and len(check) > 0:
                         description += check
                     description += (
-                        "\nDuration: "
-                        + str(info["duration"] // 60)
-                        + "min "
-                        + str(info["duration"] % 60)
-                        + "sec"
-                        + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n{info['dislike_count']} :thumbdown:"
+                            "\nDuration: "
+                            + str(info["duration"] // 60)
+                            + "min "
+                            + str(info["duration"] % 60)
+                            + "sec"
+                            + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n{info['dislike_count']} :thumbdown:"
                     )
                     await reaction.message.edit(
                         embed=cembed(
@@ -2853,8 +2659,8 @@ async def on_reaction_add(reaction, user):
                     )
             if reaction.emoji == discord.utils.get(client.emojis, name="blue_down"):
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     temp_tup = color_temp
@@ -2882,8 +2688,8 @@ async def on_reaction_add(reaction, user):
                     await color_message.edit(embed=embed)
             if reaction.emoji == discord.utils.get(client.emojis, name="green_down"):
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     temp_tup = color_temp
@@ -2911,8 +2717,8 @@ async def on_reaction_add(reaction, user):
                     await color_message.edit(embed=embed)
             if reaction.emoji == emoji.emojize(":red_triangle_pointed_down:"):
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     temp_tup = color_temp
@@ -2940,8 +2746,8 @@ async def on_reaction_add(reaction, user):
                     await color_message.edit(embed=embed)
             if reaction.emoji == discord.utils.get(client.emojis, name="blue_up"):
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     temp_tup = color_temp
@@ -2969,8 +2775,8 @@ async def on_reaction_add(reaction, user):
                     await color_message.edit(embed=embed)
             if reaction.emoji == discord.utils.get(client.emojis, name="green_up"):
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     temp_tup = color_temp
@@ -2998,8 +2804,8 @@ async def on_reaction_add(reaction, user):
                     await color_message.edit(embed=embed)
             if reaction.emoji == emoji.emojize(":red_triangle_pointed_up:"):
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     temp_tup = color_temp
@@ -3027,8 +2833,8 @@ async def on_reaction_add(reaction, user):
                     await color_message.edit(embed=embed)
             if reaction.emoji == "⏮":
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     req()
@@ -3041,10 +2847,10 @@ async def on_reaction_add(reaction, user):
                         mem = []
                     if mem.count(str(user)) > 0:
                         if (
-                            not queue_song[str(reaction.message.guild.id)][
-                                re[3][str(reaction.message.guild.id)]
-                            ]
-                            in da1.keys()
+                                not queue_song[str(reaction.message.guild.id)][
+                                        re[3][str(reaction.message.guild.id)]
+                                    ]
+                                    in da1.keys()
                         ):
                             da1[
                                 queue_song[str(reaction.message.guild.id)][
@@ -3097,16 +2903,16 @@ async def on_reaction_add(reaction, user):
                             embed=discord.Embed(
                                 title="Permission denied",
                                 description=(
-                                    "You need to join the voice channel "
-                                    + str(user.name)
+                                        "You need to join the voice channel "
+                                        + str(user.name)
                                 ),
                                 color=discord.Color(value=re[8]),
                             )
                         )
             if reaction.emoji == "⏸":
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     req()
@@ -3135,8 +2941,8 @@ async def on_reaction_add(reaction, user):
                         voice.pause()
             if reaction.emoji == "▶":
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     req()
@@ -3152,10 +2958,10 @@ async def on_reaction_add(reaction, user):
                             client.voice_clients, guild=reaction.message.guild
                         )
                         if (
-                            not queue_song[str(reaction.message.guild.id)][
-                                re[3][str(reaction.message.guild.id)]
-                            ]
-                            in da1.keys()
+                                not queue_song[str(reaction.message.guild.id)][
+                                        re[3][str(reaction.message.guild.id)]
+                                    ]
+                                    in da1.keys()
                         ):
                             da1[
                                 queue_song[str(reaction.message.guild.id)][
@@ -3185,16 +2991,16 @@ async def on_reaction_add(reaction, user):
                             embed=discord.Embed(
                                 title="Permission denied",
                                 description=(
-                                    "You need to join the voice channel "
-                                    + str(user.name)
+                                        "You need to join the voice channel "
+                                        + str(user.name)
                                 ),
                                 color=discord.Color(value=re[8]),
                             )
                         )
             if reaction.emoji == "🔁":
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     try:
@@ -3220,10 +3026,10 @@ async def on_reaction_add(reaction, user):
                             after=lambda e: repeat(reaction.message, voice),
                         )
                         if (
-                            not queue_song[str(reaction.message.guild.id)][
-                                re[3][str(reaction.message.guild.id)]
-                            ]
-                            in da1.keys()
+                                not queue_song[str(reaction.message.guild.id)][
+                                        re[3][str(reaction.message.guild.id)]
+                                    ]
+                                    in da1.keys()
                         ):
                             da1[
                                 queue_song[str(reaction.message.guild.id)][
@@ -3252,16 +3058,16 @@ async def on_reaction_add(reaction, user):
                             embed=discord.Embed(
                                 title="Permission denied",
                                 description=(
-                                    "You need to join the voice channel "
-                                    + str(user.name)
+                                        "You need to join the voice channel "
+                                        + str(user.name)
                                 ),
                                 color=discord.Color(value=re[8]),
                             )
                         )
             if reaction.emoji == "⏭":
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     req()
@@ -3274,10 +3080,10 @@ async def on_reaction_add(reaction, user):
                         mem = []
                     if user.id in mem:
                         if (
-                            not queue_song[str(reaction.message.guild.id)][
-                                re[3][str(reaction.message.guild.id)]
-                            ]
-                            in da1.keys()
+                                not queue_song[str(reaction.message.guild.id)][
+                                        re[3][str(reaction.message.guild.id)]
+                                    ]
+                                    in da1.keys()
                         ):
                             da1[
                                 queue_song[str(reaction.message.guild.id)][
@@ -3288,7 +3094,7 @@ async def on_reaction_add(reaction, user):
                             )
                         re[3][str(reaction.message.guild.id)] += 1
                         if re[3][str(reaction.message.guild.id)] >= len(
-                            queue_song[str(reaction.message.guild.id)]
+                                queue_song[str(reaction.message.guild.id)]
                         ):
                             re[3][str(reaction.message.guild.id)] -= 1
                         await reaction.message.edit(
@@ -3328,8 +3134,8 @@ async def on_reaction_add(reaction, user):
                             embed=discord.Embed(
                                 title="Permission denied",
                                 description=(
-                                    "You need to join the voice channel "
-                                    + str(user.name)
+                                        "You need to join the voice channel "
+                                        + str(user.name)
                                 ),
                                 color=discord.Color(value=re[8]),
                             )
@@ -3337,8 +3143,8 @@ async def on_reaction_add(reaction, user):
             if reaction.emoji == "⏹":
                 req()
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
                     try:
@@ -3369,15 +3175,15 @@ async def on_reaction_add(reaction, user):
                             embed=discord.Embed(
                                 title="Permission denied",
                                 description=(
-                                    "You need to join the voice channel "
-                                    + str(user.name)
+                                        "You need to join the voice channel "
+                                        + str(user.name)
                                 ),
                                 color=discord.Color(value=re[8]),
                             )
                         )
             if (
-                reaction.emoji == emoji.emojize(":keycap_*:")
-                and reaction.message.author == client.user
+                    reaction.emoji == emoji.emojize(":keycap_*:")
+                    and reaction.message.author == client.user
             ):
                 num = 0
                 bitrate = ""
@@ -3389,8 +3195,8 @@ async def on_reaction_add(reaction, user):
                         reaction.message.guild.voice_client.channel.bitrate // 1000
                     )
                 if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
+                        str(user) != str(client.user)
+                        and reaction.message.author == client.user
                 ):
                     st = ""
                     await reaction.remove(user)
@@ -3412,20 +3218,20 @@ async def on_reaction_add(reaction, user):
                                             da1[i] = await get_name(i)
                                         st = st + str(num) + ". " + da1[i] + "\n"
                                 elif re[3][str(reaction.message.guild.id)] > (
-                                    len(queue_song[str(reaction.message.guild.id)]) - 10
+                                        len(queue_song[str(reaction.message.guild.id)]) - 10
                                 ):
                                     if num > (
-                                        len(queue_song[str(reaction.message.guild.id)])
-                                        - 15
+                                            len(queue_song[str(reaction.message.guild.id)])
+                                            - 15
                                     ):
                                         if not i in da1.keys():
                                             da1[i] = await get_name(i)
                                         st = st + str(num) + ". " + da1[i] + "\n"
                                 else:
                                     if (
-                                        num > re[3][str(reaction.message.guild.id)] - 10
-                                        and num
-                                        < re[3][str(reaction.message.guild.id)] + 10
+                                            num > re[3][str(reaction.message.guild.id)] - 10
+                                            and num
+                                            < re[3][str(reaction.message.guild.id)] + 10
                                     ):
                                         if not i in da1.keys():
                                             da1[i] = await get_name(i)
@@ -3443,9 +3249,9 @@ async def on_reaction_add(reaction, user):
                 global dev_channel
                 channel = client.get_channel(dev_channel)
                 if (
-                    reaction.emoji == emoji.emojize(":laptop:")
-                    and str(reaction.message.channel.id) == str(channel.id)
-                    and reaction.message.author == client.user
+                        reaction.emoji == emoji.emojize(":laptop:")
+                        and str(reaction.message.channel.id) == str(channel.id)
+                        and reaction.message.author == client.user
                 ):
                     string = ""
                     await reaction.remove(user)
@@ -3459,7 +3265,7 @@ async def on_reaction_add(reaction, user):
                         )
                     )
                 if reaction.emoji == emoji.emojize(":bar_chart:") and str(
-                    reaction.message.channel.id
+                        reaction.message.channel.id
                 ) == str(channel.id):
                     await reaction.remove(user)
                     cpu_per = str(int(psutil.cpu_percent()))
@@ -3491,7 +3297,7 @@ async def on_reaction_add(reaction, user):
                         )
                     )
                 if reaction.emoji == "⭕" and str(reaction.message.channel.id) == str(
-                    channel.id
+                        channel.id
                 ):
                     await reaction.remove(user)
                     text_servers = ""
@@ -3505,7 +3311,7 @@ async def on_reaction_add(reaction, user):
                         )
                     )
                 if reaction.emoji == emoji.emojize(":fire:") and str(
-                    reaction.message.channel.id
+                        reaction.message.channel.id
                 ) == str(channel.id):
                     try:
                         voice = discord.utils.get(
@@ -3529,12 +3335,14 @@ async def on_reaction_add(reaction, user):
                     )
                     sys.exit()
                 if reaction.emoji == emoji.emojize(":cross_mark:") and str(
-                    reaction.message.channel.id
+                        reaction.message.channel.id
                 ) == str(channel.id):
                     await reaction.remove(user)
-                    if len(client.voice_clients)>0:
+                    if len(client.voice_clients) > 0:
                         confirmation = await wait_for_confirm(
-                            reaction.message, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8], usr=user                        
+                            reaction.message, client,
+                            f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?",
+                            color=re[8], usr=user
                         )
                         if not confirmation:
                             return
@@ -3554,7 +3362,7 @@ async def on_reaction_add(reaction, user):
                     )
                     sys.exit()
                 if reaction.emoji == emoji.emojize(":satellite:") and str(
-                    reaction.message.channel.id
+                        reaction.message.channel.id
                 ) == str(channel.id):
                     string = ""
                     await reaction.remove(user)
@@ -3567,16 +3375,16 @@ async def on_reaction_add(reaction, user):
                         embed=discord.Embed(
                             title="Speedtest Results:",
                             description=str(download_speed)
-                            + "Mbps\n"
-                            + str(upload_speed)
-                            + "Mbps\n"
-                            + str(ping)
-                            + "ms",
+                                        + "Mbps\n"
+                                        + str(upload_speed)
+                                        + "Mbps\n"
+                                        + str(ping)
+                                        + "ms",
                             color=discord.Color(value=re[8]),
                         )
                     )
                 if reaction.emoji == "❕" and str(reaction.message.channel.id) == str(
-                    channel.id
+                        channel.id
                 ):
                     await reaction.remove(user)
                     issues = ""
@@ -3606,7 +3414,7 @@ async def on_reaction_add(reaction, user):
                         )
                     )
                 if reaction.emoji == emoji.emojize(":black_circle:") and str(
-                    reaction.message.channel.id
+                        reaction.message.channel.id
                 ) == str(channel.id):
                     await devop_mtext(client, channel, re[8])
     except PermissionError:
@@ -3616,16 +3424,16 @@ async def on_reaction_add(reaction, user):
             color=re[8],
             thumbnail=client.user.avatar_url_as(format="png"))
         )
-    except Exception as e:        
+    except Exception as e:
         channel = client.get_channel(dev_channel)
         await channel.send(
             embed=discord.Embed(
                 title="Error in on_reaction_add",
                 description=str(e)
-                + "\n"
-                + str(reaction.message.guild)
-                + ": "
-                + str(reaction.message.channel.name),
+                            + "\n"
+                            + str(reaction.message.guild)
+                            + ": "
+                            + str(reaction.message.channel.name),
                 color=discord.Color(value=re[8]),
             )
         )
@@ -3637,6 +3445,7 @@ async def yey(ctx):
     print("yey")
     em = discord.Embed(title="*yey*", color=discord.Color(value=re[8]))
     await ctx.send(embed=em)
+
 
 @client.command()
 async def lol(ctx):
@@ -3888,7 +3697,7 @@ async def exe(ctx, *, text):
     req()
     global temp_dev
     if (ctx.author.id in temp_dev and protect(text)) or (
-        str(ctx.author.id) in dev_users
+            str(ctx.author.id) in dev_users
     ):
         mysql_password = "Denied"
         if text.find("passwd=") != -1:
@@ -3905,8 +3714,8 @@ async def exe(ctx, *, text):
                     [
                         line
                         for line in traceback.format_exception(
-                            type(e), e, e.__traceback__
-                        )
+                        type(e), e, e.__traceback__
+                    )
                         if "in exe" not in line
                     ]
                 )
@@ -3918,16 +3727,16 @@ async def exe(ctx, *, text):
                     )
                 )
         output = f.getvalue()
-        embeds=[]
+        embeds = []
         if output == "":
             output = "_"
-        for i in range(len(output)//2000):
-            em = cembed(title="Python",description=output[i*2000:i*2000+2000],color=re[8])
+        for i in range(len(output) // 2000):
+            em = cembed(title="Python", description=output[i * 2000:i * 2000 + 2000], color=re[8])
             em.set_thumbnail(
                 url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
             )
             embeds.append(em)
-        await pa(embeds,ctx)
+        await pa(embeds, ctx)
     else:
         await ctx.send(
             embed=discord.Embed(
@@ -3936,6 +3745,7 @@ async def exe(ctx, *, text):
                 color=discord.Color(value=re[8]),
             )
         )
+
 
 @client.command()
 async def gen(ctx, *, text):
@@ -3986,13 +3796,15 @@ def req():
 def g_req():
     return re[0]
 
+
 @client.command(aliases=['muter'])
-async def set_mute_role(ctx,role_for_mute: discord.Role):
+async def set_mute_role(ctx, role_for_mute: discord.Role):
     if ctx.author.guild_permissions.administrator:
         mute_role[ctx.guild.id] = role_for_mute.id
-        await ctx.send(embed=cembed(title="Done",description=f"Mute role set as {role_for_mute.mention}",color=re[8]))
+        await ctx.send(embed=cembed(title="Done", description=f"Mute role set as {role_for_mute.mention}", color=re[8]))
     else:
-        await ctx.send(embed=cembed(title="Permissions Denied",description="You need to be an admin to set mute role",color=re[8]))
+        await ctx.send(embed=cembed(title="Permissions Denied", description="You need to be an admin to set mute role",
+                                    color=re[8]))
 
 
 @client.command(aliases=["mu"])
