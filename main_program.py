@@ -7,6 +7,7 @@ mysql=
 default=
 dev=
 """
+import traceback
 
 import helping_hand
 from random import choice
@@ -33,7 +34,17 @@ from io import BytesIO
 import speedtest
 
 # from spotify_client import SpotifyAPI
-
+from cogs.admin import Admin
+from cogs.ai import AI
+from cogs.emoji import Emoji
+from cogs.entar import Entrar
+from cogs.fun import Fun
+from cogs.games import Games
+from cogs.memes import Memes
+from cogs.polls import Polls
+from cogs.scraping import Scraping
+from cogs.sudo import Sudo
+from cogs.utils import Utils
 
 location_of_file = os.getcwd()
 try:
@@ -367,6 +378,17 @@ async def on_ready():
     print("Prepared")
     youtube_loop.start()
 
+client.add_cog(Admin(client))
+client.add_cog(AI(client))
+client.add_cog(Emoji(client))
+client.add_cog(Entrar(client))
+client.add_cog(Fun(client))
+client.add_cog(Games(client))
+client.add_cog(Memes(client))
+client.add_cog(Polls(client))
+client.add_cog(Scraping(client))
+client.add_cog(Sudo(client))
+client.add_cog(Utils(client))
 
 @tasks.loop(minutes=7)
 async def youtube_loop():
@@ -550,56 +572,6 @@ async def on_member_remove(member):
         url="https://thumbs.dreamstime.com/b/bye-bye-man-says-45256525.jpg"
     )
     await channel.send(embed=embed)
-
-
-
-@client.command(aliases=["hi"])
-async def check(ctx):
-    req()
-    print("check")
-    em = discord.Embed(
-        title="Online",
-        description=f"Hi, {ctx.author.name}\nLatency: {int(client.latency * 1000)}",
-        color=discord.Color(value=re[8]),
-    )
-    await ctx.send(embed=em)
-
-
-@slash.slash(name="check", description="Check if the bot is online")
-async def check_slash(ctx):
-    req()
-    await ctx.defer()
-    await check(ctx)
-
-
-@client.command()
-async def clear(ctx, text, num=10):
-    req()
-    await ctx.channel.purge(limit=1)
-    if str(text) == re[1]:
-        if (
-                ctx.author.guild_permissions.manage_messages
-                or ctx.author.id == 432801163126243328
-        ):
-            confirmation = True
-            if int(num) > 10:
-                confirmation = await wait_for_confirm(
-                    ctx, client, f"Do you want to delete {num} messages", color=re[8]
-                )
-            if confirmation:
-                await ctx.channel.delete_messages(
-                    [i async for i in ctx.channel.history(limit=num) if not i.pinned][:100]
-                )
-        else:
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Permission Denied",
-                    description="You cant delete messages",
-                    color=discord.Color(value=re[8]),
-                )
-            )
-    else:
-        await ctx.send("Wrong password")
 
 
 @client.event
@@ -1611,340 +1583,10 @@ async def on_reaction_add(reaction, user):
         )
 
 
-@client.command()
-async def yey(ctx):
-    req()
-    print("yey")
-    em = discord.Embed(title="*yey*", color=discord.Color(value=re[8]))
-    await ctx.send(embed=em)
-
-
-@client.command()
-async def lol(ctx):
-    req()
-    em = discord.Embed(title="***L😂L***", color=discord.Color(value=re[8]))
-    await ctx.send(embed=em)
-
-
-@client.command(aliases=["cen"])
-async def add_censor(ctx, *, text):
-    req()
-    string = ""
-    censor.append(text.lower())
-    for i in range(0, len(text)):
-        string = string + "-"
-    em = discord.Embed(
-        title="Added " + string + " to the list",
-        decription="Done",
-        color=discord.Color(value=re[8]),
-    )
-    await ctx.send(embed=em)
-
-
-@client.command()
-async def changeM(ctx, *, num):
-    if str(ctx.author.id) in dev_users:
-        num = int(num)
-
-        if num == 1:
-            re[10] = 1
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Model change",
-                    description="Changed to blenderbot",
-                    color=discord.Color(value=re[8]),
-                )
-            )
-        elif num == 2:
-            re[10] = 2
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Model change",
-                    description="Changed to dialo-gpt",
-                    color=discord.Color(value=re[8]),
-                )
-            )
-        else:
-
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Model change",
-                    description="Bruh thats not a valid option",
-                    color=discord.Color(value=re[8]),
-                )
-            )
-
-    else:
-        await ctx.send(
-            embed=discord.Embed(
-                title="Model change",
-                description="F off thout isn't un dev user",
-                color=discord.Color(value=re[8]),
-            )
-        )
-
-
 async def transformer(api, header, json):
     async with aiohttp.ClientSession() as session:
         async with session.post(api, headers=header, json=json) as resp:
             return await resp.json()
-
-
-global past_respose, generated
-
-past_respose = []
-generated = []
-
-
-@client.event
-async def on_message(msg):
-    auth = os.getenv("transformers_auth")
-    headeras = {"Authorization": f"Bearer {auth}"}
-    if re[10] == 1:
-        API_URL = "https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill"
-    else:
-        API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-large"
-
-    try:
-        for word in censor:
-            if word in msg.content.lower() and msg.guild.id in [
-                822445271019421746,
-                841026124174983188,
-                853670839891394591,
-            ]:
-                await msg.delete()
-        if msg.guild.id in [822445271019421746]:
-            if "?" in msg.content.lower() and re[4] == 1:
-                await msg.channel.send("thog dont caare")
-            elif "why do chips".strip() in msg.content.lower():
-                await msg.channel.send(
-                    "https://pics.me.me/thumb_why-do-chips-get-stale-gross-i-just-eat-a-49666262.png"
-                )
-            else:
-                if re[4] == 1:
-                    for i in ["what", "how", "when", "why", "who", "where"]:
-                        if i in msg.content.lower():
-                            await msg.channel.send("thog dont caare")
-                            break
-
-        if msg.content.lower().startswith("alfred"):
-
-            input_text = msg.content.lower().replace("alfred", "")
-            payload = {
-                "inputs": {
-                    "past_user_inputs": past_respose,
-                    "generated_responses": generated,
-                    "text": input_text,
-                },
-                "parameters": {"repetition_penalty": 1.33},
-            }
-
-            output = await transformer(API_URL, header=headeras, json=payload)
-
-            if len(past_respose) < 50:
-                past_respose.append(input_text)
-                generated.append(output["generated_text"])
-            else:
-                past_respose.pop(0)
-                generated.pop(0)
-                past_respose.append(input_text)
-                generated.append(output["generated_text"])
-
-            print(output)
-            await msg.reply(output["generated_text"])
-
-        if f"<@!{client.user.id}>" in msg.content:
-            prefi = prefix_dict.get(msg.guild.id, "'")
-            embed = discord.Embed(
-                title="Hi!! I am Alfred.",
-                description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""",
-                color=discord.Color(value=re[8]),
-            )
-            embed.set_image(
-                url=random.choice(
-                    [
-                        "https://giffiles.alphacoders.com/205/205331.gif",
-                        "https://c.tenor.com/PQu-tE-5HxwAAAAd/michael-caine-the-dark-knight.gif",
-                    ]
-                )
-            )
-
-            await msg.channel.send(embed=embed)
-        if msg.content.startswith(prefix_dict.get(msg.guild.id, "'")) == 0:
-            save_to_file("recover")
-        await client.process_commands(msg)
-    except Exception as e:
-        channel = client.get_channel(dev_channel)
-        await channel.send(
-            embed=discord.Embed(
-                title="Error", description=str(e), color=discord.Color(value=re[8])
-            )
-        )
-
-
-@client.command()
-async def thog(ctx, *, text):
-    if ctx.author.guild_permissions.administrator:
-        if re[1] == text:
-            re[4] = re[4] * -1
-            if re[4] == 1:
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="Thog",
-                        description="Activated",
-                        color=discord.Color(value=re[8]),
-                    )
-                )
-            else:
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="Thog",
-                        description="Deactivated",
-                        color=discord.Color(value=re[8]),
-                    )
-                )
-        else:
-            await ctx.message.delete()
-            await ctx.send("Wrong password")
-    else:
-        await ctx.send(
-            embed=cembed(
-                title="Permissions Denied",
-                description="You cannot toggle thog",
-                color=re[8],
-            )
-        )
-
-
-@client.command(aliases=["m"])
-async def python_shell(ctx, *, text):
-    req()
-    print("Python Shell", text, str(ctx.author))
-    global dev_users
-    if str(ctx.author.id) in dev_users:
-        if str(ctx.author.guild.id) != "727061931373887531":
-            try:
-                text = text.replace("```py", "")
-                text = text.replace("```", "")
-                a = eval(text)
-                print(text)
-                em = discord.Embed(
-                    title=text,
-                    description=text + "=" + str(a),
-                    color=discord.Color(value=re[8]),
-                )
-                em.set_thumbnail(
-                    url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
-                )
-                await ctx.send(embed=em)
-            except Exception as e:
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="Error_message",
-                        description=str(e),
-                        color=discord.Color(value=re[8]),
-                    )
-                )
-        else:
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Banned",
-                    description="You've been banned from using python shell",
-                    color=discord.Color(value=re[8]),
-                )
-            )
-    else:
-        await ctx.message.delete()
-        await ctx.send(
-            embed=discord.Embed(
-                title="Permission denied",
-                description="",
-                color=discord.Color(value=re[8]),
-            )
-        )
-
-
-@client.command()
-async def exe(ctx, *, text):
-    req()
-    global temp_dev
-    if (ctx.author.id in temp_dev and protect(text)) or (
-            str(ctx.author.id) in dev_users
-    ):
-        mysql_password = "Denied"
-        if text.find("passwd=") != -1:
-            mysql_password = os.getenv("mysql")
-        text = text.replace("```py", "```")
-        text = text[3:-3].strip()
-        f = StringIO()
-        with redirect_stdout(f):
-            try:
-                exec(text)
-            except Exception as e:
-                traceback.print_tb(e.__traceback__)
-                error_mssg = "Following Error Occured:\n" + "\n".join(
-                    [
-                        line
-                        for line in traceback.format_exception(
-                        type(e), e, e.__traceback__
-                    )
-                        if "in exe" not in line
-                    ]
-                )
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="Error",
-                        description=error_mssg,
-                        color=discord.Color.from_rgb(255, 40, 0),
-                    )
-                )
-        output = f.getvalue()
-        embeds = []
-        if output == "":
-            output = "_"
-        for i in range(len(output) // 2000):
-            em = cembed(title="Python", description=output[i * 2000:i * 2000 + 2000], color=re[8])
-            em.set_thumbnail(
-                url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
-            )
-            embeds.append(em)
-        await pa(embeds, ctx)
-    else:
-        await ctx.send(
-            embed=discord.Embed(
-                title="Denied",
-                description="Ask Devs to give access for scripts",
-                color=discord.Color(value=re[8]),
-            )
-        )
-
-
-@client.command()
-async def gen(ctx, *, text):
-    req()
-    API_URL2 = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B"
-    header2 = {"Authorization": f"Bearer {os.environ['transformers_auth']}"}
-    payload2 = {
-        "inputs": text,
-        "parameters": {"max_new_tokens": 250, "return_full_text": True},
-    }
-
-    output = await genpost(API_URL2, header2, payload2)
-    await ctx.reply(
-        embed=cembed(
-            title="Generated text", description=output[0]["generated_text"], color=re[8]
-        )
-    )
-
-
-@client.command()
-async def get_req(ctx):
-    req()
-    number = g_req()
-    em = discord.Embed(
-        title="Requests", description=str(number), color=discord.Color(value=re[8])
-    )
-    await ctx.send(embed=em)
 
 
 def addt(p1, p2):
@@ -1967,48 +1609,6 @@ def req():
 
 def g_req():
     return re[0]
-
-
-@client.command(aliases=['muter'])
-async def set_mute_role(ctx, role_for_mute: discord.Role):
-    if ctx.author.guild_permissions.administrator:
-        mute_role[ctx.guild.id] = role_for_mute.id
-        await ctx.send(embed=cembed(title="Done", description=f"Mute role set as {role_for_mute.mention}", color=re[8]))
-    else:
-        await ctx.send(embed=cembed(title="Permissions Denied", description="You need to be an admin to set mute role",
-                                    color=re[8]))
-
-
-@client.command(aliases=["mu"])
-@commands.has_permissions(kick_members=True)
-async def mute(ctx, member: discord.Member):
-    req()
-    print("Member id: ", member.id)
-    add_role = None
-    if ctx.guild.id in mute_role:
-        add_role = [i for i in ctx.guild.roles if i.id == mute_role[ctx.guild.id]][0]
-        await member.add_roles(add_role)
-        await ctx.send("Muted " + member.mention)
-    else:
-        add_role = discord.utils.get(ctx.guild.roles, name="dunce")
-        await member.add_roles(add_role)
-        await ctx.send("Muted " + member.mention)
-
-
-@client.command(aliases=["um"])
-@commands.has_permissions(kick_members=True)
-async def unmute(ctx, member: discord.Member):
-    req()
-    add_role = None
-    if ctx.guild.id in mute_role:
-        add_role = [i for i in ctx.guild.roles if i.id == mute_role[ctx.guild.id]][0]
-        await member.remove_roles(add_role)
-        await ctx.send("Unmuted " + member.mention)
-    else:
-        add_role = discord.utils.get(ctx.guild.roles, name="dunce")
-        await member.remove_roles(add_role)
-        await ctx.send("Unmuted " + member.mention)
-        print(member, "unmuted")
 
 
 @client.command()

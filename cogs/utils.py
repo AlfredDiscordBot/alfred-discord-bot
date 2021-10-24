@@ -3,7 +3,8 @@ from discord import emoji
 from discord.ext import commands
 
 from External_functions import cembed, extract_color
-from main_program import re, dev_users, ydl_op, req, dev_channel, load_from_file, deleted_message, prefix_dict
+from main_program import re, dev_users, ydl_op, req, dev_channel, load_from_file, deleted_message, prefix_dict, censor, \
+    g_req
 import discord
 from discord_slash import cog_ext, SlashContext
 
@@ -279,3 +280,43 @@ class Utils(commands.cog):
                     color=discord.Color(value=re[8]),
                 )
             )
+
+    @commands.command(aliases=["hi"])
+    async def check(self, ctx):
+        req()
+        print("check")
+        em = discord.Embed(
+            title="Online",
+            description=f"Hi, <@{ctx.author.id}>\nLatency: {int(self.bot.latency * 1000)}",
+            color=discord.Color(value=re[8]),
+        )
+        await ctx.send(embed=em)
+
+    @cog_ext.cog_slash(name="check", description="Check if the bot is online")
+    async def check_slash(self, ctx):
+        req()
+        await ctx.defer()
+        await self.check(ctx)
+
+    @commands.command(aliases=["cen"])
+    async def add_censor(self, ctx, *, text):
+        req()
+        string = ""
+        censor.append(text.lower())
+        for i in range(0, len(text)):
+            string = string + "-"
+        em = discord.Embed(
+            title="Added " + string + " to the list",
+            decription="Done",
+            color=discord.Color(value=re[8]),
+        )
+        await ctx.send(embed=em)
+
+    @commands.command()
+    async def get_req(self, ctx):
+        req()
+        number = g_req()
+        em = discord.Embed(
+            title="Requests", description=str(number), color=discord.Color(value=re[8])
+        )
+        await ctx.send(embed=em)

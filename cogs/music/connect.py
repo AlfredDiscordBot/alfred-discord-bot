@@ -985,3 +985,34 @@ async def resume(ctx):
         await ctx.send(
             embed=discord.Embed(title="Resume", color=discord.Color(value=re[8]))
         )
+
+
+@client.command()
+async def clear(ctx, text, num=10):
+    req()
+    await ctx.channel.purge(limit=1)
+    if str(text) == re[1]:
+        if (
+                ctx.author.guild_permissions.manage_messages
+                or ctx.author.id == 432801163126243328
+        ):
+            confirmation = True
+            if int(num) > 10:
+                confirmation = await wait_for_confirm(
+                    ctx, client, f"Do you want to delete {num} messages", color=re[8]
+                )
+            if confirmation:
+                await ctx.channel.delete_messages(
+                    [i async for i in ctx.channel.history(limit=num) if not i.pinned][:100]
+                )
+        else:
+            await ctx.send(
+                embed=discord.Embed(
+                    title="Permission Denied",
+                    description="You cant delete messages",
+                    color=discord.Color(value=re[8]),
+                )
+            )
+    else:
+        await ctx.send("Wrong password")
+

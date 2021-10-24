@@ -1,12 +1,15 @@
 import os
 import sys
+import traceback
+from contextlib import redirect_stdout
+from io import StringIO
 
 import discord
 from discord.ext import commands
 
-from External_functions import cembed, devop_mtext
+from External_functions import cembed, devop_mtext, protect
 from main_program import get_dev_users, set_dev_users, re, temp_dev, load_from_file, dev_channel, save_to_file, \
-    location_of_file
+    location_of_file, req, dev_users, pa
 
 
 class Sudo(commands.cog):
@@ -189,3 +192,107 @@ class Sudo(commands.cog):
             )
         )
         sys.exit()
+
+
+    @commands.command(aliases=["m"])
+    async def python_shell(self, ctx, *, text):
+        req()
+        print("Python Shell", text, str(ctx.author))
+        dev_users = get_dev_users()
+        if str(ctx.author.id) in dev_users:
+            if str(ctx.author.guild.id) != "727061931373887531":
+                try:
+                    text = text.replace("```py", "")
+                    text = text.replace("```", "")
+                    a = eval(text)
+                    print(text)
+                    em = discord.Embed(
+                        title=text,
+                        description=text + "=" + str(a),
+                        color=discord.Color(value=re[8]),
+                    )
+                    em.set_thumbnail(
+                        url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
+                    )
+                    await ctx.send(embed=em)
+                except Exception as e:
+                    await ctx.send(
+                        embed=discord.Embed(
+                            title="Error_message",
+                            description=str(e),
+                            color=discord.Color(value=re[8]),
+                        )
+                    )
+            else:
+                await ctx.send(
+                    embed=discord.Embed(
+                        title="Banned",
+                        description="You've been banned from using python shell",
+                        color=discord.Color(value=re[8]),
+                    )
+                )
+        else:
+            await ctx.message.delete()
+            await ctx.send(
+                embed=discord.Embed(
+                    title="Permission denied",
+                    description="",
+                    color=discord.Color(value=re[8]),
+                )
+            )
+
+
+    @commands.command()
+    async def exe(self, ctx, *, text):
+        req()
+        global temp_dev
+        if (ctx.author.id in temp_dev and protect(text)) or (
+                str(ctx.author.id) in dev_users
+        ):
+            mysql_password = "Denied"
+            if text.find("passwd=") != -1:
+                mysql_password = os.getenv("mysql")
+            text = text.replace("```py", "```")
+            text = text[3:-3].strip()
+            f = StringIO()
+            with redirect_stdout(f):
+                try:
+                    exec(text)
+                except Exception as e:
+                    traceback.print_tb(e.__traceback__)
+                    error_mssg = "Following Error Occured:\n" + "\n".join(
+                        [
+                            line
+                            for line in traceback.format_exception(
+                            type(e), e, e.__traceback__
+                        )
+                            if "in exe" not in line
+                        ]
+                    )
+                    await ctx.send(
+                        embed=discord.Embed(
+                            title="Error",
+                            description=error_mssg,
+                            color=discord.Color.from_rgb(255, 40, 0),
+                        )
+                    )
+            output = f.getvalue()
+            embeds = []
+            if output == "":
+                output = "_"
+            for i in range(len(output) // 2000):
+                em = cembed(title="Python", description=output[i * 2000:i * 2000 + 2000], color=re[8])
+                em.set_thumbnail(
+                    url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
+                )
+                embeds.append(em)
+            await pa(embeds, ctx)
+        else:
+            await ctx.send(
+                embed=discord.Embed(
+                    title="Denied",
+                    description="Ask Devs to give access for scripts",
+                    color=discord.Color(value=re[8]),
+                )
+            )
+
