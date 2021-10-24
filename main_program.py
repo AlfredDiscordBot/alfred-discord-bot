@@ -32,6 +32,7 @@ import requests
 import aiohttp
 from io import BytesIO
 import speedtest
+from spotify_client import *
 
 # from spotify_client import SpotifyAPI
 from cogs.admin import Admin
@@ -518,7 +519,7 @@ async def pa1(embeds, ctx):
         except asyncio.TimeoutError:
             break
 
-
+            
 @client.event
 async def on_message_delete(message):
     if not message.channel.id in list(deleted_message.keys()):
@@ -1587,7 +1588,6 @@ async def transformer(api, header, json):
     async with aiohttp.ClientSession() as session:
         async with session.post(api, headers=header, json=json) as resp:
             return await resp.json()
-
 
 def addt(p1, p2):
     da[p1] = p2
