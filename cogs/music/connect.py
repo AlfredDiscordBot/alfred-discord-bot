@@ -5,7 +5,7 @@ from discord_slash import cog_ext
 from main_program import req, queue_song, re, vc_channel, dev_channel
 
 
-class Music(commands.cog):
+class Connect(commands.cog):
     def __init__(self, bot):
         self.bot = bot
 

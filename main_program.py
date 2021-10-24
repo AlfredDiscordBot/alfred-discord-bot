@@ -26,6 +26,17 @@ import psutil
 import asyncio
 import aiohttp
 import speedtest
+
+from cogs.music.add_to import AddTo
+from cogs.music.again import Again
+from cogs.music.autoplay import AutoPlay
+from cogs.music.connect import Connect
+from cogs.music.currentmusic import CurrentMusic
+from cogs.music.leave import Leave
+from cogs.music.loop import Loop
+from cogs.music.queue import Queue
+from cogs.music.remove import Remove
+from cogs.music.repeat import Repeat
 from spotify_client import *
 
 # from spotify_client import SpotifyAPI
@@ -323,6 +334,15 @@ async def on_ready():
     client.add_cog(Scraping(client))
     client.add_cog(Sudo(client))
     client.add_cog(Utils(client))
+    client.add_cog(AddTo(client))
+    client.add_cog(Again(client))
+    client.add_cog(AutoPlay(client))
+    client.add_cog(Connect(client))
+    client.add_cog(CurrentMusic(client))
+    client.add_cog(Leave(client))
+    client.add_cog(Loop(client))
+    client.add_cog(Queue(client))
+    client.add_cog(Repeat(client))
     try:
         print("Starting Load from file")
         try:
