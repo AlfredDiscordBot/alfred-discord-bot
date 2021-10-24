@@ -86,5 +86,5 @@ class Polls(commands.Cog):
                 )
             )
 
-def setup(client):
-    client.add_cog(Polls(client))
+def setup(bot):
+    bot.add_cog(Polls(bot))

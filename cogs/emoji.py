@@ -70,5 +70,5 @@ class Emoji(commands.Cog):
     async def pr(self, ctx, *, text):
         await ctx.send(text)
 
-def setup(client):
-    client.add_cog(Emoji(client))
+def setup(bot):
+    bot.add_cog(Emoji(bot))

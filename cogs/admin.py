@@ -81,4 +81,4 @@ class Admin(commands.Cog):
 
 
 def setup(bot):
-    client.add_cog(Admin(bot))
+    bot.add_cog(Admin(bot))

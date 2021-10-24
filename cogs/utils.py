@@ -322,5 +322,6 @@ class Utils(commands.Cog):
         await ctx.send(embed=em)
 
 
-def setup(client):
-    client.add_cog(Utils(client))
+def setup(bot):
+    bot.add_cog(Utils(bot))
+    

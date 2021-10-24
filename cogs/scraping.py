@@ -192,5 +192,5 @@ class Scraping(commands.Cog):
         )
         await ctx.send(embed=em)
 
-def setup(client):
-    client.add_cog(Scraping(client))
+def setup(bot):
+    bot.add_cog(Scraping(bot))

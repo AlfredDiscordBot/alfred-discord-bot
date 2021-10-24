@@ -297,5 +297,5 @@ class Sudo(commands.Cog):
             )
 
 
-def setup(client):
-    client.add_cog(Sudo(client))
+def setup(bot):
+    bot.add_cog(Sudo(bot))

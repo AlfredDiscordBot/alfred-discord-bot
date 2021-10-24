@@ -51,4 +51,4 @@ class Games(commands.Cog):
                 )
             )
 def setup(bot):
-    client.add_cog(Games(bot))
+    bot.add_cog(Games(bot))

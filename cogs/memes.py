@@ -133,5 +133,5 @@ class Memes(commands.Cog):
         save_to_file()
 
 
-def setup(client):
+def setup(bot):
     bot.add_cog(Memes(bot))
