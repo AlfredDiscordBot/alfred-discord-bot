@@ -1,16 +1,19 @@
 import asyncio
+from random import choice
 
 import discord
+import requests
 from discord.ext import commands
 from discord_slash import cog_ext
 
-from External_functions import cembed, reddit
-from main_program import req, re, client
+from External_functions import cembed, reddit, memes3, memes2, memes1
+from main_program import req, re, client, save_to_file
 
 
 class Memes(commands.cog):
     def __init__(self, bot):
         self.bot = bot
+        self.link_for_cats = ""
 
     async def pa1(self, embeds, ctx):
         message = await ctx.send(embed=embeds[0])
@@ -90,7 +93,7 @@ class Memes(commands.cog):
 
     @client.command(aliases=["::"])
     async def memes(self, ctx):
-        if len(link_for_cats) == 0:
+        if len(self.link_for_cats) == 0:
             try:
                 safe_stop = 0
                 r = requests.get("https://bestlifeonline.com/funniest-cat-memes-ever/")
@@ -108,13 +111,13 @@ class Memes(commands.cog):
                     number = int(string[n3:n4])
                     if number >= 97:
                         safe_stop = 0
-                    link_for_cats += [string[n2:n1]]
+                    self.link_for_cats += [string[n2:n1]]
                 print("Finished meme")
-                link_for_cats += memes1()
+                self.link_for_cats += memes1()
                 print("Finished meme1")
-                link_for_cats += memes2()
+                self.link_for_cats += memes2()
                 print("Finished meme2")
-                link_for_cats += memes3()
+                self.link_for_cats += memes3()
                 print("Finished meme3")
             except Exception as e:
                 await ctx.send(
@@ -126,5 +129,5 @@ class Memes(commands.cog):
                         thumbnail=client.user.avatar_url_as(format="png"),
                     )
                 )
-        await ctx.send(choice(link_for_cats))
+        await ctx.send(choice(self.link_for_cats))
         save_to_file()
