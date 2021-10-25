@@ -2,10 +2,10 @@ import discord
 from discord.ext import commands
 from discord_slash import SlashCommand, cog_ext
 
-from main_program import req, re
+from stuff import req, re
 
 
-class AutoPlay(commands.cog):
+class AutoPlay(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -43,3 +43,6 @@ class AutoPlay(commands.cog):
         req()
         await ctx.defer()
         await self.autoplay(ctx)
+
+def setup(bot):
+    bot.add_cog(AutoPlay(bot))

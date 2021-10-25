@@ -5,7 +5,7 @@ import requests
 from discord.ext import commands
 
 from External_functions import imdb_embed, cembed, svg2png, instagram_get1
-from main_program import re, req, dev_channel, pa
+from stuff import re, req, dev_channel, pa
 from discord_slash import cog_ext, SlashContext
 from GoogleNews import GoogleNews
 from wikipedia import search, summary
@@ -192,5 +192,5 @@ class Scraping(commands.Cog):
         )
         await ctx.send(embed=em)
 
-def setup(client):
-    client.add_cog(Scraping(client))
+def setup(bot):
+    bot.add_cog(Scraping(bot))

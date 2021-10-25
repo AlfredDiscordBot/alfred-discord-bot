@@ -2,7 +2,7 @@ import discord
 import emoji
 from discord.ext import commands
 
-from main_program import reset_board, Emoji_list, re, coin_toss_message, coin_message, set_coin_toss_message
+from stuff import reset_board, Emoji_list, re, coin_toss_message, coin_message, set_coin_toss_message
 
 
 class Games(commands.Cog):
@@ -50,5 +50,5 @@ class Games(commands.Cog):
                     color=discord.Color(value=re[8]),
                 )
             )
-def setup(client):
-    client.add_cog(Games(client))
+def setup(bot):
+    bot.add_cog(Games(bot))

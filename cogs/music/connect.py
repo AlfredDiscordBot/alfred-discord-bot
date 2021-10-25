@@ -2,10 +2,10 @@ import discord
 from discord.ext import commands
 from discord_slash import cog_ext
 
-from main_program import req, queue_song, re, vc_channel, dev_channel
+from stuff import req, queue_song, re, vc_channel, dev_channel
 
 
-class Connect(commands.cog):
+class Connect(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -91,5 +91,5 @@ class Connect(commands.cog):
 
 
 
-
-
+def setup(bot):
+    bot.add_cog(Connect(bot))

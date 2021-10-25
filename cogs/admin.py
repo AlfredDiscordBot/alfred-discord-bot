@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from External_functions import cembed, wait_for_confirm
-from main_program import mute_role, re, req
+from stuff import mute_role, re, req
 
 
 class Admin(commands.Cog):
@@ -80,5 +80,5 @@ class Admin(commands.Cog):
             await ctx.send("Wrong password")
 
 
-def setup(client):
-    client.add_cog(Admin(client))
+def setup(bot):
+    bot.add_cog(Admin(bot))

@@ -7,7 +7,7 @@ from discord.ext import commands
 from discord_slash import cog_ext
 
 from External_functions import cembed, reddit, memes3, memes2, memes1
-from main_program import req, re, client, save_to_file
+from stuff import req, re, client, save_to_file
 
 
 class Memes(commands.Cog):
@@ -23,14 +23,14 @@ class Memes(commands.Cog):
 
         def check(reaction, user):
             return (
-                    user != client.user
+                    user != self.bot.user
                     and str(reaction.emoji) in ["◀️", "▶️"]
                     and reaction.message.id == message.id
             )
 
         while True:
             try:
-                reaction, user = await client.wait_for(
+                reaction, user = await self.bot.wait_for(
                     "reaction_add", timeout=360, check=check
                 )
                 await message.remove_reaction(reaction, user)
@@ -82,7 +82,7 @@ class Memes(commands.Cog):
     async def cover_up(self, ctx):
         await ctx.message.delete()
         await asyncio.sleep(0.5)
-        mess = await ctx.send(discord.utils.get(client.emojis, name="enrique"))
+        mess = await ctx.send(discord.utils.get(self.bot.emojis, name="enrique"))
         await mess.delete()
 
     @cog_ext.cog_slash(name="memes", description="Memes from Alfred yey")
@@ -91,7 +91,7 @@ class Memes(commands.Cog):
         await ctx.defer()
         await self.memes(ctx)
 
-    @client.command(aliases=["::"])
+    @commands.command(aliases=["::"])
     async def memes(self, ctx):
         if len(self.link_for_cats) == 0:
             try:
@@ -126,12 +126,12 @@ class Memes(commands.Cog):
                         description="Something went wrong during importing memes\n"
                                     + str(e),
                         color=re[8],
-                        thumbnail=client.user.avatar_url_as(format="png"),
+                        thumbnail=self.bot.user.avatar_url_as(format="png"),
                     )
                 )
         await ctx.send(choice(self.link_for_cats))
         save_to_file()
 
 
-def setup(client):
-    client.add_cog(Memes(client))
+def setup(bot):
+    bot.add_cog(Memes(bot))

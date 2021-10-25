@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 from External_functions import genpost, cembed
-from main_program import re, censor, prefix_dict, save_to_file, dev_channel, get_dev_users, req
+from stuff import re, censor, prefix_dict, save_to_file, dev_channel, get_dev_users, req
 
 
 class AI(commands.Cog):
@@ -139,7 +139,6 @@ class AI(commands.Cog):
                 await msg.channel.send(embed=embed)
             if msg.content.startswith(prefix_dict.get(msg.guild.id, "'")) == 0:
                 save_to_file("recover")
-            await self.bot.process_commands(msg)
         except Exception as e:
             channel = self.bot.get_channel(dev_channel)
             await channel.send(
@@ -166,5 +165,5 @@ class AI(commands.Cog):
         )
 
 
-def setup(client):
-    client.add_cog(Fun(client))
+def setup(bot):
+    bot.add_cog(AI(bot))

@@ -2,10 +2,10 @@ import discord
 from discord.ext import commands
 from discord_slash import cog_ext
 
-from main_program import req, re
+from stuff import req, re
 
 
-class Loop(commands.cog):
+class Loop(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -40,3 +40,7 @@ class Loop(commands.cog):
         await ctx.defer()
         req()
         await self.loop(ctx)
+
+
+def setup(bot):
+    bot.add_cog(Loop(bot))

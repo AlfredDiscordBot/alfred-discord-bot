@@ -8,13 +8,13 @@ import discord
 from discord.ext import commands
 
 from External_functions import cembed, devop_mtext, protect
-from main_program import get_dev_users, set_dev_users, re, temp_dev, load_from_file, dev_channel, save_to_file, \
+from stuff import get_dev_users, set_dev_users, re, temp_dev, load_from_file, dev_channel, save_to_file, \
     location_of_file, req, dev_users, pa
 
 
 class Sudo(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.client = bot
 
     @commands.command()
     async def remove_dev(self, ctx, member: discord.Member):
@@ -97,8 +97,8 @@ class Sudo(commands.Cog):
     async def dev_op(self, ctx):
         if str(ctx.author.id) in get_dev_users():
             print("devop", str(ctx.author))
-            channel = self.bot.get_channel(dev_channel)
-            await devop_mtext(self.bot, channel, re[8])
+            channel = self.client.get_channel(dev_channel)
+            await devop_mtext(self.client, channel, re[8])
         else:
             await ctx.send(embed=cembed(title="Permission Denied",
                                         description="You cannot use the devop function, only a developer can",
@@ -108,7 +108,7 @@ class Sudo(commands.Cog):
     async def reset_from_backup(self, ctx):
         print("reset_from_backup", str(ctx.author))
         dev_users = get_dev_users()
-        channel = self.bot.get_channel(dev_channel)
+        channel = self.client.get_channel(dev_channel)
         if str(ctx.author.id) in dev_users:
             try:
                 load_from_file()
@@ -138,7 +138,7 @@ class Sudo(commands.Cog):
             await ctx.send(
                 embed=cembed(title="Permission Denied", description="Only developers can access this function",
                              color=re[8],
-                             thumbnail=self.bot.user.avatar_url_as(format="png")))
+                             thumbnail=self.client.user.avatar_url_as(format="png")))
 
             await channel.send(
                 embed=cembed(
@@ -174,7 +174,7 @@ class Sudo(commands.Cog):
     @commands.command(aliases=["!"])
     async def restart_program(self, ctx, text):
         try:
-            voice = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
+            voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild)
             voice.stop()
             await voice.disconnect()
         except:
@@ -188,7 +188,7 @@ class Sudo(commands.Cog):
                 title="Restarted",
                 description="The program finished restarting",
                 color=re[8],
-                thumbnail=self.bot.user.avatar_url_as(format="png"),
+                thumbnail=self.client.user.avatar_url_as(format="png"),
             )
         )
         sys.exit()
@@ -297,5 +297,5 @@ class Sudo(commands.Cog):
             )
 
 
-def setup(client):
-    client.add_cog(Sudo(client))
+def setup(bot):
+    bot.add_cog(Sudo(bot))

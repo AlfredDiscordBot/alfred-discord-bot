@@ -2,10 +2,10 @@ import discord
 from discord.ext import commands
 from discord_slash import cog_ext
 
-from main_program import req, vc_channel, queue_song, re, dev_channel, save_to_file
+from stuff import req, vc_channel, queue_song, re, dev_channel, save_to_file
 
 
-class Leave(commands.cog):
+class Leave(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -88,3 +88,6 @@ class Leave(commands.cog):
                 )
             )
         save_to_file()
+
+def setup(bot):
+    bot.add_cog(Leave(bot))

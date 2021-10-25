@@ -7,11 +7,11 @@ from regex import regex
 
 from External_functions import get_name, convert_to_url, youtube_info
 from cogs.music.repeat import Repeat
-from main_program import req, re, queue_song, vc_channel, youtube_download, da1, FFMPEG_OPTIONS, youtube_download1, \
+from stuff import req, re, queue_song, vc_channel, youtube_download, da1, FFMPEG_OPTIONS, youtube_download1, \
     dev_channel
 
 
-class Controls(commands.cog):
+class Controls(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.repeat = Repeat(bot)
@@ -298,3 +298,6 @@ class Controls(commands.cog):
                     color=discord.Color(value=re[8]),
                 )
             )
+
+def setup(bot):
+    bot.add_cog(Controls(bot))

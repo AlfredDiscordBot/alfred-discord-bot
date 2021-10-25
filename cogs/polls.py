@@ -5,7 +5,7 @@ import discord
 import random
 
 from External_functions import cembed, equalise
-from main_program import req, re
+from stuff import req, re
 
 
 class Polls(commands.Cog):
@@ -86,5 +86,5 @@ class Polls(commands.Cog):
                 )
             )
 
-def setup(client):
-    client.add_cog(Polls(client))
+def setup(bot):
+    bot.add_cog(Polls(bot))
