@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from External_functions import cembed
-from main_program import req, re
+from stuff import req, re
 
 
 class Fun(commands.Cog):

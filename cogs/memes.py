@@ -7,7 +7,7 @@ from discord.ext import commands
 from discord_slash import cog_ext
 
 from External_functions import cembed, reddit, memes3, memes2, memes1
-from main_program import req, re, client, save_to_file
+from stuff import req, re, client, save_to_file
 
 
 class Memes(commands.Cog):

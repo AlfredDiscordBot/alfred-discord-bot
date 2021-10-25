@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord_slash import cog_ext
 
-from main_program import req, re
+from stuff import req, re
 
 
 class Loop(commands.cog):

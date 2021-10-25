@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord_slash import cog_ext
 
-from main_program import req, vc_channel, queue_song, re, dev_channel, save_to_file
+from stuff import req, vc_channel, queue_song, re, dev_channel, save_to_file
 
 
 class Leave(commands.cog):

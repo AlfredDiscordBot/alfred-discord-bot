@@ -2,7 +2,7 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 import discord
 
-from main_program import req, re
+from stuff import req, re
 
 
 class Emoji(commands.Cog):

@@ -3,7 +3,7 @@ import time
 import discord
 from discord.ext import commands
 
-from main_program import req, queue_song, re, da1, youtube_download, FFMPEG_OPTIONS
+from stuff import req, queue_song, re, da1, youtube_download, FFMPEG_OPTIONS
 
 
 class Repeat(commands.cog):

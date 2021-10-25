@@ -6,7 +6,7 @@ from discord.ext import commands
 from regex import regex
 
 from External_functions import youtube_info, get_name, convert_to_url, cembed
-from main_program import re, da1, queue_song, req, pa, da
+from stuff import re, da1, queue_song, req, pa, da
 from spotify_client import spotify, fetch_spotify_playlist
 
 

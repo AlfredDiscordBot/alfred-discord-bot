@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from main_program import req, queue_song, da1, re
+from stuff import req, queue_song, da1, re
 
 
 class Remove(commands.cog):

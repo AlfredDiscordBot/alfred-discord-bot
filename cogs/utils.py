@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord_slash import cog_ext
 
 from External_functions import cembed, extract_color
-from main_program import re, dev_users, ydl_op, req, dev_channel, load_from_file, deleted_message, prefix_dict, censor, \
+from stuff import re, dev_users, ydl_op, req, dev_channel, load_from_file, deleted_message, prefix_dict, censor, \
     g_req
 
 
@@ -66,7 +66,9 @@ class Utils(commands.Cog):
             print("Theme color", str(ctx.author))
             if re[8] < 1000:
                 re[8] = 1670655
+
             global color_message
+
             tup = [int(i) for i in tup1.replace("(", "").replace(")", "").split(",")] if tup1 != "" else ()
             if len(tup) < 3:
                 color_message = await ctx.send(
@@ -94,13 +96,14 @@ class Utils(commands.Cog):
                 )
             else:
                 color_temp = tup
-                re[8] = discord.Color.from_rgb(*tup).value
+                re[8] = discord.Color.from_rgb(*tup).valuecolor_message
                 embed = discord.Embed(
                     title="New Color",
                     description=str(tup),
                     color=discord.Color(value=re[8]),
                 )
                 await color_message.edit(embed=embed)
+
         except Exception as e:
             await self.bot.get_channel(dev_channel).send(
                 embed=discord.Embed(

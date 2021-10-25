@@ -5,7 +5,7 @@ import discord
 import random
 
 from External_functions import cembed, equalise
-from main_program import req, re
+from stuff import req, re
 
 
 class Polls(commands.Cog):

@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from External_functions import youtube_info, cembed
-from main_program import req, queue_song, re, da1
+from stuff import req, queue_song, re, da1
 
 
 class CurrentMusic(commands.cog):

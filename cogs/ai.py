@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 from External_functions import genpost, cembed
-from main_program import re, censor, prefix_dict, save_to_file, dev_channel, get_dev_users, req
+from stuff import re, censor, prefix_dict, save_to_file, dev_channel, get_dev_users, req
 
 
 class AI(commands.Cog):
@@ -167,4 +167,4 @@ class AI(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Fun(bot))
+    bot.add_cog(AI(bot))

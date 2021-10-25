@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 
 from External_functions import cembed, devop_mtext, protect
-from main_program import get_dev_users, set_dev_users, re, temp_dev, load_from_file, dev_channel, save_to_file, \
+from stuff import get_dev_users, set_dev_users, re, temp_dev, load_from_file, dev_channel, save_to_file, \
     location_of_file, req, dev_users, pa
 
 

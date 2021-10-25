@@ -1,14 +1,5 @@
 import math
 from urllib.parse import urlencode
-import youtube_dl
-from async_timeout import timeout
-import random
-import discord
-from discord.ext import commands
-import asyncio
-import aiohttp
-import functools
-import itertools
 import requests
 import base64
 import datetime
