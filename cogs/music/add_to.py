@@ -49,4 +49,4 @@ class AddTo(commands.cog):
                 )
 
 def setup(bot):
-    bot.add_cog(Addto(bot))
+    bot.add_cog(AddTo(bot))
