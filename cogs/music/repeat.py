@@ -6,12 +6,12 @@ from discord.ext import commands
 from stuff import req, queue_song, re, da1, youtube_download, FFMPEG_OPTIONS
 
 
-class Repeat(commands.cog):
+class Repeat(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
-    def repeat(self, ctx, voice):
+    async def repeat(self, ctx, voice):
         req()
         if not queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]] in da1.keys():
             aa = str(urllib.request.urlopen(queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]).read().decode())
@@ -34,3 +34,6 @@ class Repeat(commands.cog):
                     discord.FFmpegPCMAudio(url, **FFMPEG_OPTIONS),
                     after=lambda e: self.repeat(ctx, voice),
                 )
+
+def setup(bot):
+    bot.add_cog(Repeat(bot))

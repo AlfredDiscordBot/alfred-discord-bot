@@ -1,10 +1,9 @@
-import os
 from dotenv import load_dotenv
 import speedtest
 import time
 import emoji
 import discord
-import GoogleNews
+from GoogleNews import GoogleNews
 import traceback
 import youtube_dl
 from External_functions import *
@@ -13,6 +12,65 @@ import asyncio
 
 
 
+global sent
+sent = None
+instagram_posts = []
+intents = discord.Intents.default()
+intents.members = True
+temp_dev = {}
+censor = []
+old_youtube_vid = []
+deleted_message = {}
+da = {}
+entr = {}
+da1 = {}
+queue_song = {}
+temporary_list = []
+dev_channel = int(os.getenv("dev"))
+re = [0, "OK", {}, {}, -1, "", "205", {}, 5360, "48515587275%3A0AvceDiA27u1vT%3A26",1]
+a_channels = [822500785765875749, 822446957288357888]
+cat = {}
+youtube = []
+pages = {}
+SESSIONID = None
+color_message = None
+color_temp = ()
+vc_channel = {}
+wolfram = os.getenv("wolfram")
+prefix_dict = {}
+mute_role = {743323684705402951: 876708632325148672, 851315724119310367: 0}
+
+# replace your id with this
+dev_users = ["432801163126243328"]
+ydl_op = {
+    "format": "bestaudio/best",
+    "postprocessors": [
+        {
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "mp3",
+            "preferredquality": "384",
+        }
+    ],
+}
+FFMPEG_OPTIONS = {
+    "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+    "options": "-vn",
+}   
+
+def reset_board():
+    global board
+    board = ""
+    for i in range(1, 10):
+        board = board + emoji.emojize(":keycap_" + str(i) + ":") + " | "
+        if i % 3 == 0:
+            board = board + "\n----    ----    ----\n"
+    return board
+    
+#global board, Emoji_list
+board = reset_board()
+Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
+Raw_Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
+dictionary = dict(zip(Raw_Emoji_list, Emoji_list))
 
 
 async def transformer(api, header, json):
@@ -242,65 +300,14 @@ coin_message = (
         + " for heads \nPick "
         + emoji.emojize(":hibiscus:")
         + " for tails"
+
+
 )
-global board, Emoji_list
-Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
-Raw_Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
 
 
-def reset_board():
-    global board
-    board = ""
-    for i in range(1, 10):
-        board = board + emoji.emojize(":keycap_" + str(i) + ":") + " | "
-        if i % 3 == 0:
-            board = board + "\n----    ----    ----\n"
-    return board
 
 
-board = reset_board()
-global sent
-sent = None
-instagram_posts = []
-dictionary = dict(zip(Raw_Emoji_list, Emoji_list))
-intents = discord.Intents.default()
-intents.members = True
-temp_dev = {}
-censor = []
-old_youtube_vid = []
-deleted_message = {}
-da = {}
-entr = {}
-da1 = {}
-queue_song = {}
-temporary_list = []
-dev_channel = int(os.getenv("dev"))
-re = [0, "OK", {}, {}, -1, "", "205", {}, 5360, "48515587275%3A0AvceDiA27u1vT%3A26",1]
-a_channels = [822500785765875749, 822446957288357888]
-cat = {}
-youtube = []
-pages = {}
-SESSIONID = None
-color_message = None
-color_temp = ()
-vc_channel = {}
-wolfram = os.getenv("wolfram")
-prefix_dict = {}
-mute_role = {743323684705402951: 876708632325148672, 851315724119310367: 0}
 
-# replace your id with this
-dev_users = ["432801163126243328"]
-ydl_op = {
-    "format": "bestaudio/best",
-    "postprocessors": [
-        {
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": "mp3",
-            "preferredquality": "384",
-        }
-    ],
-}
-FFMPEG_OPTIONS = {
-    "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-    "options": "-vn",
-}
+
+
+

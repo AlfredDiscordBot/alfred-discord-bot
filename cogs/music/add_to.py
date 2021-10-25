@@ -4,7 +4,7 @@ from discord.ext import commands
 from stuff import req, vc_channel, addt, queue_song, get_elem, re
 
 
-class AddTo(commands.cog):
+class AddTo(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

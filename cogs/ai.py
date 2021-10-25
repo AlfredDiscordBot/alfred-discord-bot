@@ -139,7 +139,6 @@ class AI(commands.Cog):
                 await msg.channel.send(embed=embed)
             if msg.content.startswith(prefix_dict.get(msg.guild.id, "'")) == 0:
                 save_to_file("recover")
-            await self.bot.process_commands(msg)
         except Exception as e:
             channel = self.bot.get_channel(dev_channel)
             await channel.send(

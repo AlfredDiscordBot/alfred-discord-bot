@@ -5,7 +5,7 @@ from External_functions import youtube_info, cembed
 from stuff import req, queue_song, re, da1
 
 
-class CurrentMusic(commands.cog):
+class CurrentMusic(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -44,3 +44,6 @@ class CurrentMusic(commands.cog):
                     color=discord.Color(value=re[8]),
                 )
             )
+
+def setup(bot):
+    bot.add_cog(CurrentMusic(bot))

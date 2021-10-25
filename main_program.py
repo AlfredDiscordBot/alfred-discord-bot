@@ -38,6 +38,11 @@ async def on_ready():
         if filename.endswith('.py'):
             client.load_extension(f'cogs.{filename[:-3]}')
 
+    for filename in os.listdir("./cogs/music"):
+        
+        if filename.endswith('.py'):
+            client.load_extension(f'cogs.music.{filename[:-3]}')
+
     try:
         print("Starting Load from file")
         try:

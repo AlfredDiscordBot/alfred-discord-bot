@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from External_functions import cembed, wait_for_confirm
-from main_program import mute_role, re, req
+from stuff import mute_role, re, req
 
 
 class Admin(commands.Cog):

@@ -4,7 +4,7 @@ from discord.ext import commands
 from stuff import req, queue_song, da1, re
 
 
-class Remove(commands.cog):
+class Remove(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -44,3 +44,6 @@ class Remove(commands.cog):
                     color=discord.Color(value=re[8]),
                 )
             )
+
+def setup(bot):
+    bot.add_cog(Remove(bot))

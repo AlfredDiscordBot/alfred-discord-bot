@@ -8,7 +8,7 @@ from cogs.music.repeat import Repeat
 from stuff import req, queue_song, re, vc_channel, da1, youtube_download, FFMPEG_OPTIONS, dev_channel
 
 
-class Again(commands.cog):
+class Again(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.repeat = Repeat(bot)
@@ -110,3 +110,6 @@ class Again(commands.cog):
         req()
         await ctx.defer()
         await self.again(ctx)
+
+def setup(bot):
+    bot.add_cog(Again(bot))
