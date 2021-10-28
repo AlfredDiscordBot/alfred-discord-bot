@@ -41,6 +41,7 @@ async def on_ready():
     for filename in os.listdir("./cogs/music"):
         
         if filename.endswith('.py'):
+            if filename in ['repeat.py']: continue
             client.load_extension(f'cogs.music.{filename[:-3]}')
 
     try:
@@ -107,6 +108,7 @@ async def on_ready():
 
 @tasks.loop(minutes=7)
 async def youtube_loop():
+    save_to_file()
     list_of_programs = ["blender"]
     for i in list_of_programs:
         if get_if_process_exists(i):
@@ -126,6 +128,7 @@ async def youtube_loop():
 @tasks.loop(seconds=10)
 async def dev_loop():
     global temp_dev
+    save_to_file()
     for i in list(temp_dev.keys()):
         person = client.get_user(i)
         if temp_dev[i][0] > 0:
@@ -149,7 +152,7 @@ async def dev_loop():
                 )
             )
             temp_dev.pop(i)
-    save_to_file()
+    
 
 
 @dev_loop.before_loop
@@ -446,180 +449,7 @@ async def on_reaction_add(reaction, user):
                             color=discord.Color(value=re[8]),
                         )
                     )
-            if reaction.emoji == discord.utils.get(client.emojis, name="blue_down"):
-                if (
-                        str(user) != str(client.user)
-                        and reaction.message.author == client.user
-                ):
-                    await reaction.remove(user)
-                    temp_tup = color_temp
-                    if temp_tup[2] - 25 >= 0:
-                        re[8] = discord.Color.from_rgb(
-                            int(temp_tup[0]),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]) - 25,
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0]),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]) - 25,
-                        )
-                    else:
-                        re[8] = discord.Color.from_rgb(
-                            int(temp_tup[0]), int(temp_tup[1]), 0
-                        ).value
-                        color_temp = (int(temp_tup[0]), int(temp_tup[1]), 0)
-                    embed = discord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=discord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
-            if reaction.emoji == discord.utils.get(client.emojis, name="green_down"):
-                if (
-                        str(user) != str(client.user)
-                        and reaction.message.author == client.user
-                ):
-                    await reaction.remove(user)
-                    temp_tup = color_temp
-                    if temp_tup[1] - 25 >= 0:
-                        re[8] = discord.Color.from_rgb(
-                            int(temp_tup[0]),
-                            int(temp_tup[1] - 25),
-                            int(temp_tup[2]),
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0]),
-                            int(temp_tup[1] - 25),
-                            int(temp_tup[2]),
-                        )
-                    else:
-                        re[8] = discord.Color.from_rgb(
-                            int(temp_tup[0]), 0, int(temp_tup[2])
-                        ).value
-                        color_temp = (int(temp_tup[0]), 0, int(temp_tup[2]))
-                    embed = discord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=discord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
-            if reaction.emoji == emoji.emojize(":red_triangle_pointed_down:"):
-                if (
-                        str(user) != str(client.user)
-                        and reaction.message.author == client.user
-                ):
-                    await reaction.remove(user)
-                    temp_tup = color_temp
-                    if temp_tup[0] - 25 >= 0:
-                        re[8] = discord.Color.from_rgb(
-                            int(temp_tup[0] - 25),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]),
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0] - 25),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]),
-                        )
-                    else:
-                        re[8] = discord.Color.from_rgb(
-                            0, int(temp_tup[1]), int(temp_tup[2])
-                        ).value
-                        color_temp = (0, int(temp_tup[1]), int(temp_tup[2]))
-                    embed = discord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=discord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
-            if reaction.emoji == discord.utils.get(client.emojis, name="blue_up"):
-                if (
-                        str(user) != str(client.user)
-                        and reaction.message.author == client.user
-                ):
-                    await reaction.remove(user)
-                    temp_tup = color_temp
-                    if temp_tup[2] + 25 <= 255:
-                        re[8] = discord.Color.from_rgb(
-                            int(temp_tup[0]),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]) + 25,
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0]),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]) + 25,
-                        )
-                    else:
-                        re[8] = discord.Color.from_rgb(
-                            int(temp_tup[0]), int(temp_tup[1]), 255
-                        ).value
-                        color_temp = (int(temp_tup[0]), int(temp_tup[1]), 255)
-                    embed = discord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=discord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
-            if reaction.emoji == discord.utils.get(client.emojis, name="green_up"):
-                if (
-                        str(user) != str(client.user)
-                        and reaction.message.author == client.user
-                ):
-                    await reaction.remove(user)
-                    temp_tup = color_temp
-                    if temp_tup[1] + 25 <= 255:
-                        re[8] = discord.Color.from_rgb(
-                            int(temp_tup[0]),
-                            int(temp_tup[1] + 25),
-                            int(temp_tup[2]),
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0]),
-                            int(temp_tup[1] + 25),
-                            int(temp_tup[2]),
-                        )
-                    else:
-                        re[8] = discord.Color.from_rgb(
-                            int(temp_tup[0]), 255, int(temp_tup[2])
-                        ).value
-                        color_temp = (int(temp_tup[0]), 255, int(temp_tup[2]))
-                    embed = discord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=discord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
-            if reaction.emoji == emoji.emojize(":red_triangle_pointed_up:"):
-                if (
-                        str(user) != str(client.user)
-                        and reaction.message.author == client.user
-                ):
-                    await reaction.remove(user)
-                    temp_tup = color_temp
-                    if temp_tup[0] + 25 <= 255:
-                        re[8] = discord.Color.from_rgb(
-                            int(temp_tup[0] + 25),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]),
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0] + 25),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]),
-                        )
-                    else:
-                        re[8] = discord.Color.from_rgb(
-                            255, int(temp_tup[1]), int(temp_tup[2])
-                        ).value
-                        color_temp = (255, int(temp_tup[1]), int(temp_tup[2]))
-                    embed = discord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=discord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
+            
             if reaction.emoji == "⏮":
                 if (
                         str(user) != str(client.user)

@@ -14,6 +14,7 @@ from instascrape import *
 import urllib.parse
 import urllib
 import aiohttp
+from PIL import ImageColor
 
 ydl_op = {
     "format": "bestaudio/best",
@@ -445,15 +446,12 @@ def equalise(all_strings):
 
 
 def extract_color(color):
-    try:
-        color_temp = (
-            int("0x" + str(hex(color))[2:4], 16),
-            int("0x" + str(hex(color))[4:6], 16),
-            int("0x" + str(hex(color))[6:8], 16),
-        )
-        return color_temp
-    except:
-        pass
+    print(color)
+    hex_string = "#"+str(hex(color))[2:]
+    print(hex_string)
+    return (i/256 for i in ImageColor.getrgb(hex_string))
+
+    
 
 
 def svg2png(url: str):

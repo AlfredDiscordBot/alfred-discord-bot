@@ -12,8 +12,8 @@ from stuff import re, censor, prefix_dict, save_to_file, dev_channel, get_dev_us
 class AI(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.past_response = []
-        self.generate = []
+        self.past_respose = []
+        self.generated = []
 
     async def transformer(api, header, json):
         async with aiohttp.ClientSession() as session:
