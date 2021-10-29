@@ -7,7 +7,7 @@ from discord.ext import commands
 from discord_slash import cog_ext
 
 from External_functions import cembed, reddit, memes3, memes2, memes1
-from stuff import req, re, client, save_to_file
+from stuff import *
 
 
 class Memes(commands.Cog):
@@ -129,8 +129,7 @@ class Memes(commands.Cog):
                         thumbnail=self.bot.user.avatar_url_as(format="png"),
                     )
                 )
-        await ctx.send(choice(self.link_for_cats))
-        save_to_file()
+        await ctx.send(choice(self.link_for_cats))        
 
 
 def setup(bot):

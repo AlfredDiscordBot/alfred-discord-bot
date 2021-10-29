@@ -1,6 +1,7 @@
 import discord
 import psutil
-from discord import emoji
+import emoji
+import asyncio
 from discord.ext import commands
 from discord_slash import cog_ext
 
@@ -12,6 +13,8 @@ from stuff import re, dev_users, ydl_op, req, dev_channel, load_from_file, delet
 class Utils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.color_message = None
+        self.color_temp = extract_color(re[8])
 
     @commands.command()
     async def set_sessionid(ctx, sessionid):
@@ -58,52 +61,84 @@ class Utils(commands.Cog):
     @commands.command(aliases=["color", "||"])
     async def theme_color(self, ctx, *, tup1=""):
         try:
-            color_temp = extract_color(str(re[8]))
-            await ctx.send(
-                embed=cembed(description="Setting Color", color=re[8],
-                             thumbnail=self.bot.user.avatar_url_as(format="png")))
+            print(str(extract_color(re[8])))
+            self.color_temp = extract_color(re[8])
+            await ctx.send(f"Setting color {self.color_temp}")
             req()
             print("Theme color", str(ctx.author))
             if re[8] < 1000:
                 re[8] = 1670655
 
-            global color_message
 
             tup = [int(i) for i in tup1.replace("(", "").replace(")", "").split(",")] if tup1 != "" else ()
             if len(tup) < 3:
-                color_message = await ctx.send(
+                self.color_message = await ctx.send(
                     embed=discord.Embed(
                         title="Color Init",
                         description="You must have three values in the form of tuple",
                         color=discord.Color(value=re[8]),
                     )
                 )
-                await color_message.add_reaction(emoji.emojize(":red_triangle_pointed_up:"))
-                await color_message.add_reaction(
+                await self.color_message.add_reaction(emoji.emojize(":red_triangle_pointed_up:"))
+                await self.color_message.add_reaction(
                     emoji.emojize(":red_triangle_pointed_down:")
                 )
-                await color_message.add_reaction(
+                await self.color_message.add_reaction(
                     discord.utils.get(self.bot.emojis, name="green_up")
                 )
-                await color_message.add_reaction(
+                await self.color_message.add_reaction(
                     discord.utils.get(self.bot.emojis, name="green_down")
                 )
-                await color_message.add_reaction(
+                await self.color_message.add_reaction(
                     discord.utils.get(self.bot.emojis, name="blue_up")
                 )
-                await color_message.add_reaction(
+                await self.color_message.add_reaction(
                     discord.utils.get(self.bot.emojis, name="blue_down")
                 )
             else:
-                color_temp = tup
-                re[8] = discord.Color.from_rgb(*tup).valuecolor_message
+                self.color_temp = str(extract_color(re[8]))
+                re[8] = discord.Color.from_rgb(*tup).value
                 embed = discord.Embed(
                     title="New Color",
                     description=str(tup),
                     color=discord.Color(value=re[8]),
                 )
-                await color_message.edit(embed=embed)
+                await self.color_message.edit(embed=embed)
+            
+            emos = [
+                discord.utils.get(self.bot.emojis, name="blue_down"),
+                discord.utils.get(self.bot.emojis, name="blue_up"),
+                discord.utils.get(self.bot.emojis, name="green_down"),
+                discord.utils.get(self.bot.emojis, name="green_up"),
+                emoji.emojize(":red_triangle_pointed_up:"),
+                emoji.emojize(":red_triangle_pointed_down:")
+            ]
 
+            while True:
+                tt = list(self.color_temp)
+                try:
+                    def check(reaction,user):             
+                        return reaction.emoji in emos and reaction.message == self.color_message
+                    reaction, user = await self.bot.wait_for("reaction_add", timeout=720,check = check)
+                    if reaction.emoji == emos[0]:
+                        self.color_temp = tt[2]-25
+                        re[8] = discord.Color(*self.color_temp).value
+                    if reaction.emoji == emos[1]:
+                        self.color_temp = tt[2]+25
+                        re[8] = discord.Color(*self.color_temp).value
+                    if reaction.emoji == emos[2]:
+                        self.color_temp = tt[1]-25
+                        re[8] = discord.Color(*self.color_temp).value
+                    embed=cembed(
+                        title="New Color",
+                        description=str(self.color_temp),
+                        color=re[8]
+                        )
+                    await self.color_message.edit()
+                        
+                except asyncio.TimeoutError:
+                    for i in emos:
+                        await self.color_message.remove_reaction(i)
         except Exception as e:
             await self.bot.get_channel(dev_channel).send(
                 embed=discord.Embed(

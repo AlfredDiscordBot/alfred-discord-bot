@@ -9,8 +9,8 @@ import youtube_dl
 from External_functions import *
 from discord_components import *
 import asyncio
-
-
+from discord.ext import commands
+from discord_slash import SlashCommand
 
 global sent
 sent = None
@@ -303,6 +303,13 @@ coin_message = (
 
 
 )
+
+client = commands.Bot(
+    command_prefix=prefix_check,
+    intents=intents,
+    case_insensitive=True,
+)
+slash = SlashCommand(client, sync_commands=True)
 
 
 
