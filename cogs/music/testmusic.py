@@ -477,19 +477,6 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             await ctx.send("The queue is currently empty.")
 
 
-    @commands.command()
-    async def playnow(self, ctx, *, query: str):
-        player = self.get_player(ctx)
-        tracks = await self.wavelink.get_tracks(f'ytsearch:{query}')
-
-        if not tracks:
-            return await ctx.send('Could not find any songs with that query.')
-
-        if not player.is_connected:
-            await player.connect(ctx)
-
-        await player.play(tracks[0])
-
     
     @commands.command(name="playing", aliases=["np"])
     async def playing_command(self, ctx):
