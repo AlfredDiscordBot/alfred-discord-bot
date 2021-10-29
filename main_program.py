@@ -10,8 +10,7 @@ dev=
 
 import helping_hand
 from random import choice
-from discord.ext import commands, tasks
-from discord_slash import SlashCommand
+from discord.ext import tasks
 import os
 import sys
 import emoji
@@ -20,16 +19,9 @@ from spotify_client import *
 from stuff import *
 
 
-client = commands.Bot(
-    command_prefix=prefix_check,
-    intents=intents,
-    case_insensitive=True,
-)
-slash = SlashCommand(client, sync_commands=True)
-
-
 @client.event
 async def on_ready():
+
     print(client.user)
     channel = client.get_channel(dev_channel)
     DiscordComponents(client)
@@ -92,6 +84,7 @@ async def on_ready():
                 color=discord.Color(value=re[8]),
             )
         )
+    
     except Exception as e:
         mess = await channel.send(
             embed=discord.Embed(
