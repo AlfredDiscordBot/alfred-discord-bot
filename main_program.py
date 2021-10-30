@@ -1742,7 +1742,6 @@ async def queue(ctx, *, name=""):
                 except Exception as e:
                     print(e)
             elif 'track' in name:
-                name = spotify.spotify_track(name)
                 name = convert_to_url(name)
                 sear = "https://www.youtube.com/results?search_query=" + name
                 htm = await get_async(sear)
@@ -1757,7 +1756,7 @@ async def queue(ctx, *, name=""):
         else:       
             name = convert_to_url(name)
             sear = "https://www.youtube.com/results?search_query=" + name
-            htm = urllib.request.urlopen(sear)
+            htm = await get_async(sear)
             video = regex.findall(r"watch\?v=(\S{11})", htm)
             url = "https://www.youtube.com/watch?v=" + video[0]
 
@@ -1768,6 +1767,7 @@ async def queue(ctx, *, name=""):
             print(name_of_the_song, ":", url)
             da1[url] = name_of_the_song
             queue_song[str(ctx.guild.id)].append(url)
+            
         for i in queue_song[str(ctx.guild.id)]:
             if num >= len(queue_song[str(ctx.guild.id)]) - 10:
                 if not i in da1.keys():
@@ -3837,6 +3837,19 @@ async def thog(ctx, *, text):
             )
         )
 
+@client.command()
+async def stop(ctx):
+    req()
+    try:
+        mem = [str(names) for names in ctx.voice_client.channel.members]
+    except:
+        mem = []
+    if mem.count(str(ctx.author))>0:
+        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+        voice.stop()
+        await ctx.send(embed=discord.Embed(title="Stop",color=discord.Color(value=re[8])))
+    else:
+        await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the channel to resume the song",color=discord.Color(value=re[8])))
 
 @client.command(aliases=["m"])
 async def python_shell(ctx, *, text):

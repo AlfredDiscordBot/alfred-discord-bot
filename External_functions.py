@@ -492,7 +492,7 @@ async def get_async(url,headers = {},kind = "content"):
     output = ""
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(url) as resp:
-            if resp.status in list(range(200,299)):
+            if True:
                 if kind == "json":                
                     output = await resp.json()
                 else:
