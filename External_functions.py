@@ -14,6 +14,7 @@ from instascrape import *
 import urllib.parse
 import urllib
 import aiohttp
+from PIL import ImageColor
 
 ydl_op = {
     "format": "bestaudio/best",
@@ -88,10 +89,8 @@ def quad(eq):
         return "This equation has two roots: " + str(root1) + "," + str(root2)
 
 
-def memes2():
-    st = requests.get(
-        "https://cheezburger.com/14858757/40-dumb-memes-for-distractible-scrollers"
-    ).content.decode()
+async def memes2():
+    st = await get_async("https://cheezburger.com/14858757/40-dumb-memes-for-distractible-scrollers")
     stop = 0
     link = []
     for i in range(0, 40):
@@ -104,8 +103,8 @@ def memes2():
     return link
 
 
-def memes1():
-    st = requests.get("http://www.quickmeme.com/").content.decode()
+async def memes1():
+    st = await get_async("http://www.quickmeme.com/")
     stop = 0
     link = []
     for i in range(10):
@@ -116,10 +115,10 @@ def memes1():
     return link
 
 
-def memes3():
-    st = requests.get(
+async def memes3():
+    st = await get_async(
         "https://www.paulbarrs.com/business/funny-memes-website-design"
-    ).content.decode()
+    )
     stop = 0
     link = []
     for i in range(20):
@@ -447,15 +446,12 @@ def equalise(all_strings):
 
 
 def extract_color(color):
-    try:
-        color_temp = (
-            int("0x" + str(hex(color))[2:4], 16),
-            int("0x" + str(hex(color))[4:6], 16),
-            int("0x" + str(hex(color))[6:8], 16),
-        )
-        return color_temp
-    except:
-        pass
+    print(color)
+    hex_string = "#"+str(hex(color))[2:]
+    print(hex_string)
+    return (i/256 for i in ImageColor.getrgb(hex_string))
+
+    
 
 
 def svg2png(url: str):
