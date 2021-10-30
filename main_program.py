@@ -25,16 +25,7 @@ async def on_ready():
     print(client.user)
     channel = client.get_channel(dev_channel)
     DiscordComponents(client)
-    for filename in os.listdir("./cogs"):
-        
-        if filename.endswith('.py'):
-            client.load_extension(f'cogs.{filename[:-3]}')
-
-    for filename in os.listdir("./cogs/music"):
-        
-        if filename.endswith('.py'):
-            if filename in ['repeat.py']: continue
-            client.load_extension(f'cogs.music.{filename[:-3]}')
+    
 
     try:
         print("Starting Load from file")

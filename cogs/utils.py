@@ -7,7 +7,7 @@ from discord_slash import cog_ext
 
 from External_functions import cembed, extract_color
 from stuff import re, dev_users, ydl_op, req, dev_channel, load_from_file, deleted_message, prefix_dict, censor, \
-    g_req
+    g_req, slash
 
 
 class Utils(commands.Cog):
@@ -252,7 +252,7 @@ class Utils(commands.Cog):
                 )
             )
 
-    @cog_ext.cog_slash(name="Snipe", description="Get the last few deleted messages", guild_ids = [i.id for i in client.guilds])
+    @cog_ext.cog_slash(name="Snipe", description="Get the last few deleted messages")
     async def snipe_slash(self, ctx, number=0):
         req()
         await ctx.defer()
@@ -330,7 +330,7 @@ class Utils(commands.Cog):
         )
         await ctx.send(embed=em)
 
-    @cog_ext.cog_slash(name="check", description="Check if the bot is online")
+    @slash.slash(name="check", description="Check if the bot is online")
     async def check_slash(self, ctx):
         req()
         await ctx.defer()
