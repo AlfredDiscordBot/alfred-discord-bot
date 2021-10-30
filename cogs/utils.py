@@ -252,7 +252,7 @@ class Utils(commands.Cog):
                 )
             )
 
-    @cog_ext.cog_slash(name="Snipe", description="Get the last few deleted messages")
+    @cog_ext.cog_slash(name="Snipe", description="Get the last few deleted messages", guild_ids = [i.id for i in client.guilds])
     async def snipe_slash(self, ctx, number=0):
         req()
         await ctx.defer()

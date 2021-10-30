@@ -1077,30 +1077,33 @@ async def testing_help(ctx):
     await pa(test_help, ctx)
 
 
+
+client.remove_command("help")
+
 @slash.slash(name="help", description="Help from Alfred")
 async def help_slash(ctx):
     req()
     await ctx.defer()
     await h(ctx)
 
-
-client.remove_command("help")
-
-
+    
 @client.group(invoke_without_command=True)
 async def help(ctx):
     req()
     print("help")
-    embeds = []
-    for i in help_list:
-        em = discord.Embed(
-            title="```Help```", description=i, color=discord.Color(value=re[8])
-        )
-        em.set_thumbnail(
-            url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
-        )
-        embeds.append(em)
-    await pa(embeds, ctx)
+    try:
+        embeds = []
+        for i in help_list:
+            em = discord.Embed(
+                title="```Help```", description=i, color=discord.Color(value=re[8])
+            )
+            em.set_thumbnail(
+                url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
+            )
+            embeds.append(em)
+        await pa(embeds, ctx)
+    except Exception as e:
+        print(e)
 
 
 @client.group(invoke_without_command=True)
