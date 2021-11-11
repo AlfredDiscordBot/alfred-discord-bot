@@ -217,6 +217,7 @@ async def search_vid(name):
 
 
 def prefix_check(client, message):
+    save_to_file()
     return prefix_dict.get(message.guild.id, ["'"])
 
 
@@ -336,6 +337,7 @@ async def on_ready():
         for i in os.listdir(location_of_file + "/src"):
             if i.endswith(".py"):
                 try:
+                    print(i, end="")
                     requi = __import__(i[0 : len(i) - 3]).requirements()
                     # if requi != "":
                     #     requi = "," + requi
@@ -346,6 +348,7 @@ async def on_ready():
                             f"__import__('{i[0:len(i)-3]}').main(client,{','.join(requi)})"
                         )
                     imports = imports + i[0 : len(i) - 3] + "\n"
+                    print(": Done")
                 except Exception as e:
                     await channel.send(
                         embed=discord.Embed(
@@ -637,7 +640,9 @@ async def uemoji(ctx, emoji_name, number=0):
         )
         webhooks = await ctx.channel.webhooks()
         for webhook in webhooks:
-            await webhook.delete()
+            #print(dir(webhook))
+            if webhook.user is client.user:
+                await webhook.delete()
 
     else:
         await ctx.send(
@@ -721,7 +726,8 @@ async def clear_webhooks(ctx):
     print(webhooks)
     for webhook in webhooks:
         try:
-            await webhook.delete()
+            if webhook.user is client.user:
+                await webhook.delete()
         except Exception as e:
             print(e)
 
@@ -1040,7 +1046,7 @@ async def cover_up(ctx):
 async def remove_dev(ctx, member: discord.Member):
     print(member)
     global dev_users
-    if str(ctx.author.id) == "432801163126243328":
+    if str(ctx.author.id) in ["432801163126243328","803855283821871154","723539849969270894"]:
         dev_users.remove(str(member.id))
         await ctx.send(member.mention + " is no longer a dev")
     else:
