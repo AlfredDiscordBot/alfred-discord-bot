@@ -50,7 +50,7 @@ class Emoji(commands.Cog):
                 emoji, username=ctx.author.name, avatar_url=ctx.author.avatar_url
             )
             webhooks = await ctx.channel.webhooks()
-            for webhook in webhooks:
+            if webhook.user is client.user:
                 await webhook.delete()
 
         else:

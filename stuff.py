@@ -1,3 +1,10 @@
+def temporary_fix():
+    from shutil import copyfile
+    copyfile("./youtube.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/youtube_dl/extractor/youtube.py")
+
+temporary_fix()
+
+
 from dotenv import load_dotenv
 import speedtest
 import time

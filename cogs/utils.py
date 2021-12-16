@@ -29,7 +29,8 @@ class Utils(commands.Cog):
         print(webhooks)
         for webhook in webhooks:
             try:
-                await webhook.delete()
+                if webhook.user is client.user:
+                    await webhook.delete()
             except Exception as e:
                 print(e)
 
