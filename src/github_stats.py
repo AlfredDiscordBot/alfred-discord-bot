@@ -3,7 +3,14 @@ import requests
 from dataclasses import dataclass
 from functools import lru_cache
 from create_embed import embed_from_dict
+from bs4 import BeautifulSoup
 
+@lru_cache(maxsize=128)
+def get_repo_image_url(url):
+    text = requests.get(url)
+    soup = BeautifulSoup(text.content, "lxml")
+    image_url = soup.find("meta", property="og:image")['content']
+    return image_url
 
 @dataclass
 class GitHubUserStats:
@@ -79,6 +86,15 @@ class GitHubRepoStats:
     topics: List[str]
     homepage: str
 
+    @property
+    def image_url(self):
+        if image := getattr(self, "image", None):
+            return image
+        
+        self.image = get_repo_image_url(self.html_url)
+        return self.image
+
+
     def __repr__(self) -> str:
         result = ""
         result += f"Name: {self.name}\n"
@@ -153,9 +169,12 @@ def repo_stats_dict(stats: GitHubRepoStats, color: int = None):
         info["description"] = info["description"] + "Homepage: " + homepage + "\n"
 
     info["url"] = stats.html_url
-    info[
-        "thumbnail"
-    ] = "https://www.nicepng.com/png/full/52-520535_free-files-github-github-icon-png-white.png"
+    info["image"] = stats.image_url
+    info["author"] = {
+        "icon_url":     "https://www.nicepng.com/png/full/52-520535_free-files-github-github-icon-png-white.png",
+        "name": "GitHub Repo"
+    }
+
     info["fields"] = [
         {
             "name": "Stats",
