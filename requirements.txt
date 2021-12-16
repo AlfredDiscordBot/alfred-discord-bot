@@ -43,7 +43,7 @@ tzlocal==2.1
 urllib3==1.26.6
 wikipedia==1.4.0
 yarl==1.6.3
-youtube-dl==2021.3.3
+youtube-dl
 insta-scrape==2.1.2
 instagramy==4.4
 IMDbPY==2021.4.18

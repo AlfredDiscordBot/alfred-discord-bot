@@ -1,3 +1,8 @@
+def temporary_fix():
+    from shutil import copyfile
+    copyfile("./youtube.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/youtube_dl/extractor/youtube.py")
+
+temporary_fix()
 """
 Set your env like the example below:
 token=
@@ -1206,7 +1211,7 @@ async def snipe(ctx, number=0):
     if (
         ctx.author.guild_permissions.administrator
         or ctx.author.guild_permissions.manage_messages
-        or ctx.guild.id not in [841026124174983188, 822445271019421746]
+        or ctx.guild.id not in [841026124174983188, 822445271019421746,830050310181486672 ]
     ):
         if int(number) > 10:
             await ctx.send(
@@ -2597,7 +2602,7 @@ async def check(ctx):
 
 @slash.slash(name="check", description="Check if the bot is online")
 async def check_slash(ctx):
-    req()
+    req() 
     await ctx.defer()
     await check(ctx)
 
@@ -3966,10 +3971,11 @@ async def gen(ctx, *, text):
     header2 = {"Authorization": f"Bearer {os.environ['transformers_auth']}"}
     payload2 = {
         "inputs": text,
-        "parameters": {"max_new_tokens": 250, "return_full_text": True},
+        "parameters": {"max_new_tokens": 100, "return_full_text": True},
     }
 
     output = await genpost(API_URL2, header2, payload2)
+    print(output)
     await ctx.reply(
         embed=cembed(
             title="Generated text", description=output[0]["generated_text"], color=re[8]
