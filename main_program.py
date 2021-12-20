@@ -1554,7 +1554,7 @@ async def currentmusic(ctx):
             description += check
         description += (
             f"\nDuration: {str(info['duration'] // 60)}min {str(info['duration'] % 60)}sec"
-            + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n{info['dislike_count']} :thumbdown:"
+            + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n"
         )
         await ctx.send(
             embed=cembed(
@@ -2247,6 +2247,13 @@ async def play(ctx, *, ind):
             )
     except Exception as e:
         channel = client.get_channel(dev_channel)
+        await ctx.send(
+            embed=discord.Embed(
+                title="Error in play function",
+                description=f"{e}",
+                color=discord.Color(value=re[8]),
+            )
+        )
         await channel.send(
             embed=discord.Embed(
                 title="Error in play function",
@@ -2841,7 +2848,7 @@ async def on_reaction_add(reaction, user):
                         + "min "
                         + str(info["duration"] % 60)
                         + "sec"
-                        + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n{info['dislike_count']} :thumbdown:"
+                        + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n"
                     )
                     await reaction.message.edit(
                         embed=cembed(
@@ -3219,48 +3226,58 @@ async def on_reaction_add(reaction, user):
                     except Exception as e:
                         mem = []
                     if mem.count(str(user)) > 0:
-                        voice = discord.utils.get(
-                            client.voice_clients, guild=reaction.message.guild
-                        )
-                        URL = youtube_download(
-                            reaction.message,
-                            queue_song[str(reaction.message.guild.id)][
-                                re[3][str(reaction.message.guild.id)]
-                            ],
-                        )
-                        voice.stop()
-                        voice.play(
-                            discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
-                            after=lambda e: repeat(reaction.message, voice),
-                        )
-                        if (
-                            not queue_song[str(reaction.message.guild.id)][
-                                re[3][str(reaction.message.guild.id)]
-                            ]
-                            in da1.keys()
-                        ):
-                            da1[
-                                queue_song[str(reaction.message.guild.id)][
-                                    re[3][str(reaction.message.guild.id)]
-                                ]
-                            ] = youtube_info(
-                                queue_song[str(reaction.message.guild.id)][
-                                    re[3][str(reaction.message.guild.id)]
-                                ]
-                            )[
-                                "title"
-                            ]
-                        url = queue_song[str(reaction.message.guild.id)][
-                            re[3][str(reaction.message.guild.id)]
-                        ]
-                        song_name = da1[url]
-                        await reaction.message.edit(
-                            embed=discord.Embed(
-                                title="Playing",
-                                description=f"[{song_name}]({url})",
-                                color=discord.Color(value=re[8]),
+                        try:
+                            voice = discord.utils.get(
+                                client.voice_clients, guild=reaction.message.guild
                             )
-                        )
+                            URL = youtube_download(
+                                reaction.message,
+                                queue_song[str(reaction.message.guild.id)][
+                                    re[3][str(reaction.message.guild.id)]
+                                ],
+                            )
+                            voice.stop()
+                            voice.play(
+                                discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
+                                after=lambda e: repeat(reaction.message, voice),
+                            )
+                            if (
+                                not queue_song[str(reaction.message.guild.id)][
+                                    re[3][str(reaction.message.guild.id)]
+                                ]
+                                in da1.keys()
+                            ):
+                                da1[
+                                    queue_song[str(reaction.message.guild.id)][
+                                        re[3][str(reaction.message.guild.id)]
+                                    ]
+                                ] = youtube_info(
+                                    queue_song[str(reaction.message.guild.id)][
+                                        re[3][str(reaction.message.guild.id)]
+                                    ]
+                                )[
+                                    "title"
+                                ]
+                            url = queue_song[str(reaction.message.guild.id)][
+                                re[3][str(reaction.message.guild.id)]
+                            ]
+                            song_name = da1[url]
+                            await reaction.message.edit(
+                                embed=discord.Embed(
+                                    title="Playing",
+                                    description=f"[{song_name}]({url})",
+                                    color=discord.Color(value=re[8]),
+                                )
+                            )
+                        except Exception as e:
+                            await reaction.message.edit(
+                                embed = cembed(
+                                    title="Error",
+                                    description = str(e),
+                                    color=re[8],
+                                    thumbnail = client.user.avatar_url_as(format="png")
+                                )
+                            )
                     else:
                         await reaction.message.edit(
                             embed=discord.Embed(
