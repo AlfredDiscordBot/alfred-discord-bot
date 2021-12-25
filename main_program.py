@@ -91,6 +91,11 @@ def reset_board():
 
 board = reset_board()
 global sent
+global past_respose, generated
+observer=[]
+past_respose = []
+generated = []
+deathrate = {}
 sent = None
 instagram_posts = []
 dictionary = dict(zip(Raw_Emoji_list, Emoji_list))
@@ -252,6 +257,7 @@ def save_to_file(a=""):
         file.write("dev_users=" + str(dev_users) + "\n")
         file.write(f"prefix_dict={str(prefix_dict)}\n")  
         # file.write("entr=" + str(entr) + "\n")
+        file.write(f"observer={str(observer)}")
         file.close()
 
     if True:
@@ -277,6 +283,7 @@ def load_from_file(file_name=".backup.txt", ss=0):
         global re
         global dev_users
         global prefix_dict
+        global observer
 
         def start_from(text, i):
             return eval(i[len(text) :])
@@ -305,6 +312,8 @@ def load_from_file(file_name=".backup.txt", ss=0):
                     re = start_from("re=", i)
                 if i.startswith("dev_users="):
                     dev_users = start_from("dev_users=", i)
+                if i.startswith("observer="):
+                    observer=start_from("observer=",i)
 
         except Exception as e:
             print(traceback.print_exc())
@@ -449,6 +458,27 @@ async def wait_for_ready():
 @client.command()
 async def imdb(ctx, *, movie):
     await ctx.send(embed=imdb_embed(movie))
+
+@client.command(aliases=['suicide']):
+async def toggle_suicide(ctx):
+    if ctx.author.guild_permissions.administrator:
+        output=""
+        if ctx.guild.id in observer:
+            observer.remove(ctx.guild.id)
+            output="disabled"
+        else:
+            observer.append(ctx.guild.id)
+            output="enabled"
+        await ctx.reply(embed=cembed(title="Done",description=f"I've {output} the suicide observer",color=re[8]))
+    else:
+        await ctx.send(
+            embed=cembed(
+                title="Permission Denied",
+                description="Only an admin can toggle this setting",
+                color=re[8]
+            )
+            )
+
 
 
 @client.command()
@@ -3734,20 +3764,28 @@ async def changeM(ctx, *, num):
         )
 
 
-async def transformer(api, header, json):
-    async with aiohttp.ClientSession() as session:
-        async with session.post(api, headers=header, json=json) as resp:
-            return await resp.json()
-
-
-global past_respose, generated
-
-past_respose = []
-generated = []
 
 
 @client.event
 async def on_message(msg):
+
+    
+    if not msg.author.bot and msg.guild.id in observer:
+        json = {"text" : msg.content}
+        if msg.author.id not in deathrate.keys():
+            deathrate[msg.author.id]=0
+        if deathrate[msg.author.id] >=5:
+            await msg.author.send("u seem to be suicidal take care, get some help")
+            deathrate[msg.author.id] = 0
+
+        preds = await post_async("https://suicide-detector-api.godofwings.repl.co/classify", json=json)
+        print(preds['result'])
+        if preds["result"] == "Sucide":
+            deathrate[msg.author.id]+=1
+            print(preds["result"])
+            print(deathrate)
+ 
+
     auth = os.getenv("transformers_auth")
     headeras = {"Authorization": f"Bearer {auth}"}
     if re[10] == 1:
@@ -3789,7 +3827,7 @@ async def on_message(msg):
                 "parameters": {"repetition_penalty": 1.33},
             }
 
-            output = await transformer(API_URL, header=headeras, json=payload)
+            output = await post_async(API_URL, header=headeras, json=payload)
 
             if len(past_respose) < 50:
                 past_respose.append(input_text)
