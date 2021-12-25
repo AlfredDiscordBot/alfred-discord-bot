@@ -238,6 +238,22 @@ client = commands.Bot(
 )
 slash = SlashCommand(client, sync_commands=True)
 
+def new_save():
+    global dev_users
+    v = Variables("backup")
+    v.pass_all(
+        mute_role = mute_role,
+        censor = censor,
+        da = da,
+        da1 = da1,
+        queue_song = queue_song,
+        a_channels = a_channels,
+        re = re,
+        dev_users = dev_users,
+        prefix_dict = prefix_dict,
+        observer=observer
+    )
+
 
 def save_to_file(a=""):
     global dev_users
@@ -459,7 +475,7 @@ async def wait_for_ready():
 async def imdb(ctx, *, movie):
     await ctx.send(embed=imdb_embed(movie))
 
-@client.command(aliases=['suicide']):
+@client.command(aliases=['suicide'])
 async def toggle_suicide(ctx):
     if ctx.author.guild_permissions.administrator:
         output=""
