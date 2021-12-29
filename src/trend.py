@@ -98,7 +98,7 @@ def main(client: commands, re):
     async def trending_github(ctx):
         rec = {}
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.trending-github.com/github/repositories") as resp:
+            async with session.get("https://ghapi.huchen.dev/repositories?language=javascript&since=weekly") as resp:
                 rec = await resp.json()
             await session.close()
         embeds = []

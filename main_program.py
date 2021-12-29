@@ -24,6 +24,7 @@ from dotenv import load_dotenv
 from math import *
 from statistics import *
 from wikipedia import search, summary
+from Storage_facility import Variables
 from io import StringIO
 from contextlib import redirect_stdout
 from External_functions import *
@@ -103,8 +104,13 @@ intents = discord.Intents.default()
 intents.members = True
 temp_dev = {}
 censor = []
-old_youtube_vid = []
+youtube_channels = {}
+old_youtube_vid = {}
 deleted_message = {}
+config = {
+    'snipe': [841026124174983188, 822445271019421746,830050310181486672, 912569937116147772],
+    'respond': []
+    }
 da = {}
 entr = {}
 da1 = {}
@@ -143,72 +149,6 @@ FFMPEG_OPTIONS = {
     "options": "-vn",
 }
 
-# spotify = SpotifyAPI(client_id, client_secret)
-
-
-# def fetch_spotify_playlist(link, num):
-#     if num > 100:
-#         songs = []
-#         images = []
-#         album_names = []
-#         artist_names = []
-#         track_names = []
-#         loops_req = int(num // 100 + 1)
-#         offset = 0
-#         for loop in range(loops_req):
-#             data = spotify.playlist(link=link, num=100, offset=offset)
-#             for item in range(100):
-#                 try:
-#                     none_object = data['items'][item]['track']
-#                 except IndexError:
-#                     pass
-#                 if none_object == None:
-#                     pass
-#                 else:
-#                     try:
-#                         track_name = data['items'][item]['track']['name']
-#                         artist_name = data['items'][item]['track']['artists'][0]['name']
-#                         image = data['items'][item]['track']['album']['images'][1]['url']
-#                         album_name = data['items'][item]['track']['album']['name']
-#                         songs.append(f'{track_name} - {artist_name}')
-#                         images.append(image)
-#                         album_names.append(album_name)
-#                         artist_names.append(artist_name)
-#                         track_names.append(track_name)
-#                         success = True
-#                     except IndexError:
-#                         pass
-#             offset += 100
-#     else:
-#         songs = []
-#         images = []
-#         album_names = []
-#         artist_names = []
-#         track_names = []
-#         data = spotify.playlist(link=link, num=num, offset=0)
-#         for item in range(num):
-#             try:
-#                 track_name = data['items'][item]['track']['name']
-#                 artist_name = data['items'][item]['track']['artists'][0]['name']
-#                 image = data['items'][item]['track']['album']['images'][1]['url']
-#                 album_name = data['items'][item]['track']['album']['name']
-#                 songs.append(f'{track_name} - {artist_name}')
-#                 images.append(image)
-#                 album_names.append(album_name)
-#                 artist_names.append(artist_name)
-#                 track_names.append(track_name)
-#                 success = True
-#             except IndexError:
-#                 pass
-#     # urls = []
-#     # base = 'https://www.youtube.com'
-#     # for song in songs:
-#     #     result = YoutubeSearch(song, max_results=1).to_dict()
-#     #     suffix = result[0]['url_suffix']
-#     #     link = base + suffix
-#     #     urls.append(link)
-#     return songs
-
 def youtube_download(ctx, url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
         info=ydl.extract_info(url, download=False) 
@@ -228,7 +168,7 @@ async def search_vid(name):
 
 def prefix_check(client, message):
     save_to_file()
-    return prefix_dict.get(message.guild.id, ["'"])
+    return prefix_dict.get(message.guild.id if message.guild is not None else None, ["'"])
 
 
 client = commands.Bot(
@@ -238,7 +178,7 @@ client = commands.Bot(
 )
 slash = SlashCommand(client, sync_commands=True)
 
-def new_save():
+def save_to_file():
     global dev_users
     v = Variables("backup")
     v.pass_all(
@@ -246,16 +186,20 @@ def new_save():
         censor = censor,
         da = da,
         da1 = da1,
+        entr = entr,
         queue_song = queue_song,
         a_channels = a_channels,
         re = re,
         dev_users = dev_users,
         prefix_dict = prefix_dict,
-        observer=observer
+        observer = observer,
+        old_youtube_vid = old_youtube_vid,
+        config = config
     )
+    v.save()
 
 
-def save_to_file(a=""):
+def old_save(a=""):
     global dev_users
     if ".backup.txt" in os.listdir("./"):
         os.remove("./.backup.txt")
@@ -287,7 +231,7 @@ def save_to_file(a=""):
         start_writing(file)
 
 
-def load_from_file(file_name=".backup.txt", ss=0):
+def old_load(file_name=".backup.txt", ss=0):
     if file_name in os.listdir("./"):
         file = open(file_name, "r")
         global mute_role
@@ -336,7 +280,41 @@ def load_from_file(file_name=".backup.txt", ss=0):
     save_to_file()
 
 
+def load_from_file():
+    global mute_role
+    global censor
+    global da
+    global da1
+    global queue_song
+    global entr
+    global re
+    global dev_users
+    global prefix_dict
+    global observer
+    global old_youtube_vid
+
+
+    v = Variables("backup").show_data()
+    mute_role = v['mute_role']
+    censor = v['censor']
+    da = v['da']
+    da1 = v['da1']
+    queue_song = v['queue_song']
+    entr = v['entr']
+    a_channels = v['a_channels']
+    re = v['re']
+    dev_users = v['dev_users']
+    prefix_dict = v['prefix_dict']
+    observer = v['observer']
+    old_youtube_vid = v['old_youtube_vid']
+    config = v['config']
+
+
 load_from_file()
+
+
+
+
 
 
 @client.event
@@ -346,13 +324,7 @@ async def on_ready():
     DiscordComponents(client)
     try:
         print("Starting Load from file")
-        try:
-            load_from_file()
-        except:
-            try:
-                load_from_file("recover")
-            except:
-                pass
+        load_from_file()
         print("Finished loading\n")
         print(re)
         print(dev_users)
@@ -410,20 +382,8 @@ async def on_ready():
 
 @tasks.loop(minutes=7)
 async def youtube_loop():
-    list_of_programs = ["blender"]
-    for i in list_of_programs:
-        if get_if_process_exists(i):
-            await client.change_presence(
-                activity=discord.Activity(type=discord.ActivityType.playing, name=i)
-            )
-            break
-    else:
-        await client.change_presence(
-            activity=discord.Activity(
-                type=discord.ActivityType.watching,
-                name=str(len(client.guilds)) + " servers",
-            )
-        )
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=str(len(client.guilds))+" servers"))
+
 
 
 @tasks.loop(seconds=10)
@@ -475,6 +435,53 @@ async def wait_for_ready():
 async def imdb(ctx, *, movie):
     await ctx.send(embed=imdb_embed(movie))
 
+@client.command()
+async def sniper(ctx):
+    if ctx.author.guild_permissions.administrator:
+        output=""
+        if ctx.guild.id in config['snipe']:
+            config['snipe'].remove(ctx.guild.id)
+            output="All people can use the snipe command"
+            
+        else:
+            config['snipe'].append(ctx.guild.id)
+            output="Only Admins can use Snipe command"
+
+        await ctx.send(embed=cembed(
+            title="Enabled",
+            description=output,
+            color=re[8],
+            thumbnail=client.user.avatar_url_as(format="png"))
+        )
+    else:
+        await ctx.send(
+            embed=cembed(
+                title="Permission Denied",
+                description="Only an admin can toggle this setting",
+                color=re[8]
+            )
+        )
+
+@client.command(aliases=['response'])
+async def toggle_response(ctx):
+    if ctx.author.guild_permissions.administrator:
+        output=""
+        if ctx.guild.id in config['respond']:
+            config['respond'].remove(ctx.guild.id)
+            output="Auto respond turned on"
+            
+        else:
+            config['respond'].append(ctx.guild.id)
+            output="Auto respond turned off"
+
+        await ctx.send(embed=cembed(
+            title="Enabled",
+            description=output,
+            color=re[8],
+            thumbnail=client.user.avatar_url_as(format="png"))
+        )
+
+
 @client.command(aliases=['suicide'])
 async def toggle_suicide(ctx):
     if ctx.author.guild_permissions.administrator:
@@ -493,8 +500,11 @@ async def toggle_suicide(ctx):
                 description="Only an admin can toggle this setting",
                 color=re[8]
             )
-            )
+        )
 
+@client.command()
+async def subscribe(url, channel: discord.TextChannel):
+    
 
 
 @client.command()
@@ -793,6 +803,7 @@ async def color_slash(ctx, rgb_color=""):
     await ctx.defer()
     await theme_color(ctx,tup1=rgb_color)
 
+
 @client.command(aliases=["color", "||"])
 async def theme_color(ctx, *, tup1=""):
     try:
@@ -846,27 +857,6 @@ async def theme_color(ctx, *, tup1=""):
                 color=discord.Color(value=re[8]),
             )
         )
-
-
-@client.command(aliases=["$$"])
-async def recover(ctx):
-    print("Recover", str(ctx.author))
-    if str(ctx.author.id) in dev_users:
-        try:
-            load_from_file(".recover.txt")
-            await ctx.send(embed=cembed(description="Recovery Done", color=re[8]))
-        except Exception as e:
-            channel = client.get_channel(dev_channel)
-            await channel.send(
-                embed=discord.Embed(
-                    title="Recovery failed",
-                    description=str(e),
-                    color=discord.Color(value=re[8]),
-                )
-            )
-    else:
-        await ctx.send(embed=cembed(title="Permissions Denied",description="You cannot use this command, its only for developers",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
-        await client.get_channel(dev_channel).send(embed=cembed(description=f"{ctx.author.name} from {ctx.guild.name} tried to use Recover command"))
 
 
 @client.command()
@@ -1116,7 +1106,7 @@ async def add_dev(ctx, member: discord.Member):
     print("Add dev", str(ctx.author))
     global dev_users
     if str(ctx.author.id) in dev_users:
-        dev_users = dev_users + [str(member.id)]
+        dev_users.add(str(member.id))
         await ctx.send(member.mention + " is a dev now")
     else:
         await ctx.send(
@@ -1131,7 +1121,7 @@ async def add_dev(ctx, member: discord.Member):
 @client.command(aliases=["script"])
 async def add_access_to_script(ctx, member: discord.Member, ti="5"):
     global dev_users
-    if str(ctx.author.id) in dev_users:
+    if str(ctx.author.id) in list(dev_users):
         mess = await ctx.send(
             embed=discord.Embed(
                 title="Done",
@@ -1152,7 +1142,7 @@ async def add_access_to_script(ctx, member: discord.Member, ti="5"):
 
 @client.command(aliases=["remscript"])
 async def remove_access_to_script(ctx, member: discord.Member):
-    if str(ctx.author.id) in dev_users:
+    if str(ctx.author.id) in list(dev_users):
         await ctx.send(
             embed=discord.Embed(
                 title="Removed Access",
@@ -1175,7 +1165,7 @@ async def remove_access_to_script(ctx, member: discord.Member):
 
 @client.command()
 async def dev_op(ctx):
-    if str(ctx.author.id) in dev_users:
+    if str(ctx.author.id) in list(dev_users):
         print("devop", str(ctx.author))
         channel = client.get_channel(dev_channel)
         await devop_mtext(client, channel, re[8])
@@ -1187,7 +1177,7 @@ async def dev_op(ctx):
 async def reset_from_backup(ctx):
     print("reset_from_backup", str(ctx.author))
     channel = client.get_channel(dev_channel)
-    if str(ctx.author.id) in dev_users:
+    if str(ctx.author.id) in list(dev_users):
         try:
             load_from_file()
             await ctx.send(
@@ -1257,7 +1247,7 @@ async def snipe(ctx, number=0):
     if (
         ctx.author.guild_permissions.administrator
         or ctx.author.guild_permissions.manage_messages
-        or ctx.guild.id not in [841026124174983188, 822445271019421746,830050310181486672 ]
+        or ctx.guild.id not in config['snipe']
     ):
         if int(number) > 10:
             await ctx.send(
@@ -3516,7 +3506,7 @@ async def on_reaction_add(reaction, user):
                             color=discord.Color(value=re[8]),
                         )
                     )
-            if str(user.id) in dev_users:
+            if str(user.id) in list(dev_users):
                 global dev_channel
                 channel = client.get_channel(dev_channel)
                 if (
@@ -3526,7 +3516,7 @@ async def on_reaction_add(reaction, user):
                 ):
                     string = ""
                     await reaction.remove(user)
-                    for i in dev_users:
+                    for i in list(dev_users):
                         string = string + str(client.get_user(int(i)).name) + "\n"
                     await channel.send(
                         embed=discord.Embed(
@@ -3555,18 +3545,7 @@ async def on_reaction_add(reaction, user):
                             description=usage,
                             color=discord.Color(value=re[8]),
                         )
-                    )
-                if reaction.emoji == emoji.emojize(":safety_vest:"):
-                    await reaction.remove(user)
-                    print("recover")
-                    load_from_file(".recover.txt")
-                    await channel.send(
-                        embed=discord.Embed(
-                            title="Recover",
-                            description="Recovery done",
-                            color=discord.Color(value=re[8]),
-                        )
-                    )
+                    )                
                 if reaction.emoji == "⭕" and str(reaction.message.channel.id) == str(
                     channel.id
                 ):
@@ -3584,19 +3563,22 @@ async def on_reaction_add(reaction, user):
                 if reaction.emoji == emoji.emojize(":fire:") and str(
                     reaction.message.channel.id
                 ) == str(channel.id):
-                    try:
-                        voice = discord.utils.get(
-                            client.voice_clients, guild=reaction.message.guild
+                    if len(client.voice_clients)>0:
+                        confirmation = await wait_for_confirm(
+                            reaction.message, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8], usr=user                        
                         )
-                        voice.stop()
-                        await voice.disconnect()
+                        if not confirmation:
+                            return
+                    try:
+                        for voice in client.voice_clients:
+                            voice.stop()
+                            await voice.disconnect()
                     except:
                         pass
                     save_to_file()
                     print("Restart " + str(user))
                     await channel.purge(limit=100000000)
                     os.chdir(location_of_file)
-                    os.system("nohup python " + location_of_file + "/main.py &")
                     await channel.send(
                         embed=discord.Embed(
                             title="Restart",
@@ -3604,7 +3586,7 @@ async def on_reaction_add(reaction, user):
                             color=discord.Color(value=re[8]),
                         )
                     )
-                    sys.exit()
+                    os.system("busybox reboot")
                 if reaction.emoji == emoji.emojize(":cross_mark:") and str(
                     reaction.message.channel.id
                 ) == str(channel.id):
@@ -3784,15 +3766,15 @@ async def changeM(ctx, *, num):
 
 @client.event
 async def on_message(msg):
+    save_to_file();
 
+    await client.process_commands(msg)
     
-    if not msg.author.bot and msg.guild.id in observer:
+    if not msg.author.bot:
+        req()
         json = {"text" : msg.content}
         if msg.author.id not in deathrate.keys():
             deathrate[msg.author.id]=0
-        if deathrate[msg.author.id] >=5:
-            await msg.author.send("u seem to be suicidal take care, get some help")
-            deathrate[msg.author.id] = 0
 
         preds = await post_async("https://suicide-detector-api.godofwings.repl.co/classify", json=json)
         print(preds['result'])
@@ -3800,7 +3782,11 @@ async def on_message(msg):
             deathrate[msg.author.id]+=1
             print(preds["result"])
             print(deathrate)
- 
+            
+        if deathrate[msg.author.id] >=5:
+            await msg.reply(embed=suicide_m(client,re[8]))
+            deathrate[msg.author.id] = 0
+    
 
     auth = os.getenv("transformers_auth")
     headeras = {"Authorization": f"Bearer {auth}"}
@@ -3831,7 +3817,7 @@ async def on_message(msg):
                             await msg.channel.send("thog dont caare")
                             break
 
-        if msg.content.lower().startswith("alfred"):
+        if msg.content.lower().startswith("alfred "):
 
             input_text = msg.content.lower().replace("alfred", "")
             payload = {
@@ -3858,7 +3844,7 @@ async def on_message(msg):
             await msg.reply(output["generated_text"])
 
         if f"<@!{client.user.id}>" in msg.content:
-            prefi = prefix_dict.get(msg.guild.id, "'")
+            prefi = prefix_dict.get(msg.guild.id if msg.guild is not None else None, "'")
             embed = discord.Embed(
                 title="Hi!! I am Alfred.",
                 description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""",
@@ -3874,9 +3860,9 @@ async def on_message(msg):
             )
 
             await msg.channel.send(embed=embed)
-        if msg.content.startswith(prefix_dict.get(msg.guild.id, "'")) == 0:
-            save_to_file("recover")
-        await client.process_commands(msg)
+        if msg.content.startswith(prefix_dict.get(msg.guild.id if msg.guild is not None else None, "'")) == 0:
+            save_to_file()
+        
     except Exception as e:
         channel = client.get_channel(dev_channel)
         await channel.send(

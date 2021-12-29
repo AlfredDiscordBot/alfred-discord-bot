@@ -61,12 +61,19 @@ Play command to play a song in your queue through index no. or you can put a son
 Queue command to add a song to the queue
 Remove command to remove a song from the queue
 
-*Spotify not supported yet :frowning:*
+~~*Spotify not supported yet :frowning:*~~
         """,
         thumbnail=thumbnail,
         color=re[8],
         picture="https://i.pinimg.com/originals/f1/90/97/f19097b29a4b606f8a91252fab526c6f.jpg"
     )
+    youtube_help = cembed(
+        title="Youtube Subscribe to a channel",
+        description="You can now add or make Alfred send you updates in the channel\n\nUse 'subscribe https://www.youtube.com/c/LinusTechTips/videos #channel to subscribe ",
+        thumbnail=thumbnail,
+        color=re[8],
+        picture=""
+    )
         
 
-    return [Emoji_help, music_help, instagram_help, reddit_help, wolfram_help, code_help, prefix_help]
+    return [Emoji_help, music_help, instagram_help, reddit_help, wolfram_help, code_help, prefix_help, youtube_help]

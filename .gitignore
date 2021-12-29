@@ -1,4 +1,5 @@
 .env
+*.dat
 .safe.txt
 Files/
 .google-cookie

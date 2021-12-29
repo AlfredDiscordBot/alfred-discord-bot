@@ -209,16 +209,12 @@ def instagram_get1(account, color, SESSIONID):
         return SESSIONID
 
 
-def get_youtube_url(url):
+async def get_youtube_url(url):
 
     """
     gets the list of url from a channel url
     """
-    st = requests.get(url).content.decode()
-    stop = 0
-    li = []
-
-    st = requests.get(url).content.decode()
+    st = await get_async(url)
     stop = 0
     li = []
 
@@ -507,3 +503,21 @@ async def post_async(api, header = {}, json = {}):
         async with session.post(api, headers=header, json=json) as resp:
             return await resp.json()
             
+def suicide_m(client,color):
+    return cembed(
+        title="Suicide and Self harm prevention",
+        description=""" 
+    You are not alone ...
+    And your Life is worth a lot ..
+    SPEAK OUT !!
+
+
+    If you're having any suicidal thoughts, please seek help immediately. Talk about what bothers you and what can be done to solve the problem
+
+
+    international suicide helplines>>> https://www.opencounseling.com/suicide-hotlines
+        """,
+        color=color,
+        thumbnail=client.user.avatar_url_as(format="png"),
+        picture="https://www.humanium.org/en/wp-content/uploads/2019/09/shutterstock_1140282473-scaled.jpg"
+    )

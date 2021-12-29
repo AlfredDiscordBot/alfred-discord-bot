@@ -21,7 +21,7 @@ google==3.0.0
 GoogleNews==1.5.8
 idna==3.1
 multidict==5.1.0
-mysql-connector-python==8.0.26
+#mysql-connector-python==8.0.26
 protobuf==3.17.3
 psutil==5.8.0
 pycparser==2.20
