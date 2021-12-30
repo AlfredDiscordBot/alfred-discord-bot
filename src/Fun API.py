@@ -144,7 +144,7 @@ def main(client, re):
                               thumbnail=client.user.avatar_url_as(
                                   format="png"),
                               picture=f"https://render-tron.appspot.com/screenshot/{i}/?width=1458&height=690")
-            embed.url = "i"
+            embed.url = i
             li.append(embed)
         await pa1(li, ctx)
 
