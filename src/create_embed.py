@@ -244,11 +244,11 @@ def main(client, re):
         ctx, channel: discord.TextChannel = None, *, yaml: str = None
     ):
         """
-        Create an emebd from given yaml string and send it in the provided channel.
+        Create an embed from given yaml string and send it in the provided channel.
         """
         if (
             ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == SUPER_AUTHOR_ID
+            or ctx.author.id == SUPER_AUTHOR_ID or ctx.author.permissions_in(channel).send_messages
         ):
             if not channel:
                 channel = ctx.channel  # set default channel to current

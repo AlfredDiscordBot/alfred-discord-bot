@@ -521,3 +521,8 @@ def suicide_m(client,color):
         thumbnail=client.user.avatar_url_as(format="png"),
         picture="https://www.humanium.org/en/wp-content/uploads/2019/09/shutterstock_1140282473-scaled.jpg"
     )
+
+def check_end(s : str):
+    if not s.endswith("/videos"):
+        return s+"/videos"
+    return s

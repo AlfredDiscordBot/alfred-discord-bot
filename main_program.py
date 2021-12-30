@@ -86,7 +86,7 @@ def reset_board():
     for i in range(1, 10):
         board = board + emoji.emojize(":keycap_" + str(i) + ":") + " | "
         if i % 3 == 0:
-            board = board + "\n----    ----    ----\n"
+            board = board + "\n----    ----        ----\n"
     return board
 
 
@@ -104,12 +104,13 @@ intents = discord.Intents.default()
 intents.members = True
 temp_dev = {}
 censor = []
-youtube_channels = {}
 old_youtube_vid = {}
+youtube_cache = {}
 deleted_message = {}
 config = {
     'snipe': [841026124174983188, 822445271019421746,830050310181486672, 912569937116147772],
-    'respond': []
+    'respond': [],
+    'youtube': {}
     }
 da = {}
 entr = {}
@@ -181,7 +182,7 @@ slash = SlashCommand(client, sync_commands=True)
 def save_to_file():
     global dev_users
     v = Variables("backup")
-    v.pass_all(
+    v.edit(
         mute_role = mute_role,
         censor = censor,
         da = da,
@@ -292,6 +293,7 @@ def load_from_file():
     global prefix_dict
     global observer
     global old_youtube_vid
+    global config
 
 
     v = Variables("backup").show_data()
@@ -311,9 +313,6 @@ def load_from_file():
 
 
 load_from_file()
-
-
-
 
 
 
@@ -380,10 +379,26 @@ async def on_ready():
     youtube_loop.start()
 
 
-@tasks.loop(minutes=7)
+@tasks.loop(minutes=10)
 async def youtube_loop():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=str(len(client.guilds))+" servers"))
-
+    for i,l in config['youtube'].items():
+        for j in list(l):
+            a = await get_youtube_url(j)
+            if not old_youtube_vid.get(i, None):
+                old_youtube_vid[i] = {}
+            if not old_youtube_vid[i].get(j, None):
+                old_youtube_vid[i][j] = ""
+            if old_youtube_vid[i][j] == a[0]:
+                continue
+            old_youtube_vid[i][j] = a[0]
+            try:
+                await client.get_channel(i).send(embed=cembed(title="New Video out", description=f"New Video from {j}",url=a[0],color=re[8],thumbnail=client.get_channel(i).guild.icon_url))
+                await client.get_channel(i).send(a[0])
+            except Exception as e:
+                await client.get_channel(dev_channel).send(embed=cembed(title="Error in youtube_loop",description=f"{str(e)}\nSomething is wrong with channel no. {i}",color=re[8]))
+            
+    save_to_file()
 
 
 @tasks.loop(seconds=10)
@@ -488,10 +503,10 @@ async def toggle_suicide(ctx):
         output=""
         if ctx.guild.id in observer:
             observer.remove(ctx.guild.id)
-            output="disabled"
+            output="enabled"
         else:
             observer.append(ctx.guild.id)
-            output="enabled"
+            output="disabled"
         await ctx.reply(embed=cembed(title="Done",description=f"I've {output} the suicide observer",color=re[8]))
     else:
         await ctx.send(
@@ -503,8 +518,62 @@ async def toggle_suicide(ctx):
         )
 
 @client.command()
-async def subscribe(url, channel: discord.TextChannel):
-    
+async def subscribe(ctx, channel: discord.TextChannel=None, url=None):
+    if ctx.author.guild_permissions.administrator:
+        if 'youtube' not in config: config['youtube']={}
+        if channel.id not in config['youtube']: config['youtube'][channel.id]=set()
+        if url is not None:
+            url = check_end(url)
+            config['youtube'][channel.id].add(url)
+            await ctx.send(embed=cembed(title="Done",description=f"Added {url} to the list and it'll be displayed in {channel.mention}",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        else:
+            all_links = "\n".join(list(config['youtube'][channel.id]))
+            await ctx.send(embed=cembed(
+                title="All youtube subscriptions in this channel",
+                description=all_links,
+                color=re[8],
+                thumbnail = client.user.avatar_url_as(format="png")
+            ))
+    else:
+        await ctx.reply(
+            embed=cembed(
+                title="Permission Denied",
+                description="Only an admin can set it",
+                color=re[8],
+                thumbnail=client.user.avatar_url_as(format="png")
+            )
+        )
+
+@client.command()
+async def unsubscribe(ctx, channel: discord.TextChannel=None, url=None):
+    if ctx.author.guild_permissions.administrator:
+        if 'youtube' not in config: config['youtube']={}
+        if channel.id not in config['youtube']: config['youtube'][channel.id]=set()
+        if url is not None:
+            try:
+                url = check_end(url)
+                config['youtube'][channel.id].remove(url)
+                await ctx.send(embed=cembed(title="Done",description=f"Removed {url} from the list",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+            except KeyError:
+                await ctx.reply(embed=cembed(title="Hmm",description=f"The URL provided is not in {channel.name}'s subscriptions",color=re[8]))
+        else:
+            all_links = "\n".join([list(config['youtube'][channel.id])])
+            await ctx.send(embed=cembed(
+                title="All youtube subscriptions in this channel",
+                description=all_links,
+                color=re[8],
+                thumbnail = client.user.avatar_url_as(format="png")
+            ))
+    else:
+        await ctx.reply(
+            embed=cembed(
+                title="Permission Denied",
+                description="Only an admin can remove subscriptions",
+                color=re[8],
+                thumbnail=client.user.avatar_url_as(format="png")
+            )
+        )
+
 
 
 @client.command()
@@ -3770,18 +3839,18 @@ async def on_message(msg):
 
     await client.process_commands(msg)
     
-    if not msg.author.bot:
+    if not msg.author.bot and not msg.guild.id in observer:
         req()
         json = {"text" : msg.content}
         if msg.author.id not in deathrate.keys():
             deathrate[msg.author.id]=0
 
         preds = await post_async("https://suicide-detector-api.godofwings.repl.co/classify", json=json)
-        print(preds['result'])
+        #print(preds['result'])
         if preds["result"] == "Sucide":
             deathrate[msg.author.id]+=1
-            print(preds["result"])
-            print(deathrate)
+            #print(preds["result"])
+            #print(deathrate)
             
         if deathrate[msg.author.id] >=5:
             await msg.reply(embed=suicide_m(client,re[8]))
@@ -3817,7 +3886,7 @@ async def on_message(msg):
                             await msg.channel.send("thog dont caare")
                             break
 
-        if msg.content.lower().startswith("alfred "):
+        if msg.content.lower().startswith("alfred ") and msg.guild.id not in config:
 
             input_text = msg.content.lower().replace("alfred", "")
             payload = {

@@ -69,10 +69,10 @@ Remove command to remove a song from the queue
     )
     youtube_help = cembed(
         title="Youtube Subscribe to a channel",
-        description="You can now add or make Alfred send you updates in the channel\n\nUse 'subscribe https://www.youtube.com/c/LinusTechTips/videos #channel to subscribe ",
+        description="You can now add or make Alfred send you updates in the channel\n\nUse 'subscribe #channel https://www.youtube.com/c/LinusTechTips/videos to subscribe ",
         thumbnail=thumbnail,
         color=re[8],
-        picture=""
+        picture="https://play-lh.googleusercontent.com/vA4tG0v4aasE7oIvRIvTkOYTwom07DfqHdUPr6k7jmrDwy_qA_SonqZkw6KX0OXKAdk"
     )
         
 

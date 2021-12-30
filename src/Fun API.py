@@ -140,11 +140,11 @@ def main(client, re):
         for i in search(text, num=5, stop=5, pause=0):
              # https://render-tron.appspot.com/screenshot/https://discord.com/?width=1458&height=690
             embed = ef.cembed(title="Google",
-                              description=i,
                               color=re[8],
                               thumbnail=client.user.avatar_url_as(
                                   format="png"),
                               picture=f"https://render-tron.appspot.com/screenshot/{i}/?width=1458&height=690")
+            embed.url = "i"
             li.append(embed)
         await pa1(li, ctx)
 
