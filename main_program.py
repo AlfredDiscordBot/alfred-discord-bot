@@ -768,11 +768,7 @@ async def uemoji(ctx, emoji_name, number=0):
         await webhook.send(
             emoji, username=ctx.author.name, avatar_url=ctx.author.avatar_url
         )
-        webhooks = await ctx.channel.webhooks()
-        for webhook in webhooks:
-            #print(dir(webhook))
-            if webhook.user is client.user:
-                await webhook.delete()
+        await webhook.delete()
 
     else:
         await ctx.send(
@@ -1132,14 +1128,14 @@ async def pa1(embeds, ctx):
         try:
             reaction, user = await client.wait_for(
                 "reaction_add", timeout=360, check=check
-            )
-            await message.remove_reaction(reaction, user)
+            )            
             if str(reaction.emoji) == "▶️" and pag + 1 != len(embeds):
                 pag += 1
                 await message.edit(embed=embeds[pag])
             elif str(reaction.emoji) == "◀️" and pag != 0:
                 pag -= 1
                 await message.edit(embed=embeds[pag])
+            await message.remove_reaction(reaction, user)
         except asyncio.TimeoutError:
             break
 
@@ -2761,8 +2757,7 @@ async def on_reaction_add(reaction, user):
                 reaction.emoji == emoji.emojize(":upwards_button:")
                 and len(queue_song[str(reaction.message.guild.id)]) > 0
                 and reaction.message.author == client.user
-            ):
-                await reaction.remove(user)
+            ):                
                 if not reaction.message in list(pages.keys()):
                     pages[reaction.message] = 0
                 else:
@@ -2801,12 +2796,13 @@ async def on_reaction_add(reaction, user):
                         color=discord.Color(value=re[8]),
                     )
                 )
+                await reaction.remove(user)            
             if (
                 reaction.emoji == emoji.emojize(":downwards_button:")
                 and len(queue_song[str(reaction.message.guild.id)]) > 0
                 and reaction.message.author == client.user
             ):
-                await reaction.remove(user)
+                
                 if not reaction.message in list(pages.keys()):
                     pages[reaction.message] = 0
                 else:
@@ -2852,6 +2848,7 @@ async def on_reaction_add(reaction, user):
                         color=discord.Color(value=re[8]),
                     )
                 )
+                await reaction.remove(user)
 
             if (
                 reaction.emoji
@@ -2928,7 +2925,7 @@ async def on_reaction_add(reaction, user):
                                         )
                                     )
             if reaction.emoji == emoji.emojize(":musical_note:"):
-                await reaction.remove(user)
+                
                 if len(queue_song[str(reaction.message.guild.id)]) > 0:
                     description = (
                         "[Current index: "
@@ -2969,6 +2966,7 @@ async def on_reaction_add(reaction, user):
                             thumbnail=info["thumbnail"],
                         )
                     )
+                    await reaction.remove(user)
                 else:
                     await reaction.message.edit(
                         embed=discord.Embed(
@@ -2982,7 +2980,7 @@ async def on_reaction_add(reaction, user):
                     str(user) != str(client.user)
                     and reaction.message.author == client.user
                 ):
-                    await reaction.remove(user)
+                    
                     temp_tup = color_temp
                     if temp_tup[2] - 25 >= 0:
                         re[8] = discord.Color.from_rgb(
@@ -3006,12 +3004,13 @@ async def on_reaction_add(reaction, user):
                         color=discord.Color(value=re[8]),
                     )
                     await color_message.edit(embed=embed)
+                    await reaction.remove(user)
             if reaction.emoji == discord.utils.get(client.emojis, name="green_down"):
                 if (
                     str(user) != str(client.user)
                     and reaction.message.author == client.user
                 ):
-                    await reaction.remove(user)
+                    
                     temp_tup = color_temp
                     if temp_tup[1] - 25 >= 0:
                         re[8] = discord.Color.from_rgb(
@@ -3035,12 +3034,13 @@ async def on_reaction_add(reaction, user):
                         color=discord.Color(value=re[8]),
                     )
                     await color_message.edit(embed=embed)
+                    await reaction.remove(user)
             if reaction.emoji == emoji.emojize(":red_triangle_pointed_down:"):
                 if (
                     str(user) != str(client.user)
                     and reaction.message.author == client.user
                 ):
-                    await reaction.remove(user)
+                    
                     temp_tup = color_temp
                     if temp_tup[0] - 25 >= 0:
                         re[8] = discord.Color.from_rgb(
@@ -3064,6 +3064,7 @@ async def on_reaction_add(reaction, user):
                         color=discord.Color(value=re[8]),
                     )
                     await color_message.edit(embed=embed)
+                    await reaction.remove(user)
             if reaction.emoji == discord.utils.get(client.emojis, name="blue_up"):
                 if (
                     str(user) != str(client.user)
@@ -3886,7 +3887,7 @@ async def on_message(msg):
                             await msg.channel.send("thog dont caare")
                             break
 
-        if msg.content.lower().startswith("alfred ") and msg.guild.id not in config:
+        if msg.content.lower().startswith("alfred ") and msg.guild.id not in config['respond']:
 
             input_text = msg.content.lower().replace("alfred", "")
             payload = {

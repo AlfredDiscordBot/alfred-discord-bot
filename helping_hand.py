@@ -1,5 +1,27 @@
 from External_functions import cembed
 
+y = """
+'yml_embed #channel
+```yaml
+title: Title Goes Here
+description: a good description for your embed
+thumbnail: https://images-ext-1.discordapp.net/external/L58PZxhXkdE1gqzb-1FhC3f0t9YglNqEfW-0OVb2ubY/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/811591623242154046/115f0ef23ff700ffc894e6bed949b5fe.png?width=676&height=676
+image: https://images-ext-1.discordapp.net/external/L58PZxhXkdE1gqzb-1FhC3f0t9YglNqEfW-0OVb2ubY/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/811591623242154046/115f0ef23ff700ffc894e6bed949b5fe.png?width=676&height=676
+footer: The footer goes here
+author: True/False
+```
+"""
+
+
+mod="""
+You can choose to disable some of the sensitive commands or moderate your server using this
+
+'ban @mention > You can ban someone using this command
+'kick @mention > You can kick someone using this command, the user can return if he has the invite
+'muter @role_mention registers a mute role to Alfred's memory and when you use 'mute @mention or 'unmute @mention, Alfred will add or remove this role
+'suicide will toggle suicide observation 
+'respond'
+"""
 
 def help_him(ctx, client, re):
 
@@ -74,6 +96,17 @@ Remove command to remove a song from the queue
         color=re[8],
         picture="https://play-lh.googleusercontent.com/vA4tG0v4aasE7oIvRIvTkOYTwom07DfqHdUPr6k7jmrDwy_qA_SonqZkw6KX0OXKAdk"
     )
+    yaml_help = cembed(
+        title="Yaml Embed tutorial",
+        description=f"You can use this to create embed, I can show you an example\n\n{y}",
+        color=re[8],
+        thumbnail=thumbnail,
+        picture="https://media.discordapp.net/attachments/877393101562445834/926120618603196416/unknown.png?width=391&height=436"
+    )
+    mod_help = cembed(
+        title="Moderation commands",
+        description=""
+    )
         
 
-    return [Emoji_help, music_help, instagram_help, reddit_help, wolfram_help, code_help, prefix_help, youtube_help]
+    return [Emoji_help, music_help, instagram_help, reddit_help, wolfram_help, code_help, prefix_help, youtube_help, yaml_help]
