@@ -12,7 +12,7 @@ mysql=
 default=
 dev=
 """
-
+import string
 import pickle
 import discord
 import helping_hand
@@ -3841,21 +3841,29 @@ async def on_message(msg):
     await client.process_commands(msg)
     
     if not msg.author.bot and not msg.guild.id in observer:
+        s = msg.clean_content
+        
+        whitelist = string.ascii_letters + ' '
+        global new_s
+        new_s = ''.join(c for c in s if c in whitelist)
         req()
-        json = {"text" : msg.content}
-        if msg.author.id not in deathrate.keys():
-            deathrate[msg.author.id]=0
 
-        preds = await post_async("https://suicide-detector-api.godofwings.repl.co/classify", json=json)
-        #print(preds['result'])
-        if preds["result"] == "Sucide":
-            deathrate[msg.author.id]+=1
-            #print(preds["result"])
-            #print(deathrate)
-            
-        if deathrate[msg.author.id] >=5:
-            await msg.reply(embed=suicide_m(client,re[8]))
-            deathrate[msg.author.id] = 0
+        new_s = regex.sub(' +', ' ', new_s)
+        if new_s != '' or new_s is not None or new_s != '': 
+            json = {"text" : new_s}
+            if msg.author.id not in deathrate.keys():
+                deathrate[msg.author.id]=0
+
+            preds = await post_async("https://suicide-detector-api.godofwings.repl.co/classify", json=json)
+            #print(preds['result'])
+            if preds["result"] == "Sucide":
+                deathrate[msg.author.id]+=1
+                #print(preds["result"])
+                #print(deathrate)
+                
+            if deathrate[msg.author.id] >=5:
+                await msg.reply(embed=suicide_m(client,re[8]))
+                deathrate[msg.author.id] = 0
     
 
     auth = os.getenv("transformers_auth")
