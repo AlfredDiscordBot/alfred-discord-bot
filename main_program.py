@@ -2029,8 +2029,10 @@ async def next(ctx):
 
 
 @client.command()
-async def set_prefix(ctx, pref):
+async def set_prefix(ctx, *, pref):
     if ctx.author.guild_permissions.administrator:
+        if pref.startswith('"') and pref.endswith('"'):
+            pref=pref[1:-1]
         prefix_dict[ctx.guild.id] = pref
         await ctx.send(
             embed=cembed(title="Done", description=f"Prefix set as {pref}", color=re[8])
