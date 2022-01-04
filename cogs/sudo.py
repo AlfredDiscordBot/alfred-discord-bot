@@ -48,6 +48,16 @@ class Sudo(commands.Cog):
                     color=discord.Color(value=re[8]),
                 )
             )
+    @commands.command()
+    async def dev_test(ctx, id:discord.Member=None):
+        dev_users = get_dev_users()
+        if id:
+            if str(id.id) in dev_users:
+              await ctx.send(f"{id} is a dev!")
+            else:
+              await ctx.send(f"{id} is not a dev!")
+        else:
+            await ctx.send("You need to mention someone")
 
     @commands.command(aliases=["script"])
     async def add_access_to_script(self, ctx, member: discord.Member, ti="5"):
