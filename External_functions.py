@@ -481,19 +481,6 @@ async def get_name(url):
         .replace("&#39;", "'")
     )
 
-@client.command()
-async def dev_test(ctx, id):
-  if '<@!' in id:
-    if id[3:21] in dev_users:
-      await ctx.send(f"{id} is a dev!")
-    else:
-      await ctx.send(f"{id} is not a dev!")
-  else:
-    if id in dev_users:
-      await ctx.send(f"<@{id}> is a dev!")
-    else:
-      await ctx.send(f"<@{id}> is not a dev!")
-
     
 async def get_async(url,headers = {},kind = "content"):
     '''
