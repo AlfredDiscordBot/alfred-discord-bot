@@ -382,19 +382,23 @@ async def on_ready():
 @tasks.loop(minutes=10)
 async def youtube_loop():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=str(len(client.guilds))+" servers"))
+    print("Youtube_loop")
     for i,l in config['youtube'].items():
-        for j in list(l):
-            a = await get_youtube_url(j)
+        for j in l:
+            a = await get_youtube_url(j[0])
+            if a[0]=="https://www.youtube.com/":
+                pass
             if not old_youtube_vid.get(i, None):
                 old_youtube_vid[i] = {}
-            if not old_youtube_vid[i].get(j, None):
-                old_youtube_vid[i][j] = ""
-            if old_youtube_vid[i][j] == a[0]:
+            if not old_youtube_vid[i].get(j[0], None):
+                old_youtube_vid[i][j[0]] = ""
+            if old_youtube_vid[i][j[0]] == a[0]:
                 continue
-            old_youtube_vid[i][j] = a[0]
+            old_youtube_vid[i][j[0]] = a[0]
             try:
-                await client.get_channel(i).send(embed=cembed(title="New Video out", description=f"New Video from {j}",url=a[0],color=re[8],thumbnail=client.get_channel(i).guild.icon_url))
-                await client.get_channel(i).send(a[0])
+                message=j[1]
+                await client.get_channel(i).send(embed=cembed(title="New Video out", description=f"New Video from {j[0]}",url=a[0],color=re[8],thumbnail=client.get_channel(i).guild.icon_url))
+                await client.get_channel(i).send(a[0]+"\n"+message)
             except Exception as e:
                 await client.get_channel(dev_channel).send(embed=cembed(title="Error in youtube_loop",description=f"{str(e)}\nSomething is wrong with channel no. {i}",color=re[8]))
             
@@ -518,16 +522,16 @@ async def toggle_suicide(ctx):
         )
 
 @client.command()
-async def subscribe(ctx, channel: discord.TextChannel=None, url=None):
+async def subscribe(ctx, channel: discord.TextChannel=None, url=None, *, message=""):
     if ctx.author.guild_permissions.administrator:
         if 'youtube' not in config: config['youtube']={}
         if channel.id not in config['youtube']: config['youtube'][channel.id]=set()
         if url is not None:
             url = check_end(url)
-            config['youtube'][channel.id].add(url)
+            config['youtube'][channel.id].add((url,message))
             await ctx.send(embed=cembed(title="Done",description=f"Added {url} to the list and it'll be displayed in {channel.mention}",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
         else:
-            all_links = "\n".join(list(config['youtube'][channel.id]))
+            all_links = "\n".join([i[0] for i in config['youtube'][channel.id]])
             await ctx.send(embed=cembed(
                 title="All youtube subscriptions in this channel",
                 description=all_links,
@@ -549,21 +553,26 @@ async def unsubscribe(ctx, channel: discord.TextChannel=None, url=None):
     if ctx.author.guild_permissions.administrator:
         if 'youtube' not in config: config['youtube']={}
         if channel.id not in config['youtube']: config['youtube'][channel.id]=set()
-        if url is not None:
-            try:
-                url = check_end(url)
-                config['youtube'][channel.id].remove(url)
-                await ctx.send(embed=cembed(title="Done",description=f"Removed {url} from the list",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
-            except KeyError:
-                await ctx.reply(embed=cembed(title="Hmm",description=f"The URL provided is not in {channel.name}'s subscriptions",color=re[8]))
-        else:
-            all_links = "\n".join([list(config['youtube'][channel.id])])
+        if url is None:   
+            all_links = "\n".join([i[0] for i in config['youtube'][channel.id]])
             await ctx.send(embed=cembed(
                 title="All youtube subscriptions in this channel",
                 description=all_links,
                 color=re[8],
                 thumbnail = client.user.avatar_url_as(format="png")
             ))
+            return
+        try:
+            url = check_end(url)
+            for u,m in config['youtube'][channel.id]:
+                if u == url:
+                    config['youtube'][channel.id].remove((u,m))
+                    break
+
+            
+            await ctx.send(embed=cembed(title="Done",description=f"Removed {url} from the list",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        except KeyError:
+            await ctx.reply(embed=cembed(title="Hmm",description=f"The URL provided is not in {channel.name}'s subscriptions",color=re[8]))
     else:
         await ctx.reply(
             embed=cembed(
@@ -2164,11 +2173,9 @@ async def previous(ctx):
 @client.command(aliases=["dict"])
 async def dictionary(ctx, *, text):
     try:
-        data = eval(
-            requests.get(
-                "https://api.dictionaryapi.dev/api/v2/entries/en/"
-                + text.replace(" ", "%20")
-            ).content.decode()
+        data = await get_async(
+            url="https://api.dictionaryapi.dev/api/v2/entries/en/"+convert_to_url(text),
+            kind="json"
         )
         if type(data) == type([]):
             data = data[0]
@@ -2494,11 +2501,11 @@ async def memes(ctx):
                     safe_stop = 0
                 link_for_cats += [string[n2:n1]]
             print("Finished meme")
-            link_for_cats += memes1()
+            link_for_cats += await memes1()
             print("Finished meme1")
-            link_for_cats += memes2()
+            link_for_cats += await memes2()
             print("Finished meme2")
-            link_for_cats += memes3()
+            link_for_cats += await memes3()
             print("Finished meme3")
         except Exception as e:
             await channel.send(
@@ -2516,25 +2523,44 @@ async def memes(ctx):
 
 @client.command(aliases=["!"])
 async def restart_program(ctx, text):
-    try:
-        voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-        voice.stop()
-        await voice.disconnect()
-    except:
-        pass
-    save_to_file()
-    print("Restart")
-    os.chdir(location_of_file)
-    os.system("nohup python main.py &")
-    await ctx.send(
-        embed=cembed(
-            title="Restarted",
-            description="The program finished restarting",
-            color=re[8],
-            thumbnail=client.user.avatar_url_as(format="png"),
+    if str(ctx.author.id) in list(dev_users):
+        if len(client.voice_clients)>0:
+            confirmation = await wait_for_confirm(
+                ctx, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8]                        
+            )
+            if not confirmation:
+                return
+        try:
+            for voice in client.voice_clients:
+                voice.stop()
+                await voice.disconnect()
+        except:
+            pass
+        save_to_file()
+        print("Restart")
+        await ctx.send(
+            embed=cembed(
+                title="Restarted",
+                description="The program is beginning it's restarting process",
+                color=re[8],
+                thumbnail=client.user.avatar_url_as(format="png")
+            )
         )
-    )
-    sys.exit()
+        await client.get_channel(dev_channel).send(
+            embed=cembed(
+                title="Restart",
+                description=f"Requested by {ctx.author.name}",
+                thumbnail=client.user.avatar_url_as(format="png"),
+                color=re[8]
+                
+            )
+        )
+        os.system("busybox reboot")
+    else:
+        await ctx.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+
+        await channel.send(embed=cembed(description=f"{ctx.author.name} from {ctx.guild.name} tried to use restart_program command",color=re[8]))
+
 
 
 @slash.slash(name="dc", description="Disconnect the bot from your voice channel")
@@ -2640,6 +2666,15 @@ async def change_nickname(ctx, member: discord.Member, *, nickname):
                 color=discord.Color(value=re[8]),
             )
         )
+@client.command()
+async def dev_test(ctx, id:discord.Member=None):
+    if id:
+        if str(id.id) in dev_users:
+            await ctx.send(f"{id} is a dev!")
+        else:
+            await ctx.send(f"{id} is not a dev!")
+    else:
+        await ctx.send("You need to mention somebody")
 
 
 @client.command()
@@ -4259,5 +4294,7 @@ async def h(ctx):
         embeds.append(em)
     await pa1(embeds, ctx)
 
-
-client.run(os.getenv("token"))
+if os.getenv("dev-bot"):
+    client.run(os.getenv("token_dev"))
+else:
+    client.run(os.getenv("token"))

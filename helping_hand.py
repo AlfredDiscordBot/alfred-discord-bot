@@ -20,7 +20,8 @@ You can choose to disable some of the sensitive commands or moderate your server
 'kick @mention > You can kick someone using this command, the user can return if he has the invite
 'muter @role_mention registers a mute role to Alfred's memory and when you use 'mute @mention or 'unmute @mention, Alfred will add or remove this role
 'suicide will toggle suicide observation 
-'respond'
+'respond will toggle auto response when you say Alfred
+'change_nickname @mention New name, will change the nickname of the person, <alias: '*'>
 """
 
 def help_him(ctx, client, re):
@@ -64,7 +65,7 @@ def help_him(ctx, client, re):
         description="You can execute programs from various programming languages\n\nEx: 'code <language>\n```\n#code here\n```",
         color=re[8],
         thumbnail=thumbnail,
-        picture="https://techcrunch.com/wp-content/uploads/2015/04/codecode.jpg",
+        picture="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8aYSfIp22UXBEkRt6vXwy4dmfhH3Q1lr8ow&usqp=CAU",
     )
     
     prefix_help = cembed(
@@ -105,8 +106,11 @@ Remove command to remove a song from the queue
     )
     mod_help = cembed(
         title="Moderation commands",
-        description=""
+        description=mod,
+        color=re[8],
+        thumbnail=thumbnail,
+        picture="https://i.ytimg.com/vi/aN6Ywnwsahk/maxresdefault.jpg"
     )
         
 
-    return [Emoji_help, music_help, instagram_help, reddit_help, wolfram_help, code_help, prefix_help, youtube_help, yaml_help]
+    return [music_help, mod_help, yaml_help, reddit_help, wolfram_help, code_help, Emoji_help, prefix_help, youtube_help, instagram_help]
