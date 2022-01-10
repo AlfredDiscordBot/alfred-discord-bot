@@ -511,6 +511,74 @@ async def toggle_response(ctx):
         )
 
 
+@client.command(aliases=["pfp"])
+async def get_pfp(ctx, member:discord.Member=None):
+    
+    req()
+    
+    if member is None:
+        embed = discord.Embed(title="Profile Picture : {}".format(ctx.author.name), color=re[8])
+        embed.set_image(url=ctx.author.avatar_url)
+    
+    else:
+        embed = discord.Embed(title="Profile Picture : {}".format(member.name), color=re[8])
+        embed.set_image(url=member.avatar_url)
+    
+    await ctx.send(embed=embed)
+
+async def post_effect(api, header = {}, json = {}):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(api, headers=header, json=json) as resp:
+            return await resp.read()
+
+@client.command()
+async def effects(ctx, effect:str = None, member:discord.Member=None):
+    if member == None:
+        url = ctx.author.avatar_url_as(format='png')
+    else:
+        url = member.avatar_url_as(format='png')
+
+    url = str(url)
+
+    if effect == None:
+        await ctx.send(
+                    embed=cembed(
+                        title="OOPS",
+                        description="""Hmm You seem to be forgetting an argument \n s!effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie """,
+                        color=re[8],
+                    )
+                )
+
+    styles = ['candy', 'composition', 'feathers', 'muse', 'mosaic', 'night', 'scream', 'wave', 'udnie']
+
+    effects = ['cartoonify', 'watercolor', 'canny', 'pencil', 'econify', 'negative', 'pen']
+
+    if effect not in styles and effect not in effects and effect is not None:
+        await ctx.send(
+                    embed=cembed(
+                        title="OOPS",
+                        description="""hmm no such effect. The effects are given below. \n s!effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie """,
+                        color=re[8],
+                    )
+                )
+
+    elif effect in styles:
+        json = {"url":url, "effect":effect}
+
+        byte = await post_effect("https://suicide-detector-api.godofwings.repl.co/style", json=json)
+
+
+    elif effect in effects:
+        json = {"url":url, "effect":effect}
+
+        byte = await post_effect("https://suicide-detector-api.godofwings.repl.co/cv", json=json)
+
+    
+    await ctx.send(file=discord.File(BytesIO(byte), 'effect.png'))
+
+
+        
+
 @client.command(aliases=['suicide'])
 async def toggle_suicide(ctx):
     if ctx.author.guild_permissions.administrator:

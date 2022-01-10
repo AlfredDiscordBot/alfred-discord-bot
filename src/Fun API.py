@@ -23,6 +23,7 @@ def main(client, re):
 
     @client.command()
     async def gen(ctx, *, text):
+        print(ctx.guild.name)
         re[0]+=1
         API_URL2 = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B"
         header2 = {"Authorization": f"Bearer {os.environ['transformers_auth']}"}

@@ -3,6 +3,7 @@ from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 from compile import filter_graves
 from yaml import safe_load
+import External_functions as ef
 
 SUPER_AUTHOR_ID = 432801163126243328  # Do Not CHange
 
@@ -272,7 +273,9 @@ def main(client, re, mspace):
     async def myspace(ctx, member :discord.Member = None):
         if not member:
             if ctx.author.id in mspace: 
-                await embed_using_yaml(ctx, ctx.channel, mspace[ctx.author.id])
+                await embed_using_yaml(ctx, channel = ctx.channel, yaml = mspace[ctx.author.id])
+                return
+            
             else:
                 await ctx.send(
                     embed = ef.cembed(
@@ -281,8 +284,40 @@ def main(client, re, mspace):
                         color=re[8],
                         thumbnail=client.user.avatar_url_as(format="png")
                     
-            )
+                    )
                 )
+            return
+        if member.id in mspace:
+            await embed_using_yaml(ctx,channel=ctx.channel,yaml=mspace[member.id])
+            return
+        
+
+        await ctx.send(
+            embed=ef.cembed(
+                title="Oops",
+                description="This user has not set his MySpace yet",
+                color=re[8],
+                thumbnail=client.user.avatar_url_as(format="png")
+            )
+        )
+    @client.command()
+    async def m_setup(ctx, *, yml):
+        try:
+            await embed_using_yaml(ctx,channel = ctx.channel, yaml = yml)
+            #ctx, client, message, color=61620,usr=None
+            confirm = await ef.wait_for_confirm(ctx,client,"Do you want to use this as your profile?",color=re[8],usr=ctx.author)
+            if confirm: mspace[ctx.author.id]=yml
+        except Exception as e:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Error",
+                    description=str(e),
+                    color=re[8],
+                    thumbnail=client.user.avatar_url_as(format="png")
+                )
+            )
+        
+        
 
     @client.command(aliases=["emd"])
     async def embed_it(ctx, *, string: str):
