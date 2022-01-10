@@ -5,6 +5,10 @@ import os
 class Table:
     def __init__(self, filename):
         self.filename = filename+".csv"
+        if self.filename not in os.listdir():
+            with open(self.filename,mode="w") as file:
+                writer=csv.writer()
+                writer.writerow([])
         with open(self.filename, mode = "r") as file:
             self.reader = list(csv.reader(file))
         self.length = len(list(self.reader[0])) if len(list(self.reader))>0 else 0
@@ -55,7 +59,7 @@ class Table:
         with open(self.filename,mode = "w") as file:
             writer = csv.writer(file)
             writer.writerows(self.reader)
-        print(self.reader)
+        #print(self.reader)
         return True
 
     def show_data(self, mode = "string"):

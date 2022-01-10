@@ -194,7 +194,7 @@ def requirements() -> str:
     """
     Returns the requirements of the main function.
     """
-    return ["re"]
+    return ["re","mspace"]
 
 
 def embed_from_info(info: EmbedInfo) -> discord.Embed:
@@ -214,7 +214,7 @@ def embed_from_info(info: EmbedInfo) -> discord.Embed:
     return embed
 
 
-def main(client, re):
+def main(client, re, mspace):
     embeds = {}
 
     def quick_embed(description: str) -> discord.Embed:
@@ -267,6 +267,21 @@ def main(client, re):
                         description="This channel does not exist. Please check again",
                         color=discord.Color(value=re[8]),
                     )
+                )
+    @client.command()
+    async def myspace(ctx, member :discord.Member = None):
+        if not member:
+            if ctx.author.id in mspace: 
+                await embed_using_yaml(ctx, ctx.channel, mspace[ctx.author.id])
+            else:
+                await ctx.send(
+                    embed = ef.cembed(
+                        title="Oops",
+                        description="You haven't set MySpace yet,use the command m_setup to set up your myspace. It follows a similar pattern to yml_embed, Instructions for yml_embed is in help",
+                        color=re[8],
+                        thumbnail=client.user.avatar_url_as(format="png")
+                    
+            )
                 )
 
     @client.command(aliases=["emd"])

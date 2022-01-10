@@ -12,7 +12,9 @@ mysql=
 default=
 dev=
 """
+
 import string
+import spacy
 import pickle
 import discord
 import helping_hand
@@ -47,6 +49,7 @@ import requests
 import aiohttp
 from io import BytesIO
 from spotify_client import *
+from profanity_filter import ProfanityFilter
 
 
 location_of_file = os.getcwd()
@@ -75,6 +78,7 @@ coin_message = (
     + emoji.emojize(":hibiscus:")
     + " for tails"
 )
+#pf = ProfanityFilter()
 global board, Emoji_list
 Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
 Raw_Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
@@ -94,6 +98,7 @@ board = reset_board()
 global sent
 global past_respose, generated
 observer=[]
+mspace={}
 past_respose = []
 generated = []
 deathrate = {}
@@ -195,7 +200,8 @@ def save_to_file():
         prefix_dict = prefix_dict,
         observer = observer,
         old_youtube_vid = old_youtube_vid,
-        config = config
+        config = config,
+        mspace = mspace
     )
     v.save()
 
@@ -294,6 +300,7 @@ def load_from_file():
     global observer
     global old_youtube_vid
     global config
+    global mspace
 
 
     v = Variables("backup").show_data()
@@ -310,6 +317,8 @@ def load_from_file():
     observer = v['observer']
     old_youtube_vid = v['old_youtube_vid']
     config = v['config']
+    mspace = v['mspace']
+    
 
 
 load_from_file()
@@ -319,6 +328,7 @@ load_from_file()
 @client.event
 async def on_ready():
     print(client.user)
+    #client.load_extension('beta_o_help')
     channel = client.get_channel(dev_channel)
     DiscordComponents(client)
     try:
@@ -1380,6 +1390,8 @@ async def on_member_join(member):
     print(member.guild)
     if member.guild.id == 841026124174983188:
         channel = client.get_channel(841026124174983193)
+    if member.guild.id == 896024475877920790:
+        channel = client.get_channel(902223883250327653)
     await channel.send(member.mention + " is here")
     embed = discord.Embed(
         title="Welcome!!!",
@@ -3796,6 +3808,10 @@ async def on_reaction_add(reaction, user):
             )
         )
 
+@client.event
+async def on_command_error(ctx, error):
+    channel = client.get_channel(dev_channel)
+    await channel.send(embed=cembed(title="Error",description=f"{str(error)} \n{ctx.author.name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar_url_as(format="png")))
 
 @client.command()
 async def yey(ctx):
@@ -3868,12 +3884,14 @@ async def changeM(ctx, *, num):
             )
         )
 
+		
+
 
 
 
 @client.event
 async def on_message(msg):
-    save_to_file();
+    save_to_file()
 
     await client.process_commands(msg)
     
@@ -4136,24 +4154,6 @@ async def exe(ctx, *, text):
             )
         )
 
-@client.command()
-async def gen(ctx, *, text):
-    req()
-    API_URL2 = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B"
-    header2 = {"Authorization": f"Bearer {os.environ['transformers_auth']}"}
-    payload2 = {
-        "inputs": text,
-        "parameters": {"max_new_tokens": 100, "return_full_text": True},
-    }
-
-    output = await genpost(API_URL2, header2, payload2)
-    print(output)
-    await ctx.reply(
-        embed=cembed(
-            title="Generated text", description=output[0]["generated_text"], color=re[8]
-        )
-    )
-
 
 @client.command()
 async def get_req(ctx):
@@ -4226,9 +4226,10 @@ async def unmute(ctx, member: discord.Member):
         await ctx.send("Unmuted " + member.mention)
         print(member, "unmuted")
 
+client.remove_command("help")
 
 @client.command()
-async def testing_help(ctx):
+async def help(ctx):
     test_help = []
     thumbnail = "https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
     test_help.append(
@@ -4250,7 +4251,7 @@ async def testing_help(ctx):
         )
     )
     test_help += helping_hand.help_him(ctx, client, re)
-    await pa(test_help, ctx)
+    await pa1(test_help, ctx)
 
 
 @slash.slash(name="help", description="Help from Alfred")
@@ -4260,11 +4261,10 @@ async def help_slash(ctx):
     await h(ctx)
 
 
-client.remove_command("help")
 
 
 @client.group(invoke_without_command=True)
-async def help(ctx):
+async def old_help(ctx):
     req()
     print("help")
     embeds = []

@@ -1,4 +1,5 @@
 .env
+*.csv
 *.dat
 .safe.txt
 Files/

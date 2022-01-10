@@ -1,5 +1,6 @@
 from External_functions import cembed
 
+
 y = """
 'yml_embed #channel
 ```yaml
@@ -10,6 +11,15 @@ image: https://images-ext-1.discordapp.net/external/L58PZxhXkdE1gqzb-1FhC3f0t9Yg
 footer: The footer goes here
 author: True/False
 ```
+
+**Here's some Tips when you write this**
+
+>In description, if you do `[something](https://link.com)`, the word something becomes a hyperlink
+
+>You can use symbols like `*~|>` just like you do in your regular chat
+
+>>Enjoy and have fun, we will not restrict
+
 """
 
 
