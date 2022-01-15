@@ -319,7 +319,7 @@ async def youtube_loop():
     for i,l in config['youtube'].items():
         for j in l:
             a = await get_youtube_url(j[0])
-            if a[0]=="https://www.youtube.com/" or a[0]=="https://www.youtube.com:
+            if a[0]=="https://www.youtube.com/" or a[0]=="https://www.youtube.com":
                 return
             if not old_youtube_vid.get(i, None):
                 old_youtube_vid[i] = {}
