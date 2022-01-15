@@ -232,13 +232,12 @@ def get_if_process_exists(name):
                 for i in [p.info["name"] for p in psutil.process_iter(["name"])]
                 if i.find(name) != -1
             ]
-        )
-        > 0
+        )>0
     )
 
 
 def cembed(
-    title="", description="", thumbnail="", picture="", url="", color=discord.Color.dark_theme()
+    title="", description="", thumbnail="", picture="", url="", color=discord.Color.dark_theme(), footer=""
 ):
     embed = discord.Embed()
     if color != discord.Color.dark_theme():
@@ -253,6 +252,8 @@ def cembed(
         embed.set_image(url=picture)
     if url != "":
         embed.url = url
+    if footer != "":
+        embed.set_footer(text=footer)
     return embed
 
 

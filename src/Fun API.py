@@ -46,8 +46,7 @@ def main(client, re):
     @client.command()
     async def kanye(ctx):
         re[0] += 1
-        text = eval(requests.get(
-            "https://api.kanye.rest").content.decode())["quote"]
+        text = await ef.get_async("https://api.kanye.rest", kind="json")["quote"]
         embed = discord.Embed(
             title="Kanye Rest", description=text, color=discord.Color(value=re[8])
         )
@@ -82,20 +81,36 @@ def main(client, re):
                 )
             )
             
-            
     @client.command()
-    async def pokemon(ctx, pokemon):
+    async def apis(ctx, page: int = 0):
+        a = await ef.get_async("https://api.publicapis.org/entries",kind="json")
+        b=a['entries']
+        embeds=[]
+        for i in range(a['count']):
+            text=f"{b[i]['Description']}\n\n\nAuth: {b[i]['Auth'] if b[i]['Auth']!='' else None}\nHTTPS: {b[i]['HTTPS']}\nCors: {b[i]['Cors']}\nCategory: {b[i]['Category']}"
+            embed = ef.cembed(
+                title=b[i]['API'],
+                description=text,
+                color=re[8],
+                url=b[i]['Link'],
+                footer=f"{i+1} of {a['count']}"
+            )
+            embeds.append(embed)
+
+        await pa1(embeds,ctx,page)
+
+        
+    @client.command()
+    async def pokemon(ctx, pokemon=None):
         re[0] + re[0] + 1
-        true = True
-        false = False
-        null = None
-        a = requests.get(
-            f"https://pokeapi.co/api/v2/pokemon/{pokemon.lower()}"
-        ).content.decode()
+        try:
+            a = await ef.get_async(f"https://pokeapi.co/api/v2/pokemon/{ef.convert_to_url(pokemon.lower())}",kind="json")
+        except:
+            a = "Not Found"
         if a != "Not Found":
-            response = eval(a)
+            response = a
             title = response["name"]
-            thumbnail = response["sprites"]["back_default"]
+            thumbnail = response["sprites"]["front_default"]
             ability = "**ABILITIES:**\n"
             for i in response["abilities"]:
                 ability += i["ability"]["name"] + "\n"
@@ -123,7 +138,7 @@ def main(client, re):
         ip = convert_to_url(ip)
         print(ip)
         print(f"https://ipinfo.io/{ip}/geo")
-        a = eval(requests.get(f"https://ipinfo.io/{ip}/geo").content.decode())
+        a = await ef.get_async(f"https://ipinfo.io/{ip}/geo",kind="json")
         st = ""
         if "status" not in list(a.keys()):
             for i in list(a.keys()):
@@ -188,9 +203,9 @@ def main(client, re):
         await pa1(li, ctx)
 
         
-    async def pa1(embeds, ctx):
-        message = await ctx.send(embed=embeds[0])
-        pag = 0
+    async def pa1(embeds, ctx, start_from=0):
+        message = await ctx.send(embed=embeds[start_from])
+        pag = start_from
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
         def check(reaction, user):

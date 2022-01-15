@@ -11,8 +11,8 @@ cloudscraper==1.2.58
 dateparser==1.0.0
 discord==1.7.3
 discord.py==1.7.3
-discord-components==2.0.5
-discord-py-interactions==3.0.2
+discord-components
+discord-py-interactions
 docutils==0.16
 emoji==1.4.1
 ffmpeg==1.4

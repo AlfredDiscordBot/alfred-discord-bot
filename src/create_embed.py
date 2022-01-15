@@ -165,6 +165,7 @@ def embed_from_dict(info: dict, ctx_author=None) -> discord.Embed:
     if footer := info.get("footer", None):
         embed.set_footer(text=footer)
     if author := info.get("author", None):
+      if isinstance(author, bool):
         if author == True:
             embed.set_author(name=ctx_author.name, icon_url=ctx_author.avatar_url)
         elif type(author) == str and validate_url(author):
@@ -173,6 +174,8 @@ def embed_from_dict(info: dict, ctx_author=None) -> discord.Embed:
             embed.set_author(name=author)
         else:
             embed.set_author(**author)
+      else:
+        embed.set_author(name=author.get("name", ""), url=author.get("url", ""), icon_url=author.get("icon_url", ""))
 
     if fields := info.get("fields", None):
         for field in fields:
@@ -280,7 +283,7 @@ def main(client, re, mspace):
                 await ctx.send(
                     embed = ef.cembed(
                         title="Oops",
-                        description="You haven't set MySpace yet,use the command m_setup to set up your myspace. It follows a similar pattern to yml_embed, Instructions for yml_embed is in help",
+                        description="You haven't set MySpace yet, use the command m_setup to set up your myspace. It follows a similar pattern to yml_embed, Instructions for yml_embed is in help",
                         color=re[8],
                         thumbnail=client.user.avatar_url_as(format="png")
                     
@@ -295,7 +298,7 @@ def main(client, re, mspace):
         await ctx.send(
             embed=ef.cembed(
                 title="Oops",
-                description="This user has not set his MySpace yet",
+                description="This user has not set their MySpace yet",
                 color=re[8],
                 thumbnail=client.user.avatar_url_as(format="png")
             )

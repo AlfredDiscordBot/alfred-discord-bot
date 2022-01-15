@@ -128,6 +128,7 @@ a_channels = [822500785765875749, 822446957288357888]
 cat = {}
 youtube = []
 pages = {}
+autor = {}
 SESSIONID = None
 color_message = None
 color_temp = ()
@@ -201,90 +202,10 @@ def save_to_file():
         observer = observer,
         old_youtube_vid = old_youtube_vid,
         config = config,
-        mspace = mspace
+        mspace = mspace,
+        autor = autor
     )
     v.save()
-
-
-def old_save(a=""):
-    global dev_users
-    if ".backup.txt" in os.listdir("./"):
-        os.remove("./.backup.txt")
-    if ".recover.txt" in os.listdir("./") and a == "recover":
-        os.remove("./.recover.txt")
-
-    def start_writing(file):
-        file.write(f"mute_role={str(mute_role)}\n")
-        file.write("censor=" + str(censor) + "\n")
-        file.write("da=" + str(da) + "\n")
-        file.write("da1=" + str(da1) + "\n")
-        file.write("queue_song=" + str(queue_song) + "\n")
-        file.write("a_channels=" + str(a_channels) + "\n")
-        file.write("re=" + str(re) + "\n")
-        file.write("dev_users=" + str(dev_users) + "\n")
-        file.write(f"prefix_dict={str(prefix_dict)}\n")  
-        # file.write("entr=" + str(entr) + "\n")
-        file.write(f"observer={str(observer)}")
-        file.close()
-
-    if True:
-        file = open(".backup.txt", "w")
-        start_writing(file)
-    if a == "recover":
-        file = open(".recover.txt", "w")
-        start_writing(file)
-    if a == "save":
-        file = open(".safe.txt", "w")
-        start_writing(file)
-
-
-def old_load(file_name=".backup.txt", ss=0):
-    if file_name in os.listdir("./"):
-        file = open(file_name, "r")
-        global mute_role
-        global censor
-        global da
-        global da1
-        global queue_song
-        global entr
-        global re
-        global dev_users
-        global prefix_dict
-        global observer
-
-        def start_from(text, i):
-            return eval(i[len(text) :])
-
-        txt_from_file = [i for i in file.readlines() if i != ""]
-        try:
-            print(type(txt_from_file))
-            print(len(txt_from_file))
-            for i in txt_from_file:
-                if i.startswith("prefix_dict="):
-                    print(start_from("prefix_dict=", i))
-                    prefix_dict = start_from("prefix_dict=", i)
-                if i.startswith("censor="):
-                    censor = start_from("censor=", i)
-                if i.startswith("da="):
-                    da = start_from("da=", i)
-                if i.startswith("da1="):
-                    da1 = start_from("da1=", i)
-                if i.startswith("queue_song="):
-                    queue_song = start_from("queue_song=", i)
-                if i.startswith("mute_role="):
-                    mute_role = start_from("mute_role=", i)
-                # if i.startswith("entr="):
-                #    entr=start_from("entr=",i)
-                if i.startswith("re="):
-                    re = start_from("re=", i)
-                if i.startswith("dev_users="):
-                    dev_users = start_from("dev_users=", i)
-                if i.startswith("observer="):
-                    observer=start_from("observer=",i)
-
-        except Exception as e:
-            print(traceback.print_exc())
-    save_to_file()
 
 
 def load_from_file():
@@ -301,6 +222,7 @@ def load_from_file():
     global old_youtube_vid
     global config
     global mspace
+    global autor
 
 
     v = Variables("backup").show_data()
@@ -318,6 +240,7 @@ def load_from_file():
     old_youtube_vid = v['old_youtube_vid']
     config = v['config']
     mspace = v['mspace']
+    autor = v['autor']
     
 
 
@@ -396,8 +319,8 @@ async def youtube_loop():
     for i,l in config['youtube'].items():
         for j in l:
             a = await get_youtube_url(j[0])
-            if a[0]=="https://www.youtube.com/":
-                pass
+            if a[0]=="https://www.youtube.com/" or a[0]=="https://www.youtube.com:
+                return
             if not old_youtube_vid.get(i, None):
                 old_youtube_vid[i] = {}
             if not old_youtube_vid[i].get(j[0], None):
@@ -511,6 +434,8 @@ async def toggle_response(ctx):
         )
 
 
+
+
 @client.command(aliases=["pfp"])
 async def get_pfp(ctx, member:discord.Member=None):
     
@@ -531,7 +456,7 @@ async def post_effect(api, header = {}, json = {}):
         async with session.post(api, headers=header, json=json) as resp:
             return await resp.read()
 
-@client.command()
+@client.command(aliases=['ef','effect'])
 async def effects(ctx, effect:str = None, member:discord.Member=None):
     if member == None:
         url = ctx.author.avatar_url_as(format='png')
@@ -544,7 +469,7 @@ async def effects(ctx, effect:str = None, member:discord.Member=None):
         await ctx.send(
                     embed=cembed(
                         title="OOPS",
-                        description="""Hmm You seem to be forgetting an argument \n s!effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie """,
+                        description="""Hmm You seem to be forgetting an argument \n 'effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie """,
                         color=re[8],
                     )
                 )
@@ -576,6 +501,103 @@ async def effects(ctx, effect:str = None, member:discord.Member=None):
     
     await ctx.send(file=discord.File(BytesIO(byte), 'effect.png'))
 
+@client.command(aliases=['transform'])
+async def blend(ctx, urlef:str = None, member:discord.Member=None, ratio=0.5):
+    if member == None:
+        url = ctx.author.avatar_url_as(format='png')
+    else:
+        url = member.avatar_url_as(format='png')
+
+    url = str(url)
+
+    if urlef == None:
+        await ctx.send(
+                    embed=cembed(
+                        title="OOPS",
+                        description="""Hmm You seem to be forgetting an argument \n 'effects <style url> <member[optional]> <ratio[optional]> if member is none the users pfp will be modified. The default ratio is 0.5""",
+                        color=re[8],
+                    )
+                )
+
+    json = {"url":url, "url2":urlef, "ratio":ratio}
+
+    byte = await post_effect("https://suicide-detector-api.godofwings.repl.co/cv", json=json)
+    await ctx.send(file=discord.File(BytesIO(byte), 'effect.png'))
+
+
+@client.command(aliases=['autoreaction'])
+async def autoreact(ctx, channel: discord.TextChannel = None,*, Emojis: str = ""):
+    if not ctx.author.guild_permissions.administrator:
+        await ctx.send(
+            embed=cembed(
+                title="Permissions Denied",
+                description="You cannot set autoreact, you do not have admin privilege",
+                color=re[8]
+            )
+        )
+        return
+    if not channel:
+        await ctx.send(
+            embed=cembed(
+                title="Hmm",
+                description=emoji.emojize("You need to mention a channel\n'autoreact #channel :one:|:two:|:three:"),
+                color=re[8]
+            )
+        )
+        return
+    if Emojis == "":
+        await ctx.send(
+            embed = cembed(
+                title="Hmm",
+                description="You need one or more emojis separated by |",
+                color=re[8]
+            )
+        )
+        return
+    if channel.id not in autor:
+        autor[channel.id]=[i.strip() for i in emoji.demojize(Emojis).split("|")]
+    else:
+        autor[channel.id]+=[i.strip() for i in emoji.demojize(Emojis).split("|")]
+    await ctx.send(
+        embed=cembed(
+            title="Done",
+            description=f"For every message in {channel.mention} Alfred will add {Emojis} reaction",
+            color=re[8]
+        )
+    )
+    
+@client.command()
+async def remove_autoreact(ctx, channel: discord.TextChannel = None):
+    if not ctx.author.guild_permissions.administrator:
+        await ctx.send(
+            embed=cembed(
+                title="Permissions Denied",
+                description="You cannot remove autoreact, you do not have admin privilege",
+                color=re[8]
+            )
+        )
+        return
+    if not channel.id in autor:
+        await ctx.send(
+            embed=cembed(
+                title="Hmm",
+                description="This channel does not have any reactions",
+                color=re[8]
+            )
+        )
+        return
+    confirmation = await wait_for_confirm(ctx,client,"Do you want to remove every automatic reaction in this channel?",color=re[8],usr=ctx.author)
+    if not confirmation:
+        return
+    autor.pop(channel.id)
+    await ctx.send(
+        embed=cembed(
+            title="Done",
+            description="Removed every reaction in ",
+            color=re[8]
+        )
+    )
+    
 
         
 
@@ -1169,9 +1191,9 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
             await ctx.send(embed=cembed(title=a[0], color=re[8], description=a[1]))
 
 
-async def pa(embeds, ctx):
+async def pa(embeds, ctx, start_from=0):
     message = await ctx.send(
-        embed=embeds[0],
+        embed=embeds[start_from],
         components=[
             [
                 Button(style=ButtonStyle.green, label="<"),
@@ -1179,7 +1201,7 @@ async def pa(embeds, ctx):
             ]
         ],
     )
-    pag = 0
+    pag = start_from
 
     def check(res):
         return message.id == res.message.id
@@ -1198,9 +1220,9 @@ async def pa(embeds, ctx):
             break
 
 
-async def pa1(embeds, ctx):
-    message = await ctx.send(embed=embeds[0])
-    pag = 0
+async def pa1(embeds, ctx, start_from=0):
+    message = await ctx.send(embed=embeds[start_from])
+    pag = start_from
     await message.add_reaction("◀️")
     await message.add_reaction("▶️")
 
@@ -2564,7 +2586,7 @@ async def memes(ctx):
     if len(link_for_cats) == 0:
         try:
             safe_stop = 0
-            r = requests.get("https://bestlifeonline.com/funniest-cat-memes-ever/")
+            r = await get_async("https://bestlifeonline.com/funniest-cat-memes-ever/")
             string = str(r.content.decode())
             for i in range(0, 94):
                 # https://bestlifeonline.com/funniest-cat-memes-ever/
@@ -3878,6 +3900,7 @@ async def on_reaction_add(reaction, user):
 
 @client.event
 async def on_command_error(ctx, error):
+    print(error)
     channel = client.get_channel(dev_channel)
     await channel.send(embed=cembed(title="Error",description=f"{str(error)} \n{ctx.author.name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar_url_as(format="png")))
 
@@ -3963,7 +3986,7 @@ async def on_message(msg):
 
     await client.process_commands(msg)
     
-    if not msg.author.bot and not msg.guild.id in observer:
+    if (not msg.guild.id in observer) and (not msg.author.bot):
         s = msg.clean_content
         
         whitelist = string.ascii_letters + ' '
@@ -3984,7 +4007,7 @@ async def on_message(msg):
                 #print(preds["result"])
                 #print(deathrate)
                 
-            if deathrate[msg.author.id] >=5:
+            if deathrate[msg.author.id] >=10:
                 await msg.reply(embed=suicide_m(client,re[8]))
                 deathrate[msg.author.id] = 0
     
@@ -4018,7 +4041,7 @@ async def on_message(msg):
                             await msg.channel.send("thog dont caare")
                             break
 
-        if msg.content.lower().startswith("alfred ") and msg.guild.id not in config['respond']:
+        if msg.content.lower().startswith("alfred ") and msg.guild.id not in config['respond'] and not msg.author.bot:
 
             input_text = msg.content.lower().replace("alfred", "")
             payload = {
@@ -4063,6 +4086,11 @@ async def on_message(msg):
             await msg.channel.send(embed=embed)
         if msg.content.startswith(prefix_dict.get(msg.guild.id if msg.guild is not None else None, "'")) == 0:
             save_to_file()
+
+        if msg.channel.id in autor:
+            for emo in autor[msg.channel.id]:                
+                await msg.add_reaction(emoji.emojize(emo.strip()))            
+                await asyncio.sleep(1)        
         
     except Exception as e:
         channel = client.get_channel(dev_channel)
