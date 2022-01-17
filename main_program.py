@@ -458,6 +458,7 @@ async def post_effect(api, header = {}, json = {}):
 
 @client.command(aliases=['ef','effect'])
 async def effects(ctx, effect:str = None, member:discord.Member=None):
+    req()
     if member == None:
         url = ctx.author.avatar_url_as(format='png')
     else:
@@ -473,6 +474,7 @@ async def effects(ctx, effect:str = None, member:discord.Member=None):
                         color=re[8],
                     )
                 )
+        return
 
     styles = ['candy', 'composition', 'feathers', 'muse', 'mosaic', 'night', 'scream', 'wave', 'udnie']
 
@@ -486,23 +488,25 @@ async def effects(ctx, effect:str = None, member:discord.Member=None):
                         color=re[8],
                     )
                 )
+        return
 
     elif effect in styles:
         json = {"url":url, "effect":effect}
 
-        byte = await post_effect("https://suicide-detector-api.godofwings.repl.co/style", json=json)
+        byte = await post_effect("https://suicide-detector-api-1.godofwings.repl.co/style", json=json)
 
 
     elif effect in effects:
         json = {"url":url, "effect":effect}
 
-        byte = await post_effect("https://suicide-detector-api.godofwings.repl.co/cv", json=json)
+        byte = await post_effect("https://suicide-detector-api-1.godofwings.repl.co/cv", json=json)
 
     
     await ctx.send(file=discord.File(BytesIO(byte), 'effect.png'))
 
 @client.command(aliases=['transform'])
 async def blend(ctx, urlef:str = None, member:discord.Member=None, ratio=0.5):
+    req()
     if member == None:
         url = ctx.author.avatar_url_as(format='png')
     else:
@@ -518,10 +522,11 @@ async def blend(ctx, urlef:str = None, member:discord.Member=None, ratio=0.5):
                         color=re[8],
                     )
                 )
+        return
 
     json = {"url":url, "url2":urlef, "ratio":ratio}
 
-    byte = await post_effect("https://suicide-detector-api.godofwings.repl.co/cv", json=json)
+    byte = await post_effect("https://suicide-detector-api-1.godofwings.repl.co/style_predict", json=json)
     await ctx.send(file=discord.File(BytesIO(byte), 'effect.png'))
 
 
@@ -3995,12 +4000,13 @@ async def on_message(msg):
         req()
 
         new_s = regex.sub(' +', ' ', new_s)
-        if new_s != '' or new_s is not None or new_s != '': 
+        
+        if new_s != '' or new_s is not None: 
             json = {"text" : new_s}
             if msg.author.id not in deathrate.keys():
                 deathrate[msg.author.id]=0
 
-            preds = await post_async("https://suicide-detector-api.godofwings.repl.co/classify", json=json)
+            preds = await post_async("https://suicide-detector-api-1.godofwings.repl.co/classify", json=json) 
             #print(preds['result'])
             if preds["result"] == "Sucide":
                 deathrate[msg.author.id]+=1

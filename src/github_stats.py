@@ -167,7 +167,7 @@ def repo_stats_dict(stats: GitHubRepoStats, color: int = None):
         },
         {
             "name": "Topics",
-            "value": ", ".join(stats.topics),
+            "value": ", ".join(stats.topics) if len(stats.topics)>0 else "No topics",
         },
         {
             "name": "Dates",
