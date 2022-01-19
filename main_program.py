@@ -2584,6 +2584,28 @@ async def memes(ctx):
     await ctx.defer()
     await memes(ctx)
 
+@client.command()
+async def feedback(ctx, *, text):
+    confirmation = await wait_for_confirm(ctx,client,"Do you want to send this to the developers?",color=re[8])
+    if not confirmation:
+        return
+    await client.get_channel(932890298013614110).send(
+        content=str(ctx.channel.id),
+        embed=cembed(
+            title=f"Message from {ctx.author.name}: {ctx.guild.name}",
+            description=text,
+            color=re[8],
+            thumbnail=client.user.avatar_url_as(format="png")
+        )
+    )
+    await ctx.send(
+        embed=cembed(
+            title="Done",
+            description="I've given this info to the developers, they will try fixing it asap :smiley:",
+            color=re[8]
+        )
+    )
+
 
 @client.command(aliases=["::"])
 async def memes(ctx):
@@ -2592,7 +2614,7 @@ async def memes(ctx):
         try:
             safe_stop = 0
             r = await get_async("https://bestlifeonline.com/funniest-cat-memes-ever/")
-            string = str(r.content.decode())
+            string = str(r)
             for i in range(0, 94):
                 # https://bestlifeonline.com/funniest-cat-memes-ever/
                 n1 = string.find("<h2", safe_stop + len("<h2"))
@@ -2858,6 +2880,10 @@ async def check_slash(ctx):
     await ctx.defer()
     await check(ctx)
 
+
+@client.event
+async def on_message_edit(message_before, message_after):
+    await client.process_commands(message_after)
 
 @client.command()
 async def clear(ctx, text, num=10):
@@ -4330,14 +4356,14 @@ async def unmute(ctx, member: discord.Member):
 
 client.remove_command("help")
 
-@client.command()
+@client.command(aliases=['h'])
 async def help(ctx):
     test_help = []
     thumbnail = "https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
     test_help.append(
         cembed(
             title="Help",
-            description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '",
+            description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '\n\nIf you have any complaints or issues with Alfred, please give us a feedback using the command `'feedback`",
             thumbnail=thumbnail,
             picture=client.user.avatar_url_as(format="png"),
             color=re[8],
@@ -4360,41 +4386,7 @@ async def help(ctx):
 async def help_slash(ctx):
     req()
     await ctx.defer()
-    await h(ctx)
-
-
-
-
-@client.group(invoke_without_command=True)
-async def old_help(ctx):
-    req()
-    print("help")
-    embeds = []
-    for i in help_list:
-        em = discord.Embed(
-            title="```Help```", description=i, color=discord.Color(value=re[8])
-        )
-        em.set_thumbnail(
-            url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
-        )
-        embeds.append(em)
-    await pa(embeds, ctx)
-
-
-@client.group(invoke_without_command=True)
-async def h(ctx):
-    req()
-    print("help")
-    embeds = []
-    for i in help_list:
-        em = discord.Embed(
-            title="```Help```", description=i, color=discord.Color(value=re[8])
-        )
-        em.set_thumbnail(
-            url="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
-        )
-        embeds.append(em)
-    await pa1(embeds, ctx)
+    await help(ctx)
 
 if os.getenv("dev-bot"):
     client.run(os.getenv("token_dev"))

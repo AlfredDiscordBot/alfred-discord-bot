@@ -89,12 +89,10 @@ def help_him(ctx, client, re):
     music_help = cembed(
         title="Music commands",
         description="""You can use the following commands for controlling music
-Pause, Resume
-Play command to play a song in your queue through index no. or you can put a song after that to play it instantly
-Queue command to add a song to the queue
-Remove command to remove a song from the queue
-
-~~*Spotify not supported yet :frowning:*~~
+`Pause, Resume` does.... well pause and resume
+`Play` command to play a song in your queue through index no. or you can put a song after that to play it instantly
+`Queue` command to add a song to the queue
+`Remove` command to remove a song from the queue
         """,
         thumbnail=thumbnail,
         color=re[8],

@@ -121,22 +121,6 @@ def main(client, color):
         embed.set_footer(text="Result from https://emkc.org/")
         await ctx.send(embed=embed)
 
-    @client.event
-    async def on_message_edit(message_before, message_after):
-        if message_after.content.startswith("'code"):
-            a = message_after.content.split("\n")[0]
-            language = a[a.find("'code") + len("'code ") :]
-            actual_code = filter_graves(
-                message_after.content[message_after.content.find("\n") + 1 :]
-            )
-            output = rce.execute_code(language=language, code=actual_code)
-            embed = discord.Embed(
-                title="Result", description=output, color=discord.Color(value=color)
-            )
-            embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
-            embed.set_footer(text="Result from https://emkc.org/")
-            await message_after.channel.send(embed=embed)
-
 
 # if __name__ == "__main__":
 #     rce = CodeExecutor()
