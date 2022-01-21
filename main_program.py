@@ -12,9 +12,8 @@ mysql=
 default=
 dev=
 """
-
+from keep_alive import keep_alive
 import string
-import spacy
 import pickle
 import discord
 import helping_hand
@@ -49,13 +48,9 @@ import requests
 import aiohttp
 from io import BytesIO
 from spotify_client import *
-from profanity_filter import ProfanityFilter
-
 
 location_of_file = os.getcwd()
 try:
-    import mysql.connector as m
-
     load_dotenv()
 except:
     pass
@@ -78,7 +73,6 @@ coin_message = (
     + emoji.emojize(":hibiscus:")
     + " for tails"
 )
-#pf = ProfanityFilter()
 global board, Emoji_list
 Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
 Raw_Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
@@ -4387,7 +4381,7 @@ async def help_slash(ctx):
     req()
     await ctx.defer()
     await help(ctx)
-
+keep_alive()
 if os.getenv("dev-bot"):
     client.run(os.getenv("token_dev"))
 else:
