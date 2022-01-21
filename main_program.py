@@ -12,9 +12,8 @@ mysql=
 default=
 dev=
 """
-
+from keep_alive import keep_alive
 import string
-import spacy
 import pickle
 import discord
 import helping_hand
@@ -49,13 +48,9 @@ import requests
 import aiohttp
 from io import BytesIO
 from spotify_client import *
-from profanity_filter import ProfanityFilter
-
 
 location_of_file = os.getcwd()
 try:
-    import mysql.connector as m
-
     load_dotenv()
 except:
     pass
@@ -78,7 +73,6 @@ coin_message = (
     + emoji.emojize(":hibiscus:")
     + " for tails"
 )
-#pf = ProfanityFilter()
 global board, Emoji_list
 Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
 Raw_Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
@@ -493,13 +487,13 @@ async def effects(ctx, effect:str = None, member:discord.Member=None):
     elif effect in styles:
         json = {"url":url, "effect":effect}
 
-        byte = await post_effect("https://suicide-detector-api-1.godofwings.repl.co/style", json=json)
+        byte = await post_effect("https://suicide-detector-api-1.yashvardhan13.repl.co/style", json=json)
 
 
     elif effect in effects:
         json = {"url":url, "effect":effect}
 
-        byte = await post_effect("https://suicide-detector-api-1.godofwings.repl.co/cv", json=json)
+        byte = await post_effect("https://suicide-detector-api-1.yashvardhan13.repl.co/cv", json=json)
 
     
     await ctx.send(file=discord.File(BytesIO(byte), 'effect.png'))
@@ -526,7 +520,7 @@ async def blend(ctx, urlef:str = None, member:discord.Member=None, ratio=0.5):
 
     json = {"url":url, "url2":urlef, "ratio":ratio}
 
-    byte = await post_effect("https://suicide-detector-api-1.godofwings.repl.co/style_predict", json=json)
+    byte = await post_effect("https://suicide-detector-api-1.yashvardhan13.repl.co/style_predict", json=json)
     await ctx.send(file=discord.File(BytesIO(byte), 'effect.png'))
 
 
@@ -4032,7 +4026,7 @@ async def on_message(msg):
             if msg.author.id not in deathrate.keys():
                 deathrate[msg.author.id]=0
 
-            preds = await post_async("https://suicide-detector-api-1.godofwings.repl.co/classify", json=json) 
+            preds = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/classify", json=json) 
             #print(preds['result'])
             if preds["result"] == "Sucide":
                 deathrate[msg.author.id]+=1
@@ -4387,7 +4381,7 @@ async def help_slash(ctx):
     req()
     await ctx.defer()
     await help(ctx)
-
+keep_alive()
 if os.getenv("dev-bot"):
     client.run(os.getenv("token_dev"))
 else:
