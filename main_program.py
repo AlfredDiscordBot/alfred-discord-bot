@@ -1,5 +1,6 @@
 def temporary_fix():
-    pass
+    from shutil import copyfile
+    copyfile("./post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers")
 """
 Set your env like the example below:
 token=
@@ -114,7 +115,7 @@ da1 = {}
 queue_song = {}
 temporary_list = []
 dev_channel = int(os.getenv("dev"))
-re = [0, "OK", 1, {}, -1, "", "205", 1, 5360, "48515587275%3A0AvceDiA27u1vT%3A26"]
+re = [0, "OK", 1, {}, -1, "", "205", 1, 5360, "48515587275%3A0AvceDiA27u1vT%3A26",1]
 a_channels = [822500785765875749, 822446957288357888]
 cat = {}
 youtube = []
@@ -217,21 +218,21 @@ def load_from_file():
 
 
     v = Variables("backup").show_data()
-    mute_role = v['mute_role']
-    censor = v['censor']
-    da = v['da']
-    da1 = v['da1']
-    queue_song = v['queue_song']
-    entr = v['entr']
-    a_channels = v['a_channels']
-    re = v['re']
-    dev_users = v['dev_users']
-    prefix_dict = v['prefix_dict']
-    observer = v['observer']
-    old_youtube_vid = v['old_youtube_vid']
-    config = v['config']
-    mspace = v['mspace']
-    autor = v['autor']
+    mute_role = v.get("mute_role",{})
+    censor = v.get("censor",[])
+    da = v.get("da",{})
+    da1 = v.get("da1", {})
+    queue_song = v.get("queue_song",{})
+    entr = v.get("entr",{})
+    a_channels = v.get("a_channels",[])
+    re = v.get("re",re)
+    dev_users = v.get("dev_users",dev_users)
+    prefix_dict = v.get("prefix_dict",{})
+    observer = v.get("observer",[])
+    old_youtube_vid = v.get("old_youtube_vid",{})
+    config = v.get("config",config)
+    mspace = v.get("mspace",{})
+    autor = v.get("autor",{})
     
 
 

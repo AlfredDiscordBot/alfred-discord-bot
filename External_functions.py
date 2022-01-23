@@ -203,7 +203,7 @@ def instagram_get1(account, color, SESSIONID):
 
     except Exception as e:
         print(traceback.print_exc())
-        SESSIONID = get_it()
+        #SESSIONID = get_it()
         return SESSIONID
 
 
