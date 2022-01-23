@@ -1,6 +1,8 @@
 def temporary_fix():
     from shutil import copyfile
-    copyfile("./post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers")
+    copyfile("./post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
+
+temporary_fix()
 """
 Set your env like the example below:
 token=
