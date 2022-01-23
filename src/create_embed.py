@@ -6,7 +6,26 @@ from yaml import safe_load
 import External_functions as ef
 
 SUPER_AUTHOR_ID = 432801163126243328  # Do Not CHange
+help_for_m_setup="""
+'m_setup
+```yaml
+title: Title Goes Here
+description: a good description for your embed
+thumbnail: https://images-ext-1.discordapp.net/external/L58PZxhXkdE1gqzb-1FhC3f0t9YglNqEfW-0OVb2ubY/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/811591623242154046/115f0ef23ff700ffc894e6bed949b5fe.png?width=676&height=676
+image: https://images-ext-1.discordapp.net/external/L58PZxhXkdE1gqzb-1FhC3f0t9YglNqEfW-0OVb2ubY/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/811591623242154046/115f0ef23ff700ffc894e6bed949b5fe.png?width=676&height=676
+footer: The footer goes here
+author: True/False
+```
 
+**Here's some Tips when you write this**
+
+>In description, if you do `[something](https://link.com)`, the word something becomes a hyperlink
+
+>You can use symbols like `*~|>` just like you do in your regular chat
+
+>>Enjoy and have fun, we will not restrict
+
+"""
 
 class EmbedInfo:
     def __init__(
@@ -283,7 +302,7 @@ def main(client, re, mspace):
                 await ctx.send(
                     embed = ef.cembed(
                         title="Oops",
-                        description="You haven't set MySpace yet, use the command m_setup to set up your myspace. It follows a similar pattern to yml_embed, Instructions for yml_embed is in help",
+                        description="You haven't set MySpace yet, use the command m_setup to set up your myspace. It follows a similar pattern to yml_embed, Instructions for yml_embed is in help\n\n"+help_for_m_setup,
                         color=re[8],
                         thumbnail=client.user.avatar_url_as(format="png")
                     

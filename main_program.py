@@ -1,8 +1,5 @@
 def temporary_fix():
-    from shutil import copyfile
-    copyfile("./youtube.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/youtube_dl/extractor/youtube.py")
-
-temporary_fix()
+    pass
 """
 Set your env like the example below:
 token=
@@ -907,12 +904,17 @@ async def set_sessionid(ctx, sessionid):
 async def instagram(ctx, account):
     try:
         links = instagram_get1(account, re[8], re[9])
+        print(links)
+        if type(links) == str:
+            re[9]=links
+            links=instagram_get1(account, re[8], re[9])
         embeds = []
         for a in links:
+            print("loop")
             if a is not None and type(a) != type("aa"):
                 embeds.append(a[0])
             elif type(a) != type("aa"):
-                re[9] = a
+                re[9] = links
             else:
                 break
                 await ctx.send(
@@ -921,6 +923,7 @@ async def instagram(ctx, account):
                         color=discord.Color(value=re[8]),
                     )
                 )
+        print("Page")
         await pa(embeds, ctx)
     except Exception as e:
         embed = cembed(
@@ -4381,7 +4384,7 @@ async def help_slash(ctx):
     req()
     await ctx.defer()
     await help(ctx)
-keep_alive()
+#keep_alive()
 if os.getenv("dev-bot"):
     client.run(os.getenv("token_dev"))
 else:

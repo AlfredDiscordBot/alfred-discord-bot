@@ -1,5 +1,4 @@
 import requests
-import requests
 import hashlib
 import psutil
 import os
@@ -14,6 +13,7 @@ from instascrape import *
 import urllib.parse
 import urllib
 import aiohttp
+import traceback
 
 ydl_op = {
     "format": "bestaudio/best",
@@ -202,7 +202,7 @@ def instagram_get1(account, color, SESSIONID):
         return list_of_posts
 
     except Exception as e:
-        print(e)
+        print(traceback.print_exc())
         SESSIONID = get_it()
         return SESSIONID
 
