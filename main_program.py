@@ -181,6 +181,7 @@ slash = SlashCommand(client, sync_commands=True)
 
 def save_to_file():
     global dev_users
+    #print("save")
     v = Variables("backup")
     v.edit(
         mute_role = mute_role,
@@ -221,6 +222,7 @@ def load_from_file():
 
     v = Variables("backup").show_data()
     mute_role = v.get("mute_role",{})
+    print(mute_role)
     censor = v.get("censor",[])
     da = v.get("da",{})
     da1 = v.get("da1", {})
@@ -908,6 +910,16 @@ async def instagram(ctx, account):
     try:
         links = instagram_get1(account, re[8], re[9])
         print(links)
+        if links == "User Not Found, please check the spelling":
+            await ctx.send(
+                embed=cembed(
+                    title="Hmm",
+                    description=links,
+                    color=re[8],
+                    thumbnail=client.user.avatar_url_as(format="png")
+                )
+            )
+            return
         if type(links) == str:
             re[9]=links
             links=instagram_get1(account, re[8], re[9])
@@ -4235,6 +4247,15 @@ async def exe(ctx, *, text):
     if (ctx.author.id in temp_dev and protect(text)) or (
         str(ctx.author.id) in dev_users
     ):
+        if str(ctx.author.id) in dev_users and ctx.guild.id != 822445271019421746:
+            await ctx.send(
+                embed=cembed(
+                    title="Permissions Denied",
+                    description = "You can only use this command in Batcave",
+                    color=re[8]                    
+                )
+            )
+            return
         mysql_password = "Denied"
         if text.find("passwd=") != -1:
             mysql_password = os.getenv("mysql")

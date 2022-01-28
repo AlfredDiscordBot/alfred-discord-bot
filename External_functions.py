@@ -8,6 +8,7 @@ import imdb
 import emoji
 import youtube_dl
 from dotenv import load_dotenv
+import instagramy
 from instagramy import *
 from instascrape import *
 import urllib.parse
@@ -188,19 +189,22 @@ def instagram_get1(account, color, SESSIONID):
             headers = {
                 "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36 Edg/87.0.664.57",
                 "cookie": "sessionid=" + SESSIONID + ";",
-            }
+            }            
             pos.scrape(headers=headers)
-            descript = pos.caption
+            print(user.posts[number].comments)
             thumb = user.profile_picture_url
-            embed = discord.Embed(
-                title="Insta", description=descript, color=discord.Color(value=color)
+            embed = cembed(
+                title="Instagram", color=color,
+                description=pos.caption,
+                footer=str(user.posts[number].comments) + " comments"
             )
             embed.set_image(url=user.posts[number].post_source)
             embed.set_thumbnail(url=thumb)
             list_of_posts.append((embed, url))
             number += 1
         return list_of_posts
-
+    except instagramy.core.exceptions.UsernameNotFound:
+        return "User Not Found, please check the spelling"
     except Exception as e:
         print(traceback.print_exc())
         #SESSIONID = get_it()
