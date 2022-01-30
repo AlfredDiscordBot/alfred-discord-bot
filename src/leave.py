@@ -3,7 +3,7 @@ def requirements():
 
 
 def main(client, dev_users, re):
-    import discord
+    import nextcord as discord
 
     @client.command()
     async def leave_server(ctx, *, server_name):

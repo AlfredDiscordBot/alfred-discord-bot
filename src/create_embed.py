@@ -1,4 +1,4 @@
-import discord
+import nextcord as discord
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 from compile import filter_graves

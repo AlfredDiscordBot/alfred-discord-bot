@@ -3,7 +3,7 @@ def requirements():
 
 
 def main(client, re):
-    import discord
+    import nextcord as discord
     import random
 
     # from gi.repository import Notify

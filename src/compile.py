@@ -108,7 +108,7 @@ def requirements():
 
 def main(client, color):
     rce = CodeExecutor()
-    import discord
+    import nextcord as discord
 
     @client.command()
     async def code(ctx, lang, *, code):

@@ -1,4 +1,4 @@
-import discord
+import nextcord as discord
 
 
 def error(message):

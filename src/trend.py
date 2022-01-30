@@ -1,7 +1,7 @@
 from functools import lru_cache
-import discord
-from discord import Color
-from discord.ext import commands
+import nextcord as discord
+from nextcord import Color
+from nextcord.ext import commands
 import aiohttp
 import asyncio
 from bs4 import BeautifulSoup

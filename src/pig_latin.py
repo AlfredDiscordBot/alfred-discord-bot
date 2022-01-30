@@ -3,7 +3,7 @@ def requirements():
 
 
 def main(client, re):
-    import discord
+    import nextcord as discord
 
     @client.command()
     async def eng2pig(ctx, *, data):

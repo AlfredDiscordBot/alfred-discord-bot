@@ -3,7 +3,7 @@ def requirements():
 
 
 def main(client, re):
-    import discord
+    import nextcord as discord
     import requests
 
     @client.command()

@@ -2,7 +2,7 @@ import requests
 import hashlib
 import psutil
 import os
-import discord
+import nextcord as discord
 import random
 import imdb
 import emoji
