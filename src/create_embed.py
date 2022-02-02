@@ -304,7 +304,7 @@ def main(client, re, mspace):
                         title="Oops",
                         description="You haven't set MySpace yet, use the command m_setup to set up your myspace. It follows a similar pattern to yml_embed, Instructions for yml_embed is in help\n\n"+help_for_m_setup,
                         color=re[8],
-                        thumbnail=client.user.avatar_url_as(format="png")
+                        thumbnail=client.user.avatar.url
                     
                     )
                 )
@@ -319,7 +319,7 @@ def main(client, re, mspace):
                 title="Oops",
                 description="This user has not set their MySpace yet",
                 color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png")
+                thumbnail=client.user.avatar.url
             )
         )
     @client.command()
@@ -335,7 +335,7 @@ def main(client, re, mspace):
                     title="Error",
                     description=str(e),
                     color=re[8],
-                    thumbnail=client.user.avatar_url_as(format="png")
+                    thumbnail=client.user.avatar.url
                 )
             )
         
@@ -457,7 +457,7 @@ def main(client, re, mspace):
                 embed = discord.Embed()
                 embed.set_author(
                     name=ctx.author.name,
-                    icon_url=ctx.author.avatar_url_as(format="png"),
+                    icon_url=ctx.author.avatar.url,
                 )
                 if ctx.guild.id in embeds and embeds.get(
                     ctx.guild.id, None

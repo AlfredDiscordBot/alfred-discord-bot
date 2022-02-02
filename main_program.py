@@ -16,7 +16,6 @@ from keep_alive import keep_alive
 import string
 import pickle
 import nextcord
-import nextcord as discord
 import helping_hand
 from random import choice
 from nextcord import Interaction
@@ -101,7 +100,6 @@ deathrate = {}
 sent = None
 instagram_posts = []
 dictionary = dict(zip(Raw_Emoji_list, Emoji_list))
-print(dir(nextcord))
 intents = nextcord.Intents().default()
 intents.members = True
 temp_dev = {}
@@ -401,7 +399,7 @@ async def sniper(ctx):
             title="Enabled",
             description=output,
             color=re[8],
-            thumbnail=client.user.avatar_url_as(format="png"))
+            thumbnail=client.user.avatar.url)
         )
     else:
         await ctx.send(
@@ -428,7 +426,7 @@ async def toggle_response(ctx):
             title="Enabled",
             description=output,
             color=re[8],
-            thumbnail=client.user.avatar_url_as(format="png"))
+            thumbnail=client.user.avatar.url)
         )
 
 
@@ -458,9 +456,9 @@ async def post_effect(api, header = {}, json = {}):
 async def effects(ctx, effect:str = None, member:nextcord.Member=None):
     req()
     if member == None:
-        url = ctx.author.avatar_url_as(format='png')
+        url = ctx.author.avatar.url
     else:
-        url = member.avatar_url_as(format='png')
+        url = member.avatar.url
 
     url = str(url)
 
@@ -506,9 +504,9 @@ async def effects(ctx, effect:str = None, member:nextcord.Member=None):
 async def blend(ctx, urlef:str = None, member:nextcord.Member=None, ratio=0.5):
     req()
     if member == None:
-        url = ctx.author.avatar_url_as(format='png')
+        url = ctx.author.avatar.url
     else:
-        url = member.avatar_url_as(format='png')
+        url = member.avatar.url
 
     url = str(url)
 
@@ -632,14 +630,14 @@ async def subscribe(ctx, channel: nextcord.TextChannel=None, url=None, *, messag
         if url is not None:
             url = check_end(url)
             config['youtube'][channel.id].add((url,message))
-            await ctx.send(embed=cembed(title="Done",description=f"Added {url} to the list and it'll be displayed in {channel.mention}",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+            await ctx.send(embed=cembed(title="Done",description=f"Added {url} to the list and it'll be displayed in {channel.mention}",color=re[8],thumbnail=client.user.avatar.url))
         else:
             all_links = "\n".join([i[0] for i in config['youtube'][channel.id]])
             await ctx.send(embed=cembed(
                 title="All youtube subscriptions in this channel",
                 description=all_links,
                 color=re[8],
-                thumbnail = client.user.avatar_url_as(format="png")
+                thumbnail = client.user.avatar.url
             ))
     else:
         await ctx.reply(
@@ -647,7 +645,7 @@ async def subscribe(ctx, channel: nextcord.TextChannel=None, url=None, *, messag
                 title="Permission Denied",
                 description="Only an admin can set it",
                 color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png")
+                thumbnail=client.user.avatar.url
             )
         )
 
@@ -662,7 +660,7 @@ async def unsubscribe(ctx, channel: nextcord.TextChannel=None, url=None):
                 title="All youtube subscriptions in this channel",
                 description=all_links,
                 color=re[8],
-                thumbnail = client.user.avatar_url_as(format="png")
+                thumbnail = client.user.avatar.url
             ))
             return
         try:
@@ -673,7 +671,7 @@ async def unsubscribe(ctx, channel: nextcord.TextChannel=None, url=None):
                     break
 
             
-            await ctx.send(embed=cembed(title="Done",description=f"Removed {url} from the list",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+            await ctx.send(embed=cembed(title="Done",description=f"Removed {url} from the list",color=re[8],thumbnail=client.user.avatar.url))
         except KeyError:
             await ctx.reply(embed=cembed(title="Hmm",description=f"The URL provided is not in {channel.name}'s subscriptions",color=re[8]))
     else:
@@ -682,7 +680,7 @@ async def unsubscribe(ctx, channel: nextcord.TextChannel=None, url=None):
                 title="Permission Denied",
                 description="Only an admin can remove subscriptions",
                 color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png")
+                thumbnail=client.user.avatar.url
             )
         )
 
@@ -833,7 +831,7 @@ async def imdb_slash(Interaction, movie):
                 title="Oops",
                 description=str(e),
                 color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png"),
+                thumbnail=client.user.avatar.url,
             )
         )
 
@@ -917,7 +915,7 @@ async def instagram(ctx, account):
                     title="Hmm",
                     description=links,
                     color=re[8],
-                    thumbnail=client.user.avatar_url_as(format="png")
+                    thumbnail=client.user.avatar.url
                 )
             )
             return
@@ -946,7 +944,7 @@ async def instagram(ctx, account):
             title="Error in instagram",
             description=f"{e}\n{ctx.guild.name}: {ctx.channel}",
             color=re[8],
-            thumbnail=client.user.avatar_url_as(format="png"),
+            thumbnail=client.user.avatar.url,
         )
         await ctx.send(embed=embed)
         await client.get_channel(dev_channel).send(embed=embed)
@@ -1001,7 +999,7 @@ async def theme_color(ctx, *, tup1=""):
     try:
         global color_temp
         color_temp=extract_color(str(re[8]))
-        await ctx.send(embed=cembed(description="Setting Color",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        await ctx.send(embed=cembed(description="Setting Color",color=re[8],thumbnail=client.user.avatar.url))
         req()        
         print("Theme color", str(ctx.author))
         if re[8] < 1000:
@@ -1073,7 +1071,7 @@ async def load(ctx):
             description=usage,
             color=nextcord.Color(value=re[8]),
         )
-        embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+        embed.set_thumbnail(url=client.user.avatar.url)
         await ctx.send(embed=embed)
     except Exception as e:
         channel = client.get_channel(dev_channel)
@@ -1082,13 +1080,8 @@ async def load(ctx):
             description=str(e),
             color=nextcord.Color(value=re[8]),
         )
-        embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+        embed.set_thumbnail(url=client.user.avatar.url)
         await channel.send(embed=embed)
-
-
-@client.slash_command(name="polling", description="Seperate options with |")
-async def polling_slash(ctx, question, channel: nextcord.TextChannel, options):
-    await poll(ctx, options, channel, question=question)
 
 
 @client.command()
@@ -1118,7 +1111,7 @@ async def poll(ctx, options, channel_to_send: nextcord.TextChannel = None, *, qu
             title=f"Poll from {ctx.author.name}",
             description=f"```yaml\n{question}```",
             color=re[8],
-            thumbnail=client.user.avatar_url_as(format="png"),
+            thumbnail=client.user.avatar.url,
         ),
         components=[components],
     )
@@ -1156,7 +1149,7 @@ async def poll(ctx, options, channel_to_send: nextcord.TextChannel = None, *, qu
                 title=f"Poll from {ctx.author.name}",
                 description=f"```yaml\n{description}```" + "\n" + people,
                 color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png"),
+                thumbnail=client.user.avatar.url,
             )
         )
 
@@ -1201,7 +1194,7 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
                         description="**" + i[0] + "**",
                         picture=i[1],
                         color=re[8],
-                        thumbnail=client.user.avatar_url_as(format="png"),
+                        thumbnail=client.user.avatar.url,
                     )
                 ]
             await pa1(embeds, ctx)
@@ -1395,7 +1388,7 @@ async def reset_from_backup(ctx):
                 )
             )
     else:
-        await ctx.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        await ctx.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar.url))
 
         await channel.send(embed=cembed(description=f"{ctx.author.name} from {ctx.guild.name} tried to use reset_from_backup command",color=re[8]))
 
@@ -1471,7 +1464,7 @@ async def snipe(ctx, number=0):
                 title="Permissions Denied",
                 description="Sorry guys, only admins can snipe now",
                 color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png"),
+                thumbnail=client.user.avatar.url,
             )
         )
 
@@ -1600,60 +1593,60 @@ async def connect_music(ctx, channel=""):
                 await voiceChannel.connect()
                 voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
                 await ctx.send(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="",
                         description="Connected\nBitrate of the channel: "
                         + str(ctx.voice_client.channel.bitrate // 1000),
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                 )
             else:
                 await ctx.send(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="",
                         description="You are not in a voice channel",
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                 )
         else:
             if channel in [i.name for i in ctx.guild.voice_channels]:
-                voiceChannel = discord.utils.get(ctx.guild.voice_channels, name=channel)
+                voiceChannel = nextcord.utils.get(ctx.guild.voice_channels, name=channel)
                 vc_channel[str(ctx.guild.id)] = voiceChannel.id
                 await voiceChannel.connect()
-                voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+                voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
                 await ctx.send(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="",
                         description="Connected\nBitrate of the channel: "
                         + str(ctx.voice_client.channel.bitrate // 1000),
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                 )
             else:
                 await ctx.send(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="",
                         description="The voice channel does not exist",
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                 )
 
     except Exception as e:
         await ctx.send(
-            embed=discord.Embed(
-                title="Hmm", description=str(e), color=discord.Color(value=re[8])
+            embed=nextcord.Embed(
+                title="Hmm", description=str(e), color=nextcord.Color(value=re[8])
             )
         )
         channel = client.get_channel(dev_channel)
         await channel.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Connect music",
                 description=str(e)
                 + "\n"
                 + str(ctx.guild.name)
                 + ": "
                 + str(ctx.channel.name),
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -1662,7 +1655,7 @@ async def connect_music(ctx, channel=""):
 async def addto(ctx, mode, *, text):
     req()
     present = 1
-    voiceChannel = discord.utils.get(
+    voiceChannel = nextcord.utils.get(
         ctx.guild.voice_channels, id=vc_channel[str(ctx.guild.id)]
     )
     member = voiceChannel.members
@@ -1680,10 +1673,10 @@ async def addto(ctx, mode, *, text):
             link_add = get_elem(str(text))[i]
             queue_song[str(ctx.guild.id)].append(link_add)
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Songs added",
                 description="Done",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
     else:
@@ -1691,10 +1684,10 @@ async def addto(ctx, mode, *, text):
             await ctx.send("Only playlist and queue")
         else:
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Permission denied",
                     description="Join the voice channel to modify queue",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
 
@@ -1704,7 +1697,7 @@ async def clearqueue(ctx):
     req()
     mem = [
         (str(i.name) + "#" + str(i.discriminator))
-        for i in discord.utils.get(
+        for i in nextcord.utils.get(
             ctx.guild.voice_channels, id=vc_channel[str(ctx.guild.id)]
         ).members
     ]
@@ -1713,18 +1706,18 @@ async def clearqueue(ctx):
             queue_song[str(ctx.guild.id)].clear()
         re[3][str(ctx.guild.id)] = 0
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Cleared queue",
                 description="_Done_",
-                color=discord.Color(value=re[8]),
+                color=dnextcord.Color(value=re[8]),
             )
         )
     else:
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Permission denied",
                 description="Join the voice channel to modify queue",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -1739,30 +1732,30 @@ async def remove(ctx, n):
     if mem.count(str(ctx.author)) > 0:
         if int(n) < len(queue_song[str(ctx.guild.id)]):
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Removed",
                     description=da1[queue_song[str(ctx.guild.id)][int(n)]],
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
             del da1[queue_song[str(ctx.guild.id)][int(n)]]
             queue_song[str(ctx.guild.id)].pop(int(n))
         else:
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Not removed",
                     description="Only "
                     + len(queue_song[str(ctx.guild.id)])
                     + " song(s) in your queue",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
     else:
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Permission denied",
                 description="Join the voice channel to modify queue",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -1796,10 +1789,10 @@ async def currentmusic(ctx):
         )
     else:
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Empty queue",
                 description="Your queue is currently empty",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -1833,7 +1826,7 @@ def repeat(ctx, voice):
                 ctx, queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
             )
             voice.play(
-                discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
+                nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                 after=lambda e: repeat(ctx, voice),
             )
 
@@ -1871,7 +1864,7 @@ async def show_playlist(ctx, *, name):
                         title="Playlist",
                         description=st,
                         color=re[8],
-                        thumbnail=client.user.avatar_url_as(format="png"),
+                        thumbnail=client.user.avatar.url,
                     )
                 )
                 st = ""
@@ -1881,7 +1874,7 @@ async def show_playlist(ctx, *, name):
                     title="Playlist",
                     description=st,
                     color=re[8],
-                    thumbnail=client.user.avatar_url_as(format="png"),
+                    thumbnail=client.user.avatar.url,
                 )
             )
         await pa(embeds, ctx)
@@ -1891,7 +1884,7 @@ async def show_playlist(ctx, *, name):
                 title="Playlist",
                 description="This playlist is not found",
                 color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png"),
+                thumbnail=client.user.avatar.url,
             )
         )
 
@@ -1909,16 +1902,16 @@ async def autoplay(ctx):
         else:
             st = "_On_"
         await ctx.send(
-            embed=discord.Embed(
-                title="Autoplay", description=st, color=discord.Color(value=re[8])
+            embed=nextcord.Embed(
+                title="Autoplay", description=st, color=nextcord.Color(value=re[8])
             )
         )
     else:
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Permissions Denied",
                 description="You need to be in the voice channel to toggle autoplay",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -1936,16 +1929,16 @@ async def loop(ctx):
         else:
             st = "_On_"
         await ctx.send(
-            embed=discord.Embed(
-                title="Loop", description=st, color=discord.Color(value=re[8])
+            embed=nextcord.Embed(
+                title="Loop", description=st, color=nextcord.Color(value=re[8])
             )
         )
     else:
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Permissions Denied",
                 description="You need to be in the voice channel to toggle loop",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -2018,8 +2011,8 @@ async def queue(ctx, *, name=""):
         # st=st+str(num)+". "+da1[i]+"\n"
         if st == "":
             st = "_Empty_"
-        em = discord.Embed(
-            title="Queue", description=st, color=discord.Color(value=re[8])
+        em = nextcord.Embed(
+            title="Queue", description=st, color=nextcord.Color(value=re[8])
         )
         mess = await ctx.send(embed=em)
         await mess.add_reaction("⏮")
@@ -2071,10 +2064,10 @@ async def queue(ctx, *, name=""):
 
         if st == "":
             st = "_Empty_"
-        embed = discord.Embed(
-            title="Queue", description=st, color=discord.Color(value=re[8])
+        embed = nextcord.Embed(
+            title="Queue", description=st, color=nextcord.Color(value=re[8])
         )
-        embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+        embed.set_thumbnail(url=client.user.avatar.url)
         mess = await ctx.send(embed=embed)
         await mess.add_reaction("⏮")
         await mess.add_reaction("⏸")
@@ -2087,10 +2080,10 @@ async def queue(ctx, *, name=""):
         await mess.add_reaction(emoji.emojize(":downwards_button:"))
     else:
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Permission denied",
                 description="Join the voice channel to modify queue",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -2108,51 +2101,51 @@ async def next(ctx):
             if re[3][str(ctx.guild.id)] >= len(queue_song[str(ctx.guild.id)]):
                 re[3][str(ctx.guild.id)] = len(queue_song[str(ctx.guild.id)]) - 1
                 await ctx.send(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="Last song",
                         description="Only "
                         + str(len(queue_song[str(ctx.guild.id)]))
                         + " songs in your queue",
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                 )
-            voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+            voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
             URL = youtube_download(
                 ctx, queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
             )
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Playing",
                     description=da1[
                         queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
                     ],
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
             voice.stop()
             voice.play(
-                discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
+                nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                 after=lambda e: repeat(ctx, voice),
             )
         else:
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Permission denied",
                     description="Join the voice channel to move to the next song",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
     except Exception as e:
         channel = client.get_channel(dev_channel)
         await channel.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Error in next function",
                 description=str(e)
                 + "\n"
                 + str(ctx.guild)
                 + ": "
                 + str(ctx.channel.name),
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -2214,7 +2207,7 @@ async def news(ctx, subject="Technology"):
             title="News",
             description=string,
             color=re[8],
-            thumbnail=client.user.avatar_url_as(format="png"),
+            thumbnail=client.user.avatar.url,
         )
     )
 
@@ -2232,10 +2225,10 @@ async def previous(ctx):
             if re[3][str(ctx.guild.id)] == -1:
                 re[3][str(ctx.guild.id)] = 0
                 await ctx.send(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="First song",
                         description="This is first in queue",
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                 )
             if (
@@ -2249,43 +2242,43 @@ async def previous(ctx):
                 )[
                     "title"
                 ]
-            voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+            voice = utils.get(client.voice_clients, guild=ctx.guild)
             URL = youtube_download(
                 ctx, queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
             )
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Playing",
                     description=da1[
                         queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
                     ],
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
             voice.stop()
             voice.play(
-                discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
+                nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                 after=lambda e: repeat(ctx, voice),
             )
         else:
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Permission denied",
                     description="Join the voice channel to move to the previous song",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
     except Exception as e:
         channel = client.get_channel(dev_channel)
         await channel.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Error in previous function",
                 description=str(e)
                 + "\n"
                 + str(ctx.guild)
                 + ": "
                 + str(ctx.channel.name),
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -2327,7 +2320,7 @@ async def dictionary(ctx, *, text):
                 title=word,
                 description=description,
                 color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png"),
+                thumbnail=client.user.avatar.url,
             )
         )
     except Exception as e:
@@ -2337,7 +2330,7 @@ async def dictionary(ctx, *, text):
                 title="Oops",
                 description="Something is wrong\n" + str(e),
                 color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png"),
+                thumbnail=client.user.avatar.url,
             )
         )
 
@@ -2365,7 +2358,7 @@ async def search_queue(ctx, part):
             title="Songs in queue",
             description=st,
             color=re[8],
-            thumbnail=client.user.avatar_url_as(format="png"),
+            thumbnail=client.user.avatar.url,
         )
     )
 
@@ -2374,7 +2367,7 @@ async def search_queue(ctx, part):
 async def play(ctx, *, ind):
     req()
     if (
-        discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild) == None
+        nextcord.utils.get(ctx.bot.voice_clients, guild=ctx.guild) == None
         and ctx.author.voice
         and ctx.author.voice.channel
     ):
@@ -2384,7 +2377,7 @@ async def play(ctx, *, ind):
             re[3][str(ctx.guild.id)] = 0
         channel = ctx.author.voice.channel.id
         vc_channel[str(ctx.guild.id)] = channel
-        voiceChannel = discord.utils.get(ctx.guild.voice_channels, id=channel)
+        voiceChannel = nextcord.utils.get(ctx.guild.voice_channels, id=channel)
         await voiceChannel.connect()
     try:
         try:
@@ -2395,7 +2388,7 @@ async def play(ctx, *, ind):
             if ind.isnumeric():
                 if int(ind) < len(queue_song[str(ctx.guild.id)]):
                     re[3][str(ctx.guild.id)] = int(ind)
-                    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+                    voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
                     URL = youtube_download(
                         ctx, queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
                     )
@@ -2409,17 +2402,17 @@ async def play(ctx, *, ind):
                             queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
                         )
                     mess = await ctx.send(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Playing",
                             description=da1[
                                 queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
                             ],
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
                     voice.stop()
                     voice.play(
-                        discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
+                        nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                         after=lambda e: repeat(ctx, voice),
                     )
                     await mess.add_reaction("⏮")
@@ -2432,16 +2425,16 @@ async def play(ctx, *, ind):
                     await mess.add_reaction(emoji.emojize(":upwards_button:"))
                     await mess.add_reaction(emoji.emojize(":downwards_button:"))
                 else:
-                    embed = discord.Embed(
+                    embed = nextcord.Embed(
                         title="Hmm",
                         description=f"There are only {len(queue_song[str(ctx.guild.id)])} songs",
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                     await ctx.send(embed=embed)
             else:
                 name = ind
                 if name.find("rick") == -1:
-                    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+                    voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
                     name = convert_to_url(name)
                     htm = urllib.request.urlopen(
                         "https://www.youtube.com/results?search_query=" + name
@@ -2450,45 +2443,45 @@ async def play(ctx, *, ind):
                     url = "https://www.youtube.com/watch?v=" + video[0]
                     URL, name_of_the_song = youtube_download1(ctx, url)
                     voice.stop()
-                    voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                    voice.play(nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
                     await ctx.send(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Playing",
                             description=name_of_the_song,
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
                 else:
                     mess = await ctx.send(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Playing",
                             description="Rick Astley - Never Gonna Give You Up (Official Music Video) - YouTube :wink:",
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
 
         else:
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Permission denied",
                     description="Join the voice channel to play the song",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
     except Exception as e:
         channel = client.get_channel(dev_channel)
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Error in play function",
                 description=f"{e}",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
         await channel.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Error in play function",
                 description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -2501,10 +2494,10 @@ async def again(ctx):
             queue_song[str(ctx.guild.id)] = []
         if not str(ctx.guild.id) in re[3]:
             re[3][str(ctx.guild.id)] = 0
-        if discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild) == None:
+        if nextcord.utils.get(ctx.bot.voice_clients, guild=ctx.guild) == None:
             channel = ctx.author.voice.channel.id
             vc_channel[str(ctx.guild.id)] = channel
-            voiceChannel = discord.utils.get(ctx.guild.voice_channels, id=channel)
+            voiceChannel = nextcord.utils.get(ctx.guild.voice_channels, id=channel)
             await voiceChannel.connect()
         mem = []
         try:
@@ -2513,7 +2506,7 @@ async def again(ctx):
             except:
                 mem = []
             if mem.count(str(ctx.author)) > 0:
-                voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+                voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
                 bitrate = "\nBitrate of the channel: " + str(
                     ctx.voice_client.channel.bitrate // 1000
                 )
@@ -2536,7 +2529,7 @@ async def again(ctx):
                         ]
                         + bitrate,
                         color=re[8],
-                        thumbnail=client.user.avatar_url_as(format="png"),
+                        thumbnail=client.user.avatar.url,
                     )
                 )
                 URL = youtube_download(
@@ -2544,7 +2537,7 @@ async def again(ctx):
                 )
                 voice.stop()
                 voice.play(
-                    discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
+                    nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                     after=lambda e: repeat(ctx, voice),
                 )
                 await mess.add_reaction("⏮")
@@ -2562,7 +2555,7 @@ async def again(ctx):
                         title="Permission denied",
                         description="Join the voice channel to play the song",
                         color=re[8],
-                        thumbnail=client.user.avatar_url_as(format="png"),
+                        thumbnail=client.user.avatar.url,
                     )
                 )
         except Exception as e:
@@ -2572,14 +2565,14 @@ async def again(ctx):
                     title="Error",
                     description=str(e),
                     color=re[8],
-                    thumbnail=client.user.avatar_url_as(format="png"),
+                    thumbnail=client.user.avatar.url,
                 )
             )
             await channel.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Error in play function",
                     description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
 
@@ -2608,7 +2601,7 @@ async def feedback(ctx, *, text):
             title=f"Message from {ctx.author.name}: {ctx.guild.name}",
             description=text,
             color=re[8],
-            thumbnail=client.user.avatar_url_as(format="png")
+            thumbnail=client.user.avatar.url
         )
     )
     await ctx.send(
@@ -2656,7 +2649,7 @@ async def memes(ctx):
                     description="Something went wrong during importing memes\n"
                     + str(e),
                     color=re[8],
-                    thumbnail=client.user.avatar_url_as(format="png"),
+                    thumbnail=client.user.avatar.url,
                 )
             )
     await ctx.send(choice(link_for_cats))
@@ -2685,21 +2678,21 @@ async def restart_program(ctx, text):
                 title="Restarted",
                 description="The program is beginning it's restarting process",
                 color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png")
+                thumbnail=client.user.avatar.url
             )
         )
         await client.get_channel(dev_channel).send(
             embed=cembed(
                 title="Restart",
                 description=f"Requested by {ctx.author.name}",
-                thumbnail=client.user.avatar_url_as(format="png"),
+                thumbnail=client.user.avatar.url,
                 color=re[8]
                 
             )
         )
         os.system("busybox reboot")
     else:
-        await ctx.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar_url_as(format="png")))
+        await ctx.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar.url))
 
         await channel.send(embed=cembed(description=f"{ctx.author.name} from {ctx.guild.name} tried to use restart_program command",color=re[8]))
 
@@ -2727,32 +2720,32 @@ async def leave(ctx):
             voice.stop()
             await voice.disconnect()
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Disconnected",
                     description="Bye",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
         else:
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Permission denied",
                     description="Nice try dude! Join the voice channel",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
     except Exception as e:
         await ctx.send(
-            embed=discord.Embed(
-                title="Hmm", description=str(e), color=discord.Color(value=re[8])
+            embed=nextcord.Embed(
+                title="Hmm", description=str(e), color=nextcord.Color(value=re[8])
             )
         )
         channel = client.get_channel(dev_channel)
         await channel.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Error in leave",
                 description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
     save_to_file()
@@ -2766,30 +2759,30 @@ async def pause(ctx):
     except:
         mem = []
     if mem.count(str(ctx.author)) > 0:
-        voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+        voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
         voice.pause()
         await ctx.send(
-            embed=discord.Embed(title="Pause", color=discord.Color(value=re[8]))
+            embed=nextcord.Embed(title="Pause", color=nextcord.Color(value=re[8]))
         )
     else:
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Permission denied",
                 description="Join the channel to pause the song",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
 
 @client.command(aliases=["*"])
-async def change_nickname(ctx, member: discord.Member, *, nickname):
+async def change_nickname(ctx, member: nextcord.Member, *, nickname):
     if (
         ctx.author.guild_permissions.change_nickname
         or ctx.author.id == 432801163126243328
     ):
         await member.edit(nick=nickname)
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Nickname Changed",
                 description=(
                     "Nickname changed to "
@@ -2797,19 +2790,19 @@ async def change_nickname(ctx, member: discord.Member, *, nickname):
                     + " by "
                     + ctx.author.mention
                 ),
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
     else:
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Permissions Denied",
                 description="You dont have permission to change others nickname",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 @client.command()
-async def dev_test(ctx, id:discord.Member=None):
+async def dev_test(ctx, id:nextcord.Member=None):
     if id:
         if str(id.id) in dev_users:
             await ctx.send(f"{id} is a dev!")
@@ -2827,10 +2820,10 @@ async def resume(ctx):
     except:
         mem = []
     if mem.count(str(ctx.author)) > 0:
-        voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+        voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
         voice.resume()
         await ctx.send(
-            embed=discord.Embed(title="Resume", color=discord.Color(value=re[8]))
+            embed=nextcord.Embed(title="Resume", color=nextcord.Color(value=re[8]))
         )
 
 
@@ -2840,10 +2833,10 @@ async def wiki_slash(ctx, text):
         req()
         await ctx.defer()
         t = str(search(text)[0].encode("utf-8"))
-        em = discord.Embed(
+        em = nextcord.Embed(
             title=str(t).title(),
             description=str(summary(t, sentences=5)),
-            color=discord.Color(value=re[8]),
+            color=nextcord.Color(value=re[8]),
         )
         em.set_thumbnail(
             url="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
@@ -2855,7 +2848,7 @@ async def wiki_slash(ctx, text):
                 title="Oops",
                 description=str(e),
                 color=re[8],
-                thumbnail=client.user.avatar_url_as(format="png"),
+                thumbnail=client.user.avatar.url,
             )
         )
 
@@ -2864,10 +2857,10 @@ async def wiki_slash(ctx, text):
 async def wikipedia(ctx, *, text):
     req()
     t = str(search(text)[0].encode("utf-8"))
-    em = discord.Embed(
+    em = nextcord.Embed(
         title=str(t).title(),
         description=str(summary(t, sentences=5)),
-        color=discord.Color(value=re[8]),
+        color=nextcord.Color(value=re[8]),
     )
     em.set_thumbnail(
         url="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
@@ -2879,10 +2872,10 @@ async def wikipedia(ctx, *, text):
 async def check(ctx):
     req()
     print("check")
-    em = discord.Embed(
+    em = nextcord.Embed(
         title="Online",
         description=f"Hi, {ctx.author.name}\nLatency: {int(client.latency*1000)}",
-        color=discord.Color(value=re[8]),
+        color=nextcord.Color(value=re[8]),
     )
     await ctx.send(embed=em)
 
@@ -2918,10 +2911,10 @@ async def clear(ctx, text, num=10):
                 )
         else:
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Permission Denied",
                     description="You cant delete messages",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
     else:
@@ -2973,10 +2966,10 @@ async def on_reaction_add(reaction, user):
                     except Exception as e:
                         print(e)
                 await reaction.message.edit(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="Queue",
                         description=st,
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                 )
                 await reaction.remove(user)            
@@ -3025,10 +3018,10 @@ async def on_reaction_add(reaction, user):
                 if st == "":
                     st = "End of queue"
                 await reaction.message.edit(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="Queue",
                         description=st,
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                 )
                 await reaction.remove(user)
@@ -3053,10 +3046,10 @@ async def on_reaction_add(reaction, user):
                                 emoji.emojize(":cross_mark:"),
                             )
                             await sent.edit(
-                                embed=discord.Embed(
+                                embed=nextcord.Embed(
                                     title="Tic Tac Toe by Rahul",
                                     description=board,
-                                    color=discord.Color(value=re[8]),
+                                    color=nextcord.Color(value=re[8]),
                                 )
                             )
                             await reaction.remove(user)
@@ -3069,28 +3062,28 @@ async def on_reaction_add(reaction, user):
                                 result = check_win(board)
                                 if result != " ":
                                     await sent.edit(
-                                        embed=discord.Embed(
+                                        embed=nextcord.Embed(
                                             title="Tic Tac Toe by Rahul",
                                             description=result,
-                                            color=discord.Color(value=re[8]),
+                                            color=nextcord.Color(value=re[8]),
                                         )
                                     )
                                 else:
                                     await sent.edit(
-                                        embed=discord.Embed(
+                                        embed=nextcord.Embed(
                                             title="Tic Tac Toe by Rahul",
                                             description="Draw",
-                                            color=discord.Color(value=re[8]),
+                                            color=nextcord.Color(value=re[8]),
                                         )
                                     )
                             else:
                                 comp_move = choice(available)
                                 board = board.replace(comp_move, O)
                                 await sent.edit(
-                                    embed=discord.Embed(
+                                    embed=nextcord.Embed(
                                         title="Tic Tac Toe by Rahul",
                                         description=board,
-                                        color=discord.Color(value=re[8]),
+                                        color=nextcord.Color(value=re[8]),
                                     )
                                 )
                                 await sent.remove_reaction(
@@ -3101,10 +3094,10 @@ async def on_reaction_add(reaction, user):
                                 result = check_win(board)
                                 if result != " ":
                                     await sent.edit(
-                                        embed=discord.Embed(
+                                        embed=nextcord.Embed(
                                             title="Tic Tac Toe by Rahul",
                                             description=result,
-                                            color=discord.Color(value=re[8]),
+                                            color=nextcord.Color(value=re[8]),
                                         )
                                     )
             if reaction.emoji == emoji.emojize(":musical_note:"):
@@ -3152,13 +3145,13 @@ async def on_reaction_add(reaction, user):
                     await reaction.remove(user)
                 else:
                     await reaction.message.edit(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Empty queue",
                             description="Your queue is currently empty",
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
-            if reaction.emoji == discord.utils.get(client.emojis, name="blue_down"):
+            if reaction.emoji == nextcord.utils.get(client.emojis, name="blue_down"):
                 if (
                     str(user) != str(client.user)
                     and reaction.message.author == client.user
@@ -3166,7 +3159,7 @@ async def on_reaction_add(reaction, user):
                     
                     temp_tup = color_temp
                     if temp_tup[2] - 25 >= 0:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             int(temp_tup[0]),
                             int(temp_tup[1]),
                             int(temp_tup[2]) - 25,
@@ -3177,18 +3170,18 @@ async def on_reaction_add(reaction, user):
                             int(temp_tup[2]) - 25,
                         )
                     else:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             int(temp_tup[0]), int(temp_tup[1]), 0
                         ).value
                         color_temp = (int(temp_tup[0]), int(temp_tup[1]), 0)
-                    embed = discord.Embed(
+                    embed = nextcord.Embed(
                         title="New Color",
                         description=str(color_temp),
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                     await color_message.edit(embed=embed)
                     await reaction.remove(user)
-            if reaction.emoji == discord.utils.get(client.emojis, name="green_down"):
+            if reaction.emoji == nextcord.utils.get(client.emojis, name="green_down"):
                 if (
                     str(user) != str(client.user)
                     and reaction.message.author == client.user
@@ -3196,7 +3189,7 @@ async def on_reaction_add(reaction, user):
                     
                     temp_tup = color_temp
                     if temp_tup[1] - 25 >= 0:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             int(temp_tup[0]),
                             int(temp_tup[1] - 25),
                             int(temp_tup[2]),
@@ -3207,14 +3200,14 @@ async def on_reaction_add(reaction, user):
                             int(temp_tup[2]),
                         )
                     else:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             int(temp_tup[0]), 0, int(temp_tup[2])
                         ).value
                         color_temp = (int(temp_tup[0]), 0, int(temp_tup[2]))
-                    embed = discord.Embed(
+                    embed = nextcord.Embed(
                         title="New Color",
                         description=str(color_temp),
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                     await color_message.edit(embed=embed)
                     await reaction.remove(user)
@@ -3226,7 +3219,7 @@ async def on_reaction_add(reaction, user):
                     
                     temp_tup = color_temp
                     if temp_tup[0] - 25 >= 0:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             int(temp_tup[0] - 25),
                             int(temp_tup[1]),
                             int(temp_tup[2]),
@@ -3237,18 +3230,18 @@ async def on_reaction_add(reaction, user):
                             int(temp_tup[2]),
                         )
                     else:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             0, int(temp_tup[1]), int(temp_tup[2])
                         ).value
                         color_temp = (0, int(temp_tup[1]), int(temp_tup[2]))
-                    embed = discord.Embed(
+                    embed = nextcord.Embed(
                         title="New Color",
                         description=str(color_temp),
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                     await color_message.edit(embed=embed)
                     await reaction.remove(user)
-            if reaction.emoji == discord.utils.get(client.emojis, name="blue_up"):
+            if reaction.emoji == nextcord.utils.get(client.emojis, name="blue_up"):
                 if (
                     str(user) != str(client.user)
                     and reaction.message.author == client.user
@@ -3256,7 +3249,7 @@ async def on_reaction_add(reaction, user):
                     await reaction.remove(user)
                     temp_tup = color_temp
                     if temp_tup[2] + 25 <= 255:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             int(temp_tup[0]),
                             int(temp_tup[1]),
                             int(temp_tup[2]) + 25,
@@ -3267,17 +3260,17 @@ async def on_reaction_add(reaction, user):
                             int(temp_tup[2]) + 25,
                         )
                     else:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             int(temp_tup[0]), int(temp_tup[1]), 255
                         ).value
                         color_temp = (int(temp_tup[0]), int(temp_tup[1]), 255)
-                    embed = discord.Embed(
+                    embed = nextcord.Embed(
                         title="New Color",
                         description=str(color_temp),
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                     await color_message.edit(embed=embed)
-            if reaction.emoji == discord.utils.get(client.emojis, name="green_up"):
+            if reaction.emoji == nextcord.utils.get(client.emojis, name="green_up"):
                 if (
                     str(user) != str(client.user)
                     and reaction.message.author == client.user
@@ -3285,7 +3278,7 @@ async def on_reaction_add(reaction, user):
                     await reaction.remove(user)
                     temp_tup = color_temp
                     if temp_tup[1] + 25 <= 255:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             int(temp_tup[0]),
                             int(temp_tup[1] + 25),
                             int(temp_tup[2]),
@@ -3296,14 +3289,14 @@ async def on_reaction_add(reaction, user):
                             int(temp_tup[2]),
                         )
                     else:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             int(temp_tup[0]), 255, int(temp_tup[2])
                         ).value
                         color_temp = (int(temp_tup[0]), 255, int(temp_tup[2]))
-                    embed = discord.Embed(
+                    embed = nextcord.Embed(
                         title="New Color",
                         description=str(color_temp),
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                     await color_message.edit(embed=embed)
             if reaction.emoji == emoji.emojize(":red_triangle_pointed_up:"):
@@ -3314,7 +3307,7 @@ async def on_reaction_add(reaction, user):
                     await reaction.remove(user)
                     temp_tup = color_temp
                     if temp_tup[0] + 25 <= 255:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             int(temp_tup[0] + 25),
                             int(temp_tup[1]),
                             int(temp_tup[2]),
@@ -3325,14 +3318,14 @@ async def on_reaction_add(reaction, user):
                             int(temp_tup[2]),
                         )
                     else:
-                        re[8] = discord.Color.from_rgb(
+                        re[8] = nextcord.Color.from_rgb(
                             255, int(temp_tup[1]), int(temp_tup[2])
                         ).value
                         color_temp = (255, int(temp_tup[1]), int(temp_tup[2]))
-                    embed = discord.Embed(
+                    embed = nextcord.Embed(
                         title="New Color",
                         description=str(color_temp),
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                     await color_message.edit(embed=embed)
             if reaction.emoji == "⏮":
@@ -3371,13 +3364,13 @@ async def on_reaction_add(reaction, user):
                         if re[3][str(reaction.message.guild.id)] == -1:
                             re[3][str(reaction.message.guild.id)] = 0
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Downloading...",
                                 description="Downloading the song, please wait for a moment",
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
-                        voice = discord.utils.get(
+                        voice = nextcord.utils.get(
                             client.voice_clients, guild=reaction.message.guild
                         )
                         URL = youtube_download(
@@ -3388,7 +3381,7 @@ async def on_reaction_add(reaction, user):
                         )
                         voice.stop()
                         voice.play(
-                            discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
+                            nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                             after=lambda e: repeat(reaction.message, voice),
                         )
                         url = queue_song[str(reaction.message.guild.id)][
@@ -3396,21 +3389,21 @@ async def on_reaction_add(reaction, user):
                         ]
                         song_name = da1[url]
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Playing",
                                 description=f"[{song_name}]({url})",
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
                     else:
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Permission denied",
                                 description=(
                                     "You need to join the voice channel "
                                     + str(user.name)
                                 ),
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
             if reaction.emoji == "⏸":
@@ -3428,7 +3421,7 @@ async def on_reaction_add(reaction, user):
                     except:
                         mem = []
                     if mem.count(str(user)) > 0:
-                        voice = discord.utils.get(
+                        voice = nextcord.utils.get(
                             client.voice_clients, guild=reaction.message.guild
                         )
                         url = queue_song[str(reaction.message.guild.id)][
@@ -3436,10 +3429,10 @@ async def on_reaction_add(reaction, user):
                         ]
                         song_name = da1[url]
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Paused",
                                 description=f"[{song_name}]({url})",
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
                         voice.pause()
@@ -3458,7 +3451,7 @@ async def on_reaction_add(reaction, user):
                     except:
                         mem = []
                     if mem.count(str(user)) > 0:
-                        voice = discord.utils.get(
+                        voice = nextcord.utils.get(
                             client.voice_clients, guild=reaction.message.guild
                         )
                         if (
@@ -3483,22 +3476,22 @@ async def on_reaction_add(reaction, user):
                         ]
                         song_name = da1[url]
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Playing",
                                 description=f"[{song_name}]({url})",
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
                         voice.resume()
                     else:
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Permission denied",
                                 description=(
                                     "You need to join the voice channel "
                                     + str(user.name)
                                 ),
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
             if reaction.emoji == "🔁":
@@ -3516,7 +3509,7 @@ async def on_reaction_add(reaction, user):
                         mem = []
                     if mem.count(str(user)) > 0:
                         try:
-                            voice = discord.utils.get(
+                            voice = nextcord.utils.get(
                                 client.voice_clients, guild=reaction.message.guild
                             )
                             URL = youtube_download(
@@ -3527,7 +3520,7 @@ async def on_reaction_add(reaction, user):
                             )
                             voice.stop()
                             voice.play(
-                                discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
+                                nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                                 after=lambda e: repeat(reaction.message, voice),
                             )
                             if (
@@ -3552,10 +3545,10 @@ async def on_reaction_add(reaction, user):
                             ]
                             song_name = da1[url]
                             await reaction.message.edit(
-                                embed=discord.Embed(
+                                embed=nextcord.Embed(
                                     title="Playing",
                                     description=f"[{song_name}]({url})",
-                                    color=discord.Color(value=re[8]),
+                                    color=nextcord.Color(value=re[8]),
                                 )
                             )
                         except Exception as e:
@@ -3564,18 +3557,18 @@ async def on_reaction_add(reaction, user):
                                     title="Error",
                                     description = str(e),
                                     color=re[8],
-                                    thumbnail = client.user.avatar_url_as(format="png")
+                                    thumbnail = client.user.avatar.url
                                 )
                             )
                     else:
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Permission denied",
                                 description=(
                                     "You need to join the voice channel "
                                     + str(user.name)
                                 ),
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
             if reaction.emoji == "⏭":
@@ -3612,13 +3605,13 @@ async def on_reaction_add(reaction, user):
                         ):
                             re[3][str(reaction.message.guild.id)] -= 1
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Downloading...",
                                 description="Downloading the song, please wait for a moment",
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
-                        voice = discord.utils.get(
+                        voice = nextcord.utils.get(
                             client.voice_clients, guild=reaction.message.guild
                         )
                         URL = youtube_download(
@@ -3629,7 +3622,7 @@ async def on_reaction_add(reaction, user):
                         )
                         voice.stop()
                         voice.play(
-                            discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
+                            nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                             after=lambda e: repeat(reaction.message, voice),
                         )
                         url = queue_song[str(reaction.message.guild.id)][
@@ -3637,21 +3630,21 @@ async def on_reaction_add(reaction, user):
                         ]
                         song_name = da1[url]
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Playing",
                                 description=f"[{song_name}]({url})",
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
                     else:
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Permission denied",
                                 description=(
                                     "You need to join the voice channel "
                                     + str(user.name)
                                 ),
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
             if reaction.emoji == "⏹":
@@ -3678,21 +3671,21 @@ async def on_reaction_add(reaction, user):
                             except:
                                 pass
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Disconnected",
                                 description="Bye, Thank you for using Alfred",
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
                     else:
                         await reaction.message.edit(
-                            embed=discord.Embed(
+                            embed=nextcord.Embed(
                                 title="Permission denied",
                                 description=(
                                     "You need to join the voice channel "
                                     + str(user.name)
                                 ),
-                                color=discord.Color(value=re[8]),
+                                color=nextcord.Color(value=re[8]),
                             )
                         )
             if (
@@ -3753,10 +3746,10 @@ async def on_reaction_add(reaction, user):
                             except Exception as e:
                                 pass
                     await reaction.message.edit(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Queue",
                             description=st + bitrate + length,
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
             if str(user.id) in list(dev_users):
@@ -3772,10 +3765,10 @@ async def on_reaction_add(reaction, user):
                     for i in list(dev_users):
                         string = string + str(client.get_user(int(i)).name) + "\n"
                     await channel.send(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Developers",
                             description=string + "\n\nThank you for supporting",
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
                 if reaction.emoji == emoji.emojize(":bar_chart:") and str(
@@ -3793,10 +3786,10 @@ async def on_reaction_add(reaction, user):
                     Swap usage: {swap}
                     """
                     await channel.send(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Load",
                             description=usage,
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )                
                 if reaction.emoji == "⭕" and str(reaction.message.channel.id) == str(
@@ -3807,10 +3800,10 @@ async def on_reaction_add(reaction, user):
                     for i in client.guilds:
                         text_servers = text_servers + str(i.name) + "\n"
                     await channel.send(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Servers",
                             description=text_servers,
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
                 if reaction.emoji == emoji.emojize(":fire:") and str(
@@ -3833,10 +3826,10 @@ async def on_reaction_add(reaction, user):
                     await channel.purge(limit=100000000)
                     os.chdir(location_of_file)
                     await channel.send(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Restart",
                             description=("Requested by " + str(user)),
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
                     os.system("busybox reboot")
@@ -3858,10 +3851,10 @@ async def on_reaction_add(reaction, user):
                         pass
                     await channel.purge(limit=10000000000)
                     await channel.send(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Exit",
                             description=("Requested by " + str(user)),
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
                     sys.exit()
@@ -3876,7 +3869,7 @@ async def on_reaction_add(reaction, user):
                     servers = st_speed.get_servers([])
                     ping = st_speed.results.ping
                     await channel.send(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Speedtest Results:",
                             description=str(download_speed)
                             + "Mbps\n"
@@ -3884,7 +3877,7 @@ async def on_reaction_add(reaction, user):
                             + "Mbps\n"
                             + str(ping)
                             + "ms",
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
                 if reaction.emoji == "❕" and str(reaction.message.channel.id) == str(
@@ -3911,10 +3904,10 @@ async def on_reaction_add(reaction, user):
                             if re[0] < 10000 and len(re) < 4:
                                 issues = issues + "Recovery failed\n"
                     await channel.send(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Issues with the program",
                             description=issues,
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
                 if reaction.emoji == emoji.emojize(":black_circle:") and str(
@@ -3926,19 +3919,19 @@ async def on_reaction_add(reaction, user):
             title="Missing Permissions",
             description="Alfred is missing permissions, please try to fix this, best recommended is to add Admin to the bot",
             color=re[8],
-            thumbnail=client.user.avatar_url_as(format="png"))
+            thumbnail=client.user.avatar.url)
         )
     except Exception as e:        
         channel = client.get_channel(dev_channel)
         await channel.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Error in on_reaction_add",
                 description=str(e)
                 + "\n"
                 + str(reaction.message.guild)
                 + ": "
                 + str(reaction.message.channel.name),
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -3946,19 +3939,19 @@ async def on_reaction_add(reaction, user):
 async def on_command_error(ctx, error):
     print(error)
     channel = client.get_channel(dev_channel)
-    await channel.send(embed=cembed(title="Error",description=f"{str(error)} \n{ctx.author.name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar_url_as(format="png")))
+    await channel.send(embed=cembed(title="Error",description=f"{str(error)} \n{ctx.author.name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar.url))
 
 @client.command()
 async def yey(ctx):
     req()
     print("yey")
-    em = discord.Embed(title="*yey*", color=discord.Color(value=re[8]))
+    em = nextcord.Embed(title="*yey*", color=nextcord.Color(value=re[8]))
     await ctx.send(embed=em)
 
 @client.command()
 async def lol(ctx):
     req()
-    em = discord.Embed(title="***L😂L***", color=discord.Color(value=re[8]))
+    em = nextcord.Embed(title="***L😂L***", color=nextcord.Color(value=re[8]))
     await ctx.send(embed=em)
 
 
@@ -3969,10 +3962,10 @@ async def add_censor(ctx, *, text):
     censor.append(text.lower())
     for i in range(0, len(text)):
         string = string + "-"
-    em = discord.Embed(
+    em = nextcord.Embed(
         title="Added " + string + " to the list",
         decription="Done",
-        color=discord.Color(value=re[8]),
+        color=nextcord.Color(value=re[8]),
     )
     await ctx.send(embed=em)
 
@@ -3985,37 +3978,37 @@ async def changeM(ctx, *, num):
         if num == 1:
             re[10] = 1
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Model change",
                     description="Changed to blenderbot",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
         elif num == 2:
             re[10] = 2
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Model change",
                     description="Changed to dialo-gpt",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
         else:
 
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Model change",
                     description="Bruh thats not a valid option",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
 
     else:
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Model change",
                 description="F off thout isn't un dev user",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -4114,10 +4107,10 @@ async def on_message(msg):
 
         if f"<@!{client.user.id}>" in msg.content:
             prefi = prefix_dict.get(msg.guild.id if msg.guild is not None else None, "'")
-            embed = discord.Embed(
+            embed = nextcord.Embed(
                 title="Hi!! I am Alfred.",
                 description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
             embed.set_image(
                 url=random.choice(
@@ -4140,8 +4133,8 @@ async def on_message(msg):
     except Exception as e:
         channel = client.get_channel(dev_channel)
         await channel.send(
-            embed=discord.Embed(
-                title="Error", description=str(e), color=discord.Color(value=re[8])
+            embed=nextcord.Embed(
+                title="Error", description=str(e), color=nextcord.Color(value=re[8])
             )
         )
 
@@ -4153,18 +4146,18 @@ async def thog(ctx, *, text):
             re[4] = re[4] * -1
             if re[4] == 1:
                 await ctx.send(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="Thog",
                         description="Activated",
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                 )
             else:
                 await ctx.send(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="Thog",
                         description="Deactivated",
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                 )
         else:
@@ -4187,11 +4180,11 @@ async def stop(ctx):
     except:
         mem = []
     if mem.count(str(ctx.author))>0:
-        voice=discord.utils.get(client.voice_clients,guild=ctx.guild)
+        voice=nextcord.utils.get(client.voice_clients,guild=ctx.guild)
         voice.stop()
-        await ctx.send(embed=discord.Embed(title="Stop",color=discord.Color(value=re[8])))
+        await ctx.send(embed=nextcord.Embed(title="Stop",color=nextcord.Color(value=re[8])))
     else:
-        await ctx.send(embed=discord.Embed(title="Permission denied",description="Join the channel to resume the song",color=discord.Color(value=re[8])))
+        await ctx.send(embed=nextcord.Embed(title="Permission denied",description="Join the channel to resume the song",color=nextcord.Color(value=re[8])))
 
 @client.command(aliases=["m"])
 async def python_shell(ctx, *, text):
@@ -4205,10 +4198,10 @@ async def python_shell(ctx, *, text):
                 text = text.replace("```", "")
                 a = eval(text)
                 print(text)
-                em = discord.Embed(
+                em = nextcord.Embed(
                     title=text,
                     description=text + "=" + str(a),
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
                 em.set_thumbnail(
                     url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
@@ -4216,27 +4209,27 @@ async def python_shell(ctx, *, text):
                 await ctx.send(embed=em)
             except Exception as e:
                 await ctx.send(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="Error_message",
                         description=str(e),
-                        color=discord.Color(value=re[8]),
+                        color=nextcord.Color(value=re[8]),
                     )
                 )
         else:
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Banned",
                     description="You've been banned from using python shell",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
     else:
         await ctx.message.delete()
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Permission denied",
                 description="",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -4278,10 +4271,10 @@ async def exe(ctx, *, text):
                     ]
                 )
                 await ctx.send(
-                    embed=discord.Embed(
+                    embed=nextcord.Embed(
                         title="Error",
                         description=error_mssg,
-                        color=discord.Color.from_rgb(255, 40, 0),
+                        color=nextcord.Color.from_rgb(255, 40, 0),
                     )
                 )
         output = f.getvalue()
@@ -4297,10 +4290,10 @@ async def exe(ctx, *, text):
         await pa(embeds,ctx)
     else:
         await ctx.send(
-            embed=discord.Embed(
+            embed=nextcord.Embed(
                 title="Denied",
                 description="Ask Devs to give access for scripts",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
         )
 
@@ -4309,8 +4302,8 @@ async def exe(ctx, *, text):
 async def get_req(ctx):
     req()
     number = g_req()
-    em = discord.Embed(
-        title="Requests", description=str(number), color=discord.Color(value=re[8])
+    em = nextcord.Embed(
+        title="Requests", description=str(number), color=nextcord.Color(value=re[8])
     )
     await ctx.send(embed=em)
 
@@ -4337,7 +4330,7 @@ def g_req():
     return re[0]
 
 @client.command(aliases=['muter'])
-async def set_mute_role(ctx,role_for_mute: discord.Role):
+async def set_mute_role(ctx,role_for_mute: nextcord.Role):
     if ctx.author.guild_permissions.administrator:
         mute_role[ctx.guild.id] = role_for_mute.id
         await ctx.send(embed=cembed(title="Done",description=f"Mute role set as {role_for_mute.mention}",color=re[8]))
@@ -4346,9 +4339,17 @@ async def set_mute_role(ctx,role_for_mute: discord.Role):
 
 
 @client.command(aliases=["mu"])
-@commands.has_permissions(kick_members=True)
-async def mute(ctx, member: discord.Member):
+#@commands.has_guild_permissions(kick_members=True)
+async def mute(ctx, member: nextcord.Member):
     req()
+    if not ctx.author.guild_permissions.kickmembers:
+        await ctx.send(
+            embed=cembed(
+                title="Permissions Denied",
+                description = "You dont have enough permission to execute this command"
+            )
+        )
+        return
     print("Member id: ", member.id)
     add_role = None
     if ctx.guild.id in mute_role:
@@ -4356,22 +4357,29 @@ async def mute(ctx, member: discord.Member):
         await member.add_roles(add_role)
         await ctx.send("Muted " + member.mention)
     else:
-        add_role = discord.utils.get(ctx.guild.roles, name="dunce")
+        add_role = nextcord.utils.get(ctx.guild.roles, name="dunce")
         await member.add_roles(add_role)
         await ctx.send("Muted " + member.mention)
 
 
 @client.command(aliases=["um"])
-@commands.has_permissions(kick_members=True)
-async def unmute(ctx, member: discord.Member):
+async def unmute(ctx, member: nextcord.Member):
     req()
+    if not ctx.author.guild_permissions.kickmembers:
+        await ctx.send(
+            embed=cembed(
+                title="Permissions Denied",
+                description = "You dont have enough permission to execute this command"
+            )
+        )
+        return
     add_role = None
     if ctx.guild.id in mute_role:
         add_role = [i for i in ctx.guild.roles if i.id == mute_role[ctx.guild.id]][0]
         await member.remove_roles(add_role)
         await ctx.send("Unmuted " + member.mention)
     else:
-        add_role = discord.utils.get(ctx.guild.roles, name="dunce")
+        add_role = nextcord.utils.get(ctx.guild.roles, name="dunce")
         await member.remove_roles(add_role)
         await ctx.send("Unmuted " + member.mention)
         print(member, "unmuted")
@@ -4387,17 +4395,17 @@ async def help(ctx):
             title="Help",
             description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '\n\nIf you have any complaints or issues with Alfred, please give us a feedback using the command `'feedback`",
             thumbnail=thumbnail,
-            picture=client.user.avatar_url_as(format="png"),
+            picture=client.user.avatar.url,
             color=re[8],
         )
     )
     test_help.append(
         cembed(
             title="Source Code for Alfred",
-            description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",
+            description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://nextcord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",
             color=re[8],
             thumbnail="https://github.githubassets.com/images/modules/open_graph/github-octocat.png",
-            picture=client.user.avatar_url_as(format="png"),
+            picture=client.user.avatar.url,
         )
     )
     test_help += helping_hand.help_him(ctx, client, re)
