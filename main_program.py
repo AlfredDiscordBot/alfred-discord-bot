@@ -118,7 +118,7 @@ da1 = {}
 queue_song = {}
 temporary_list = []
 dev_channel = int(os.getenv("dev"))
-re = [0, "OK", 1, {}, -1, "", "205", 1, 5360, "48515587275%3A0AvceDiA27u1vT%3A26",1]
+re = [0, "OK", {}, {}, -1, "", "205", {}, 5360, "48515587275%3A0AvceDiA27u1vT%3A26",1]
 a_channels = [822500785765875749, 822446957288357888]
 cat = {}
 youtube = []
@@ -241,7 +241,6 @@ def load_from_file():
 
 
 load_from_file()
-
 
 
 @client.event
@@ -816,7 +815,7 @@ async def entrar(ctx, *, num=re[6]):
 
 @client.slash_command(name="entrar", description="Latest announcements from Entrar")
 async def yentrar(ctx, *, num=re[6]):
-    await ctx.defer()
+    
     await entrar(ctx)
 
 
@@ -839,7 +838,7 @@ async def imdb_slash(Interaction, movie):
 @client.slash_command(name="emoji", description="Get Emojis from other servers")
 async def emoji_slash(ctx, emoji_name, number=0):
     req()
-    await ctx.defer()
+    
     if nextcord.utils.get(client.emojis, name=emoji_name) != None:
         emoji_list = [names.name for names in client.emojis if names.name == emoji_name]
         le = len(emoji_list)
@@ -891,7 +890,7 @@ async def uemoji(ctx, emoji_name, number=0):
 @client.slash_command(name="svg2png", description="Convert SVG image to png format")
 async def svg2png_slash(ctx, url):
     req()
-    await ctx.defer()
+    
     img = svg2png(url)
     await ctx.send(file=nextcord.File(BytesIO(img), "svg.png"))
 
@@ -990,7 +989,7 @@ async def show_webhooks(ctx):
 
 @client.slash_command(name="color",description="Change color theme", guild_ids= [822445271019421746])
 async def color_slash(ctx, rgb_color=""):
-    await ctx.defer()
+    
     await theme_color(ctx,tup1=rgb_color)
 
 
@@ -1172,7 +1171,7 @@ async def pr(ctx, *, text):
 async def reddit_slash(ctx, account="wholesomememes"):
     req()
     try:
-        await ctx.defer()
+        
         await reddit_search(ctx, account)
     except Exception as e:
         print(e)
@@ -1423,7 +1422,7 @@ async def docs(ctx, name):
 @client.slash_command(name="Snipe", description="Get the last few deleted messages")
 async def snipe_slash(ctx, number=0):
     req()
-    await ctx.defer()
+    
     await snipe(ctx, int(number))
 
 
@@ -1571,8 +1570,7 @@ async def games(ctx, game="", choice="bot"):
 
 @client.slash_command(name="connect", description="Connect to a voice channel")
 async def connect_slash(ctx, channel=""):
-    req()
-    await ctx.defer()
+    req()    
     await connect_music(ctx, channel)
 
 
@@ -1837,13 +1835,13 @@ def repeat(ctx, voice):
 )
 async def autoplay_slash(ctx):
     req()
-    await ctx.defer()
+    
     await autoplay(ctx)
 
 
 @client.slash_command(name="loop", description="Loops the same song")
 async def loop_slash(ctx):
-    await ctx.defer()
+    
     req()
     await loop(ctx)
 
@@ -2188,11 +2186,9 @@ async def remove_prefix(ctx):
 
 
 @client.slash_command(name="news", description="Latest news from a given subject")
-async def news_slash(ctx, *, subject="Technology"):
-    req()
-    await ctx.defer()
+async def news_slash(ctx, subject="Technology"):
+    req()    
     await news(ctx, subject)
-
 
 @client.command()
 async def news(ctx, subject="Technology"):
@@ -2580,14 +2576,14 @@ async def again(ctx):
 @client.slash_command(name="again", description="Repeat the song")
 async def again_slash(ctx):
     req()
-    await ctx.defer()
+    
     await again(ctx)
 
 
 @client.slash_command(name="memes", description="Memes from Alfred yey")
 async def memes(ctx):
     req()
-    await ctx.defer()
+    
     await memes(ctx)
 
 @client.command()
@@ -2701,7 +2697,7 @@ async def restart_program(ctx, text):
 @client.slash_command(name="dc", description="Disconnect the bot from your voice channel")
 async def leave_slash(ctx):
     req()
-    await ctx.defer()
+    
     await leave(ctx)
 
 
@@ -2831,7 +2827,7 @@ async def resume(ctx):
 async def wiki_slash(ctx, text):
     try:
         req()
-        await ctx.defer()
+        
         t = str(search(text)[0].encode("utf-8"))
         em = nextcord.Embed(
             title=str(t).title(),
@@ -2882,9 +2878,16 @@ async def check(ctx):
 
 @client.slash_command(name="check", description="Check if the bot is online")
 async def check_slash(ctx):
-    req() 
-    await ctx.defer()
-    await check(ctx)
+    req()
+    print(dir(ctx))
+    em = nextcord.Embed(
+        title="Online",
+        description=f"Hi, {ctx.user.name}\nLatency: {int(client.latency*1000)}",
+        color=nextcord.Color(value=re[8]),
+    )
+    await ctx.send(
+        embed = em
+    )
 
 
 @client.event
@@ -4287,7 +4290,7 @@ async def exe(ctx, *, text):
                 url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
             )
             embeds.append(em)
-        await pa(embeds,ctx)
+        await pa1(embeds,ctx)
     else:
         await ctx.send(
             embed=nextcord.Embed(
@@ -4409,13 +4412,14 @@ async def help(ctx):
         )
     )
     test_help += helping_hand.help_him(ctx, client, re)
-    await pa1(test_help, ctx)
+    
+    await pa1(test_help, ctx, start_from=0)
 
 
 @client.slash_command(name="help", description="Help from Alfred")
 async def help_slash(ctx):
     req()
-    await ctx.defer()
+    print(dir(ctx.original_message))
     await help(ctx)
 #keep_alive()
 if os.getenv("dev-bot"):

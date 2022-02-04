@@ -44,7 +44,7 @@ def main(client, re):
     @client.command()
     async def kanye(ctx):
         re[0] += 1
-        text = await ef.get_async("https://api.kanye.rest", kind="json")["quote"]
+        text = await ef.get_async("https://api.kanye.rest", kind="json");text=text["quote"]
         embed = discord.Embed(
             title="Kanye Rest", description=text, color=discord.Color(value=re[8])
         )
@@ -199,6 +199,11 @@ def main(client, re):
             embed.url = i
             li.append(embed)
         await pa1(li, ctx)
+
+    @client.command()
+    async def lyrics(ctx, *, song):
+        j = await ef.get_async(f"https://api.popcat.xyz/lyrics?song={convert_to_url(song)}",kind="json")
+        await ctx.send(embed=ef.cembed(title=j['title'],description=j['lyrics'],color=re[8],thumbnail=j['image'],footer=j['artist']))
 
         
     async def pa1(embeds, ctx, start_from=0):

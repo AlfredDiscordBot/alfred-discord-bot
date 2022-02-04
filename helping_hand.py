@@ -36,7 +36,7 @@ You can choose to disable some of the sensitive commands or moderate your server
 
 def help_him(ctx, client, re):
 
-    thumbnail = client.user.avatar_url_as(format="png")
+    thumbnail = client.user.avatar.url
 
     Emoji_help = cembed(
         title="Emojis",

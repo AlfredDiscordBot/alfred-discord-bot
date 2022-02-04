@@ -391,7 +391,7 @@ async def devop_mtext(client, channel, color):
     embed = discord.Embed(
         title="DEVOP", description=text_dev, color=discord.Color(value=color)
     )
-    embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+    embed.set_thumbnail(url=client.user.avatar.url)
     mess = await channel.send(embed=embed)
     await mess.add_reaction(emoji.emojize(":safety_vest:"))
     await mess.add_reaction("⭕")
@@ -516,7 +516,7 @@ def suicide_m(client,color):
     international suicide helplines>>> https://www.opencounseling.com/suicide-hotlines
         """,
         color=color,
-        thumbnail=client.user.avatar_url_as(format="png"),
+        thumbnail=client.user.avatar.url,
         picture="https://www.humanium.org/en/wp-content/uploads/2019/09/shutterstock_1140282473-scaled.jpg"
     )
 

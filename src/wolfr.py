@@ -10,7 +10,7 @@ def requirements():
 
 
 def main(client, re, AiD, dev_channel):
-    import discord
+    import nextcord
     import io
     import requests
     import urllib.parse
@@ -19,12 +19,12 @@ def main(client, re, AiD, dev_channel):
 
     def get_answer(question=""):
         if question == "":
-            embed = discord.Embed(
+            embed = nextcord.Embed(
                 title="Oops",
                 description="You need to enter a question",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
-            embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+            embed.set_thumbnail(url=client.user.avatar.url)
             return embed
         else:
             res = w.query(question)
@@ -39,10 +39,10 @@ def main(client, re, AiD, dev_channel):
                     st += f"**{a[0]}**\n{a[1]}\n\n"
                 except Exception as e:
                     print(e)
-            embed = discord.Embed(
-                title=question, description=st, color=discord.Color(value=re[8])
+            embed = nextcord.Embed(
+                title=question, description=st, color=nextcord.Color(value=re[8])
             )
-            embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+            embed.set_thumbnail(url=client.user.avatar.url)
             embed.set_image(url=pic)
             return (embed, None)
 
@@ -53,12 +53,12 @@ def main(client, re, AiD, dev_channel):
 
     def get_answer1(question=""):
         if question == "":
-            embed = discord.Embed(
+            embed = nextcord.Embed(
                 title="Oops",
                 description="You need to enter a question",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
-            embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+            embed.set_thumbnail(url=client.user.avatar.url)
             return (embed, None)
         else:
             question = urllib.parse.quote(question)
@@ -68,14 +68,14 @@ def main(client, re, AiD, dev_channel):
             file = open("output.png", "wb")
             file.write(a)
             file.close()
-            embed = discord.Embed(
+            embed = nextcord.Embed(
                 title="Wolfram",
                 description="This result is from Wolfram",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
             embed.set_thumbnail(
                 url="https://www.wolfram.com/homepage/img/carousel-wolfram-alpha.png"
             )
-            file = discord.File("output.png")
+            file = nextcord.File("output.png")
             embed.set_image(url="attachment://output.png")
             return (embed, file)
