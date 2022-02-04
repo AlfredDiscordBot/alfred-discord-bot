@@ -27,6 +27,18 @@ author: True/False
 
 """
 
+def preset_change(text, ctx, client):
+    presets = {
+        'server-icon' : f'"{ctx.guild.icon_url}"',
+        'author-icon' : f'"{ctx.author.avatar.url}"',
+        'bot-icon' : f'"{client.user.avatar.url}"'
+    }
+    for i in presets:
+        text=text.replace(presets[i])
+    return text
+
+    
+
 class EmbedInfo:
     def __init__(
         self,
@@ -269,6 +281,7 @@ def main(client, re, mspace):
         """
         Create an embed from given yaml string and send it in the provided channel.
         """
+        yaml = preset_change(yaml, ctx, client)
         if (
             ctx.author.guild_permissions.manage_messages
             or ctx.author.id == SUPER_AUTHOR_ID or ctx.author.permissions_in(channel).send_messages

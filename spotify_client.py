@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 import youtube_dl
 from async_timeout import timeout
 import random
-import discord
+import nextcord as discord
 from discord.ext import commands
 import asyncio
 import aiohttp
