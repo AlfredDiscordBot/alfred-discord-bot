@@ -2597,7 +2597,7 @@ async def memes(ctx):
             link_for_cats += await memes3()
             print("Finished meme3")
         except Exception as e:
-            await channel.send(
+            await ctx.channel.send(
                 embed=cembed(
                     title="Meme issues",
                     description="Something went wrong during importing memes\n"
@@ -2648,7 +2648,7 @@ async def restart_program(ctx, text):
     else:
         await ctx.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar.url))
 
-        await channel.send(embed=cembed(description=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name} from {ctx.guild.name} tried to use restart_program command",color=re[8]))
+        await ctx.channel.send(embed=cembed(description=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name} from {ctx.guild.name} tried to use restart_program command",color=re[8]))
 
 
 
@@ -2987,80 +2987,7 @@ async def on_reaction_add(reaction, user):
                 )
                 await reaction.remove(user)
 
-            if (
-                reaction.emoji
-                in [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
-                and reaction.message.author.id == client.user.id
-            ):
-                global board, available, sent, dictionary
-                if user != client.user:
-                    if sent.id == reaction.message.id:
-                        if reaction.emoji in Emoji_list:
-                            temp_number = 0
-                            for i in range(0, 9):
-                                if reaction.emoji == Emoji_list[i]:
-                                    temp_number = i
-                                    break
-                            global board
-                            board = board.replace(
-                                Raw_Emoji_list[temp_number],
-                                emoji.emojize(":cross_mark:"),
-                            )
-                            await sent.edit(
-                                embed=nextcord.Embed(
-                                    title="Tic Tac Toe by Rahul",
-                                    description=board,
-                                    color=nextcord.Color(value=re[8]),
-                                )
-                            )
-                            await reaction.remove(user)
-                            await reaction.remove(client.user)
-                            available.remove(
-                                emoji.emojize(":keycap_" + str(temp_number + 1) + ":")
-                            )
-                            if len(available) == 0:
-                                result = " "
-                                result = check_win(board)
-                                if result != " ":
-                                    await sent.edit(
-                                        embed=nextcord.Embed(
-                                            title="Tic Tac Toe by Rahul",
-                                            description=result,
-                                            color=nextcord.Color(value=re[8]),
-                                        )
-                                    )
-                                else:
-                                    await sent.edit(
-                                        embed=nextcord.Embed(
-                                            title="Tic Tac Toe by Rahul",
-                                            description="Draw",
-                                            color=nextcord.Color(value=re[8]),
-                                        )
-                                    )
-                            else:
-                                comp_move = choice(available)
-                                board = board.replace(comp_move, O)
-                                await sent.edit(
-                                    embed=nextcord.Embed(
-                                        title="Tic Tac Toe by Rahul",
-                                        description=board,
-                                        color=nextcord.Color(value=re[8]),
-                                    )
-                                )
-                                await sent.remove_reaction(
-                                    dictionary[comp_move], client.user
-                                )
-                                available.remove(comp_move)
-                                result = " "
-                                result = check_win(board)
-                                if result != " ":
-                                    await sent.edit(
-                                        embed=nextcord.Embed(
-                                            title="Tic Tac Toe by Rahul",
-                                            description=result,
-                                            color=nextcord.Color(value=re[8]),
-                                        )
-                                    )
+            
             if reaction.emoji == emoji.emojize(":musical_note:"):
                 
                 if len(queue_song[str(reaction.message.guild.id)]) > 0:
@@ -3898,9 +3825,10 @@ async def on_reaction_add(reaction, user):
 
 @client.event
 async def on_command_error(ctx, error):
-    print(error)
     channel = client.get_channel(dev_channel)
-    await channel.send(embed=cembed(title="Error",description=f"{str(error)} \n{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar.url))
+    await ctx.send(embed=cembed(title="Error",description=f"{str(error)} \n{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar.url))
+    await channel.send(embed=cembed(title="Error",description=f"{str(error.__traceback__.__str__)} \n{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar.url))
+    
 
 @client.command()
 async def yey(ctx):
@@ -3984,7 +3912,7 @@ async def on_message(msg):
 
     await client.process_commands(msg)
     
-    if (not msg.guild.id in observer) and (not msg.author.bot):
+    if (not msg.guild.id in observer) and (not msg.author.bot) and False:
         s = msg.clean_content
         
         whitelist = string.ascii_letters + ' '
@@ -4300,10 +4228,9 @@ async def set_mute_role(ctx,role_for_mute: nextcord.Role):
 
 
 @client.command(aliases=["mu"])
-#@commands.has_guild_permissions(kick_members=True)
-async def mute(ctx, member: nextcord.Member):
+async def mute(ctx, member: nextcord.Member, time=10):
     req()
-    if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.kickmembers:
+    if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.mute_members:
         await ctx.send(
             embed=cembed(
                 title="Permissions Denied",
@@ -4312,21 +4239,22 @@ async def mute(ctx, member: nextcord.Member):
         )
         return
     print("Member id: ", member.id)
-    add_role = None
-    if ctx.guild.id in mute_role:
-        add_role = [i for i in ctx.guild.roles if i.id == mute_role[ctx.guild.id]][0]
-        await member.add_roles(add_role)
-        await ctx.send("Muted " + member.mention)
-    else:
-        add_role = nextcord.utils.get(ctx.guild.roles, name="dunce")
-        await member.add_roles(add_role)
-        await ctx.send("Muted " + member.mention)
+    await member.edit(timeout = datetime.timedelta(minutes = time))
+    await ctx.send(
+        embed=cembed(
+            title="Done",
+            description=f"Unmuted {member.mention}",
+            color=re[8]
+        )
+    )
+
+
 
 
 @client.command(aliases=["um"])
-async def unmute(ctx, member: nextcord.Member):
+async def unmute(ctx, member: nextcord.Member, time=100):
     req()
-    if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.kickmembers:
+    if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.mute_members:
         await ctx.send(
             embed=cembed(
                 title="Permissions Denied",
@@ -4334,16 +4262,16 @@ async def unmute(ctx, member: nextcord.Member):
             )
         )
         return
-    add_role = None
-    if ctx.guild.id in mute_role:
-        add_role = [i for i in ctx.guild.roles if i.id == mute_role[ctx.guild.id]][0]
-        await member.remove_roles(add_role)
-        await ctx.send("Unmuted " + member.mention)
-    else:
-        add_role = nextcord.utils.get(ctx.guild.roles, name="dunce")
-        await member.remove_roles(add_role)
-        await ctx.send("Unmuted " + member.mention)
-        print(member, "unmuted")
+    print("Member id: ", member.id)
+    await member.edit(timeout = None)
+    await ctx.send(
+        embed=cembed(
+            title="Done",
+            description=f"Unmuted {member.mention}",
+            color=re[8]
+        )
+    )
+    
 
 client.remove_command("help")
 

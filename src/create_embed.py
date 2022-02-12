@@ -29,12 +29,12 @@ author: True/False
 
 def preset_change(text, ctx, client):
     presets = {
-        'server-icon' : f'"{ctx.guild.icon_url}"',
-        'author-icon' : f'"{ctx.author.avatar.url}"',
-        'bot-icon' : f'"{client.user.avatar.url}"'
+        '<server-icon>' : f'"{ctx.guild.icon.url}"',
+        '<author-icon>' : f'"{ctx.author.avatar.url}"',
+        '<bot-icon>' : f'"{client.user.avatar.url}"'
     }
     for i in presets:
-        text=text.replace(presets[i])
+        text=text.replace(i, presets[i])
     return text
 
     
@@ -198,7 +198,7 @@ def embed_from_dict(info: dict, ctx_author=None) -> discord.Embed:
     if author := info.get("author", None):
       if isinstance(author, bool):
         if author == True:
-            embed.set_author(name=ctx_author.name, icon_url=ctx_author.avatar_url)
+            embed.set_author(name=ctx_author.name, icon_url=ctx_author.avatar.url)
         elif type(author) == str and validate_url(author):
             embed.set_author(icon_url=author)
         elif type(author) == str:
