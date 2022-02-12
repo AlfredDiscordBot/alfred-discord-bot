@@ -439,11 +439,11 @@ async def get_pfp(ctx, member:nextcord.Member=None):
     
     if member is None:
         embed = nextcord.Embed(title="Profile Picture : {}".format(getattr(ctx, 'author', getattr(ctx, 'user', None)).name), color=re[8])
-        embed.set_image(url=getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar_url)
+        embed.set_image(url=getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar.url)
     
     else:
         embed = nextcord.Embed(title="Profile Picture : {}".format(member.name), color=re[8])
-        embed.set_image(url=member.avatar_url)
+        embed.set_image(url=member.avatar.url)
     
     await ctx.send(embed=embed)
 
@@ -875,7 +875,7 @@ async def uemoji(ctx, emoji_name, number=0):
         emoji = [names for names in client.emojis if names.name == emoji_name][number]
         webhook = await ctx.channel.create_webhook(name=getattr(ctx, 'author', getattr(ctx, 'user', None)).name)
         await webhook.send(
-            emoji, username=getattr(ctx, 'author', getattr(ctx, 'user', None)).name, avatar_url=getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar_url
+            emoji, username=getattr(ctx, 'author', getattr(ctx, 'user', None)).name, avatar_url=getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar.url
         )
         await webhook.delete()
 
@@ -2552,6 +2552,7 @@ async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Ques
                 footer="There's also a slash command if you feel this is uncomfortable"
             )
         )
+        return
     await ctx.send("Sending Poll")
     text = Question+"\n\n"
     Options = Options.split("|")
@@ -3793,8 +3794,9 @@ async def on_reaction_add(reaction, user):
 @client.event
 async def on_command_error(ctx, error):
     channel = client.get_channel(dev_channel)
+    print(error.with_traceback(error.__traceback__))
     await ctx.send(embed=cembed(title="Error",description=f"{str(error)} \n{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar.url))
-    await channel.send(embed=cembed(title="Error",description=f"{str(error.__traceback__.__str__)} \n{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar.url))
+    await channel.send(embed=cembed(title="Error",description=f"{traceback.format_tb(error.__traceback__)} \n{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar.url))
     
 
 @client.command()
@@ -4193,51 +4195,6 @@ async def set_mute_role(ctx,role_for_mute: nextcord.Role):
     else:
         await ctx.send(embed=cembed(title="Permissions Denied",description="You need to be an admin to set mute role",color=re[8]))
 
-
-@client.command(aliases=["mu"])
-async def mute(ctx, member: nextcord.Member, time=10):
-    req()
-    if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.mute_members:
-        await ctx.send(
-            embed=cembed(
-                title="Permissions Denied",
-                description = "You dont have enough permission to execute this command"
-            )
-        )
-        return
-    print("Member id: ", member.id)
-    await member.edit(timeout = datetime.timedelta(minutes = time))
-    await ctx.send(
-        embed=cembed(
-            title="Done",
-            description=f"Unmuted {member.mention}",
-            color=re[8]
-        )
-    )
-
-
-
-
-@client.command(aliases=["um"])
-async def unmute(ctx, member: nextcord.Member, time=100):
-    req()
-    if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.mute_members:
-        await ctx.send(
-            embed=cembed(
-                title="Permissions Denied",
-                description = "You dont have enough permission to execute this command"
-            )
-        )
-        return
-    print("Member id: ", member.id)
-    await member.edit(timeout = None)
-    await ctx.send(
-        embed=cembed(
-            title="Done",
-            description=f"Unmuted {member.mention}",
-            color=re[8]
-        )
-    )
     
 
 client.remove_command("help")

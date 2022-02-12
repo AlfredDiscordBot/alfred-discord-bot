@@ -4,6 +4,8 @@ def requirements():
 
 def main(client, re):
     import nextcord as discord
+    import datetime
+    import External_functions as ef
 
     @client.command(aliases=["ban"])
     async def ban_member(ctx, member: discord.Member, *, reason=None):
@@ -44,3 +46,47 @@ def main(client, re):
                     color=discord.Color(value=re[8]),
                 )
             )
+    @client.command(aliases=["mu"])
+    async def mute(ctx, member: discord.Member, time=10):
+        re[0]+=1
+        if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.mute_members:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description = "You dont have enough permission to execute this command"
+                )
+            )
+            return
+        print("Member id: ", member.id)
+        await member.edit(timeout = datetime.timedelta(minutes = time))
+        await ctx.send(
+            embed=ef.cembed(
+                title="Done",
+                description=f"Muted {member.mention}",
+                color=re[8]
+            )
+        )
+
+
+
+
+    @client.command(aliases=["um"])
+    async def unmute(ctx, member: discord.Member, time=100):
+        re[0]+=1
+        if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.mute_members:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description = "You dont have enough permission to execute this command"
+                )
+            )
+            return
+        print("Member id: ", member.id)
+        await member.edit(timeout = None)
+        await ctx.send(
+            embed=ef.cembed(
+                title="Done",
+                description=f"Unmuted {member.mention}",
+                color=re[8]
+            )
+        )

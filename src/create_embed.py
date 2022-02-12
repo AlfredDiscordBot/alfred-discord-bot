@@ -3,6 +3,7 @@ from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 from compile import filter_graves
 from yaml import safe_load
+import traceback
 import External_functions as ef
 
 SUPER_AUTHOR_ID = 432801163126243328  # Do Not CHange
@@ -185,9 +186,8 @@ def embed_from_dict(info: dict, ctx_author=None) -> discord.Embed:
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
 
     info["color"] = get_color(info.get("color", None))
-    # print(info)
-
-    embed = discord.Embed(**info)
+    if info['color']: info['color']=info['color'].value
+    embed = ef.cembed(**info)
 
     if image := info.get("image", None):
         set_url(embed.set_image, image)
@@ -219,7 +219,7 @@ def embed_from_dict(info: dict, ctx_author=None) -> discord.Embed:
 def embed_from_yaml(yaml: str, ctx_author):
     info = safe_load(yaml)
     print(
-        f"Creating Emebed for: '{ctx_author.name}' aka '{ctx_author.nick}' in '{ctx_author.guild}'"
+        f"Creating Embed for: '{ctx_author.name}' aka '{ctx_author.nick}' in '{ctx_author.guild}'"
     )
     return embed_from_dict(info, ctx_author)
 
@@ -229,7 +229,7 @@ def requirements() -> str:
     """
     Returns the requirements of the main function.
     """
-    return ["re","mspace"]
+    return ["re","mspace","dev_channel"]
 
 
 def embed_from_info(info: EmbedInfo) -> discord.Embed:
@@ -249,7 +249,7 @@ def embed_from_info(info: EmbedInfo) -> discord.Embed:
     return embed
 
 
-def main(client, re, mspace):
+def main(client, re, mspace, dev_channel):
     embeds = {}
 
     def quick_embed(description: str) -> discord.Embed:
@@ -280,30 +280,45 @@ def main(client, re, mspace):
     ):
         """
         Create an embed from given yaml string and send it in the provided channel.
-        """
-        yaml = preset_change(yaml, ctx, client)
-        if (
-            ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == SUPER_AUTHOR_ID or ctx.author.permissions_in(channel).send_messages
-        ):
-            if not channel:
-                channel = ctx.channel  # set default channel to current
+        """        
+        try:
+            if yaml: yaml = preset_change(yaml, ctx, client)
+            if (
+                ctx.author.guild_permissions.manage_messages
+                or ctx.author.id == SUPER_AUTHOR_ID or ctx.author.permissions_in(channel).send_messages
+            ):
+                if not channel:
+                    channel = ctx.channel  # set default channel to current
 
-            if (send_channel := client.get_channel(channel.id)) != None:
-                embed = (
-                    embed_from_yaml(filter_graves(yaml), ctx.author)
-                    if yaml
-                    else quick_embed("Nothing to embed")
-                )
-                await send_channel.send(embed=embed)
-            else:
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="Oops",
-                        description="This channel does not exist. Please check again",
-                        color=discord.Color(value=re[8]),
+                if (send_channel := client.get_channel(channel.id)) != None:
+                    embed = (
+                        embed_from_yaml(filter_graves(yaml), ctx.author)
+                        if yaml
+                        else quick_embed("Nothing to embed")
                     )
-                )
+                    await send_channel.send(embed=embed)
+                else:
+                    await ctx.send(
+                        embed=discord.Embed(
+                            title="Oops",
+                            description="This channel does not exist. Please check again",
+                            color=discord.Color(value=re[8]),
+                        )
+                    )
+        except:
+            embed=ef.cembed(
+                title="Error in yml embed",
+                description=f"{traceback.format_exc()}",
+                color=re[8],
+                footer="Reporting this to the developer"
+            )
+            await ctx.send(
+                embed=embed
+            )
+            await client.get_channel(dev_channel).send(
+                embed=embed
+            )
+
     @client.command()
     async def myspace(ctx, member :discord.Member = None):
         if not member:
