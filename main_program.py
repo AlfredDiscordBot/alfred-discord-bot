@@ -12,6 +12,7 @@ mysql=
 default=
 dev=
 """
+from tkinter.messagebox import QUESTION
 from keep_alive import keep_alive
 import string
 import pickle
@@ -1082,75 +1083,6 @@ async def load(ctx):
         embed.set_thumbnail(url=client.user.avatar.url)
         await channel.send(embed=embed)
 
-
-@client.command()
-async def poll(ctx, options, channel_to_send: nextcord.TextChannel = None, *, question):
-    count = {}
-    req()
-    author_list = {}
-    names = {}
-    channel = channel_to_send
-    print(type(channel_to_send))
-    if type(channel_to_send) == str:
-        channel = ctx.channel
-        question = channel_to_send + question
-    if ctx.guild.id == 858955930431258624:
-        channel = ctx.channel
-
-    options = options.replace("_", " ").split("|")
-    components = []
-    for i in options:
-        components.append(
-            Button(style=random.choice([ButtonStyle.green, ButtonStyle.blue]), label=i)
-        )
-        count[i] = 0
-    await ctx.send("Done")
-    mess = await channel.send(
-        embed=cembed(
-            title=f"Poll from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}",
-            description=f"```yaml\n{question}```",
-            color=re[8],
-            thumbnail=client.user.avatar.url,
-        ),
-        components=[components],
-    )
-
-    def check(res):
-        return mess.id == res.message.id
-
-    while True:
-        res = await client.wait_for("button_click", check=check)
-        if res.component.label in count and res.author.id not in author_list:
-            author_list[res.author.id] = res.component.label
-            count[res.component.label] += 1
-        else:
-            count[author_list[res.author.id]] -= 1
-            count[res.component.label] += 1
-            author_list[res.author.id] = res.component.label
-        description = question + "\n\n"
-        avg = sum(list(count.values())) // len(options)
-        avg = 1 if avg == 0 else avg
-        copy_count = equalise(list(count.keys()))
-        for i in list(count.keys()):
-            description += f"{copy_count[i]} |" + chr(9606) * (count[i] // avg) + "\n"
-        _ = [
-            names.update({i: client.get_user(i).name})
-            for i in author_list
-            if i not in names
-        ]
-        people = "\n" + "\n".join([names[i] for i in author_list])
-        st = "\n"
-        for i in list(count.keys()):
-            st += f"{copy_count[i]}:  {(count[i]*100)//len(author_list)}%\n"
-        people = st + "\n" + people
-        await res.edit_origin(
-            embed=cembed(
-                title=f"Poll from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}",
-                description=f"```yaml\n{description}```" + "\n" + people,
-                color=re[8],
-                thumbnail=client.user.avatar.url,
-            )
-        )
 
 
 @client.slash_command(name="pr", description="Prints what you ask it to print")
@@ -2608,6 +2540,41 @@ async def memes(ctx):
             )
     await ctx.send(choice(link_for_cats))
     save_to_file()
+
+@client.command()
+async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Question = ""):
+    if Options == "":
+        await ctx.send(
+            embed=cembed(
+                title="Here's how you should do it",
+                description="First give the options seperated with `|`(make sure there's no space when writing the options), then mention the channel and write down the question",
+                color=re[8],
+                footer="There's also a slash command if you feel this is uncomfortable"
+            )
+        )
+    await ctx.send("Sending Poll")
+    text = Question+"\n\n"
+    Options = Options.split("|")
+    for i in range(len(Options)):
+        text+=f"{emoji.emojize(f':keycap_{i+1}:')} : {Options[i]}:\n"
+
+    message = await channel.send(
+        embed=cembed(
+            title="Poll",
+            description=text,
+            color=re[8],
+            footer=f"from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}"
+        )
+    )
+    
+    for i in range(len(Options)): await message.add_reaction(emoji.emojize(f":keycap_{i+1}:"))
+
+    await ctx.send("Poll sent")
+
+@client.slash_command(name="Polling command", description="Seperate options with |")
+async def polling_slash(ctx, Options = "", channel = None, Question = ""):
+    await poll(ctx, Options = Options, channel = channel, Question = Question)
+
 
 
 @client.command(aliases=["!"])
