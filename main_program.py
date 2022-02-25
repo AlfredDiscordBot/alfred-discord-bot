@@ -12,7 +12,6 @@ mysql=
 default=
 dev=
 """
-from tkinter.messagebox import QUESTION
 from keep_alive import keep_alive
 import string
 import pickle
@@ -1352,7 +1351,7 @@ async def docs(ctx, name):
         )
 
 
-@client.slash_command(name="Snipe", description="Get the last few deleted messages")
+@client.slash_command(name="snipe", description="Get the last few deleted messages")
 async def snipe_slash(ctx, number=0):
     req()
     
@@ -2572,9 +2571,9 @@ async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Ques
 
     await ctx.send("Poll sent")
 
-@client.slash_command(name="Polling command", description="Seperate options with |")
-async def polling_slash(ctx, Options = "", channel = None, Question = ""):
-    await poll(ctx, Options = Options, channel = channel, Question = Question)
+@client.slash_command(name="polling", description="Seperate options with |")
+async def polling_slash(ctx, options = "", channel = None, question = ""):
+    await poll(ctx, Options = options, channel = channel, Question = question)
 
 
 
@@ -3794,6 +3793,7 @@ async def on_reaction_add(reaction, user):
 @client.event
 async def on_command_error(ctx, error):
     channel = client.get_channel(dev_channel)
+    print(error)
     print(error.with_traceback(error.__traceback__))
     await ctx.send(embed=cembed(title="Error",description=f"{str(error)} \n{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar.url))
     await channel.send(embed=cembed(title="Error",description=f"{traceback.format_tb(error.__traceback__)} \n{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar.url))
