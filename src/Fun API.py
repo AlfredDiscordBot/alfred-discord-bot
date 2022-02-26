@@ -190,7 +190,6 @@ def main(client, re):
         li = []
         print(text, str(ctx.author))
         for i in search(text, num=5, stop=5, pause=0):
-             # https://render-tron.appspot.com/screenshot/https://discord.com/?width=1458&height=690
             embed = ef.cembed(title="Google",
                               color=re[8],
                               thumbnail=client.user.avatar_url_as(
@@ -199,6 +198,13 @@ def main(client, re):
             embed.url = i
             li.append(embed)
         await pa1(li, ctx)
+
+    @client.slash_command(name = "screenshot",description = "Takes a screenshot of the website")
+    async def screenshot(ctx, url):
+        fp = await ef.get_async(f"https://render-tron.appspot.com/screenshot/{ef.convert_to_url(url)}/?width=600&height=400")
+        file = discord.File(fp, filename="image.png")
+        print(url)
+        await ctx.send(file = file)
 
     @client.command()
     async def lyrics(ctx, *, song):

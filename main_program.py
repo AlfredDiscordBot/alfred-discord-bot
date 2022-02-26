@@ -1,6 +1,8 @@
 def temporary_fix():
     from shutil import copyfile
-    copyfile("./post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
+    copyfile("./utils/post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
+import sys
+sys.path.insert(1,"./utils/")
 
 #temporary_fix()
 """
@@ -16,7 +18,7 @@ from keep_alive import keep_alive
 import string
 import pickle
 import nextcord
-import helping_hand
+from utils import helping_hand
 from random import choice
 from nextcord import Interaction
 from nextcord.ext import commands, tasks
@@ -26,10 +28,10 @@ from dotenv import load_dotenv
 from math import *
 from statistics import *
 from wikipedia import search, summary
-from Storage_facility import Variables
+from utils.Storage_facility import Variables
 from io import StringIO
 from contextlib import redirect_stdout
-from External_functions import *
+from utils.External_functions import *
 #from discord_components import *
 import traceback
 import googlesearch
@@ -40,7 +42,6 @@ import urllib.request
 import requests
 import ffmpeg
 import time
-import sys
 import emoji
 import psutil
 import asyncio
@@ -48,7 +49,7 @@ import cloudscraper
 import requests
 import aiohttp
 from io import BytesIO
-from spotify_client import *
+from utils.spotify_client import *
 
 location_of_file = os.getcwd()
 try:
@@ -305,10 +306,12 @@ async def on_ready():
     dev_loop.start()
     print("Prepared")
     youtube_loop.start()
+    send_file_loop.start()
 
 @tasks.loop(hours=2)
 async def send_file_loop():
-    await 
+    await client.get_channel(941601738815860756).send(file=nextcord.File("backup.dat",filename="backup.dat"))
+    
 @tasks.loop(minutes=10)
 async def youtube_loop():
     await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.watching, name=str(len(client.guilds))+" servers"))
@@ -371,6 +374,10 @@ async def svg(ctx, *, url):
 
 
 @dev_loop.before_loop
+async def wait_for_ready():
+    await client.wait_until_ready()
+
+@send_file_loop.before_loop
 async def wait_for_ready():
     await client.wait_until_ready()
 
@@ -1133,36 +1140,7 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
             await pa1(embeds, ctx)
         else:
             await ctx.send(embed=cembed(title=a[0], color=re[8], description=a[1]))
-
-
-async def pa(embeds, ctx, start_from=0):
-    message = await ctx.send(
-        embed=embeds[start_from],
-        components=[
-            [
-                Button(style=ButtonStyle.green, label="<"),
-                Button(style=ButtonStyle.green, label=">"),
-            ]
-        ],
-    )
-    pag = start_from
-
-    def check(res):
-        return message.id == res.message.id
-
-    while True:
-        try:
-            res = await client.wait_for("button_click", check=check)
-            if res.component.label == ">" and pag + 1 != len(embeds):
-                pag += 1
-                await res.edit_origin(embed=embeds[pag])
-            elif res.component.label == "<" and pag != 0:
-                pag -= 1
-                await res.edit_origin(embed=embeds[pag])
-
-        except asyncio.TimeoutError:
-            break
-
+            
 
 async def pa1(embeds, ctx, start_from=0):
     message = await ctx.send(embed=embeds[start_from])
@@ -1180,7 +1158,7 @@ async def pa1(embeds, ctx, start_from=0):
     while True:
         try:
             reaction, user = await client.wait_for(
-                "reaction_add", timeout=360, check=check
+                "reaction_add", timeout=720, check=check
             )            
             if str(reaction.emoji) == "▶️" and pag + 1 != len(embeds):
                 pag += 1
@@ -1190,7 +1168,7 @@ async def pa1(embeds, ctx, start_from=0):
                 await message.edit(embed=embeds[pag])
             await message.remove_reaction(reaction, user)
         except asyncio.TimeoutError:
-            break
+            await message.delete()
 
 
 @client.command(aliases=["c"])
@@ -2879,33 +2857,20 @@ async def on_reaction_add(reaction, user):
                     (pages[reaction.message] * 10) + 10,
                 ):
                     try:
-                        if (
-                            not queue_song[str(reaction.message.guild.id)][i]
-                            in da1.keys()
-                        ):
-                            da1[
-                                queue_song[str(reaction.message.guild.id)][i]
-                            ] = youtube_info(
-                                queue_song[str(reaction.message.guild.id)][i]
-                            )[
-                                "title"
-                            ]
-                        st = (
-                            st
-                            + str(i)
-                            + ". "
-                            + da1[queue_song[str(reaction.message.guild.id)][i]]
-                            + "\n"
-                        )
+                        song = queue_song[str(reaction.message.guild.id)][i]
+                        if song not in da1.keys():
+                            da1[song] = youtube_info(song)["title"]
+                        st = f"{st}{i}. {da1[song]}\n"
                     except Exception as e:
                         print(e)
+                    
                 await reaction.message.edit(
                     embed=nextcord.Embed(
                         title="Queue",
                         description=st,
                         color=nextcord.Color(value=re[8]),
+                        )
                     )
-                )
                 await reaction.remove(user)            
             if (
                 reaction.emoji == emoji.emojize(":downwards_button:")
@@ -2930,25 +2895,13 @@ async def on_reaction_add(reaction, user):
                     (pages[reaction.message] * 10) + 10,
                 ):
                     try:
-                        if not queue_song[str(reaction.message.guild.id)][i] in list(
-                            da1.keys()
-                        ):
-                            da1[
-                                queue_song[str(reaction.message.guild.id)][i]
-                            ] = youtube_info(
-                                queue_song[str(reaction.message.guild.id)][i]
-                            )[
-                                "title"
-                            ]
-                        st = (
-                            st
-                            + str(i)
-                            + ". "
-                            + da1[queue_song[str(reaction.message.guild.id)][i]]
-                            + "\n"
-                        )
+                        song = queue_song[str(reaction.message.guild.id)][i]
+                        if song not in da1.keys():
+                            da1[song] = youtube_info(song)["title"]
+                        st = f"{st}{i}. {da1[song]}\n"
                     except Exception as e:
                         print(e)
+                        
                 if st == "":
                     st = "End of queue"
                 await reaction.message.edit(
@@ -2961,29 +2914,17 @@ async def on_reaction_add(reaction, user):
                 await reaction.remove(user)
 
             
-            if reaction.emoji == emoji.emojize(":musical_note:"):
-                
+            if reaction.emoji == emoji.emojize(":musical_note:"):               
                 if len(queue_song[str(reaction.message.guild.id)]) > 0:
-                    description = (
-                        "[Current index: "
-                        + str(re[3][str(reaction.message.guild.id)])
-                        + "]("
-                        + queue_song[str(reaction.message.guild.id)][
-                            re[3][str(reaction.message.guild.id)]
-                        ]
-                        + ")\n"
-                    )
-                    info = youtube_info(
-                        queue_song[str(reaction.message.guild.id)][
-                            re[3][str(reaction.message.guild.id)]
-                        ]
-                    )
+                    index = re[3][str(reaction.message.guild.id]
+                    song = queue_song[str(reaction.message.guild.id)][index]
+                    description = f"[Current index: {index}]({song})\n"
+                    info = youtube_info(song)
                     check = "\n\nDescription: \n" + info["description"] + "\n"
                     if len(check) < 3000 and len(check) > 0:
                         description += check
                     description += (
-                        "\nDuration: "
-                        + str(info["duration"] // 60)
+                        "\nDuration: {str(info['duration'] // 60)} min "
                         + "min "
                         + str(info["duration"] % 60)
                         + "sec"
@@ -3011,184 +2952,7 @@ async def on_reaction_add(reaction, user):
                             description="Your queue is currently empty",
                             color=nextcord.Color(value=re[8]),
                         )
-                    )
-            if reaction.emoji == nextcord.utils.get(client.emojis, name="blue_down"):
-                if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
-                ):
-                    
-                    temp_tup = color_temp
-                    if temp_tup[2] - 25 >= 0:
-                        re[8] = nextcord.Color.from_rgb(
-                            int(temp_tup[0]),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]) - 25,
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0]),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]) - 25,
-                        )
-                    else:
-                        re[8] = nextcord.Color.from_rgb(
-                            int(temp_tup[0]), int(temp_tup[1]), 0
-                        ).value
-                        color_temp = (int(temp_tup[0]), int(temp_tup[1]), 0)
-                    embed = nextcord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=nextcord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
-                    await reaction.remove(user)
-            if reaction.emoji == nextcord.utils.get(client.emojis, name="green_down"):
-                if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
-                ):
-                    
-                    temp_tup = color_temp
-                    if temp_tup[1] - 25 >= 0:
-                        re[8] = nextcord.Color.from_rgb(
-                            int(temp_tup[0]),
-                            int(temp_tup[1] - 25),
-                            int(temp_tup[2]),
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0]),
-                            int(temp_tup[1] - 25),
-                            int(temp_tup[2]),
-                        )
-                    else:
-                        re[8] = nextcord.Color.from_rgb(
-                            int(temp_tup[0]), 0, int(temp_tup[2])
-                        ).value
-                        color_temp = (int(temp_tup[0]), 0, int(temp_tup[2]))
-                    embed = nextcord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=nextcord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
-                    await reaction.remove(user)
-            if reaction.emoji == emoji.emojize(":red_triangle_pointed_down:"):
-                if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
-                ):
-                    
-                    temp_tup = color_temp
-                    if temp_tup[0] - 25 >= 0:
-                        re[8] = nextcord.Color.from_rgb(
-                            int(temp_tup[0] - 25),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]),
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0] - 25),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]),
-                        )
-                    else:
-                        re[8] = nextcord.Color.from_rgb(
-                            0, int(temp_tup[1]), int(temp_tup[2])
-                        ).value
-                        color_temp = (0, int(temp_tup[1]), int(temp_tup[2]))
-                    embed = nextcord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=nextcord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
-                    await reaction.remove(user)
-            if reaction.emoji == nextcord.utils.get(client.emojis, name="blue_up"):
-                if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
-                ):
-                    await reaction.remove(user)
-                    temp_tup = color_temp
-                    if temp_tup[2] + 25 <= 255:
-                        re[8] = nextcord.Color.from_rgb(
-                            int(temp_tup[0]),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]) + 25,
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0]),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]) + 25,
-                        )
-                    else:
-                        re[8] = nextcord.Color.from_rgb(
-                            int(temp_tup[0]), int(temp_tup[1]), 255
-                        ).value
-                        color_temp = (int(temp_tup[0]), int(temp_tup[1]), 255)
-                    embed = nextcord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=nextcord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
-            if reaction.emoji == nextcord.utils.get(client.emojis, name="green_up"):
-                if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
-                ):
-                    await reaction.remove(user)
-                    temp_tup = color_temp
-                    if temp_tup[1] + 25 <= 255:
-                        re[8] = nextcord.Color.from_rgb(
-                            int(temp_tup[0]),
-                            int(temp_tup[1] + 25),
-                            int(temp_tup[2]),
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0]),
-                            int(temp_tup[1] + 25),
-                            int(temp_tup[2]),
-                        )
-                    else:
-                        re[8] = nextcord.Color.from_rgb(
-                            int(temp_tup[0]), 255, int(temp_tup[2])
-                        ).value
-                        color_temp = (int(temp_tup[0]), 255, int(temp_tup[2]))
-                    embed = nextcord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=nextcord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
-            if reaction.emoji == emoji.emojize(":red_triangle_pointed_up:"):
-                if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
-                ):
-                    await reaction.remove(user)
-                    temp_tup = color_temp
-                    if temp_tup[0] + 25 <= 255:
-                        re[8] = nextcord.Color.from_rgb(
-                            int(temp_tup[0] + 25),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]),
-                        ).value
-                        color_temp = (
-                            int(temp_tup[0] + 25),
-                            int(temp_tup[1]),
-                            int(temp_tup[2]),
-                        )
-                    else:
-                        re[8] = nextcord.Color.from_rgb(
-                            255, int(temp_tup[1]), int(temp_tup[2])
-                        ).value
-                        color_temp = (255, int(temp_tup[1]), int(temp_tup[2]))
-                    embed = nextcord.Embed(
-                        title="New Color",
-                        description=str(color_temp),
-                        color=nextcord.Color(value=re[8]),
-                    )
-                    await color_message.edit(embed=embed)
+                    )            
             if reaction.emoji == "⏮":
                 if (
                     str(user) != str(client.user)

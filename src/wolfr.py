@@ -1,5 +1,5 @@
 from wolframalpha import *
-
+import External_functions as ef
 
 def requirements():
     return [
@@ -47,22 +47,23 @@ def main(client, re, AiD, dev_channel):
             return (embed, None)
 
     @client.command()
-    async def wolf(ctx, *, question):
+    async def wolf(ctx, *, question=""):
         out = get_answer1(question)
         await ctx.send(embed=out[0], file=out[1])
+        if 'output.png' in os.listdir(): os.remove("output.png")
 
     def get_answer1(question=""):
         if question == "":
-            embed = nextcord.Embed(
+            embed = ef.cembed(
                 title="Oops",
                 description="You need to enter a question",
                 color=nextcord.Color(value=re[8]),
+                thumbnail = client.user.avatar.url
             )
-            embed.set_thumbnail(url=client.user.avatar.url)
             return (embed, None)
         else:
             question = urllib.parse.quote(question)
-            a = requests.get(
+            a = await get_async(
                 f"http://api.wolframalpha.com/v1/simple?appid={AiD}&i={question}&layout=labelbar&width=1500"
             ).content
             file = open("output.png", "wb")
