@@ -2916,7 +2916,7 @@ async def on_reaction_add(reaction, user):
             
             if reaction.emoji == emoji.emojize(":musical_note:"):               
                 if len(queue_song[str(reaction.message.guild.id)]) > 0:
-                    index = re[3][str(reaction.message.guild.id]
+                    index = re[3][str(reaction.message.guild.id)]
                     song = queue_song[str(reaction.message.guild.id)][index]
                     description = f"[Current index: {index}]({song})\n"
                     info = youtube_info(song)
@@ -2925,7 +2925,7 @@ async def on_reaction_add(reaction, user):
                         description += check
                     description += (
                         f"\nDuration: {str(info['duration'] // 60)} min "
-                        + f"{str(info["duration"] % 60) sec"
+                        + f"{info['duration'] % 60} sec"
                         + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n"
                     )
                     await reaction.message.edit(
