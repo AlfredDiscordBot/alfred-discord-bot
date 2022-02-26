@@ -3885,7 +3885,7 @@ async def on_message(msg):
 
     await client.process_commands(msg)
     
-    if (not msg.guild.id in observer) and (not msg.author.bot) and False:
+    if (not msg.guild.id in observer) and (not msg.author.bot):
         s = msg.clean_content
         
         whitelist = string.ascii_letters + ' '

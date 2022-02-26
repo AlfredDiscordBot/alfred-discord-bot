@@ -258,6 +258,11 @@ def main(client, re, mspace, dev_channel):
             color=discord.Color(value=re[8]),
         )
 
+    @client.slash_command(name = "quickembed",description="Just type in text and it will embed for you")
+    async def qembed(ctx, text):
+        await ctx.send(embed=quick_embed(text))
+
+        
     @client.command(aliases=["init_embed", "embed_init"])
     async def create_embed_init(ctx):
         re[0] += 1
