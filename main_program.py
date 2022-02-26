@@ -325,7 +325,7 @@ async def youtube_loop():
             old_youtube_vid[i][j[0]] = a[0]
             try:
                 message=j[1]
-                await client.get_channel(i).send(embed=cembed(title="New Video out", description=f"New Video from {j[0]}",url=a[0],color=re[8],thumbnail=client.get_channel(i).guild.icon_url))
+                await client.get_channel(i).send(embed=cembed(title="New Video out", description=f"New Video from {j[0]}",url=a[0],color=re[8],thumbnail=client.get_channel(i).guild.icon.url))
                 await client.get_channel(i).send(a[0]+"\n"+message)
             except Exception as e:
                 await client.get_channel(dev_channel).send(embed=cembed(title="Error in youtube_loop",description=f"{str(e)}\nSomething is wrong with channel no. {i}",color=re[8]))
@@ -2575,6 +2575,10 @@ async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Ques
 async def polling_slash(ctx, options = "", channel = None, question = ""):
     await poll(ctx, Options = options, channel = channel, Question = question)
 
+@client.slash_command(name="eval",description="This is only for developers",guild_ids= [822445271019421746])
+async def eval_slash(ctx,text):
+    await python_shell(ctx, text = text)
+
 
 
 @client.command(aliases=["!"])
@@ -4050,39 +4054,34 @@ async def python_shell(ctx, *, text):
     print("Python Shell", text, str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
     global dev_users
     if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in dev_users:
-        if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).guild.id) != "727061931373887531":
-            try:
-                text = text.replace("```py", "")
-                text = text.replace("```", "")
-                a = eval(text)
-                print(text)
-                em = nextcord.Embed(
-                    title=text,
-                    description=text + "=" + str(a),
-                    color=nextcord.Color(value=re[8]),
-                )
-                em.set_thumbnail(
-                    url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
-                )
-                await ctx.send(embed=em)
-            except Exception as e:
-                await ctx.send(
-                    embed=nextcord.Embed(
-                        title="Error_message",
-                        description=str(e),
-                        color=nextcord.Color(value=re[8]),
-                    )
-                )
-        else:
+        try:
+            text = text.replace("```py", "")
+            text = text.replace("```", "")
+            a = eval(text)
+            print(text)
+            em = nextcord.Embed(
+                title=text,
+                description=text + "=" + str(a),
+                color=nextcord.Color(value=re[8]),
+            )
+            em.set_thumbnail(
+                url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
+            )
+            await ctx.send(embed=em)
+        except Exception as e:
             await ctx.send(
                 embed=nextcord.Embed(
-                    title="Banned",
-                    description="You've been banned from using python shell",
+                    title="Error_message",
+                    description=str(e),
                     color=nextcord.Color(value=re[8]),
                 )
             )
+        
     else:
-        await ctx.message.delete()
+        try:
+            await ctx.message.delete()
+        except:
+            pass
         await ctx.send(
             embed=nextcord.Embed(
                 title="Permission denied",

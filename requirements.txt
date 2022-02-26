@@ -32,7 +32,7 @@ lxml==4.7.1
 MarkupSafe==2.0.1
 more-itertools==8.12.0
 multidict==5.1.0
-nextcord==2.0.0a7
+nextcord==2.0.0a8
 orjson==3.6.3
 packaging==21.3
 pluggy==0.13.1
