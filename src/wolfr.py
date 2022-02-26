@@ -52,7 +52,7 @@ def main(client, re, AiD, dev_channel):
         await ctx.send(embed=out[0], file=out[1])
         if 'output.png' in os.listdir(): os.remove("output.png")
 
-    def get_answer1(question=""):
+    async def get_answer1(question=""):
         if question == "":
             embed = ef.cembed(
                 title="Oops",
@@ -63,7 +63,7 @@ def main(client, re, AiD, dev_channel):
             return (embed, None)
         else:
             question = urllib.parse.quote(question)
-            a = await get_async(
+            a = await ef.get_async(
                 f"http://api.wolframalpha.com/v1/simple?appid={AiD}&i={question}&layout=labelbar&width=1500"
             ).content
             file = open("output.png", "wb")

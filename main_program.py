@@ -1,6 +1,8 @@
 def temporary_fix():
     from shutil import copyfile
     copyfile("./utils/post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
+    
+import os
 import sys
 sys.path.insert(1,f"{os.getcwd()}/utils/")
 
@@ -36,7 +38,6 @@ from utils.External_functions import *
 import traceback
 import googlesearch
 import youtube_dl
-import os
 import re as regex
 import urllib.request
 import requests
