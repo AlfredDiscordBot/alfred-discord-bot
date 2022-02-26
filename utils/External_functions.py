@@ -15,6 +15,7 @@ import urllib.parse
 import urllib
 import aiohttp
 import traceback
+import aiofiles
 
 ydl_op = {
     "format": "bestaudio/best",
@@ -485,7 +486,7 @@ async def get_name(url):
         .replace("&#39;", "'")
     )
 
-async def get_async(url,headers = {},kind = "content"):
+async def get_async(url, headers = {}, kind = "content"):
     '''
     Simple Async get request
     '''
@@ -495,12 +496,18 @@ async def get_async(url,headers = {},kind = "content"):
             if True:
                 if kind == "json":                
                     output = await resp.json()
+                elif kind.startswith("file>"):
+                    f = await aiofiles.open(kind[5:], mode = "wb")
+                    await f.write(await resp.read())
+                    await f.close()
                 else:
                     output = await resp.text()
+                
             else:
                 output = None
         await session.close()
     return output
+
 
 async def post_async(api, header = {}, json = {}):
     async with aiohttp.ClientSession() as session:

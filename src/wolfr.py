@@ -48,7 +48,7 @@ def main(client, re, AiD, dev_channel):
 
     @client.command()
     async def wolf(ctx, *, question=""):
-        out = get_answer1(question)
+        out = await get_answer1(question)
         await ctx.send(embed=out[0], file=out[1])
         if 'output.png' in os.listdir(): os.remove("output.png")
 
@@ -64,11 +64,8 @@ def main(client, re, AiD, dev_channel):
         else:
             question = urllib.parse.quote(question)
             a = await ef.get_async(
-                f"http://api.wolframalpha.com/v1/simple?appid={AiD}&i={question}&layout=labelbar&width=1500"
-            ).content
-            file = open("output.png", "wb")
-            file.write(a)
-            file.close()
+                f"http://api.wolframalpha.com/v1/simple?appid={AiD}&i={question}&layout=labelbar&width=1500",kind="file>output.png"
+            )
             embed = nextcord.Embed(
                 title="Wolfram",
                 description="This result is from Wolfram",

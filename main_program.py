@@ -182,7 +182,6 @@ client = nextcord.ext.commands.Bot(
 )
 
 def save_to_file():
-    return
     global dev_users
     #print("save")
     v = Variables("backup")
@@ -1023,22 +1022,6 @@ async def theme_color(ctx, *, tup1=""):
                     description="You must have three values in the form of tuple",
                     color=nextcord.Color(value=re[8]),
                 )
-            )
-            await color_message.add_reaction(emoji.emojize(":red_triangle_pointed_up:"))
-            await color_message.add_reaction(
-                emoji.emojize(":red_triangle_pointed_down:")
-            )
-            await color_message.add_reaction(
-                nextcord.utils.get(client.emojis, name="green_up")
-            )
-            await color_message.add_reaction(
-                nextcord.utils.get(client.emojis, name="green_down")
-            )
-            await color_message.add_reaction(
-                nextcord.utils.get(client.emojis, name="blue_up")
-            )
-            await color_message.add_reaction(
-                nextcord.utils.get(client.emojis, name="blue_down")
             )
         else:
             color_temp = tup
