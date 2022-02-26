@@ -2,7 +2,7 @@ def temporary_fix():
     from shutil import copyfile
     copyfile("./utils/post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
 import sys
-sys.path.insert(1,"./utils/")
+sys.path.insert(1,f"{os.getcwd()}/utils/")
 
 #temporary_fix()
 """
@@ -181,6 +181,7 @@ client = nextcord.ext.commands.Bot(
 )
 
 def save_to_file():
+    return
     global dev_users
     #print("save")
     v = Variables("backup")

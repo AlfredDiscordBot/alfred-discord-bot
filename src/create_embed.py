@@ -4,8 +4,8 @@ from requests.exceptions import MissingSchema
 from compile import filter_graves
 from yaml import safe_load
 import traceback
-import External_functions as ef
-
+import ..utils.External_functions as ef
+#wait i have a plan. come to main_program
 SUPER_AUTHOR_ID = 432801163126243328  # Do Not CHange
 help_for_m_setup="""
 'm_setup
