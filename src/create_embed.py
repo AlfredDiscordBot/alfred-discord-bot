@@ -289,8 +289,8 @@ def main(client, re, mspace, dev_channel):
         try:
             if yaml: yaml = preset_change(yaml, ctx, client)
             if (
-                ctx.author.guild_permissions.manage_messages
-                or ctx.author.id == SUPER_AUTHOR_ID or ctx.author.permissions_in(channel).send_messages
+                ctx.author.guild_permissions.send_messages
+                or ctx.author.id == SUPER_AUTHOR_ID
             ):
                 if not channel:
                     channel = ctx.channel  # set default channel to current

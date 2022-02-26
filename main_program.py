@@ -306,7 +306,9 @@ async def on_ready():
     print("Prepared")
     youtube_loop.start()
 
-
+@tasks.loop(hours=2)
+async def send_file_loop():
+    await 
 @tasks.loop(minutes=10)
 async def youtube_loop():
     await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.watching, name=str(len(client.guilds))+" servers"))
@@ -3797,10 +3799,11 @@ async def on_reaction_add(reaction, user):
 @client.event
 async def on_command_error(ctx, error):
     channel = client.get_channel(dev_channel)
-    print(error)
+    err = ''.join(traceback.format_tb(error.__traceback__))
+    if err == '': err = str(error)
     print(error.with_traceback(error.__traceback__))
-    await ctx.send(embed=cembed(title="Error",description=f"{str(error)} \n{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar.url))
-    await channel.send(embed=cembed(title="Error",description=f"{traceback.format_tb(error.__traceback__)} \n{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}", color=re[8], thumbnail=client.user.avatar.url))
+    await ctx.send(embed=cembed(title="Error",description=f"{str(error)}", color=re[8], thumbnail=client.user.avatar.url))
+    await channel.send(embed=cembed(title="Error",description=f"{err}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
     
 
 @client.command()
