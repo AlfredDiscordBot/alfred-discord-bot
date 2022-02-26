@@ -2924,21 +2924,13 @@ async def on_reaction_add(reaction, user):
                     if len(check) < 3000 and len(check) > 0:
                         description += check
                     description += (
-                        "\nDuration: {str(info['duration'] // 60)} min "
-                        + "min "
-                        + str(info["duration"] % 60)
-                        + "sec"
+                        f"\nDuration: {str(info['duration'] // 60)} min "
+                        + f"{str(info["duration"] % 60) sec"
                         + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n"
                     )
                     await reaction.message.edit(
                         embed=cembed(
-                            title=str(
-                                da1[
-                                    queue_song[str(reaction.message.guild.id)][
-                                        re[3][str(reaction.message.guild.id)]
-                                    ]
-                                ]
-                            ),
+                            title=str(da1[song]),
                             description=description,
                             color=re[8],
                             thumbnail=info["thumbnail"],
