@@ -17,6 +17,8 @@ import aiohttp
 import traceback
 import aiofiles
 
+from datetime import datetime
+
 ydl_op = {
     "format": "bestaudio/best",
     "postprocessors": [
@@ -36,6 +38,8 @@ def youtube_info(url):
         info = ydl.extract_info(url, download=False)
     return info
 
+def timestamp(i):
+    return datetime.fromtimestamp(i)
 
 def convert_to_url(name):
     name = urllib.parse.quote(name)

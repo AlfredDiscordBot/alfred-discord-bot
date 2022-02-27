@@ -1,12 +1,3 @@
-def temporary_fix():
-    from shutil import copyfile
-    copyfile("./utils/post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
-    
-import os
-import sys
-sys.path.insert(1,f"{os.getcwd()}/utils/")
-
-#temporary_fix()
 """
 Set your env like the example below:
 token=
@@ -16,9 +7,18 @@ mysql=
 default=
 dev=
 """
+
+def temporary_fix():
+    from shutil import copyfile
+    copyfile("./utils/post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
+    
+import os
+import sys
+sys.path.insert(1,f"{os.getcwd()}/utils/")
+
+#temporary_fix()
 from keep_alive import keep_alive
 import string
-import pickle
 import nextcord
 from utils import helping_hand
 from random import choice
@@ -50,6 +50,7 @@ import cloudscraper
 import requests
 import aiohttp
 from io import BytesIO
+import src.error as ror
 from utils.spotify_client import *
 
 location_of_file = os.getcwd()
@@ -1153,7 +1154,8 @@ async def pa1(embeds, ctx, start_from=0):
                 await message.edit(embed=embeds[pag])
             await message.remove_reaction(reaction, user)
         except asyncio.TimeoutError:
-            await message.delete()
+            await message.remove_reaction("◀️", client.user)
+            await message.remove_reaction("▶️", client.user)
 
 
 @client.command(aliases=["c"])
@@ -3541,9 +3543,9 @@ async def on_reaction_add(reaction, user):
 async def on_command_error(ctx, error):
     channel = client.get_channel(dev_channel)
     err = ''.join(traceback.format_tb(error.__traceback__))
-    if err == '': err = str(error)
+    if err == '': erro = str(error)
     print(error.with_traceback(error.__traceback__))
-    await ctx.send(embed=cembed(title="Error",description=f"{str(error)}", color=re[8], thumbnail=client.user.avatar.url))
+    await ctx.send(embed=ror.error(str(error)))
     await channel.send(embed=cembed(title="Error",description=f"{err}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
     
 
@@ -3629,7 +3631,7 @@ async def on_message(msg):
 
     await client.process_commands(msg)
     
-    if (not msg.guild.id in observer) and (not msg.author.bot):
+    if (not msg.guild.id in observer) and (not msg.author.bot) and False:
         s = msg.clean_content
         
         whitelist = string.ascii_letters + ' '
