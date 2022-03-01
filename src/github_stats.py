@@ -3,9 +3,7 @@ import requests
 from dataclasses import dataclass
 from functools import lru_cache
 from create_embed import embed_from_dict
-
-
-#create_embed.py, goooo
+import nextcord as discord
 
 
 @dataclass
@@ -218,7 +216,7 @@ def main(client, re):
         stats = get_repo_stats(repo)
 
         if stats:
-            embed = embed_from_dict(repo_stats_dict(stats, re[8]))
+            embed = embed_from_dict(repo_stats_dict(stats, discord.Color(re[8])))
         else:
             embed = embed_from_dict(
                 {

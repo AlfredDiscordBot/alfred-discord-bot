@@ -3,6 +3,7 @@ import External_functions as ef
 
 def error(message):
     return ef.cembed(
+        title="Error",
         color=discord.Color.from_rgb(255,0,0).value,
         thumbnail="https://github.com/yashppawar/alfred-discord-bot/blob/replit/error.png?raw=true",
         description=str(message)

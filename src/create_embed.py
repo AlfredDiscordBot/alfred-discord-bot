@@ -5,7 +5,8 @@ from compile import filter_graves
 from yaml import safe_load
 import traceback
 import External_functions as ef
-#wait i have a plan. come to main_program
+
+
 SUPER_AUTHOR_ID = 432801163126243328  # Do Not CHange
 help_for_m_setup="""
 'm_setup
@@ -28,11 +29,12 @@ author: True/False
 
 """
 
-def preset_change(text, ctx, client):
+def preset_change(text, ctx, client, re = {8: 6619080}):
     presets = {
         '<server-icon>' : f'"{ctx.guild.icon.url}"',
         '<author-icon>' : f'"{ctx.author.avatar.url}"',
-        '<bot-icon>' : f'"{client.user.avatar.url}"'
+        '<bot-icon>' : f'"{client.user.avatar.url}"',
+        '<bot-color>' : f'{discord.Color(re[8]).to_rgb()}'
     }
     for i in presets:
         text=text.replace(i, presets[i])
@@ -257,10 +259,7 @@ def main(client, re, mspace, dev_channel):
             description=description,
             color=discord.Color(value=re[8]),
         )
-
-    @client.slash_command(name = "quickembed",description="Just type in text and it will embed for you")
-    async def qembed(ctx, text):
-        await ctx.send(embed=quick_embed(text))
+    
 
         
     @client.command(aliases=["init_embed", "embed_init"])
@@ -287,7 +286,7 @@ def main(client, re, mspace, dev_channel):
         Create an embed from given yaml string and send it in the provided channel.
         """        
         try:
-            if yaml: yaml = preset_change(yaml, ctx, client)
+            if yaml: yaml = preset_change(yaml, ctx, client, re)
             if (
                 ctx.author.guild_permissions.send_messages
                 or ctx.author.id == SUPER_AUTHOR_ID

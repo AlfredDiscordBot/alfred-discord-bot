@@ -3546,7 +3546,7 @@ async def on_command_error(ctx, error):
     if err == '': erro = str(error)
     print(error.with_traceback(error.__traceback__))
     await ctx.send(embed=ror.error(str(error)))
-    await channel.send(embed=cembed(title="Error",description=f"{err}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
+    await channel.send(embed=cembed(title="Error",description=f"{err if err!='' else str(error)}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
     
 
 @client.command()
