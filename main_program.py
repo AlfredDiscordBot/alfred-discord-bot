@@ -137,6 +137,7 @@ prefix_dict = {}
 mute_role = {743323684705402951: 876708632325148672, 851315724119310367: 0}
 
 
+
 # replace your id with this
 dev_users = ["432801163126243328"]
 ydl_op = {
@@ -296,6 +297,7 @@ async def on_ready():
                 color=nextcord.Color(value=re[8]),
             )
         )
+        
     except Exception as e:
         mess = await channel.send(
             embed=nextcord.Embed(
@@ -1942,7 +1944,7 @@ async def queue(ctx, *, name=""):
         )
 
 
-@client.command(aliases=[">"])
+@client.command(aliases=[">", "skip"])
 async def next(ctx):
     req()
     try:

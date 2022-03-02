@@ -178,11 +178,16 @@ def main(client, re):
     @client.command()
     async def csvoyager(ctx, edition):
         embeds=[]
-        posts = await requests.get("https://csvoyager-api.vercel.app/api/posts").json()
-        post = posts[edition-1]
+        posts = await ef.get_async("https://csvoyager-api.vercel.app/api/posts", kind = "json")
+        post = posts[int(edition)-1]
 
-        for i in range(post.book.url.length):
-            embed = ef.cembed(title="CS Voyager",description=f"{i} of 20",color=re[8],picture=post.book.url[i])
+        for i in range(len(post['book']['url'])):
+            embed = ef.cembed(title=post['title'], description = post['desc'], footer=f"{i+1} of {len(post['book']['url'])}", color=re[8], picture=post['book']['url'][i], thumbnail = "https://csvoyager-again.vercel.app/img/logo.png")
+            embed.set_author(
+                name = "CS Voyager",
+                icon_url = "https://csvoyager-again.vercel.app/img/logo.png",
+                url = "https://csvoyager.vercel.app/"
+            )
             embeds.append(embed)
         await pa1(embeds,ctx)
 
