@@ -175,11 +175,14 @@ def main(client, re):
         url = a[start:end]
         await ctx.send(embed=ef.cembed(title="Gs.statcounter Desktop OS",description="This contains the market share of desktop operating systems worldwide", color=re[8], thumbnail="https://pbs.twimg.com/profile_images/918460707787681792/fMVNRhz4_400x400.jpg", picture=url))
 
-    @client.command()
+@client.command()
     async def csvoyager(ctx, edition):
         embeds=[]
-        for i in range(1,20):
-            embed = ef.cembed(title="CS Voyager",description=f"{i} of 20",color=re[8],picture=f"https://csvoyager.netlify.app/data/{edition}/{i}.jpg")
+        posts = await requests.get("https://csvoyager-api.vercel.app/api/posts").json()
+        post = posts[edition-1]
+
+        for i in range(post.book.url.length):
+            embed = ef.cembed(title="CS Voyager",description=f"{i} of 20",color=re[8],picture=post.book.url[i])
             embeds.append(embed)
         await pa1(embeds,ctx)
 
