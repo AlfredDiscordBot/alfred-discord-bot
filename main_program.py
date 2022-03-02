@@ -10,7 +10,7 @@ dev=
 
 def temporary_fix():
     from shutil import copyfile
-    copyfile("./utils/post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
+    copyfile(" ./utils/post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
     
 import os
 import sys
@@ -948,7 +948,7 @@ async def instagram(ctx, account):
                     )
                 )
         print("Page")
-        await pa(embeds, ctx)
+        await pa1(embeds, ctx)
     except Exception as e:
         embed = cembed(
             title="Error in instagram",
@@ -2520,18 +2520,23 @@ async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Ques
         )
         return
     await ctx.send("Sending Poll")
+    print(channel)
+    if type(channel) == str:
+        channel = nextcord.utils.get(ctx.guild.channels, id = int(channel[2:-1]))
     text = Question+"\n\n"
     Options = Options.split("|")
     for i in range(len(Options)):
         text+=f"{emoji.emojize(f':keycap_{i+1}:')} : {Options[i]}:\n"
 
+    embed=cembed(
+        title="Poll",
+        description=text,
+        color=re[8],
+        footer=f"from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name} | {ctx.guild.name}"
+    )
+    embed.set_author(name = getattr(ctx, 'author', getattr(ctx, 'user', None)).name, icon_url = getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar.url)
     message = await channel.send(
-        embed=cembed(
-            title="Poll",
-            description=text,
-            color=re[8],
-            footer=f"from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}"
-        )
+        embed = embed
     )
     
     for i in range(len(Options)): await message.add_reaction(emoji.emojize(f":keycap_{i+1}:"))
