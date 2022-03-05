@@ -54,13 +54,14 @@ def main(client, re):
                     embed=ef.cembed(
                         title = "Oops",
                         description = "You may have got the ID wrong, please recheck the ID by searching a name in this same command like `protonDB game name`",
-                        thumbnail = "https://live.mrf.io/statics/i/ps/www.muylinux.com/wp-content/uploads/2019/01/ProtonDB.png?width=1200&enable=upscale"  
+                        thumbnail = "https://live.mrf.io/statics/i/ps/www.muylinux.com/wp-content/uploads/2019/01/ProtonDB.png?width=1200&enable=upscale",
+                        color = re[8]
                     )
                 )
                 return
             embeds = []
             for i in report:  
-                embed = ef.cembed(**i)
+                embed = ef.cembed(**i, color = re[8])
                 embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url)
                 embeds.append(embed)
 

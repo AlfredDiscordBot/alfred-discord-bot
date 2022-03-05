@@ -9,6 +9,7 @@ import requests
 import urllib.parse
 from googlesearch import search
 import External_functions as ef
+from nextcord.ext import commands
 
 def requirements():
     return ["re"]
@@ -168,17 +169,38 @@ def main(client, re):
 
 
     @client.command(aliases=["desktop"])
-    async def gs_stat(ctx):
+    @commands.cooldown(1,10,commands.BucketType.user)
+    async def gs_stat(ctx):        
         a = await ef.get_async("https://gs.statcounter.com/os-market-share/desktop/worldwide/")
-        start = a.find('og:image" content="')+len('og:image" content="')
-        end = a.find(".png",start)+len(".png")
-        url = a[start:end]
-        await ctx.send(embed=ef.cembed(title="Gs.statcounter Desktop OS",description="This contains the market share of desktop operating systems worldwide", color=re[8], thumbnail="https://pbs.twimg.com/profile_images/918460707787681792/fMVNRhz4_400x400.jpg", picture=url))
+        
+        await ctx.send(embed=ef.cembed(title="Gs.statcounter Desktop OS",description="This contains the market share of desktop operating systems worldwide", color=re[8], thumbnail="https://pbs.twimg.com/profile_images/918460707787681792/fMVNRhz4_400x400.jpg",picture = url))
 
     @client.command()
-    async def csvoyager(ctx, edition):
+    async def csvoyager(ctx, edition = 0):
         embeds=[]
+        if edition <0: 
+            await ctx.send(
+                embed=ef.cembed(
+                    title = "Oops, an error occured",
+                    description = "You've chosen an edition number less than 0, we'll display the latest if you put the number as 0 or if you just dont put an edition number",
+                    thumbnail = "https://csvoyager-again.vercel.app/img/logo.png",
+                    footer = "CSVoyager discord server:  https://discord.gg/nez9zCM57Y | Have a great day and sorry for inconvenience",
+                    color = re[8]
+                )
+            )
+            return
         posts = await ef.get_async("https://csvoyager-api.vercel.app/api/posts", kind = "json")
+        if edition > len(posts):
+            await ctx.send(
+                embed=ef.cembed(
+                    title = "Oops, this edition does not exist",
+                    description = "Keep in touch, this edition may come soon",
+                    color = re[8],
+                    thumbnail = "https://csvoyager-again.vercel.app/img/logo.png",
+                    footer = "CSVoyager discord server:  https://discord.gg/nez9zCM57Y | Have a great day and sorry for inconvenience"
+                )
+            )
+            return
         post = posts[int(edition)-1]
 
         for i in range(len(post['book']['url'])):

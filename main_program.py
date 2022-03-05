@@ -699,6 +699,7 @@ async def unsubscribe(ctx, channel: nextcord.TextChannel=None, url=None):
 
 
 @client.command()
+@commands.cooldown(1,1000,commands.BucketType.guild)
 async def entrar(ctx, *, num=re[6]):
     print("Entrar", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
     global re
@@ -910,6 +911,7 @@ async def svg2png_slash(ctx, url):
 
 @client.command()
 async def set_sessionid(ctx, sessionid):
+    if str(ctx.author.id) not in dev_users: return
     re[9] = sessionid
     await ctx.send(
         embed=nextcord.Embed(description="SessionID set", color=nextcord.Color(re[8]))
@@ -3553,7 +3555,7 @@ async def on_command_error(ctx, error):
     if err == '': erro = str(error)
     print(error.with_traceback(error.__traceback__))
     await ctx.send(embed=ror.error(str(error)))
-    await channel.send(embed=cembed(title="Error",description=f"{err if err!='' else str(error)}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
+    await channel.send(embed=cembed(title="Error",description=f"{err}\n{str(error)}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
     
 
 @client.command()
