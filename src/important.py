@@ -37,7 +37,7 @@ def main(client, re):
             embed = discord.Embed(
                 title="Emojis found", description=st, color=discord.Color(value=re[8])
             )
-            embed.set_thumbnail(url=client.user.avatar_url)
+            embed.set_thumbnail(url=client.user.avatar.url)
             await ctx.send(embed=embed)
         except Exception as e:
             await ctx.send(
@@ -56,7 +56,7 @@ def main(client, re):
         embed.set_thumbnail(
             url="https://github.githubassets.com/images/modules/open_graph/github-octocat.png"
         )
-        embed.set_image(url=client.user.avatar_url_as(format="png"))
+        embed.set_image(url=client.user.avatar.url)
         await ctx.send(embed=embed)
 
     @client.command()
