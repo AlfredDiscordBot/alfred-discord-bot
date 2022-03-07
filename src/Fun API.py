@@ -37,7 +37,7 @@ def main(client, re):
         
         await ctx.reply(
             embed=ef.cembed(
-                title="Generated text", description=o, color=re[8],thumbnail=client.user.avatar_url_as(format="png")
+                title="Generated text", description=o, color=re[8],thumbnail=client.user.avatar.url
             )
         )
       
@@ -82,6 +82,7 @@ def main(client, re):
             
     @client.command()
     async def apis(ctx, page: int = 0):
+        re[0]+=1
         a = await ef.get_async("https://api.publicapis.org/entries",kind="json")
         b=a['entries']
         embeds=[]
@@ -145,7 +146,7 @@ def main(client, re):
             embed = discord.Embed(
                 title=ip, description=st, color=discord.Color(value=re[8])
             )
-            embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+            embed.set_thumbnail(url=client.user.avatar.url)
             await ctx.send(embed=embed)
         else:
             embed = discord.Embed(
@@ -153,7 +154,7 @@ def main(client, re):
                 description="Oops, couldnt find it :confused:",
                 color=discord.Color(value=re[8]),
             )
-            embed.set_thumbnail(url=client.user.avatar_url_as(format="png"))
+            embed.set_thumbnail(url=client.user.avatar.url)
             await ctx.send(embed=embed)
             
             
@@ -224,8 +225,7 @@ def main(client, re):
         for i in search(text, num=5, stop=5, pause=0):
             embed = ef.cembed(title="Google",
                               color=re[8],
-                              thumbnail=client.user.avatar_url_as(
-                                  format="png"),
+                              thumbnail=client.user.avatar.url,
                               picture=f"https://render-tron.appspot.com/screenshot/{ef.convert_to_url(i)}/?width=600&height=400")
             embed.url = i
             li.append(embed)

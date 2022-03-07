@@ -22,8 +22,9 @@ import string
 import nextcord
 from utils import helping_hand
 from random import choice
-from nextcord import Interaction
+from nextcord import Interaction, SlashOption, ChannelType
 from nextcord.ext import commands, tasks
+from nextcord.abc import GuildChannel
 #from discord_slash import SlashCommand, SlashContext
 from GoogleNews import GoogleNews
 from dotenv import load_dotenv
@@ -171,6 +172,8 @@ def youtube_download1(ctx, url):
 async def search_vid(name):
     pass
 
+def  defa(*types):
+    return SlashOption(channel_types = types)
 
 def prefix_check(client, message):
     save_to_file()
@@ -297,6 +300,7 @@ async def on_ready():
                 color=nextcord.Color(value=re[8]),
             )
         )
+        await client.rollout_application_commands()
         
     except Exception as e:
         mess = await channel.send(
@@ -370,6 +374,14 @@ async def dev_loop():
             temp_dev.pop(i)
     save_to_file()
 
+@client.slash_command(name = "embed", description = "Create a quick embed using slash commands")
+async def quickembed(ctx, text):
+    await ctx.send(
+        embed=cembed(
+            description = text,
+            color=re[8]
+        )
+    )
 
 @client.command()
 async def svg(ctx, *, url):
@@ -850,9 +862,9 @@ async def imdb_slash(ctx, movie):
 
 
 @client.slash_command(name="emoji", description="Get Emojis from other servers")
-async def emoji_slash(ctx, emoji_name, number=0):
+async def emoji_slash(ctx, emoji_name, number=None):
     req()
-    
+    if not number: number = 0
     if nextcord.utils.get(client.emojis, name=emoji_name) != None:
         emoji_list = [names.name for names in client.emojis if names.name == emoji_name]
         le = len(emoji_list)
@@ -1132,17 +1144,20 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
             await ctx.send(embed=cembed(title=a[0], color=re[8], description=a[1]))
             
 
-async def pa1(embeds, ctx, start_from=0):
+async def pa1(embeds, ctx, start_from=0, restricted = False):
     message = await ctx.send(embed=embeds[start_from])
     pag = start_from
     await message.add_reaction("◀️")
     await message.add_reaction("▶️")
+    
 
     def check(reaction, user):
+        print(user.id == getattr(ctx, 'author', getattr(ctx, 'user', None)).id)
         return (
-            user != client.user
+            user.id != client.user.id
             and str(reaction.emoji) in ["◀️", "▶️"]
             and reaction.message.id == message.id
+            and user.id == getattr(ctx, 'author', getattr(ctx, 'user', None)).id if restricted else True
         )
 
     while True:
@@ -1325,7 +1340,7 @@ async def docs(ctx, name):
 @client.slash_command(name="snipe", description="Get the last few deleted messages")
 async def snipe_slash(ctx, number=0):
     req()
-    
+    await ctx.send("Sending a list of deleted message")
     await snipe(ctx, int(number))
 
 
@@ -1340,26 +1355,31 @@ async def snipe(ctx, number=0):
             await ctx.send(
                 embed=cembed(
                     description = "Cannot snipe more than 10 messages",
-                    picture="https://images.news18.com/ibnlive/uploads/2015/08/Chandler-2.gif",
+                    picture="https://c.tenor.com/71VKMEHPhQgAAAAM/chandler-bin.gif",
                     color=re[8],
                 )
             )
             return 
         message = deleted_message.get(ctx.channel.id,[("Empty","Nothing to snipe here")])[::-1]
+        embeds = []
         for i in message:
             number -= 1
             if len(i) < 3:
-                await ctx.send(
-                    embed=nextcord.Embed(
-                        description="**" + i[0] + ":**\n" + i[1],
-                        color=nextcord.Color(value=re[8]),
-                    )
-                )
+                embed=nextcord.Embed(
+                    description="**" + i[0] + ":**\n" + i[1],
+                    color=nextcord.Color(value=re[8]),
+                )                
+                if i[0] == "Empty":
+                    await ctx.send(embed=embed)
+                    return
+                embeds.append(embed)
             else:
                 await ctx.send("**" + i[0] + ":**")
                 await ctx.send(embed=i[1])
             if number <= 0:
                 break
+        if len(embeds)>0: 
+            await pa1(embeds, ctx, start_from = 0, restricted = True)
     else:
         await ctx.send(
             embed=cembed(
@@ -1434,7 +1454,7 @@ async def connect_slash(ctx, channel:str = " "):
     await connect_music(ctx, channel)
 
 
-@client.command(aliases=["cm"])
+@client.command(aliases=["cm",'join','cn','connect'])
 async def connect_music(ctx, channel=""):
     print("Connect music", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
     try:
@@ -2538,7 +2558,7 @@ async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Ques
         color=re[8],
         footer=f"from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name} | {ctx.guild.name}"
     )
-    embed.set_author(name = getattr(ctx, 'author', getattr(ctx, 'user', None)).name, icon_url = getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar.url)
+    embed.set_author(name = getattr(ctx, 'author', getattr(ctx, 'user', None)).name, icon_url = getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar.url if getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar else client.user.avatar.url)
     message = await channel.send(
         embed = embed
     )
@@ -2548,8 +2568,8 @@ async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Ques
     await ctx.send("Poll sent")
 
 @client.slash_command(name="polling", description="Seperate options with |")
-async def polling_slash(ctx, options = "", channel = None, question = ""):
-    await poll(ctx, Options = options, channel = channel, Question = question)
+async def polling_slash(ctx, options = "", channel: GuildChannel = defa(ChannelType.text), question = None):
+    await poll(ctx, Options = options, channel = channel, Question = question if question else "")
 
 @client.slash_command(name="eval",description="This is only for developers",guild_ids= [822445271019421746])
 async def eval_slash(ctx,text):
