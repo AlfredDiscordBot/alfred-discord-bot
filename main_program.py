@@ -172,9 +172,6 @@ def youtube_download1(ctx, url):
 async def search_vid(name):
     pass
 
-def  defa(*types):
-    return SlashOption(channel_types = types)
-
 def prefix_check(client, message):
     save_to_file()
     return prefix_dict.get(message.guild.id if message.guild is not None else None, ["'"])
@@ -454,13 +451,13 @@ async def toggle_response(ctx):
         )
 
 
-
+@client.slash_command(name = "pfp",description="Get a person's avatar")
+async def pfp_pic(ctx, member: nextcord.Member = defa(default = None)):
+    await get_pfp(ctx, member)
 
 @client.command(aliases=["pfp"])
-async def get_pfp(ctx, member:nextcord.Member=None):
-    
-    req()
-    
+async def get_pfp(ctx, member:nextcord.Member=None):    
+    req()    
     if member is None:
         embed = nextcord.Embed(title="Profile Picture : {}".format(getattr(ctx, 'author', getattr(ctx, 'user', None)).name), color=re[8])
         embed.set_image(url=getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar.url)
@@ -470,11 +467,10 @@ async def get_pfp(ctx, member:nextcord.Member=None):
         embed.set_image(url=member.avatar.url)
     
     await ctx.send(embed=embed)
-
-async def post_effect(api, header = {}, json = {}):
-    async with aiohttp.ClientSession() as session:
-        async with session.post(api, headers=header, json=json) as resp:
-            return await resp.read()
+    
+@client.slash_command(name="effects",description="cool effects with your profile picture")
+async def eff(ctx, effect:str = defa(default=None), member:nextcord.Member=defa(default=None)):
+    await effects(ctx, effect = effect, member = member)
 
 @client.command(aliases=['ef','effect'])
 async def effects(ctx, effect:str = None, member:nextcord.Member=None):
@@ -513,13 +509,13 @@ async def effects(ctx, effect:str = None, member:nextcord.Member=None):
     elif effect in styles:
         json = {"url":url, "effect":effect}
 
-        byte = await post_effect("https://suicide-detector-api-1.yashvardhan13.repl.co/style", json=json)
+        byte = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/style", json=json)
 
 
     elif effect in effects:
         json = {"url":url, "effect":effect}
 
-        byte = await post_effect("https://suicide-detector-api-1.yashvardhan13.repl.co/cv", json=json)
+        byte = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/cv", json=json)
 
     
     await ctx.send(file=nextcord.File(BytesIO(byte), 'effect.png'))
@@ -546,7 +542,7 @@ async def blend(ctx, urlef:str = None, member:nextcord.Member=None, ratio=0.5):
 
     json = {"url":url, "url2":urlef, "ratio":ratio}
 
-    byte = await post_effect("https://suicide-detector-api-1.yashvardhan13.repl.co/style_predict", json=json)
+    byte = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/style_predict", json=json)
     await ctx.send(file=nextcord.File(BytesIO(byte), 'effect.png'))
 
 
@@ -622,9 +618,6 @@ async def remove_autoreact(ctx, channel: nextcord.TextChannel = None):
             color=re[8]
         )
     )
-    
-
-        
 
 @client.command(aliases=['suicide'])
 async def toggle_suicide(ctx):
@@ -865,6 +858,7 @@ async def imdb_slash(ctx, movie):
 async def emoji_slash(ctx, emoji_name, number=None):
     req()
     if not number: number = 0
+    number=int(number)
     if nextcord.utils.get(client.emojis, name=emoji_name) != None:
         emoji_list = [names.name for names in client.emojis if names.name == emoji_name]
         le = len(emoji_list)
@@ -1015,50 +1009,42 @@ async def show_webhooks(ctx):
     await ctx.send(str(webhooks))
 
 @client.slash_command(name="color",description="Change color theme", guild_ids= [822445271019421746])
-async def color_slash(ctx, rgb_color=""):
-    
-    await theme_color(ctx,tup1=rgb_color)
-
-
-@client.command(aliases=["color", "||"])
-async def theme_color(ctx, *, tup1=""):
-    try:
-        global color_temp
-        color_temp=extract_color(str(re[8]))
-        await ctx.send(embed=cembed(description="Setting Color",color=re[8],thumbnail=client.user.avatar.url))
-        req()        
-        print("Theme color", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
-        if re[8] < 1000:
-            re[8] = 1670655
-        global color_message
-        tup = [int(i) for i in tup1.replace("(", "").replace(")", "").split(",")] if tup1 != "" else ()
-        if len(tup) < 3:
-            color_message = await ctx.send(
-                embed=nextcord.Embed(
-                    title="Color Init",
-                    description="You must have three values in the form of tuple",
-                    color=nextcord.Color(value=re[8]),
-                )
-            )
-        else:
-            color_temp = tup
-            re[8] = nextcord.Color.from_rgb(*tup).value
-            embed = nextcord.Embed(
-                title="New Color",
-                description=str(tup),
-                color=nextcord.Color(value=re[8]),
-            )
-            await color_message.edit(embed=embed)
-    except Exception as e:
-        await client.get_channel(dev_channel).send(
-            embed=nextcord.Embed(
-                title="Error in Theme_Color",
-                description=str(e),
-                color=nextcord.Color(value=re[8]),
+async def color_slash(ctx, rgb_color=defa(default="")):    
+    rgb_color = rgb_color.replace("(","").replace(")","").split(",")
+    if str(ctx.user.id) not in dev_users:
+        await ctx.send(
+            embed=cembed(
+                title="Woopsies",
+                description="This is a `developer-only` function",
+                color=re[8],
+                thumbnail=client.user.avatar.url
             )
         )
+        return
+    if len(rgb_color)!=3:
+        await ctx.send(
+            embed=cembed(
+                title="Error",
+                description="You need RGB values, 3 values seperated with commas\nExample: `(128,128,128)`",
+                color=re[8],
+                footer="Give it another try",
+                thumbnail=client.user.avatar.url
+            )
+        )
+        return
 
+    re[8] = discord.Color.from_rgb(*rgb_color).value
+    embed=cembed(
+        title="Done",
+        description=f"Color set as {tup(rgb_color)}\n`{re[8]}`",
+        color=re[8],
+        thumbnail = client.user.avatar.url,
+        footer=f"Executed by {ctx.user.name} in {ctx.channel.name}"
+    )
+    await ctx.send(embed=embed)
+    await client.get_channel(dev_channel).send(embed=embed)
 
+    
 @client.command()
 async def load(ctx):
     print("Load", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
@@ -1152,13 +1138,20 @@ async def pa1(embeds, ctx, start_from=0, restricted = False):
     
 
     def check(reaction, user):
-        print(user.id == getattr(ctx, 'author', getattr(ctx, 'user', None)).id)
-        return (
-            user.id != client.user.id
-            and str(reaction.emoji) in ["◀️", "▶️"]
-            and reaction.message.id == message.id
-            and user.id == getattr(ctx, 'author', getattr(ctx, 'user', None)).id if restricted else True
-        )
+        if not restricted:            
+            return (
+                user.id != client.user.id
+                and str(reaction.emoji) in ["◀️", "▶️"]
+                and reaction.message.id == message.id
+            )
+        else:
+            a = (
+                user.id != client.user.id
+                and str(reaction.emoji) in ["◀️", "▶️"]
+                and reaction.message.id == message.id
+                and user.id == getattr(ctx, 'author', getattr(ctx,'user',None)).id
+            )
+            return a
 
     while True:
         try:
@@ -1171,7 +1164,10 @@ async def pa1(embeds, ctx, start_from=0, restricted = False):
             elif str(reaction.emoji) == "◀️" and pag != 0:
                 pag -= 1
                 await message.edit(embed=embeds[pag])
-            await message.remove_reaction(reaction, user)
+            try:
+                await message.remove_reaction(reaction, user)
+            except:
+                pass
         except asyncio.TimeoutError:
             await message.remove_reaction("◀️", client.user)
             await message.remove_reaction("▶️", client.user)
@@ -1351,15 +1347,6 @@ async def snipe(ctx, number=0):
         or getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.manage_messages
         or ctx.guild.id not in config['snipe']
     ):
-        if int(number) > 10:
-            await ctx.send(
-                embed=cembed(
-                    description = "Cannot snipe more than 10 messages",
-                    picture="https://c.tenor.com/71VKMEHPhQgAAAAM/chandler-bin.gif",
-                    color=re[8],
-                )
-            )
-            return 
         message = deleted_message.get(ctx.channel.id,[("Empty","Nothing to snipe here")])[::-1]
         embeds = []
         for i in message:
@@ -1449,13 +1436,15 @@ async def on_member_remove(member):
 
 
 @client.slash_command(name="connect", description="Connect to a voice channel")
-async def connect_slash(ctx, channel:str = " "):
+async def connect_slash(ctx, channel: GuildChannel = defa(ChannelType.voice)):
     req()
     await connect_music(ctx, channel)
 
 
 @client.command(aliases=["cm",'join','cn','connect'])
-async def connect_music(ctx, channel=""):
+async def connect_music(ctx, channel=None):
+    if type(channel) == nextcord.channel.VoiceChannel: 
+        channel = channel.name
     print("Connect music", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
     try:
         req()
@@ -1463,7 +1452,7 @@ async def connect_music(ctx, channel=""):
             queue_song[str(ctx.guild.id)] = []
         if not str(ctx.guild.id) in re[3]:
             re[3][str(ctx.guild.id)] = 0
-        if channel.strip() == "":
+        if channel == None:
             if getattr(ctx, 'author', getattr(ctx, 'user', None)).voice and getattr(ctx, 'author', getattr(ctx, 'user', None)).voice.channel:
                 channel = getattr(ctx, 'author', getattr(ctx, 'user', None)).voice.channel.id
                 vc_channel[str(ctx.guild.id)] = channel
@@ -1517,14 +1506,11 @@ async def connect_music(ctx, channel=""):
         )
         channel = client.get_channel(dev_channel)
         await channel.send(
-            embed=nextcord.Embed(
+            embed=cembed(
                 title="Connect music",
-                description=str(e)
-                + "\n"
-                + str(ctx.guild.name)
-                + ": "
-                + str(ctx.channel.name),
-                color=nextcord.Color(value=re[8]),
+                description=str(e),
+                footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}: {ctx.guild}",
+                color=re[8],
             )
         )
 
@@ -1893,15 +1879,7 @@ async def queue(ctx, *, name=""):
             title="Queue", description=st, color=nextcord.Color(value=re[8])
         )
         mess = await ctx.send(embed=em)
-        await mess.add_reaction("⏮")
-        await mess.add_reaction("⏸")
-        await mess.add_reaction("▶")
-        await mess.add_reaction("🔁")
-        await mess.add_reaction("⏭")
-        await mess.add_reaction("⏹")
-        await mess.add_reaction(emoji.emojize(":keycap_*:"))
-        await mess.add_reaction(emoji.emojize(":upwards_button:"))
-        await mess.add_reaction(emoji.emojize(":downwards_button:"))
+        await player_reaction(mess)
     elif name == "":
         num = 0
         st = ""
@@ -1947,15 +1925,7 @@ async def queue(ctx, *, name=""):
         )
         embed.set_thumbnail(url=client.user.avatar.url)
         mess = await ctx.send(embed=embed)
-        await mess.add_reaction("⏮")
-        await mess.add_reaction("⏸")
-        await mess.add_reaction("▶")
-        await mess.add_reaction("🔁")
-        await mess.add_reaction("⏭")
-        await mess.add_reaction("⏹")
-        await mess.add_reaction(emoji.emojize(":keycap_*:"))
-        await mess.add_reaction(emoji.emojize(":upwards_button:"))
-        await mess.add_reaction(emoji.emojize(":downwards_button:"))
+        await player_reaction(mess)
     else:
         await ctx.send(
             embed=nextcord.Embed(
@@ -2291,15 +2261,7 @@ async def play(ctx, *, ind):
                         nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                         after=lambda e: repeat(ctx, voice),
                     )
-                    await mess.add_reaction("⏮")
-                    await mess.add_reaction("⏸")
-                    await mess.add_reaction("▶")
-                    await mess.add_reaction("🔁")
-                    await mess.add_reaction("⏭")
-                    await mess.add_reaction("⏹")
-                    await mess.add_reaction(emoji.emojize(":keycap_*:"))
-                    await mess.add_reaction(emoji.emojize(":upwards_button:"))
-                    await mess.add_reaction(emoji.emojize(":downwards_button:"))
+                    await player_reaction(mess)
                 else:
                     embed = nextcord.Embed(
                         title="Hmm",
@@ -2416,15 +2378,7 @@ async def again(ctx):
                     nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                     after=lambda e: repeat(ctx, voice),
                 )
-                await mess.add_reaction("⏮")
-                await mess.add_reaction("⏸")
-                await mess.add_reaction("▶")
-                await mess.add_reaction("🔁")
-                await mess.add_reaction("⏭")
-                await mess.add_reaction("⏹")
-                await mess.add_reaction(emoji.emojize(":keycap_*:"))
-                await mess.add_reaction(emoji.emojize(":upwards_button:"))
-                await mess.add_reaction(emoji.emojize(":downwards_button:"))
+                await player_reaction(mess)
             else:
                 await ctx.send(
                     embed=cembed(
@@ -2615,7 +2569,7 @@ async def restart_program(ctx, text):
     else:
         await ctx.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar.url))
 
-        await ctx.channel.send(embed=cembed(description=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name} from {ctx.guild.name} tried to use restart_program command",color=re[8]))
+        await client.get_channel(dev_channel).send(embed=cembed(description=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name} from {ctx.guild.name} tried to use restart_program command",color=re[8]))
 
 
 
@@ -3919,7 +3873,7 @@ async def exe(ctx, *, text):
                 url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
             )
             embeds.append(em)
-        await pa1(embeds,ctx)
+        await pa1(embeds,ctx,restricted=True)
     else:
         await ctx.send(
             embed=nextcord.Embed(
@@ -3969,41 +3923,19 @@ async def set_mute_role(ctx,role_for_mute: nextcord.Role):
     else:
         await ctx.send(embed=cembed(title="Permissions Denied",description="You need to be an admin to set mute role",color=re[8]))
 
-    
 
 client.remove_command("help")
 
 @client.command(aliases=['h'])
 async def help(ctx):
-    test_help = []
-    thumbnail = "https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903"
-    test_help.append(
-        cembed(
-            title="Help",
-            description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '\n\nIf you have any complaints or issues with Alfred, please give us a feedback using the command `'feedback`",
-            thumbnail=thumbnail,
-            picture=client.user.avatar.url,
-            color=re[8],
-        )
-    )
-    test_help.append(
-        cembed(
-            title="Source Code for Alfred",
-            description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://nextcord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",
-            color=re[8],
-            thumbnail="https://github.githubassets.com/images/modules/open_graph/github-octocat.png",
-            picture=client.user.avatar.url,
-        )
-    )
-    test_help += helping_hand.help_him(ctx, client, re)
-    
+    test_help = []    
+    test_help += helping_hand.help_him(ctx, client, re)    
     await pa1(test_help, ctx, start_from=0)
 
 
 @client.slash_command(name="help", description="Help from Alfred")
 async def help_slash(ctx):
     req()
-    print(dir(ctx))
     await ctx.send("Sending help")
     await help(ctx)
 #keep_alive()

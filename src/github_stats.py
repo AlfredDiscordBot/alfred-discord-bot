@@ -222,7 +222,7 @@ def main(client, re):
                 {
                     "title": "Repo Not Found",
                     "description": f"Unable to find repo '{repo}'",
-                    "color": re[8],
+                    "color": discord.Color(re[8]),
                 }
             )
 
@@ -234,13 +234,13 @@ def main(client, re):
         stats = get_user_stats(username)
 
         if stats:
-            embed = embed_from_dict(user_stats_dict(stats, re[8], username))
+            embed = embed_from_dict(user_stats_dict(stats, discord.Color(re[8]), username))
         else:
             embed = embed_from_dict(
                 {
                     "title": "User Not Found",
                     "description": f"Unable to find user '{username}'",
-                    "color": re[8],
+                    "color": discord.Color(re[8]),
                 }
             )
 

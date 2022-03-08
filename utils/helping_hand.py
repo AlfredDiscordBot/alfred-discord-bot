@@ -26,12 +26,22 @@ author: True/False
 mod="""
 You can choose to disable some of the sensitive commands or moderate your server using this
 
-'ban @mention > You can ban someone using this command
-'kick @mention > You can kick someone using this command, the user can return if he has the invite
-'muter @role_mention registers a mute role to Alfred's memory and when you use 'mute @mention or 'unmute @mention, Alfred will add or remove this role
-'suicide will toggle suicide observation 
-'respond will toggle auto response when you say Alfred
-'change_nickname @mention New name, will change the nickname of the person, <alias: '*'>
+`'ban @mention `  
+You can ban someone using this command
+`'kick @mention`  
+You can kick someone using this command, the user can return if he has the invite
+`'mute @mention`  
+Mutes a person
+`'suicide      `  
+Toggle suicide observation 
+`'respond      ` 
+Toggle auto response when you start with the word 'Alfred'
+`'change_nickname @mention New name` 
+Change the nickname of the person, <alias: '*'>
+"""
+
+effec = f"""
+\n'effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie 
 """
 
 def help_him(ctx, client, re):
@@ -119,6 +129,34 @@ def help_him(ctx, client, re):
         thumbnail=thumbnail,
         picture="https://i.ytimg.com/vi/aN6Ywnwsahk/maxresdefault.jpg"
     )
+    github_help = cembed(
+        title="Source Code for Alfred",
+        description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://nextcord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",
+        color=re[8],
+        thumbnail="https://github.githubassets.com/images/modules/open_graph/github-octocat.png",
+        picture=thumbnail,
+    )
+    first_page = cembed(
+        title="Help",
+        description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '\n\nIf you have any complaints or issues with Alfred, please give us a feedback using the command `'feedback`",
+        thumbnail="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903",
+        picture=thumbnail,
+        color=re[8],
+    )
+    message_developer = cembed(
+        title = "Message from the developers",
+        description = "Hey guys, just wanted to say something about the bot, We just moved from discord.py to Nextcord, please check if there are some issues with the commands. You can report to us using the `'feedback` command, it's going to be fun.\n\nFor yml_embed, we kept little bit of Presets like\n```\n<server-icon>\n<author-icon>\n<bot-icon>\n<bot-color>\n```\n\nWe're moving to Slash command step by step, so keep watching that, it's going to be fun, and Thank you for choosing Alfred, I hope to see your irl, Good Bye, Check through this page btw to see more updates.",
+        color=re[8],
+        thumbnail=thumbnail,
+        picture="https://www.whitesourcesoftware.com/wp-content/media/2021/05/aHViPTcyNTE0JmNtZD1pdGVtZWRpdG9yaW1hZ2UmZmlsZW5hbWU9aXRlbWVkaXRvcmltYWdlXzVlMjA1MWQxOWY2NTUuanBnJnZlcnNpb249MDAwMCZzaWc9NGJhMDhmZWU5ZDQ4ZGVjNjcwNzFlNmFhMDg3NzliNzA3D.jpeg"
+    )
+    effects_help = cembed(
+        title="Effects",
+        description="This command will apply effects to your Profile Picture, Use it by `'effects <effect name> @mention`"+effec,
+        color=re[8],
+        thumbnail=thumbnail,
+        image="https://github.com/alvinbengeorge/alfred-discord-bot/blob/temporary-push/Krypton.png?raw=true"
+    )
         
 
-    return [music_help, mod_help, yaml_help, reddit_help, wolfram_help, code_help, Emoji_help, prefix_help, youtube_help, instagram_help]
+    return [first_page, github_help, message_developer, effects_help, music_help, mod_help, yaml_help, reddit_help, wolfram_help, code_help, Emoji_help, prefix_help, youtube_help, instagram_help]

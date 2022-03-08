@@ -3,6 +3,7 @@ import hashlib
 import psutil
 import os
 import nextcord as discord
+from discord import SlashOption
 import random
 import imdb
 import emoji
@@ -541,3 +542,34 @@ def check_end(s : str):
     if not s.endswith("/videos"):
         return s+"/videos"
     return s
+
+def check_voice(ctx):
+    try:
+        mem = [str(names) for names in getattr(ctx, 'voice_client', getattr(ctx.guild, 'voice_client', None)).channel.members]
+    except:
+        mem = []
+    return mem.count(str(getattr(ctx, 'author', getattr(ctx, 'user', None)))) > 0
+
+async def player_reactions(mess):
+    await mess.add_reaction("⏮")
+    await mess.add_reaction("⏸")
+    await mess.add_reaction("▶")
+    await mess.add_reaction("🔁")
+    await mess.add_reaction("⏭")
+    await mess.add_reaction("⏹")
+    await mess.add_reaction(emoji.emojize(":keycap_*:"))
+    await mess.add_reaction(emoji.emojize(":upwards_button:"))
+    await mess.add_reaction(emoji.emojize(":downwards_button:"))
+
+def defa(*types, default = None, names=[]):
+    if types == []: return SlashOption(default = default)
+    elif names != []:
+        if type(names) == str: return SlashOption(name=names)
+        Options = []
+        for i in names:
+            if type(i) == tuple:
+                Options.append(SlashOption(*i))
+            else:
+                Options.append(SlashOption(name=str(i)))
+        return Options
+    return SlashOption(channel_types = types)

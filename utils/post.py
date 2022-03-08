@@ -88,6 +88,7 @@ class Post(_StaticHtmlScraper):
         return_instance.timestamp = 0
         if hasattr(return_instance, "timestamp"):
             return_instance.upload_date = datetime.datetime.fromtimestamp(return_instance.timestamp)
+            pass
         if hasattr(return_instance, "shortcode"):
             return_instance.url = self._url_from_suburl(return_instance.shortcode)
 
