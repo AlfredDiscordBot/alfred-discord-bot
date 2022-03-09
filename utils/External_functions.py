@@ -513,11 +513,13 @@ async def get_async(url, headers = {}, kind = "content"):
                 output = None
         await session.close()
     return output
-
-
+    
 async def post_async(api, header = {}, json = {}):
     async with aiohttp.ClientSession() as session:
         async with session.post(api, headers=header, json=json) as resp:
+            print(resp.headers['Content-Type'])
+            if resp.headers['Content-Type'] == 'application/json':
+                return resp.read()
             return await resp.json()
             
 def suicide_m(client,color):

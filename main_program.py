@@ -488,12 +488,10 @@ async def effects(ctx, effect:str = None, member:nextcord.Member=None):
                     )
                 )
         return
-
     elif effect in styles:
         json = {"url":url, "effect":effect}
 
         byte = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/style", json=json)
-
 
     elif effect in effects:
         json = {"url":url, "effect":effect}
