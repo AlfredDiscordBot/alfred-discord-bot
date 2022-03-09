@@ -1065,12 +1065,6 @@ async def pr_slash(ctx, text):
     req()
     await ctx.send(text)
 
-
-@client.command(aliases=["say"])
-async def pr(ctx, *, text):
-    await ctx.send(text)
-
-
 @client.slash_command(
     name="reddit",
     description="Gives you a random reddit post from the account you specify",
@@ -2217,7 +2211,7 @@ async def play(ctx, *, index):
             mem = []
         if mem.count(str(getattr(ctx, 'author', getattr(ctx, 'user', None)))) > 0:
             if ind.isnumeric():
-                if int(ind) < len(queue_song[str(ctx.guild.id)]):
+                if int(ind) <= len(queue_song[str(ctx.guild.id)]):
                     re[3][str(ctx.guild.id)] = int(ind)
                     voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
                     URL = youtube_download(
@@ -2482,7 +2476,7 @@ async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Ques
     text = Question+"\n\n"
     Options = Options.split("|")
     for i in range(len(Options)):
-        text+=f"{emoji.emojize(f':keycap_{i+1}:')} : {Options[i]}:\n"
+        text+=f"{emoji.emojize(f':keycap_{i+1}:') if i<10 else Emoji_alphabets[i-10]}: {Options[i]}\n"
 
     embed=cembed(
         title="Poll",
@@ -2495,7 +2489,7 @@ async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Ques
         embed = embed
     )
     
-    for i in range(len(Options)): await message.add_reaction(emoji.emojize(f":keycap_{i+1}:"))
+    for i in range(len(Options)): await message.add_reaction(emoji.emojize(f":keycap_{i+1}:") if i<10 else Emoji_alphabets[i-10])
 
     await ctx.send("Poll sent")
 

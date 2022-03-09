@@ -569,3 +569,6 @@ def defa(*types, default = None, choices=[]):
     if choices != []:
         return SlashOption(choices=choices, default = None)   
     return SlashOption(channel_types = types)
+
+
+Emoji_alphabets = ['🇦','🇧','🇨','🇩','🇪','🇫','🇬']
