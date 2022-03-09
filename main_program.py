@@ -78,22 +78,6 @@ coin_message = (
     + emoji.emojize(":hibiscus:")
     + " for tails"
 )
-global board, Emoji_list
-Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
-Raw_Emoji_list = [emoji.emojize(":keycap_" + str(i) + ":") for i in range(1, 10)]
-
-
-def reset_board():
-    global board
-    board = ""
-    for i in range(1, 10):
-        board = board + emoji.emojize(":keycap_" + str(i) + ":") + " | "
-        if i % 3 == 0:
-            board = board + "\n----    ----        ----\n"
-    return board
-
-
-board = reset_board()
 global sent
 global past_respose, generated
 observer=[]
@@ -103,7 +87,6 @@ generated = []
 deathrate = {}
 sent = None
 instagram_posts = []
-dictionary = dict(zip(Raw_Emoji_list, Emoji_list))
 intents = nextcord.Intents().default()
 intents.members = True
 temp_dev = {}
@@ -469,7 +452,7 @@ async def get_pfp(ctx, member:nextcord.Member=None):
     await ctx.send(embed=embed)
     
 @client.slash_command(name="effects",description="cool effects with your profile picture")
-async def eff(ctx, effect:str = defa(default=None), member:nextcord.Member=defa(default=None)):
+async def eff(ctx, member:nextcord.Member=defa(default=None), effect = helping_hand.effects_helper()):
     await effects(ctx, effect = effect, member = member)
 
 @client.command(aliases=['ef','effect'])
@@ -500,7 +483,7 @@ async def effects(ctx, effect:str = None, member:nextcord.Member=None):
         await ctx.send(
                     embed=cembed(
                         title="OOPS",
-                        description="""hmm no such effect. The effects are given below. \n s!effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie """,
+                        description="""hmm no such effect. The effects are given below. \n 'effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie """,
                         color=re[8],
                     )
                 )
@@ -515,9 +498,7 @@ async def effects(ctx, effect:str = None, member:nextcord.Member=None):
     elif effect in effects:
         json = {"url":url, "effect":effect}
 
-        byte = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/cv", json=json)
-
-    
+        byte = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/cv", json=json)    
     await ctx.send(file=nextcord.File(BytesIO(byte), 'effect.png'))
 
 @client.command(aliases=['transform'])
@@ -833,8 +814,7 @@ async def entrar(ctx, *, num=re[6]):
 
 
 @client.slash_command(name="entrar", description="Latest announcements from Entrar")
-async def yentrar(ctx, *, num=re[6]):
-    
+async def yentrar(ctx, *, num=re[6]):    
     await entrar(ctx)
 
 
@@ -1033,10 +1013,11 @@ async def color_slash(ctx, rgb_color=defa(default="")):
         )
         return
 
-    re[8] = discord.Color.from_rgb(*rgb_color).value
+    re[8] = discord.Color.from_rgb(*[int(i) for i in rgb_color]).value
+    if re[8]>16777215: re[8] = 16777215
     embed=cembed(
         title="Done",
-        description=f"Color set as {tup(rgb_color)}\n`{re[8]}`",
+        description=f"Color set as {nextcord.Color(re[8]).to_rgb()}\n`{re[8]}`",
         color=re[8],
         thumbnail = client.user.avatar.url,
         footer=f"Executed by {ctx.user.name} in {ctx.channel.name}"
@@ -1602,6 +1583,7 @@ async def remove(ctx, n):
                     color=nextcord.Color(value=re[8]),
                 )
             )
+            if re[3][str(ctx.guild.id)]>int(n):re[3][str(ctx.guild.id)]-=1
             del da1[queue_song[str(ctx.guild.id)][int(n)]]
             queue_song[str(ctx.guild.id)].pop(int(n))
         else:
@@ -1741,7 +1723,7 @@ async def show_playlist(ctx, *, name):
                     thumbnail=client.user.avatar.url,
                 )
             )
-        await pa(embeds, ctx)
+        await pa1(embeds, ctx)
     else:
         await ctx.send(
             embed=cembed(
@@ -1986,13 +1968,10 @@ async def next(ctx):
     except Exception as e:
         channel = client.get_channel(dev_channel)
         await channel.send(
-            embed=nextcord.Embed(
+            embed=cembed(
                 title="Error in next function",
-                description=str(e)
-                + "\n"
-                + str(ctx.guild)
-                + ": "
-                + str(ctx.channel.name),
+                description=str(e),
+                footer=f"{ctx.channel.name}:{ctx.guild.name}",
                 color=nextcord.Color(value=re[8]),
             )
         )
@@ -2208,9 +2187,17 @@ async def search_queue(ctx, part):
         )
     )
 
+@client.slash_command(name = "play", description = "play a song")
+async def play_slash(ctx, index):
+    await play(ctx, index = index)
 
+@client.slash_command(name = "queue", description = "play a song")
+async def queue_slash(ctx, song):
+    await queue(ctx, song = song)
+    
 @client.command(aliases=["p"])
-async def play(ctx, *, ind):
+async def play(ctx, *, index):
+    ind = index
     req()
     if (
         nextcord.utils.get(ctx.bot.voice_clients, guild=ctx.guild) == None
@@ -2271,32 +2258,24 @@ async def play(ctx, *, ind):
                     await ctx.send(embed=embed)
             else:
                 name = ind
-                if name.find("rick") == -1:
-                    voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
-                    name = convert_to_url(name)
-                    htm = urllib.request.urlopen(
-                        "https://www.youtube.com/results?search_query=" + name
+                voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
+                name = convert_to_url(name)
+                htm = await get_async("https://www.youtube.com/results?search_query=" + name)
+                video = regex.findall(r"watch\?v=(\S{11})", htm)
+                url = "https://www.youtube.com/watch?v=" + video[0]
+                URL, name_of_the_song = youtube_download1(ctx, url)
+                re[3][str(ctx.guild.id)] = len(queue_song[str(ctx.guild.id)])
+                queue_song[str(ctx.guild.id)].append(URL)
+                da1[URL] = name_of_the_song
+                voice.stop()
+                voice.play(nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                await ctx.send(
+                    embed=nextcord.Embed(
+                        title="Playing",
+                        description=name_of_the_song,
+                        color=nextcord.Color(value=re[8]),
                     )
-                    video = regex.findall(r"watch\?v=(\S{11})", htm.read().decode())
-                    url = "https://www.youtube.com/watch?v=" + video[0]
-                    URL, name_of_the_song = youtube_download1(ctx, url)
-                    voice.stop()
-                    voice.play(nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-                    await ctx.send(
-                        embed=nextcord.Embed(
-                            title="Playing",
-                            description=name_of_the_song,
-                            color=nextcord.Color(value=re[8]),
-                        )
-                    )
-                else:
-                    mess = await ctx.send(
-                        embed=nextcord.Embed(
-                            title="Playing",
-                            description="Rick Astley - Never Gonna Give You Up (Official Music Video) - YouTube :wink:",
-                            color=nextcord.Color(value=re[8]),
-                        )
-                    )
+                )
 
         else:
             await ctx.send(
@@ -2808,7 +2787,6 @@ async def on_reaction_add(reaction, user):
     req()
     try:
         if not user.bot:
-            global color_temp
             save_to_file()
             global Emoji_list
             if (

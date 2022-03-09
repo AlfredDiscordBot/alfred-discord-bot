@@ -1,4 +1,4 @@
-from External_functions import cembed
+from External_functions import cembed, defa
 
 
 y = """
@@ -43,6 +43,29 @@ Change the nickname of the person, <alias: '*'>
 effec = f"""
 \n'effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie 
 """
+
+def effects_helper():
+    return defa(
+        choices = [
+            'cartoonify',
+            'watercolor',
+            'canny',
+            'pencil',
+            'econify',
+            'negative',
+            'pen',
+            'candy',
+            'composition',
+            'feathers',
+            'muse',
+            'mosaic',
+            'night',
+            'scream',
+            'wave',
+            'udnie'
+        ],
+        default = None
+    )
 
 def help_him(ctx, client, re):
 
@@ -160,3 +183,5 @@ def help_him(ctx, client, re):
         
 
     return [first_page, github_help, message_developer, effects_help, music_help, mod_help, yaml_help, reddit_help, wolfram_help, code_help, Emoji_help, prefix_help, youtube_help, instagram_help]
+
+

@@ -505,6 +505,7 @@ async def get_async(url, headers = {}, kind = "content"):
                     f = await aiofiles.open(kind[5:], mode = "wb")
                     await f.write(await resp.read())
                     await f.close()
+                    return
                 else:
                     output = await resp.text()
                 
@@ -550,7 +551,7 @@ def check_voice(ctx):
         mem = []
     return mem.count(str(getattr(ctx, 'author', getattr(ctx, 'user', None)))) > 0
 
-async def player_reactions(mess):
+async def player_reaction(mess):
     await mess.add_reaction("⏮")
     await mess.add_reaction("⏸")
     await mess.add_reaction("▶")
@@ -561,15 +562,8 @@ async def player_reactions(mess):
     await mess.add_reaction(emoji.emojize(":upwards_button:"))
     await mess.add_reaction(emoji.emojize(":downwards_button:"))
 
-def defa(*types, default = None, names=[]):
-    if types == []: return SlashOption(default = default)
-    elif names != []:
-        if type(names) == str: return SlashOption(name=names)
-        Options = []
-        for i in names:
-            if type(i) == tuple:
-                Options.append(SlashOption(*i))
-            else:
-                Options.append(SlashOption(name=str(i)))
-        return Options
+def defa(*types, default = None, choices=[]):
+    if types == []: return SlashOption(default = default, required = False)
+    if choices != []:
+        return SlashOption(choices=choices, default = None)   
     return SlashOption(channel_types = types)
