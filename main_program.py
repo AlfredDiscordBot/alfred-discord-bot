@@ -2265,7 +2265,8 @@ async def play(ctx, *, index):
                 url = "https://www.youtube.com/watch?v=" + video[0]
                 URL, name_of_the_song = youtube_download1(ctx, url)
                 re[3][str(ctx.guild.id)] = len(queue_song[str(ctx.guild.id)])
-                queue_song[str(ctx.guild.id)].append(URL)
+                if queue_song[str(ctx.guild.id)][-1] != URL:
+                    queue_song[str(ctx.guild.id)].append(URL)
                 da1[URL] = name_of_the_song
                 voice.stop()
                 voice.play(nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
