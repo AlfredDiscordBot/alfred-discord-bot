@@ -7,7 +7,7 @@ from discord_slash import cog_ext
 
 from External_functions import cembed, extract_color
 from stuff import re, dev_users, ydl_op, req, dev_channel, load_from_file, deleted_message, prefix_dict, censor, \
-    g_req
+    g_req, slash
 
 
 class Utils(commands.Cog):
@@ -29,7 +29,8 @@ class Utils(commands.Cog):
         print(webhooks)
         for webhook in webhooks:
             try:
-                await webhook.delete()
+                if webhook.user is client.user:
+                    await webhook.delete()
             except Exception as e:
                 print(e)
 
@@ -330,7 +331,7 @@ class Utils(commands.Cog):
         )
         await ctx.send(embed=em)
 
-    @cog_ext.cog_slash(name="check", description="Check if the bot is online")
+    @slash.slash(name="check", description="Check if the bot is online")
     async def check_slash(self, ctx):
         req()
         await ctx.defer()

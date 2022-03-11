@@ -1,3 +1,10 @@
+def temporary_fix():
+    from shutil import copyfile
+    copyfile("./youtube.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/youtube_dl/extractor/youtube.py")
+
+temporary_fix()
+
+
 from dotenv import load_dotenv
 import speedtest
 import time
@@ -311,7 +318,20 @@ client = commands.Bot(
 )
 slash = SlashCommand(client, sync_commands=True)
 
+for filename in os.listdir("./cogs"):
+    try:
+        if filename.endswith('.py'):
+            client.load_extension(f'cogs.{filename[:-3]}')
+    except Exception as e:
+        print(traceback.print_exc())
 
+for filename in os.listdir("./cogs/music"):
+    try:
+        if filename.endswith('.py'):
+            if filename in ['repeat.py']: continue
+            client.load_extension(f'cogs.music.{filename[:-3]}')
+    except Exception as e:
+        print(traceback.print_exc())
 
 
 
