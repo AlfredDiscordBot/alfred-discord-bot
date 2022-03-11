@@ -22,14 +22,13 @@ google==3.0.0
 GoogleNews==1.5.8
 greenlet==1.1.2
 idna==3.1
-IMDbPY==2021.4.18
+IMDbPY
 iniconfig==1.1.1
 insta-scrape
 instagramy==4.4
 itsdangerous==2.0.1
 jaraco.context==4.1.1
 Jinja2==3.0.3
-lxml==4.7.1
 MarkupSafe==2.0.1
 more-itertools==8.12.0
 multidict==5.1.0

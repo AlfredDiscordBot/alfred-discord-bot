@@ -251,7 +251,10 @@ def cembed(
 ):
     embed = discord.Embed()
     if color != discord.Color.dark_theme():
-        embed = discord.Embed(color=discord.Color(value=color))
+        if type(color) == int:
+            embed = discord.Embed(color=discord.Color(value=color))
+        else:
+            embed = discord.Embed(color=color)
     if title != "":
         embed.title = title
     if description != "":
@@ -273,7 +276,7 @@ def cembed(
     return embed
 
 
-def imdb_embed(movie):
+def imdb_embed(movie,re):
     """
     Returns details about a movie as an embed in discord
     Parameters include movies
@@ -293,14 +296,14 @@ def imdb_embed(movie):
         return cembed(
             title=title,
             description=summary[summary.find("=") + 5 :],
-            color=discord.Color.from_rgb(255, 255, 255).value,
+            color=re[8],
             picture=image,
         )
     except:
         return cembed(
             title="Oops",
             description="Something went wrong, check if the name is correct",
-            color=discord.Color.from_rgb(255, 255, 255).value,
+            color=re[8],
         )
 
 
@@ -570,5 +573,10 @@ def defa(*types, default = None, choices=[]):
         return SlashOption(choices=choices, default = None)   
     return SlashOption(channel_types = types)
 
+async def ly(song, re):
+    j = await get_async(f"https://api.popcat.xyz/lyrics?song={convert_to_url(song)}",kind="json")
+    return cembed(title=j['title'],description=j['lyrics'],color=re[8],thumbnail=j['image'],footer=j['artist'])
 
-Emoji_alphabets = ['🇦','🇧','🇨','🇩','🇪','🇫','🇬']
+
+    
+Emoji_alphabets = [emoji.emojize(f":regional_indicator_{chr(i+97)}:") for i in range(26)]

@@ -231,18 +231,10 @@ def main(client, re):
             li.append(embed)
         await pa1(li, ctx)
 
-    @client.slash_command(name = "screenshot",description = "Takes a screenshot of the website")
-    async def screenshot(ctx, url):
-        fp = await ef.get_async(f"https://render-tron.appspot.com/screenshot/{ef.convert_to_url(url)}/?width=600&height=400")
-        file = discord.File(fp, filename="image.png")
-        print(url)
-        await ctx.send(file = file)
-
+    
     @client.command()
     async def lyrics(ctx, *, song):
-        j = await ef.get_async(f"https://api.popcat.xyz/lyrics?song={convert_to_url(song)}",kind="json")
-        await ctx.send(embed=ef.cembed(title=j['title'],description=j['lyrics'],color=re[8],thumbnail=j['image'],footer=j['artist']))
-
+        await ctx.send(embed=ef.ly(song, re))
         
     async def pa1(embeds, ctx, start_from=0):
         message = await ctx.send(embed=embeds[start_from])
