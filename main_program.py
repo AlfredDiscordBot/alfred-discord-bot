@@ -305,6 +305,7 @@ async def youtube_loop():
     await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.watching, name=str(len(client.guilds))+" servers"))
     print("Youtube_loop")
     for i,l in config['youtube'].items():
+        await asyncio.sleep(2)
         for j in l:
             a = await get_youtube_url(j[0])
             if a[0]=="https://www.youtube.com/" or a[0]=="https://www.youtube.com":
@@ -1845,7 +1846,7 @@ async def queue(ctx, *, name=""):
             title="Queue", description=st, color=nextcord.Color(value=re[8])
         )
         mess = await ctx.send(embed=em)
-        await player_reaction(mess)
+        await player_pages(mess)
     elif name == "":
         num = 0
         st = ""
@@ -1891,7 +1892,7 @@ async def queue(ctx, *, name=""):
         )
         embed.set_thumbnail(url=client.user.avatar.url)
         mess = await ctx.send(embed=embed)
-        await player_reaction(mess)
+        await player_pages(mess)
     else:
         await ctx.send(
             embed=nextcord.Embed(
@@ -1901,6 +1902,42 @@ async def queue(ctx, *, name=""):
             )
         )
 
+
+
+async def player_pages(mess):
+    await player_reaction(mess)    
+    emojis =  emoji.emojize(":upwards_button:"),emoji.emojize(":downwards_button:")
+    def check(reaction, user):
+        return (
+            user.id != client.user.id
+            and str(reaction.emoji) in emojis
+            and reaction.message.id == mess.id
+        )
+    page=re[3][str(mess.guild.id)]//10
+    while True:
+        songs = queue_song[str(mess.guild.id)]
+        try:
+            reaction, user = await client.wait_for("reaction_add",check=check, timeout=None)
+            if reaction.emoji == emojis[0] and page>0:
+                page-=1
+            elif reaction.emoji == emojis[1] and page<=len(songs):
+                page+=1
+            cu = page * 10
+            st = '\n'.join([f"{i}. {da1[songs[i]]}" for i in range(cu,cu+10) if len(songs)>i])
+            await mess.edit(
+                embed=cembed(
+                    title="Queue",
+                    description=st,
+                    color=re[8],
+                    footer='Amazing songs btw, keep going' if len(songs)!=0 else 'Use queue to add some songs'
+                )
+            )
+            await reaction.remove(user)
+        except asyncio.TimeoutError:
+            await mess.clear_reactions()
+            
+                
+                
 
 @client.command(aliases=[">", "skip"])
 async def next(ctx):
@@ -2001,6 +2038,7 @@ async def remove_prefix(ctx):
 @client.slash_command(name="news", description="Latest news from a given subject")
 async def news_slash(ctx, subject="Technology"):
     req()    
+    await ctx.response.defer()
     await news(ctx, subject)
 
 @client.command()
@@ -2234,7 +2272,7 @@ async def play(ctx, *, index):
                         nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                         after=lambda e: repeat(ctx, voice),
                     )
-                    await player_reaction(mess)
+                    await player_pages(mess)
                 else:
                     embed = nextcord.Embed(
                         title="Hmm",
@@ -2339,7 +2377,7 @@ async def again(ctx):
                     nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                     after=lambda e: repeat(ctx, voice),
                 )
-                await player_reaction(mess)
+                await player_pages(mess)
             else:
                 await ctx.send(
                     embed=cembed(
@@ -2371,6 +2409,7 @@ async def again(ctx):
 @client.slash_command(name="again", description="Repeat the song")
 async def again_slash(ctx):
     req()
+    await ctx.response.defer()
     await again(ctx)
 
 
@@ -2762,80 +2801,7 @@ async def on_reaction_add(reaction, user):
     try:
         if not user.bot:
             save_to_file()
-            global Emoji_list
-            if (
-                reaction.emoji == emoji.emojize(":upwards_button:")
-                and len(queue_song[str(reaction.message.guild.id)]) > 0
-                and reaction.message.author == client.user
-            ):                
-                if not reaction.message in list(pages.keys()):
-                    pages[reaction.message] = 0
-                else:
-                    if pages[reaction.message] > 0:
-                        pages[reaction.message] -= 1
-                st = ""
-                for i in range(
-                    pages[reaction.message] * 10,
-                    (pages[reaction.message] * 10) + 10,
-                ):
-                    try:
-                        song = queue_song[str(reaction.message.guild.id)][i]
-                        if song not in da1.keys():
-                            da1[song] = youtube_info(song)["title"]
-                        st = f"{st}{i}. {da1[song]}\n"
-                    except Exception as e:
-                        print(e)
-                    
-                await reaction.message.edit(
-                    embed=nextcord.Embed(
-                        title="Queue",
-                        description=st,
-                        color=nextcord.Color(value=re[8]),
-                        )
-                    )
-                await reaction.remove(user)            
-            if (
-                reaction.emoji == emoji.emojize(":downwards_button:")
-                and len(queue_song[str(reaction.message.guild.id)]) > 0
-                and reaction.message.author == client.user
-            ):
-                
-                if not reaction.message in list(pages.keys()):
-                    pages[reaction.message] = 0
-                else:
-                    if pages[reaction.message] * 10 < len(
-                        queue_song[str(reaction.message.guild.id)]
-                    ):
-                        pages[reaction.message] += 1
-                    else:
-                        pages[reaction.message] = (
-                            len(queue_song[str(reaction.message.guild.id)]) // 10
-                        )
-                st = ""
-                for i in range(
-                    pages[reaction.message] * 10,
-                    (pages[reaction.message] * 10) + 10,
-                ):
-                    try:
-                        song = queue_song[str(reaction.message.guild.id)][i]
-                        if song not in da1.keys():
-                            da1[song] = youtube_info(song)["title"]
-                        st = f"{st}{i}. {da1[song]}\n"
-                    except Exception as e:
-                        print(e)
-                        
-                if st == "":
-                    st = "End of queue"
-                await reaction.message.edit(
-                    embed=nextcord.Embed(
-                        title="Queue",
-                        description=st,
-                        color=nextcord.Color(value=re[8]),
-                    )
-                )
-                await reaction.remove(user)
-
-            
+            global Emoji_list           
             if reaction.emoji == emoji.emojize(":musical_note:"):               
                 await currentmusic(reaction.message)    
                 await reaction.remove(user)

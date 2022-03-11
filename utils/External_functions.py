@@ -566,6 +566,7 @@ async def player_reaction(mess):
     await mess.add_reaction(emoji.emojize(":keycap_*:"))
     await mess.add_reaction(emoji.emojize(":upwards_button:"))
     await mess.add_reaction(emoji.emojize(":downwards_button:"))
+    await mess.add_reaction(emoji.emojize(":musical_note:"))
 
 def defa(*types, default = None, choices=[]):
     if types == []: return SlashOption(default = default, required = False)
