@@ -53,7 +53,8 @@ def main(client, re):
             await ctx.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description = "You dont have enough permission to execute this command"
+                    description = "You dont have enough permission to execute this command",
+                    color=re[8]
                 )
             )
             return
@@ -77,7 +78,8 @@ def main(client, re):
             await ctx.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description = "You dont have enough permission to execute this command"
+                    description = "You dont have enough permission to execute this command",
+                    color=re[8]
                 )
             )
             return

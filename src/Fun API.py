@@ -216,49 +216,52 @@ def main(client, re):
             embeds.append(embed)
         await pa1(embeds,ctx)
 
-        
-    @client.command(aliases=["g"])
-    async def google(ctx, *, text):
-        re[0] += 1
-        li = []
-        print(text, str(ctx.author))
-        for i in search(text, num=5, stop=5, pause=0):
-            embed = ef.cembed(title="Google",
-                              color=re[8],
-                              thumbnail=client.user.avatar.url,
-                              picture=f"https://render-tron.appspot.com/screenshot/{ef.convert_to_url(i)}/?width=600&height=400")
-            embed.url = i
-            li.append(embed)
-        await pa1(li, ctx)
-
     
     @client.command()
     async def lyrics(ctx, *, song):
         await ctx.send(embed=ef.ly(song, re))
         
-    async def pa1(embeds, ctx, start_from=0):
+    async def pa1(embeds, ctx, start_from=0, restricted = False):
         message = await ctx.send(embed=embeds[start_from])
         pag = start_from
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
+        
+    
         def check(reaction, user):
-            return (
-                user != client.user
-                and str(reaction.emoji) in ["◀️", "▶️"]
-                and reaction.message.id == message.id
-            )
+            if not restricted:            
+                return (
+                    user.id != client.user.id
+                    and str(reaction.emoji) in ["◀️", "▶️"]
+                    and reaction.message.id == message.id
+                )
+            else:
+                a = (
+                    user.id != client.user.id
+                    and str(reaction.emoji) in ["◀️", "▶️"]
+                    and reaction.message.id == message.id
+                    and user.id == getattr(ctx, 'author', getattr(ctx,'user',None)).id
+                )
+                return a
+    
         while True:
             try:
                 reaction, user = await client.wait_for(
-                    "reaction_add", timeout=360, check=check
-                )
-                await message.remove_reaction(reaction, user)
+                    "reaction_add", timeout=720, check=check
+                )            
                 if str(reaction.emoji) == "▶️" and pag + 1 != len(embeds):
                     pag += 1
                     await message.edit(embed=embeds[pag])
                 elif str(reaction.emoji) == "◀️" and pag != 0:
                     pag -= 1
                     await message.edit(embed=embeds[pag])
+                try:
+                    await message.remove_reaction(reaction, user)
+                except:
+                    pass
             except asyncio.TimeoutError:
+                await message.remove_reaction("◀️", client.user)
+                await message.remove_reaction("▶️", client.user)
                 break
-                
+    
+                    

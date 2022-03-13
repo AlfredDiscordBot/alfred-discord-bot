@@ -81,28 +81,45 @@ def main(client, re):
                 )
             )
             
-    async def pa1(embeds, ctx, start_from=0):
+    async def pa1(embeds, ctx, start_from=0, restricted = False):
         message = await ctx.send(embed=embeds[start_from])
         pag = start_from
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")
+        
+    
         def check(reaction, user):
-            return (
-                user != client.user
-                and str(reaction.emoji) in ["◀️", "▶️"]
-                and reaction.message.id == message.id
-            )
+            if not restricted:            
+                return (
+                    user.id != client.user.id
+                    and str(reaction.emoji) in ["◀️", "▶️"]
+                    and reaction.message.id == message.id
+                )
+            else:
+                a = (
+                    user.id != client.user.id
+                    and str(reaction.emoji) in ["◀️", "▶️"]
+                    and reaction.message.id == message.id
+                    and user.id == getattr(ctx, 'author', getattr(ctx,'user',None)).id
+                )
+                return a
+    
         while True:
             try:
                 reaction, user = await client.wait_for(
-                    "reaction_add", timeout=360, check=check
-                )
-                await message.remove_reaction(reaction, user)
+                    "reaction_add", timeout=720, check=check
+                )            
                 if str(reaction.emoji) == "▶️" and pag + 1 != len(embeds):
                     pag += 1
                     await message.edit(embed=embeds[pag])
                 elif str(reaction.emoji) == "◀️" and pag != 0:
                     pag -= 1
                     await message.edit(embed=embeds[pag])
+                try:
+                    await message.remove_reaction(reaction, user)
+                except:
+                    pass
             except asyncio.TimeoutError:
+                await message.remove_reaction("◀️", client.user)
+                await message.remove_reaction("▶️", client.user)
                 break

@@ -18,7 +18,9 @@ import aiohttp
 import traceback
 import aiofiles
 
+from functools import lru_cache
 from datetime import datetime
+from collections import Counter
 
 ydl_op = {
     "format": "bestaudio/best",
@@ -33,7 +35,9 @@ ydl_op = {
 SVG2PNG_API_URI = os.getenv("svg2pnguri")
 SVG2PNG_API_TOKEN = os.getenv("svg2pngtoken")
 
+Emoji_alphabets = [emoji.emojize(f":regional_indicator_{chr(i+97)}:") for i in range(26)]
 
+@lru_cache(maxsize = 512)
 def youtube_info(url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
         info = ydl.extract_info(url, download=False)
@@ -216,7 +220,7 @@ def instagram_get1(account, color, SESSIONID):
         #SESSIONID = get_it()
         return SESSIONID
 
-
+@lru_cache(maxsize=512)
 async def get_youtube_url(url):
 
     """
@@ -501,19 +505,18 @@ async def get_async(url, headers = {}, kind = "content"):
     output = ""
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(url) as resp:
-            if True:
-                if kind == "json":                
-                    output = await resp.json()
-                elif kind.startswith("file>"):
-                    f = await aiofiles.open(kind[5:], mode = "wb")
-                    await f.write(await resp.read())
-                    await f.close()
-                    return
-                else:
-                    output = await resp.text()
-                
+            if kind == "json":                
+                output = await resp.json()
+            elif kind.startswith("file>"):
+                f = await aiofiles.open(kind[5:], mode = "wb")
+                await f.write(await resp.read())
+                await f.close()
+                return
+            elif kind == "fp":
+                output = await resp.read()
             else:
-                output = None
+                output = await resp.text()
+                
         await session.close()
     return output
     
@@ -578,6 +581,11 @@ async def ly(song, re):
     j = await get_async(f"https://api.popcat.xyz/lyrics?song={convert_to_url(song)}",kind="json")
     return cembed(title=j['title'],description=j['lyrics'],color=re[8],thumbnail=j['image'],footer=j['artist'])
 
+async def isReaction(ctx, embed):
+    if type(ctx) == discord.message.Message:
+        await ctx.edit(embed=embed)
+    else:
+        await ctx.send(embed=embed)
 
-    
-Emoji_alphabets = [emoji.emojize(f":regional_indicator_{chr(i+97)}:") for i in range(26)]
+def uniq(li):
+    return list(Counter(li).keys())

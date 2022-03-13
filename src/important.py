@@ -1,10 +1,11 @@
 def requirements():
-    return ["re"]
+    return ["re","dev_users"]
 
 
-def main(client, re):
+def main(client, re, dev_users):
     import nextcord as discord
     import random
+    import External_functions as ef
 
     # from gi.repository import Notify
     @client.command()
@@ -63,7 +64,7 @@ def main(client, re):
     async def batsignal(ctx):
         # https://c.tenor.com/0GJ-XEcYLfcAAAAd/wongwingchun58.gif
         alvin = client.get_user(432801163126243328).mention
-        await ctx.send(str(alvin) + "You've been summoned by " + ctx.author.name)
+        await ctx.send(str(alvin) + " You've been summoned by " + ctx.author.name)
         await ctx.send("https://c.tenor.com/0GJ-XEcYLfcAAAAd/wongwingchun58.gif")
 
     @client.command()
@@ -76,3 +77,31 @@ def main(client, re):
                 color=discord.Color(value=re[8]),
             )
         )
+
+    @client.command()
+    async def reply(ctx, channel, *, repl):
+        if str(ctx.author.id) in dev_users and ctx.guild.id == 822445271019421746:
+            channel = client.get_channel(channel)
+            if not channel:
+                await ctx.send(
+                    embed=ef.cembed(
+                        description="This channel does not exist",
+                        color=re[8]
+                    )
+                )
+                return
+            await ctx.send(
+                embed=ef.cembed(
+                    description = repl,
+                    color=re[8]
+                )
+            )
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description="You cannot execute this command here" if ctx.guild.id != 822445271019421746 else "You're not a developer to do this",
+                    color=re[8]
+                )
+            )
+        
