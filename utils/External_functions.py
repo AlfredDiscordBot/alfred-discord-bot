@@ -581,11 +581,16 @@ async def ly(song, re):
     j = await get_async(f"https://api.popcat.xyz/lyrics?song={convert_to_url(song)}",kind="json")
     return cembed(title=j['title'],description=j['lyrics'],color=re[8],thumbnail=j['image'],footer=j['artist'])
 
-async def isReaction(ctx, embed):
+async def isReaction(ctx, embed, clear = False):
     if type(ctx) == discord.message.Message:
-        await ctx.edit(embed=embed)
+        message = await ctx.edit(embed=embed)
     else:
-        await ctx.send(embed=embed)
+        message = await ctx.send(embed=embed)
+    if clear:
+        try:
+            await message.clear_reactions()
+        except:
+            pass
 
 def uniq(li):
     return list(Counter(li).keys())

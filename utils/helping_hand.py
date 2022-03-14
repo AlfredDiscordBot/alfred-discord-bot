@@ -129,7 +129,8 @@ def help_him(ctx, client, re):
         """,
         thumbnail=thumbnail,
         color=re[8],
-        picture="https://i.pinimg.com/originals/f1/90/97/f19097b29a4b606f8a91252fab526c6f.jpg"
+        picture="https://i.pinimg.com/originals/f1/90/97/f19097b29a4b606f8a91252fab526c6f.jpg",
+        footer="Here's a little tip, when the bot says that this content is meant for only adults, search for the lyrics version of the song"
     )
     youtube_help = cembed(
         title="Youtube Subscribe to a channel",

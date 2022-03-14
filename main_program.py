@@ -1094,7 +1094,6 @@ async def pr_slash(ctx, text):
 )
 async def reddit_slash(ctx, account="wholesomememes"):
     req()
-    await ctx.send("Executing Reddit command")
     await reddit_search(ctx, account)
 
 
@@ -1119,11 +1118,14 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
             await ctx.send(embed=cembed(title=a[0], color=re[8], description=a[1]))
             
 
-async def pa1(embeds, ctx, start_from=0, restricted = False):
+async def pa1(embeds, ctx, start_from=0, restricted = False):    
     message = await ctx.send(embed=embeds[start_from])
+    if type(ctx) == nextcord.Interaction:
+        ctx.message = await ctx.original_message()
     pag = start_from
     await message.add_reaction("◀️")
     await message.add_reaction("▶️")
+    
     
 
     def check(reaction, user):
@@ -1367,6 +1369,10 @@ async def snipe(ctx, number=0):
             )
         )
 
+@client.event
+async def on_bulk_message_delete(messages):
+    for i in messages:
+        await on_message_delete(i)
 
 @client.event
 async def on_message_delete(message):
@@ -1634,7 +1640,7 @@ async def currentmusic(ctx):
             color=re[8],
             thumbnail=info["thumbnail"],
         )
-        await isReaction(embed)
+        await isReaction(ctx,embed)
     else:
         embed=cembed(
             title="Empty queue",
@@ -2593,10 +2599,9 @@ async def restart_program(ctx, text):
 
 
 
-@client.slash_command(name="dc", description="Disconnect the bot from your voice channel")
+@client.slash_command(name="disconnect", description="Disconnect the bot from your voice channel")
 async def leave_slash(ctx):
-    req()
-    
+    req()    
     await leave(ctx)
 
 
@@ -2614,21 +2619,18 @@ async def leave(ctx):
             voice = ctx.guild.voice_client
             voice.stop()
             await voice.disconnect()
-            await ctx.send(
-                embed=nextcord.Embed(
-                    title="Disconnected",
-                    description="Bye",
-                    color=nextcord.Color(value=re[8]),
-                )
-            )
+            embed=nextcord.Embed(
+                title="Disconnected",
+                description="Bye, Thank you for using Alfred",
+                color=nextcord.Color(value=re[8]),
+            )            
         else:
-            await ctx.send(
-                embed=nextcord.Embed(
-                    title="Permission denied",
-                    description="Nice try dude! Join the voice channel",
-                    color=nextcord.Color(value=re[8]),
-                )
+            embed=nextcord.Embed(
+                title="Permission denied",
+                description="Nice try dude! Join the voice channel",
+                color=nextcord.Color(value=re[8]),
             )
+        await isReaction(ctx,embed,clear=True)
     except Exception as e:
         await ctx.send(
             embed=nextcord.Embed(
@@ -2721,7 +2723,7 @@ async def resume(ctx):
     if mem.count(str(getattr(ctx, 'author', getattr(ctx, 'user', None)))) > 0:
         voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
         voice.resume()
-        url = queue_song[str(Ctx.guild.id)][re[3][str(ctx.guild.id)]]
+        url = queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
         song_name = da1[url]
         embed=nextcord.Embed(
             title="Playing",
@@ -2740,44 +2742,24 @@ async def resume(ctx):
 
 @client.slash_command(name="wikipedia", description="Get a topic from wikipedia")
 async def wiki_slash(ctx, text):
-    try:
-        req()
-        
-        t = str(search(text)[0].encode("utf-8"))
-        em = nextcord.Embed(
-            title=str(t).title(),
-            description=str(summary(t, sentences=5)),
-            color=nextcord.Color(value=re[8]),
-        )
-        em.set_thumbnail(
-            url="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
-        )
-        await ctx.send(embed=em)
-    except Exception as e:
-        await ctx.send(
-            embed=cembed(
-                title="Oops",
-                description=str(e),
-                color=re[8],
-                thumbnail=client.user.avatar.url,
-            )
-        )
+    await ctx.response.defer()
+    await wikipedia(ctx, text = text)
 
 
 @client.command(aliases=["w"])
 async def wikipedia(ctx, *, text):
-    await ctx.response.defer()
     req()
-    t = str(search(text)[0].encode("utf-8"))
-    em = nextcord.Embed(
-        title=str(t).title(),
-        description=str(summary(t, sentences=5)),
-        color=nextcord.Color(value=re[8]),
-    )
-    em.set_thumbnail(
-        url="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
-    )
-    await ctx.send(embed=em)
+    embeds = []
+    for i in search(text):
+        t = str(i.encode("utf-8"))
+        em = cembed(
+            title=str(t).title(),
+            description=str(summary(t, sentences=5)),
+            color=nextcord.Color(value=re[8]),
+            thumbnail="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
+        )
+        embeds.append(em)
+    await pa1(embeds,ctx)
 
 
 @client.command(aliases=["hi"])
@@ -3097,40 +3079,7 @@ async def on_reaction_add(reaction, user):
                     and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
-                    try:
-                        mem = [
-                            names.id
-                            for names in reaction.message.guild.voice_client.channel.members
-                        ]
-                    except:
-                        mem = []
-                    if mem.count(user.id) > 0:
-                        voice = reaction.message.guild.voice_client
-                        voice.stop()
-                        await voice.disconnect()
-                        if user.id == 734275789302005791:
-                            try:
-                                await clearqueue(reaction.message)
-                            except:
-                                pass
-                        await reaction.message.edit(
-                            embed=nextcord.Embed(
-                                title="Disconnected",
-                                description="Bye, Thank you for using Alfred",
-                                color=nextcord.Color(value=re[8]),
-                            )
-                        )
-                    else:
-                        await reaction.message.edit(
-                            embed=nextcord.Embed(
-                                title="Permission denied",
-                                description=(
-                                    "You need to join the voice channel "
-                                    + str(user.name)
-                                ),
-                                color=nextcord.Color(value=re[8]),
-                            )
-                        )
+                    await leave(reaction.message)
             if (
                 reaction.emoji == emoji.emojize(":keycap_*:")
                 and reaction.message.author == client.user
@@ -3741,7 +3690,7 @@ async def help(ctx):
 @client.slash_command(name="help", description="Help from Alfred")
 async def help_slash(ctx):
     req()
-    await ctx.send("Sending help")
+    await ctx.response.defer()
     await help(ctx)
 #keep_alive()
 if os.getenv("dev-bot"):
