@@ -161,7 +161,7 @@ def get_color(color):
         return default_color
     elif type(color) is int:
         return color
-    elif (type(color) is str) and (type(col := eval(color)) is tuple):
+    elif (type(color) is str) and (type(col := color.replace(")","").replace("(","").split(",")) is tuple):
         return discord.Color.from_rgb(*col)
 
     return default_color
@@ -323,7 +323,7 @@ def main(client, re, mspace, dev_channel):
                 embed=embed
             )
 
-    @client.command()
+    @client.command(aliases=['mehspace'])
     async def myspace(ctx, member :discord.Member = None):
         if not member:
             if ctx.author.id in mspace: 

@@ -2,6 +2,7 @@ import requests
 import hashlib
 import psutil
 import os
+import time
 import nextcord as discord
 from discord import SlashOption
 import random
@@ -523,7 +524,6 @@ async def get_async(url, headers = {}, kind = "content"):
 async def post_async(api, header = {}, json = {}, output = "content"):
     async with aiohttp.ClientSession() as session:
         async with session.post(api, headers=header, json=json) as resp:
-            print(resp.headers['Content-Type'])
             if resp.headers['Content-Type'] != 'application/json':
                 return await resp.read()
             return await resp.json()
@@ -594,3 +594,45 @@ async def isReaction(ctx, embed, clear = False):
 
 def uniq(li):
     return list(Counter(li).keys())
+
+def timestamp(i):
+    return time.ctime(i)
+
+class SpaceX:
+    def __init__(self,color):
+        self.name = None
+        self.time = None
+        self.fno = None
+        self.thumbnail = None
+        self.youtube = None
+        self.wikipedia = None
+        self.crew = []
+        self.id = None
+        self.color = color
+        
+    async def setup(self):
+        js = await get_async("https://api.spacexdata.com/v4/launches/latest", kind="json")
+        self.name = js['name']
+        self.time = timestamp(int(js['date_unix']))
+        self.thumbnail = js['links']['patch']['large']
+        self.youtube = js['links']['webcast']
+        self.wikipedia = js['links']['wikipedia']
+        self.crew = js['crew']
+        self.id = js['id']
+        self.fno = js['flight_number']
+
+    async def history(self):
+        jso = await get_async("https://api.spacexdata.com/v4/history", kind = "json")
+        embeds = []
+        for i in jso[::-1]:
+            embed = cembed(
+                title=i['title'],
+                description=i['details'],
+                color=self.color,
+                thumbnail="https://www.spacex.com/static/images/share.jpg",
+                footer = i['id'] + " | " + str(timestamp(i['event_date_unix']))
+            )
+            embeds.append(embed)
+        print("Done")
+        return embeds
+        

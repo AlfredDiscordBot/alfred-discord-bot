@@ -16,6 +16,8 @@ def requirements():
   
   
 def main(client, re):
+    space = ef.SpaceX(re[8])  
+    
     def convert_to_url(name):
         name = urllib.parse.quote(name)
         return name
@@ -220,9 +222,41 @@ def main(client, re):
     @client.command()
     async def lyrics(ctx, *, song):
         await ctx.send(embed=ef.ly(song, re))
+
+    @client.group()
+    async def spacex(ctx):        
+        if not ctx.invoked_subcommand:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Oops",
+                    description="We couldnt find that sub-command, it's either history or latest",
+                    image="https://thumbs.gfycat.com/CoarseAdventurousIbis-max-1mb.gif",
+                    color=re[8]
+                )
+            )
+            return
+
+    @spacex.command()
+    async def history(ctx):
+        embeds = await space.history()
+        await pa1(embeds, ctx)
+
+    @spacex.command()
+    async def latest(ctx):
+        await space.setup()
+        await ctx.send(
+            embed=ef.cembed(
+                title=space.name,
+                description=f"Time: {space.time}\nYoutube: [Link]({space.youtube})\nWikipedia: Wikipedia: [Link]({space.wikipedia})\n",
+                thumbnail=space.thumbnail, footer="This feature is still in its beta stage, sorry for inconvenience",color=space.color
+
+            )
+        )
+        
         
     async def pa1(embeds, ctx, start_from=0, restricted = False):
         message = await ctx.send(embed=embeds[start_from])
+        if len(embeds) == 1: return
         pag = start_from
         await message.add_reaction("◀️")
         await message.add_reaction("▶️")

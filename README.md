@@ -2,7 +2,7 @@
 
 ## All in One Discord bot
 
-It is so great to see that the bot crossed 70,000 users and 60 servers in the past few days, I would like to thank all developers and users of Alfred. I am also grateful to see bots that were made from Alfred like [Amteor](https://github.com/prakarsh17/tessarect-bot). I personally love [Tux](https://github.com/arghyagod-coder/tuxbot) as it's made in it's own unique way and I've known the developer, the creator of [Calinix](https://github.com/Calinix-Team/Calinix-Arch). 
+It is so great to see that the bot crossed 70,000 users and 90 servers in the past few days, I would like to thank all developers and users of Alfred. 
 
 If you want to contribute to this project, please read through [Contribution page](https://github.com/alvinbengeorge/alfred-discord-bot/blob/replit/CONTRIBUTING.md), Have a great day
 

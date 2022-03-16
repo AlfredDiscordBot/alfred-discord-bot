@@ -10,13 +10,13 @@ dev=
 
 def temporary_fix():
     from shutil import copyfile
-    copyfile(" ./utils/post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
+    copyfile("./utils/post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
     
 import os
 import sys
 sys.path.insert(1,f"{os.getcwd()}/utils/")
 
-#temporary_fix()
+temporary_fix()
 from keep_alive import keep_alive
 import string
 import nextcord
@@ -25,7 +25,6 @@ from random import choice
 from nextcord import Interaction, SlashOption, ChannelType
 from nextcord.ext import commands, tasks
 from nextcord.abc import GuildChannel
-#from discord_slash import SlashCommand, SlashContext
 from GoogleNews import GoogleNews
 from dotenv import load_dotenv
 from math import *
@@ -35,7 +34,6 @@ from utils.Storage_facility import Variables
 from io import StringIO
 from contextlib import redirect_stdout
 from utils.External_functions import *
-#from discord_components import *
 import traceback
 import googlesearch
 import youtube_dl
@@ -475,6 +473,7 @@ async def effects(ctx, effect:str = None, member:nextcord.Member=None):
     if member == None:
         url = getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar.url
     else:
+        print(member)
         url = member.avatar.url
     url = str(url)
 
@@ -918,15 +917,7 @@ async def set_sessionid(ctx, sessionid):
 
 
 @client.command()
-async def instagram(ctx, account):
-    await ctx.send(
-        embed=cembed(
-            title="Sorry",
-            description="Currently out of order, will get back to you soon",
-            color=re[8]
-        )
-    )
-    return
+async def instagram(ctx, account):    
     try:
         links = instagram_get1(account, re[8], re[9])
         print(links)
@@ -1120,6 +1111,7 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
 
 async def pa1(embeds, ctx, start_from=0, restricted = False):    
     message = await ctx.send(embed=embeds[start_from])
+    if len(embeds) == 1: return
     if type(ctx) == nextcord.Interaction:
         ctx.message = await ctx.original_message()
     pag = start_from
@@ -3416,7 +3408,7 @@ async def on_message(msg):
 
     await client.process_commands(msg)
     
-    if (not msg.guild.id in observer) and (not msg.author.bot) and False:
+    if (not msg.guild.id in observer) and (not msg.author.bot):
         s = msg.clean_content
         
         whitelist = string.ascii_letters + ' '
