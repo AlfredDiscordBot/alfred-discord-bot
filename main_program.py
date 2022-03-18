@@ -15,7 +15,6 @@ def temporary_fix():
 import os
 import sys
 sys.path.insert(1,f"{os.getcwd()}/utils/")
-
 temporary_fix()
 from keep_alive import keep_alive
 import string
@@ -53,6 +52,7 @@ import src.error as ror
 from utils.spotify_client import *
 
 location_of_file = os.getcwd()
+start_time = time.time()
 try:
     load_dotenv()
 except:
@@ -64,7 +64,7 @@ try:
 except:
     print("failed")
 googlenews = GoogleNews()
-start_time = time.time()
+
 X = "❌"
 O = "⭕"
 global coin_toss_message, coin_message
@@ -98,6 +98,7 @@ config = {
     'youtube': {}
     }
 da = {}
+errors = ["```arm"]
 entr = {}
 da1 = {}
 queue_song = {}
@@ -116,7 +117,6 @@ link_for_cats = []
 vc_channel = {}
 wolfram = os.getenv("wolfram")
 prefix_dict = {}
-mute_role = {743323684705402951: 876708632325148672, 851315724119310367: 0}
 
 
 
@@ -168,8 +168,7 @@ def save_to_file():
     global dev_users
     #print("save")
     v = Variables("backup")
-    v.edit(
-        mute_role = mute_role,
+    v.pass_all(
         censor = censor,
         da = da,
         da1 = da1,
@@ -189,7 +188,6 @@ def save_to_file():
 
 
 def load_from_file():
-    global mute_role
     global censor
     global da
     global da1
@@ -206,8 +204,6 @@ def load_from_file():
 
 
     v = Variables("backup").show_data()
-    mute_role = v.get("mute_role",{})
-    print(mute_role)
     censor = v.get("censor",[])
     da = v.get("da",{})
     da1 = v.get("da1", {})
@@ -228,12 +224,29 @@ def load_from_file():
 load_from_file()
 
 
+report = f"""Started at: {timestamp(int(start_time))}
+Current location: {location_of_file}
+Requests: {re[0]:,}
+Color: {nextcord.Color(re[8]).to_rgb()}
+```yml
+[ OK ] Loaded all modules
+[ OK ] Setup SpeedTest and GoogleNews
+[ OK ] Variables initialised 
+[ OK ] Load From File Completed
+[ OK ] Switching Root ...
+[ OK ] Starting On Ready
+"""
+
+
+
 @client.event
 async def on_ready():
     print(client.user)
-    #client.load_extension('beta_o_help')
+    global report
+    report+=f"[ OK ] Bot named as {client.user.name}\n"
     channel = client.get_channel(dev_channel)
-    #DiscordComponents(client)
+    if channel:
+        report+="[ OK ] Devop found, let's go\n"
     try:
         print("Starting Load from file")
         load_from_file()
@@ -243,7 +256,7 @@ async def on_ready():
         print(prefix_dict)
         print("\nStarting devop display")
         await devop_mtext(client, channel, re[8])
-
+        report+="[ OK ] Sending Devop Message\n"
         print("Finished devop display")
         print("Starting imports")
         imports = ""
@@ -263,6 +276,7 @@ async def on_ready():
                         )
                     imports = imports + i[0 : len(i) - 3] + "\n"
                     print(": Done")
+                    report+=f"[ OK ] Imported {i} successfully\n"
                 except Exception as e:
                     await channel.send(
                         embed=nextcord.Embed(
@@ -271,6 +285,8 @@ async def on_ready():
                             color=nextcord.Color(value=re[8]),
                         )
                     )
+                    report+=f"[ {int(time.time())} ] Error in {i}: {e}\n"
+                    errors.append(f"[ {int(time.time())} ] Error in {i}: {str(e)[:10]}...\n")
         await channel.send(
             embed=nextcord.Embed(
                 title="Successfully imported",
@@ -293,6 +309,15 @@ async def on_ready():
     print("Prepared")
     youtube_loop.start()
     send_file_loop.start()
+    report+="```"
+    await channel.send(
+        embed=cembed(
+            title="Report",
+            description=report,
+            color=re[8],
+            thumbnail=client.user.avatar.url
+        )
+    )
 
 @tasks.loop(hours=4)
 async def send_file_loop():
@@ -362,6 +387,7 @@ async def quickembed(ctx, text):
         )
     )
 
+
 @client.command()
 async def svg(ctx, *, url):
     img = svg2png(url)
@@ -399,7 +425,7 @@ async def sniper(ctx):
             output="Only Admins can use Snipe command"
 
         await ctx.send(embed=cembed(
-            title="Enabled",
+            title="Done",
             description=output,
             color=re[8],
             thumbnail=client.user.avatar.url)
@@ -434,7 +460,7 @@ async def toggle_response(ctx):
 
 
 @client.slash_command(name = "pfp",description="Get a person's avatar")
-async def pfp_pic(ctx, member: nextcord.Member = defa(default = None)):
+async def pfp_pic(ctx, member: nextcord.Member = None):
     await get_pfp(ctx, member)
 
 @client.command(aliases=["pfp"])
@@ -451,7 +477,7 @@ async def get_pfp(ctx, member:nextcord.Member=None):
     await ctx.send(embed=embed)
     
 @client.slash_command(name="effects",description="cool effects with your profile picture")
-async def eff(ctx, member:nextcord.Member=defa(default=None), effect = helping_hand.effects_helper()):
+async def eff(ctx, member:nextcord.Member=None, effect = helping_hand.effects_helper()):
     await ctx.response.defer()
     await effects(ctx, effect = effect, member = member)
 
@@ -609,6 +635,14 @@ async def remove_autoreact(ctx, channel: nextcord.TextChannel = None):
             description="Removed every reaction in ",
             color=re[8]
         )
+    )
+
+@client.slash_command(name="reports",guild_ids = [822445271019421746],description="shows report and errors")
+async def report_slash():
+    embeds = []
+    embed = cembed(
+        title="Report",
+        description=""
     )
 
 @client.command(aliases=['suicide'])
@@ -824,11 +858,6 @@ async def entrar(ctx, *, num=re[6]):
         )
 
 
-@client.slash_command(name="entrar", description="Latest announcements from Entrar")
-async def yentrar(ctx, *, num=re[6]):    
-    await entrar(ctx)
-
-
 @client.slash_command(name="imdb", description="Give a movie name")
 async def imdb_slash(ctx, movie):
     await ctx.response.defer()
@@ -902,7 +931,7 @@ async def uemoji(ctx, emoji_name, number=0):
 @client.slash_command(name="svg2png", description="Convert SVG image to png format")
 async def svg2png_slash(ctx, url):
     req()
-    
+    await ctx.response.defer()
     img = svg2png(url)
     await ctx.send(file=nextcord.File(BytesIO(img), "svg.png"))
 
@@ -915,12 +944,15 @@ async def set_sessionid(ctx, sessionid):
         embed=nextcord.Embed(description="SessionID set", color=nextcord.Color(re[8]))
     )
 
+@client.slash_command(name="instagram",description="get recnt instagram posts of the account")
+async def insta_slash(ctx, account):
+    await ctx.response.defer()
+    await instagram(ctx, account = account)
 
-@client.command()
+@client.command(alias=['insta'])
 async def instagram(ctx, account):    
     try:
         links = instagram_get1(account, re[8], re[9])
-        print(links)
         if links == "User Not Found, please check the spelling":
             await ctx.send(
                 embed=cembed(
@@ -936,20 +968,18 @@ async def instagram(ctx, account):
             links=instagram_get1(account, re[8], re[9])
         embeds = []
         for a in links:
-            print("loop")
             if a is not None and type(a) != type("aa"):
                 embeds.append(a[0])
             elif type(a) != type("aa"):
                 re[9] = links
-            else:
-                break
+            else:                
                 await ctx.send(
                     embed=nextcord.Embed(
                         description="Oops!, something is wrong.",
                         color=nextcord.Color(value=re[8]),
                     )
                 )
-        print("Page")
+                break
         await pa1(embeds, ctx)
     except Exception as e:
         embed = cembed(
@@ -960,27 +990,6 @@ async def instagram(ctx, account):
         )
         await ctx.send(embed=embed)
         await client.get_channel(dev_channel).send(embed=embed)
-
-
-@client.command()
-async def set_quality(ctx, number):
-    if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in dev_users:
-        ydl_op["preferredquality"] = str(number)
-        await ctx.send(
-            embed=nextcord.Embed(
-                title="Done",
-                description="Bitrate set to " + number,
-                color=nextcord.Color(value=re[8]),
-            )
-        )
-    else:
-        await ctx.send(
-            embed=nextcord.Embed(
-                title="Permission Denied",
-                description="You cant set the bitrate of the voice, only devs are allowed to do that",
-                color=nextcord.Color(value=re[8]),
-            )
-        )
 
 
 @client.command(aliases=["cw"])
@@ -1060,8 +1069,7 @@ async def load(ctx):
             description=usage,
             color=nextcord.Color(value=re[8]),
         )
-        embed.set_thumbnail(url=client.user.avatar.url)
-        await ctx.send(embed=embed)
+        embed.set_thumbnail(url=client.user.avatar.url)        
     except Exception as e:
         channel = client.get_channel(dev_channel)
         embed = nextcord.Embed(
@@ -1070,7 +1078,7 @@ async def load(ctx):
             color=nextcord.Color(value=re[8]),
         )
         embed.set_thumbnail(url=client.user.avatar.url)
-        await channel.send(embed=embed)
+    await ctx.send(embed=embed)
 
 
 
@@ -1404,6 +1412,7 @@ async def on_member_join(member):
 
 @client.event
 async def on_member_remove(member):
+    print(member.guild)
     if member.guild.id == 743323684705402951:
         channel = client.get_channel(885770265026498601)
     elif member.guild.id == 841026124174983188:
@@ -2518,13 +2527,13 @@ async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Ques
         )
         return
     await ctx.send("Sending Poll")
-    print(channel)
     if type(channel) == str:
         channel = nextcord.utils.get(ctx.guild.channels, id = int(channel[2:-1]))
     text = Question+"\n\n"
     Options = Options.split("|")
+    print(Options)
     for i in range(len(Options)):
-        text+=f"{emoji.emojize(f':keycap_{i+1}:') if i<10 else Emoji_alphabets[i-10]} | {Options[i]}\n"
+        text+=f"{emoji.emojize(f':keycap_{i+1}:') if i<10 else Emoji_alphabets[i-10]} | {Options[i].strip()}\n"
 
     embed=cembed(
         title="Poll",
@@ -2566,7 +2575,7 @@ async def restart_program(ctx, text):
             pass
         save_to_file()
         print("Restart")
-        await ctx.send(
+        await ctx.channel.send(
             embed=cembed(
                 title="Restarted",
                 description="The program is beginning it's restarting process",
@@ -2585,8 +2594,7 @@ async def restart_program(ctx, text):
         )
         os.system("busybox reboot")
     else:
-        await ctx.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar.url))
-
+        await ctx.channel.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar.url))
         await client.get_channel(dev_channel).send(embed=cembed(description=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name} from {ctx.guild.name} tried to use restart_program command",color=re[8]))
 
 
@@ -2601,42 +2609,28 @@ async def leave_slash(ctx):
 async def leave(ctx):
     req()
     try:
-        try:
-            mem = [names.id for names in getattr(ctx, 'voice_client', getattr(ctx.guild, 'voice_client', None)).channel.members]
-        except:
-            mem = []
-        if mem.count(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) > 0:
-            if getattr(ctx, 'author', getattr(ctx, 'user', None)).id == 734275789302005791:
-                await clearqueue(ctx)
-            voice = ctx.guild.voice_client
-            voice.stop()
-            await voice.disconnect()
-            embed=nextcord.Embed(
-                title="Disconnected",
-                description="Bye, Thank you for using Alfred",
-                color=nextcord.Color(value=re[8]),
-            )            
-        else:
-            embed=nextcord.Embed(
-                title="Permission denied",
-                description="Nice try dude! Join the voice channel",
-                color=nextcord.Color(value=re[8]),
-            )
-        await isReaction(ctx,embed,clear=True)
-    except Exception as e:
-        await ctx.send(
-            embed=nextcord.Embed(
-                title="Hmm", description=str(e), color=nextcord.Color(value=re[8])
-            )
+        mem = [names.id for names in getattr(ctx, 'voice_client', getattr(ctx.guild, 'voice_client', None)).channel.members]
+    except:
+        mem = []
+    if mem.count(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) > 0:
+        if getattr(ctx, 'author', getattr(ctx, 'user', None)).id == 734275789302005791:
+            await clearqueue(ctx)
+        voice = ctx.guild.voice_client
+        voice.stop()
+        await voice.disconnect()
+        embed=nextcord.Embed(
+            title="Disconnected",
+            description="Bye, Thank you for using Alfred",
+            color=nextcord.Color(value=re[8]),
+        )            
+    else:
+        embed=nextcord.Embed(
+            title="Permission denied",
+            description="Nice try dude! Join the voice channel",
+            color=nextcord.Color(value=re[8]),
         )
-        channel = client.get_channel(dev_channel)
-        await channel.send(
-            embed=nextcord.Embed(
-                title="Error in leave",
-                description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
-                color=nextcord.Color(value=re[8]),
-            )
-        )
+    await isReaction(ctx,embed,clear=True)
+
     save_to_file()
 
 
@@ -2763,7 +2757,8 @@ async def check(ctx):
         title="Online",
         description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(client.latency*1000)}\nRequests: \t{r:,}",
         color=re[8],
-        footer="Have fun, bot has many features, check out /help"
+        footer="Have fun, bot has many features, check out /help",
+        thumbnail = client.user.avatar.url
     )
     await ctx.send(embed=em)
 
@@ -2781,7 +2776,7 @@ async def on_message_edit(message_before, message_after):
 @client.command()
 async def clear(ctx, text, num=10):
     req()
-    await ctx.channel.purge(limit=1)
+    await ctx.message.delete()
     if str(text) == re[1]:
         if (
             getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.manage_messages
@@ -2832,24 +2827,7 @@ async def on_reaction_add(reaction, user):
                         ]
                     except:
                         mem = []
-                    if mem.count(str(user)) > 0:
-                        if (
-                            not queue_song[str(reaction.message.guild.id)][
-                                re[3][str(reaction.message.guild.id)]
-                        ]
-                            in da1.keys()
-                        ):
-                            da1[
-                                queue_song[str(reaction.message.guild.id)][
-                                    re[3][str(reaction.message.guild.id)]
-                                ]
-                            ] = youtube_info(
-                                queue_song[str(reaction.message.guild.id)][
-                                    re[3][str(reaction.message.guild.id)]
-                                ]
-                            )[
-                                "title"
-                            ]
+                    if mem.count(str(user)) > 0:                                        
                         re[3][str(reaction.message.guild.id)] -= 1
                         if re[3][str(reaction.message.guild.id)] == -1:
                             re[3][str(reaction.message.guild.id)] = 0
@@ -2860,23 +2838,20 @@ async def on_reaction_add(reaction, user):
                                 color=nextcord.Color(value=re[8]),
                             )
                         )
+                        index = re[3][str(reaction.message.guild.id)]
+                        song = queue_song[str(reaction.message.guild.id)][index]        
+                        if song not in da1.keys():
+                            da1[song]= youtube_info(song)["title"]
                         voice = nextcord.utils.get(
                             client.voice_clients, guild=reaction.message.guild
                         )
-                        URL = youtube_download(
-                            reaction.message,
-                            queue_song[str(reaction.message.guild.id)][
-                                re[3][str(reaction.message.guild.id)]
-                            ],
-                        )
+                        URL = youtube_download(reaction.message, song)
                         voice.stop()
                         voice.play(
                             nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
                             after=lambda e: repeat(reaction.message, voice),
                         )
-                        url = queue_song[str(reaction.message.guild.id)][
-                            re[3][str(reaction.message.guild.id)]
-                        ]
+                        url = song
                         song_name = da1[url]
                         await reaction.message.edit(
                             embed=nextcord.Embed(
@@ -2902,6 +2877,8 @@ async def on_reaction_add(reaction, user):
                     and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
+                    req()
+                    reaction.message.author = user
                     await pause(reaction.message)
             if reaction.emoji == "▶":
                 if (
@@ -2910,6 +2887,7 @@ async def on_reaction_add(reaction, user):
                 ):
                     await reaction.remove(user)
                     req()
+                    reaction.message.author = user
                     await resume(reaction.message)
             if reaction.emoji == "🔁":
                 if (
@@ -3071,6 +3049,7 @@ async def on_reaction_add(reaction, user):
                     and reaction.message.author == client.user
                 ):
                     await reaction.remove(user)
+                    reaction.message.author = user
                     await leave(reaction.message)
             if (
                 reaction.emoji == emoji.emojize(":keycap_*:")
@@ -3159,23 +3138,7 @@ async def on_reaction_add(reaction, user):
                     reaction.message.channel.id
                 ) == str(channel.id):
                     await reaction.remove(user)
-                    cpu_per = str(int(psutil.cpu_percent()))
-                    cpu_freq = f"{str(int(psutil.cpu_freq().current))}/{str(int(psutil.cpu_freq().max))}"
-                    ram = str(psutil.virtual_memory().percent)
-                    swap = str(psutil.swap_memory().percent)
-                    usage = f"""
-                    CPU Percentage: {cpu_per}
-                    CPU Frequency : {cpu_freq}
-                    RAM usage: {ram}
-                    Swap usage: {swap}
-                    """
-                    await channel.send(
-                        embed=nextcord.Embed(
-                            title="Load",
-                            description=usage,
-                            color=nextcord.Color(value=re[8]),
-                        )
-                    )                
+                    await load(reaction.message)              
                 if reaction.emoji == "⭕" and str(reaction.message.channel.id) == str(
                     channel.id
                 ):
@@ -3193,30 +3156,8 @@ async def on_reaction_add(reaction, user):
                 if reaction.emoji == emoji.emojize(":fire:") and str(
                     reaction.message.channel.id
                 ) == str(channel.id):
-                    if len(client.voice_clients)>0:
-                        confirmation = await wait_for_confirm(
-                            reaction.message, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8], usr=user                        
-                        )
-                        if not confirmation:
-                            return
-                    try:
-                        for voice in client.voice_clients:
-                            voice.stop()
-                            await voice.disconnect()
-                    except:
-                        pass
-                    save_to_file()
-                    print("Restart " + str(user))
-                    await channel.purge(limit=100000000)
-                    os.chdir(location_of_file)
-                    await channel.send(
-                        embed=nextcord.Embed(
-                            title="Restart",
-                            description=("Requested by " + str(user)),
-                            color=nextcord.Color(value=re[8]),
-                        )
-                    )
-                    os.system("busybox reboot")
+                    reaction.message.author = user
+                    await restart_program(reaction.message,re[1])
                 if reaction.emoji == emoji.emojize(":cross_mark:") and str(
                     reaction.message.channel.id
                 ) == str(channel.id):
@@ -3264,36 +3205,7 @@ async def on_reaction_add(reaction, user):
                             color=nextcord.Color(value=re[8]),
                         )
                     )
-                if reaction.emoji == "❕" and str(reaction.message.channel.id) == str(
-                    channel.id
-                ):
-                    await reaction.remove(user)
-                    issues = ""
-                    if psutil.cpu_percent() > 85:
-                        issues = issues + "High CPU usage\n"
-                    if psutil.virtual_memory().percent > 80:
-                        issues = issues + "High RAM usage\n"
-                    if psutil.virtual_memory().cached < 719908352:
-                        issues = issues + "Low Memory cache\n"
-                    if len(entr) == 0:
-                        issues = issues + "Variable entr is empty\n"
-                    if len(queue_song[str(reaction.message.guild.id)]) == 0:
-                        issues = issues + "Variable queue_song is empty\n"
-                    if not ".recover.txt" in os.listdir():
-                        issues = issues + "Recovery file not found"
-                    else:
-                        if re[0] < 10000 and len(re) < 4:
-                            issues = issues + "Recovery required, attempting recovery\n"
-                            load_from_file(".recover.txt")
-                            if re[0] < 10000 and len(re) < 4:
-                                issues = issues + "Recovery failed\n"
-                    await channel.send(
-                        embed=nextcord.Embed(
-                            title="Issues with the program",
-                            description=issues,
-                            color=nextcord.Color(value=re[8]),
-                        )
-                    )
+                
                 if reaction.emoji == emoji.emojize(":black_circle:") and str(
                     reaction.message.channel.id
                 ) == str(channel.id):
@@ -3310,7 +3222,7 @@ async def on_reaction_add(reaction, user):
         await channel.send(
             embed=cembed(
                 title="Error in on_reaction_add",
-                description=str(e),
+                description=f"{traceback.format_exc()}",
                 footer=f"{reaction.message.guild.name}:{reaction.message.channel.name}",
                 color=nextcord.Color(value=re[8]),
             )
@@ -3324,20 +3236,6 @@ async def on_command_error(ctx, error):
     print(error.with_traceback(error.__traceback__))
     await ctx.send(embed=ror.error(str(error)))
     await channel.send(embed=cembed(title="Error",description=f"{err}\n{str(error)}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
-    
-
-@client.command()
-async def yey(ctx):
-    req()
-    print("yey")
-    em = nextcord.Embed(title="*yey*", color=nextcord.Color(value=re[8]))
-    await ctx.send(embed=em)
-
-@client.command()
-async def lol(ctx):
-    req()
-    em = nextcord.Embed(title="***L😂L***", color=nextcord.Color(value=re[8]))
-    await ctx.send(embed=em)
 
 
 @client.command(aliases=["cen"])
@@ -3397,17 +3295,11 @@ async def changeM(ctx, *, num):
             )
         )
 
-		
-
-
-
 
 @client.event
 async def on_message(msg):
     save_to_file()
-
-    await client.process_commands(msg)
-    
+    await client.process_commands(msg)    
     if (not msg.guild.id in observer) and (not msg.author.bot):
         s = msg.clean_content
         
@@ -3424,11 +3316,8 @@ async def on_message(msg):
                 deathrate[msg.author.id]=0
 
             preds = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/classify", json=json) 
-            #print(preds['result'])
             if preds["result"] == "Sucide":
                 deathrate[msg.author.id]+=1
-                #print(preds["result"])
-                #print(deathrate)
                 
             if deathrate[msg.author.id] >=10:
                 await msg.reply(embed=suicide_m(client,re[8]))
@@ -3505,14 +3394,6 @@ async def on_message(msg):
                 title="Error", description=str(e), color=nextcord.Color(value=re[8])
             )
         )
-
-@client.slash_command(name = "screenshot",description = "takes a screenshot of the website")
-async def screenshot(ctx, url):
-    await ctx.response.defer()
-    fp = await ef.get_async(f"https://render-tron.appspot.com/screenshot/{ef.convert_to_url(url)}/?width=700&height=400", kind="fp")    
-    print(url)
-    file = discord.File(fp, filename="image.png")
-    await ctx.send(file = file)
 
 @client.slash_command(name = "lyrics", description = "Gets a lyrics of a song")
 async def lyrics_slash(ctx, song):
@@ -3593,8 +3474,6 @@ async def exe(ctx, *, text):
             )
             return
         mysql_password = "Denied"
-        if text.find("passwd=") != -1:
-            mysql_password = os.getenv("mysql")
         text = text.replace("```py", "```")
         text = text[3:-3].strip()
         f = StringIO()
@@ -3612,13 +3491,7 @@ async def exe(ctx, *, text):
                         if "in exe" not in line
                     ]
                 )
-                await ctx.send(
-                    embed=nextcord.Embed(
-                        title="Error",
-                        description=error_mssg,
-                        color=nextcord.Color.from_rgb(255, 40, 0),
-                    )
-                )
+                await ctx.send(embed = ror.error(str(error)))
         output = f.getvalue()
         embeds=[]
         if output == "":
@@ -3660,15 +3533,6 @@ def req():
 
 def g_req():
     return re[0]
-
-@client.command(aliases=['muter'])
-async def set_mute_role(ctx,role_for_mute: nextcord.Role):
-    if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
-        mute_role[ctx.guild.id] = role_for_mute.id
-        await ctx.send(embed=cembed(title="Done",description=f"Mute role set as {role_for_mute.mention}",color=re[8]))
-    else:
-        await ctx.send(embed=cembed(title="Permissions Denied",description="You need to be an admin to set mute role",color=re[8]))
-
 
 client.remove_command("help")
 

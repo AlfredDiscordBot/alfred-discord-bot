@@ -179,10 +179,12 @@ def help_him(ctx, client, re):
         description="This command will apply effects to your Profile Picture, Use it by `'effects <effect name> @mention`"+effec,
         color=re[8],
         thumbnail=thumbnail,
-        image="https://github.com/alvinbengeorge/alfred-discord-bot/blob/temporary-push/Krypton.png?raw=true"
+        image="https://github.com/alvinbengeorge/alfred-discord-bot/blob/main/Krypton.png?raw=true"
     )
         
 
     return [first_page, github_help, message_developer, effects_help, music_help, mod_help, yaml_help, reddit_help, wolfram_help, code_help, Emoji_help, prefix_help, youtube_help, instagram_help]
 
+neofetch="""
 
+"""

@@ -571,6 +571,11 @@ async def player_reaction(mess):
     await mess.add_reaction(emoji.emojize(":downwards_button:"))
     await mess.add_reaction(emoji.emojize(":musical_note:"))
 
+def remove_all(original,s):
+    for i in s:
+        original.replace(i,"")
+    return original
+
 def defa(*types, default = None, choices=[]):
     if types == []: return SlashOption(default = default, required = False)
     if choices != []:

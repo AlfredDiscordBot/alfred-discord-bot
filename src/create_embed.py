@@ -29,16 +29,17 @@ author: True/False
 
 """
 
-def preset_change(text, ctx, client, re = {8: 6619080}):
+def preset_change(di, ctx, client, re = {8: 6619080}):
     presets = {
-        '<server-icon>' : f'"{ctx.guild.icon.url}"',
-        '<author-icon>' : f'"{ctx.author.avatar.url}"',
-        '<bot-icon>' : f'"{client.user.avatar.url}"',
-        '<bot-color>' : f'{discord.Color(re[8]).to_rgb()}'
+        '<server-icon>' : ctx.guild.icon.url,
+        '<author-icon>' : ctx.author.avatar.url,
+        '<bot-icon>' : client.user.avatar.url,
+        '<bot-color>' : str(discord.Color(re[8]).to_rgb())
     }
-    for i in presets:
-        text=text.replace(i, presets[i])
-    return text
+    for i in di:
+        if di[i] in presets:
+            di[i] = presets[di[i].lower()]
+    return di
 
     
 
@@ -161,7 +162,7 @@ def get_color(color):
         return default_color
     elif type(color) is int:
         return color
-    elif (type(color) is str) and (type(col := color.replace(")","").replace("(","").split(",")) is tuple):
+    elif (type(color) is str) and (type(col := tuple([int(i) for i in color.replace("(","").replace(")","").split(",")])) is tuple):
         return discord.Color.from_rgb(*col)
 
     return default_color
@@ -181,10 +182,12 @@ def set_url(set_func, url) -> None:
     return
 
 
-def embed_from_dict(info: dict, ctx_author=None) -> discord.Embed:
+def embed_from_dict(info: dict, ctx, client) -> discord.Embed:
     """
     Generates an embed from given dict
     """
+    info = preset_change(info, ctx, client, re)
+    ctx_author = getattr(ctx, 'author', getattr(ctx,'user',None))
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
 
     info["color"] = get_color(info.get("color", None))
@@ -218,12 +221,13 @@ def embed_from_dict(info: dict, ctx_author=None) -> discord.Embed:
     return embed
 
 
-def embed_from_yaml(yaml: str, ctx_author):
+def embed_from_yaml(yaml: str, ctx, client):
     info = safe_load(yaml)
+    ctx_author = getattr(ctx, 'author', getattr(ctx,'user',None))
     print(
         f"Creating Embed for: '{ctx_author.name}' aka '{ctx_author.nick}' in '{ctx_author.guild}'"
     )
-    return embed_from_dict(info, ctx_author)
+    return embed_from_dict(info, ctx, client)
 
 
 def requirements() -> str:
@@ -286,7 +290,6 @@ def main(client, re, mspace, dev_channel):
         Create an embed from given yaml string and send it in the provided channel.
         """        
         try:
-            if yaml: yaml = preset_change(yaml, ctx, client, re)
             if (
                 ctx.author.guild_permissions.send_messages
                 or ctx.author.id == SUPER_AUTHOR_ID
@@ -296,7 +299,7 @@ def main(client, re, mspace, dev_channel):
 
                 if (send_channel := client.get_channel(channel.id)) != None:
                     embed = (
-                        embed_from_yaml(filter_graves(yaml), ctx.author)
+                        embed_from_yaml(filter_graves(yaml), ctx, client)
                         if yaml
                         else quick_embed("Nothing to embed")
                     )
