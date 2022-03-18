@@ -7,7 +7,6 @@ def main(client, re, dev_users):
     import random
     import External_functions as ef
     import io
-
     # from gi.repository import Notify
     @client.command()
     async def f(ctx):
@@ -78,9 +77,23 @@ def main(client, re, dev_users):
                 color=discord.Color(value=re[8]),
             )
         )
+    
+    @client.command()
+    async def yey(ctx):
+        re[0]+=1
+        print("yey")
+        em = ef.cembed(title="*yey*", color=re[8])
+        await ctx.send(embed=em)
+    
+    @client.command()
+    async def lol(ctx):
+        re[0]+=1
+        em = ef.cembed(title="***L😂L***", color=re[8])
+        await ctx.send(embed=em)
+
 
     @client.command()
-    async def reply(ctx, channel, *, repl):
+    async def reply(ctx, channel, user, *, repl):
         if str(ctx.author.id) in dev_users and ctx.guild.id == 822445271019421746:
             channel = client.get_channel(int(channel))
             if not channel:
@@ -105,19 +118,6 @@ def main(client, re, dev_users):
                     color=re[8]
                 )
             )
-
-    @client.command()
-    async def yey(ctx):
-        re[0]+=1
-        print("yey")
-        em = ef.cembed(title="*yey*", color=nextcord.Color(value=re[8]))
-        await ctx.send(embed=em)
-    
-    @client.command()
-    async def lol(ctx):
-        re[0]+=1
-        em = ef.cembed(title="***L😂L***", color=nextcord.Color(value=re[8]))
-        await ctx.send(embed=em)
 
     @client.command(aliases = ['developers','dev','contributors'])
     async def contribution(ctx):

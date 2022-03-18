@@ -36,9 +36,16 @@ def preset_change(di, ctx, client, re = {8: 6619080}):
         '<bot-icon>' : client.user.avatar.url,
         '<bot-color>' : str(discord.Color(re[8]).to_rgb())
     }
+    
     for i in di:
-        if di[i] in presets:
-            di[i] = presets[di[i].lower()]
+        if i in ['color','thumbnail','image','picture']:
+            if di[i] in presets:
+                di[i] = presets[di[i]]
+    if type(di['author']) == dict:
+        for i in di['author']:
+            if i == 'icon_url':
+                if di['author']['icon_url'] in presets:
+                    di['author']['icon_url'] = presets[di['author']['icon_url']]
     return di
 
     
@@ -182,11 +189,11 @@ def set_url(set_func, url) -> None:
     return
 
 
-def embed_from_dict(info: dict, ctx, client) -> discord.Embed:
+def embed_from_dict(info: dict, ctx, client, re) -> discord.Embed:
     """
     Generates an embed from given dict
     """
-    info = preset_change(info, ctx, client, re)
+    info = preset_change(info, ctx, client, re = re)
     ctx_author = getattr(ctx, 'author', getattr(ctx,'user',None))
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
 
@@ -221,13 +228,13 @@ def embed_from_dict(info: dict, ctx, client) -> discord.Embed:
     return embed
 
 
-def embed_from_yaml(yaml: str, ctx, client):
+def embed_from_yaml(yaml: str, ctx, client, re):
     info = safe_load(yaml)
     ctx_author = getattr(ctx, 'author', getattr(ctx,'user',None))
     print(
         f"Creating Embed for: '{ctx_author.name}' aka '{ctx_author.nick}' in '{ctx_author.guild}'"
     )
-    return embed_from_dict(info, ctx, client)
+    return embed_from_dict(info, ctx, client, re)
 
 
 def requirements() -> str:
@@ -299,7 +306,7 @@ def main(client, re, mspace, dev_channel):
 
                 if (send_channel := client.get_channel(channel.id)) != None:
                     embed = (
-                        embed_from_yaml(filter_graves(yaml), ctx, client)
+                        embed_from_yaml(filter_graves(yaml), ctx, client, re)
                         if yaml
                         else quick_embed("Nothing to embed")
                     )

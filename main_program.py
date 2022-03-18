@@ -2755,7 +2755,7 @@ async def check(ctx):
     r = g_req()
     em = cembed(
         title="Online",
-        description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(client.latency*1000)}\nRequests: \t{r:,}",
+        description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(client.latency*1000)}\nRequests: \t{r:,}\nAwake time:{int(time.time()-start_time)}s",
         color=re[8],
         footer="Have fun, bot has many features, check out /help",
         thumbnail = client.user.avatar.url
