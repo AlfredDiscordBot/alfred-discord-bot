@@ -464,6 +464,12 @@ def equalise(all_strings):
     _ = [a.update({i: i + " " * (maximum - len(i))}) for i in all_strings]
     return a
 
+def subtract_list(l1, l2):
+    a = []
+    for i in l1:
+        if i not in l2:
+            a.append(i)
+    return a
 
 def extract_color(color):
     try:
@@ -640,4 +646,14 @@ class SpaceX:
             embeds.append(embed)
         print("Done")
         return embeds
-        
+
+m_options = [
+    'title',
+    'description',
+    'color',
+    'footer',
+    'thumbnail',
+    'image',
+    'picture',
+    'author'   
+]

@@ -96,7 +96,8 @@ deleted_message = {}
 config = {
     'snipe': [841026124174983188, 822445271019421746,830050310181486672, 912569937116147772],
     'respond': [],
-    'youtube': {}
+    'youtube': {},
+    'welcome': {}
     }
 da = {}
 errors = ["```arm"]
@@ -489,8 +490,7 @@ async def get_pfp(ctx, member:nextcord.Member=None):
     
     else:
         embed = nextcord.Embed(title="Profile Picture : {}".format(member.name), color=re[8])
-        embed.set_image(url=member.avatar.url)
-    
+        embed.set_image(url=member.avatar.url)    
     await ctx.send(embed=embed)
     
 @client.slash_command(name="effects",description="cool effects with your profile picture")
@@ -1406,15 +1406,25 @@ async def on_message_delete(message):
                 (str(message.author), message.embeds[0], True)
             )
 
+@client.slash_command(name = "welcome", description = "set welcome channel")
+async def wel(ctx, channel: GuildChannel = defa(ChannelType.text)):
+    await ctx.response.defer()
+    config['welcome'][ctx.guild.id] = channel.id
+    await ctx.send(
+        embed=cembed(
+            title="Done",
+            description=f"Set {channel.mention} for welcome and exit messages.",
+            color=re[8],
+            thumbnail=client.user.avatar.url
+        )
+    )
 
 @client.event
 async def on_member_join(member):
-    channel = nextcord.utils.get(member.guild.channels, name="announcement")
     print(member.guild)
-    if member.guild.id == 841026124174983188:
-        channel = client.get_channel(841026124174983193)
-    if member.guild.id == 896024475877920790:
-        channel = client.get_channel(902223883250327653)
+    if member.guild.id in config['welcome']:
+        channel = client.get_channel(config['welcome'][member.guild.id])
+    else: return
     await channel.send(member.mention + " is here")
     embed = nextcord.Embed(
         title="Welcome!!!",
@@ -1430,12 +1440,9 @@ async def on_member_join(member):
 @client.event
 async def on_member_remove(member):
     print(member.guild)
-    if member.guild.id == 743323684705402951:
-        channel = client.get_channel(885770265026498601)
-    elif member.guild.id == 841026124174983188:
-        channel = client.get_channel(841026124174983193)
-    else:
-        channel = nextcord.utils.get(member.guild.channels, name="announcement")
+    if member.guild.id in config['welcome']:
+        channel = client.get_channel(config['welcome'][member.guild.id])
+    else: return
 
     await channel.send(member.mention + " is no longer here")
     embed = nextcord.Embed(

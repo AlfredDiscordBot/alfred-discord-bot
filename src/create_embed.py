@@ -2,7 +2,7 @@ import nextcord as discord
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 from compile import filter_graves
-from yaml import safe_load
+from yaml import safe_load, safe_dump
 import traceback
 import External_functions as ef
 
@@ -364,22 +364,48 @@ def main(client, re, mspace, dev_channel):
                 thumbnail=client.user.avatar.url
             )
         )
-    @client.command()
-    async def m_setup(ctx, *, yml):
-        try:
-            await embed_using_yaml(ctx,channel = ctx.channel, yaml = yml)
-            #ctx, client, message, color=61620,usr=None
-            confirm = await ef.wait_for_confirm(ctx,client,"Do you want to use this as your profile?",color=re[8],usr=ctx.author)
-            if confirm: mspace[ctx.author.id]=yml
-        except Exception as e:
+    @client.command(aliases = ['mehsetup'])
+    async def m_setup(ctx, *, yml = None):
+        if yml:
+            try:
+                await embed_using_yaml(ctx,channel = ctx.channel, yaml = yml)
+                #ctx, client, message, color=61620,usr=None
+                confirm = await ef.wait_for_confirm(ctx,client,"Do you want to use this as your profile?",color=re[8],usr=ctx.author)
+                if confirm: mspace[ctx.author.id]=yml
+            except Exception as e:
+                await ctx.send(
+                    embed=ef.cembed(
+                        title="Error",
+                        description=str(e),
+                        color=re[8],
+                        thumbnail=client.user.avatar.url
+                    )
+                )
+        else:
             await ctx.send(
                 embed=ef.cembed(
-                    title="Error",
-                    description=str(e),
+                    title="Try again",
+                    description=help_for_m_setup,
                     color=re[8],
-                    thumbnail=client.user.avatar.url
+                    thumbnail = client.user.avatar.url
                 )
             )
+            return
+            di = {}
+            setup_value = None     
+            diff = ef.subtract_list(ef.m_options, list(di))
+            embed=ef.cembed(
+                title="Setup",
+                description="hello",
+                color=re[8],
+                thumbnail=client.user.avatar.url
+            )
+            while True:
+                message = await client.wait_for("message", check = lambda message: message.author == ctx.author)
+                msg = message.clean_content
+                if msg in ef.m_options: 
+                    break
+                
         
         
 
