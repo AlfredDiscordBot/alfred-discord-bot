@@ -186,5 +186,13 @@ def help_him(ctx, client, re):
     return [first_page, github_help, message_developer, effects_help, music_help, mod_help, yaml_help, reddit_help, wolfram_help, code_help, Emoji_help, prefix_help, youtube_help, instagram_help]
 
 neofetch="""
-
+  *(&@&&%%##%%&%                                                .%&%###%%&&&%/, 
+       ..,*/*/(%%                                              *%#(**/*,..      
+          ..,*//(#%%.                /,*/,*.                /%%#(/*,..          
+             ..,//**/#%%%&&%#(((((%&&&####%&&&#(((((#%&&%%#(***//,..            
+               ......,,,**/(##%#**/((/#%%%//((/*/#%#(//**,,......               
+                             ....,****/**/****,,....                            
+                                 ....,*,.,,,....                                
+                                     .......                                    
+                                                                                
 """

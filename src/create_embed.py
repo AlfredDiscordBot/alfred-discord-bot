@@ -41,7 +41,7 @@ def preset_change(di, ctx, client, re = {8: 6619080}):
         if i in ['color','thumbnail','image','picture']:
             if di[i] in presets:
                 di[i] = presets[di[i]]
-    if type(di['author']) == dict:
+    if di.get('author') and type(di['author']) == dict:
         for i in di['author']:
             if i == 'icon_url':
                 if di['author']['icon_url'] in presets:
@@ -344,7 +344,7 @@ def main(client, re, mspace, dev_channel):
                 await ctx.send(
                     embed = ef.cembed(
                         title="Oops",
-                        description="You haven't set MySpace yet, use the command m_setup to set up your myspace. It follows a similar pattern to yml_embed, Instructions for yml_embed is in help\n\n"+help_for_m_setup,
+                        description="You haven't set MehSpace yet, use the command m_setup to set up your Mehspace. It follows a similar pattern to yml_embed, Instructions for yml_embed is in help\n\n"+help_for_m_setup,
                         color=re[8],
                         thumbnail=client.user.avatar.url
                     
@@ -359,7 +359,7 @@ def main(client, re, mspace, dev_channel):
         await ctx.send(
             embed=ef.cembed(
                 title="Oops",
-                description="This user has not set their MySpace yet",
+                description="This user has not set their MehSpace yet",
                 color=re[8],
                 thumbnail=client.user.avatar.url
             )

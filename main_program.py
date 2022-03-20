@@ -91,6 +91,7 @@ temp_dev = {}
 censor = []
 old_youtube_vid = {}
 youtube_cache = {}
+run_suicide = False
 deleted_message = {}
 config = {
     'snipe': [841026124174983188, 822445271019421746,830050310181486672, 912569937116147772],
@@ -136,6 +137,8 @@ FFMPEG_OPTIONS = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
     "options": "-vn",
 }
+
+print("Starting")
 
 def youtube_download(ctx, url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
@@ -294,6 +297,8 @@ async def on_ready():
                 color=nextcord.Color(value=re[8]),
             )
         )
+        global run_suicide
+        run_suicide = True
         await client.rollout_application_commands()
         
     except Exception as e:
@@ -327,7 +332,6 @@ async def send_file_loop():
 async def youtube_loop():
     await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=str(len(client.guilds))+" servers"))
     print("Youtube_loop")    
-    return
     for i,l in config['youtube'].items():
         await asyncio.sleep(2)
         for j in l:
@@ -387,6 +391,19 @@ async def quickembed(ctx, text):
         )
     )
 
+@client.slash_command(name="neofetch", description="Get Status of the bot")
+async def neo(ctx):
+    await ctx.response.defer()    
+    await neofetch(ctx)
+    
+@client.command()
+async def neofetch(ctx):
+    text = helping_hand.neofetch
+    text += f"Name   : {client.user.name}\n"
+    text += f"ID     : {client.user.id}\n"
+    text += f"Users  : {len(client.users)}\n"
+    text += f"Servers: {len(client.guilds)}\n"
+    await ctx.send("```yml\n"+text+"\n```")
 
 @client.command()
 async def svg(ctx, *, url):
@@ -2515,7 +2532,8 @@ async def memes(ctx):
     save_to_file()
 
 @client.command()
-async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Question = ""):
+async def poll(ctx, Options = "", *, Question = ""):
+    channel = ctx.channel
     if Options == "":
         await ctx.send(
             embed=cembed(
@@ -2526,9 +2544,6 @@ async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Ques
             )
         )
         return
-    await ctx.send("Sending Poll")
-    if type(channel) == str:
-        channel = nextcord.utils.get(ctx.guild.channels, id = int(channel[2:-1]))
     text = Question+"\n\n"
     Options = Options.split("|")
     print(Options)
@@ -2542,17 +2557,16 @@ async def poll(ctx, Options = "", channel : nextcord.TextChannel = None, *, Ques
         footer=f"from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name} | {ctx.guild.name}"
     )
     embed.set_author(name = getattr(ctx, 'author', getattr(ctx, 'user', None)).name, icon_url = getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar.url if getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar else client.user.avatar.url)
-    message = await channel.send(
+    message = await ctx.send(
         embed = embed
     )
     
     for i in range(len(Options)): await message.add_reaction(emoji.emojize(f":keycap_{i+1}:") if i<10 else Emoji_alphabets[i-10])
 
-    await ctx.send("Poll sent")
-
 @client.slash_command(name="polling", description="Seperate options with |")
-async def polling_slash(ctx, options = "", channel: GuildChannel = defa(ChannelType.text), question = None):
-    await poll(ctx, Options = options, channel = channel, Question = question if question else "")
+async def polling_slash(ctx, options = "", question = None):
+    await ctx.response.defer()
+    await poll(ctx, Options = options, Question = question if question else "")
 
 @client.slash_command(name="eval",description="This is only for developers",guild_ids= [822445271019421746])
 async def eval_slash(ctx,text):
@@ -2755,7 +2769,7 @@ async def check(ctx):
     r = g_req()
     em = cembed(
         title="Online",
-        description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(client.latency*1000)}\nRequests: \t{r:,}\nAwake time:{int(time.time()-start_time)}s",
+        description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(client.latency*1000)}ms\nRequests: \t{r:,}\nAwake time: {int(time.time()-start_time)}s",
         color=re[8],
         footer="Have fun, bot has many features, check out /help",
         thumbnail = client.user.avatar.url
@@ -3295,33 +3309,36 @@ async def changeM(ctx, *, num):
             )
         )
 
-
 @client.event
 async def on_message(msg):
     save_to_file()
-    await client.process_commands(msg)    
-    if (not msg.guild.id in observer) and (not msg.author.bot):
-        s = msg.clean_content
-        
-        whitelist = string.ascii_letters + ' '
-        global new_s
-        new_s = ''.join(c for c in s if c in whitelist)
-        req()
-
-        new_s = regex.sub(' +', ' ', new_s)
-        
-        if new_s != '' or new_s is not None: 
-            json = {"text" : new_s}
-            if msg.author.id not in deathrate.keys():
-                deathrate[msg.author.id]=0
-
-            preds = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/classify", json=json) 
-            if preds["result"] == "Sucide":
-                deathrate[msg.author.id]+=1
-                
-            if deathrate[msg.author.id] >=10:
-                await msg.reply(embed=suicide_m(client,re[8]))
-                deathrate[msg.author.id] = 0
+    await client.process_commands(msg) 
+    global run_suicide
+    if (not msg.guild.id in observer) and (not msg.author.bot) and run_suicide:
+        try:
+            s = msg.clean_content
+            
+            whitelist = string.ascii_letters + ' '
+            global new_s
+            new_s = ''.join(c for c in s if c in whitelist)
+            req()
+    
+            new_s = regex.sub(' +', ' ', new_s)
+            
+            if new_s != '' or new_s is not None: 
+                json = {"text" : new_s}
+                if msg.author.id not in deathrate.keys():
+                    deathrate[msg.author.id]=0
+    
+                preds = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/classify", json=json) 
+                if preds["result"] == "Sucide":
+                    deathrate[msg.author.id]+=1
+                if deathrate[msg.author.id] >=10:
+                    await msg.reply(embed=suicide_m(client,re[8]))
+                    deathrate[msg.author.id] = 0
+        except Exception as e:
+            await client.get_channel(dev_channel).send(embed=cembed(description=f"Error in suicide observer, please check the server, disabling observer\n\n{traceback.format_exc()}",color=re[8],thumbnail=client.user.avatar.url))
+            run_suicide = False
     
 
     auth = os.getenv("transformers_auth")
@@ -3491,7 +3508,7 @@ async def exe(ctx, *, text):
                         if "in exe" not in line
                     ]
                 )
-                await ctx.send(embed = ror.error(str(error)))
+                await ctx.send(embed = ror.error(str(e)))
         output = f.getvalue()
         embeds=[]
         if output == "":
