@@ -38,7 +38,6 @@ import googlesearch
 import youtube_dl
 import re as regex
 import urllib.request
-import requests
 import ffmpeg
 import time
 import emoji
@@ -681,6 +680,16 @@ async def toggle_suicide(ctx):
                 color=re[8]
             )
         )
+
+@client.slash_command(name = "subscribe", description = "Subscribe to a youtube channel")
+async def sub_slash(ctx, channel: GuildChannel = None, url = None, message = ""):
+    await ctx.response.defer()
+    await subscribe(ctx, channel = channel, url = url, message = message)
+
+@client.slash_command(name = "unsubscribe", description = "remove a youtube channel from a textchannel")
+async def unsub_slash(ctx, channel: GuildChannel = None, url = None):
+    await ctx.response.defer()
+    await unsubscribe(ctx, channel = channel, url = url)
 
 @client.command()
 async def subscribe(ctx, channel: nextcord.TextChannel=None, url=None, *, message=""):
@@ -1409,15 +1418,25 @@ async def on_message_delete(message):
 @client.slash_command(name = "welcome", description = "set welcome channel")
 async def wel(ctx, channel: GuildChannel = defa(ChannelType.text)):
     await ctx.response.defer()
-    config['welcome'][ctx.guild.id] = channel.id
-    await ctx.send(
-        embed=cembed(
-            title="Done",
-            description=f"Set {channel.mention} for welcome and exit messages.",
-            color=re[8],
-            thumbnail=client.user.avatar.url
+    if ctx.user.guild_permissions.administrator:
+        config['welcome'][ctx.guild.id] = channel.id
+        await ctx.send(
+            embed=cembed(
+                title="Done",
+                description=f"Set {channel.mention} for welcome and exit messages.",
+                color=re[8],
+                thumbnail=client.user.avatar.url
+            )
         )
-    )
+    else:
+        await ctx.send(
+            embed=cembed(
+                title="Permissions Denied",
+                description="You need to be an admin to do this",
+                thumbnail = client.user.avatar.url,
+                color=re[8]
+            )
+        )
 
 @client.event
 async def on_member_join(member):
@@ -2827,6 +2846,7 @@ async def clear(ctx, text, num=10):
 @client.event
 async def on_reaction_add(reaction, user):
     req()
+    ctx = reaction.message
     try:
         if not user.bot:
             save_to_file()
@@ -3076,66 +3096,27 @@ async def on_reaction_add(reaction, user):
                 reaction.emoji == emoji.emojize(":keycap_*:")
                 and reaction.message.author == client.user
             ):
-                num = 0
-                bitrate = ""
-                length = "\nLength of queue: " + str(
-                    len(queue_song[str(reaction.message.guild.id)])
+                st= ""
+                index = re[3][str(ctx.guild.id)] 
+                songs = queue_song[str(ctx.guild.id)]
+                lower = 0 if index - 10 < 0 else index - 10
+                higher = len(songs) if index+10>len(songs) else index+10
+                length = f"Length of queue: {len(songs)}\n"
+                bitrate = f"Bitrate of the channel {ctx.guild.voice_clients.bitrate}\n"
+                latency = f"Latency: {int(ctx.guild.voice_client.latency*1000)}ms"
+                
+                for i in range(lower,higher):
+                    song = f"{i}. {da1[songs[i]]}"
+                    if i == index: 
+                        song = f"*{song}*"
+                    st = f"{st}{song}\n"
+                await reaction.message.edit(
+                    embed=nextcord.Embed(
+                        title="Queue",
+                        description=st + bitrate + length + latency,
+                        color=nextcord.Color(value=re[8]),
+                    )
                 )
-                if reaction.message.guild.voice_client != None:
-                    bitrate = "\nBitrate of the channel: " + str(
-                        reaction.message.guild.voice_client.channel.bitrate // 1000
-                    )
-                if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
-                ):
-                    st = ""
-                    await reaction.remove(user)
-                    if len(queue_song[str(reaction.message.guild.id)]) < 27:
-                        for i in queue_song[str(reaction.message.guild.id)]:
-                            if not i in da1.keys():
-                                da1[i] = await get_name(i)
-                            st = st + str(num) + ". " + da1[i] + "\n"
-                            num += 1
-                    else:
-                        adfg = 0
-                        num = -1
-                        for i in queue_song[str(reaction.message.guild.id)]:
-                            num += 1
-                            try:
-                                if re[3][str(reaction.message.guild.id)] < 10:
-                                    if num < 15:
-                                        if not i in da1.keys():
-                                            da1[i] = await get_name(i)
-                                        st = st + str(num) + ". " + da1[i] + "\n"
-                                elif re[3][str(reaction.message.guild.id)] > (
-                                    len(queue_song[str(reaction.message.guild.id)]) - 10
-                                ):
-                                    if num > (
-                                        len(queue_song[str(reaction.message.guild.id)])
-                                        - 15
-                                    ):
-                                        if not i in da1.keys():
-                                            da1[i] = await get_name(i)
-                                        st = st + str(num) + ". " + da1[i] + "\n"
-                                else:
-                                    if (
-                                        num > re[3][str(reaction.message.guild.id)] - 10
-                                        and num
-                                        < re[3][str(reaction.message.guild.id)] + 10
-                                    ):
-                                        if not i in da1.keys():
-                                            da1[i] = await get_name(i)
-                                        st = st + str(num) + ". " + da1[i] + "\n"
-                            except Exception as e:
-                                pass
-                    await reaction.message.edit(
-                        embed=nextcord.Embed(
-                            title="Queue",
-                            description=st + bitrate + length,
-                            color=nextcord.Color(value=re[8]),
-                        )
-                    )
             if str(user.id) in list(dev_users):
                 global dev_channel
                 channel = client.get_channel(dev_channel)

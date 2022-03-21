@@ -104,7 +104,7 @@ def main(client, re, dev_users):
                     )
                 )
                 return
-            await channel.send(
+            await channel.send(f"<@{user}>",
                 embed=ef.cembed(
                     description = repl,
                     color=re[8]

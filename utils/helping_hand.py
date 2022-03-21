@@ -155,7 +155,7 @@ def help_him(ctx, client, re):
     )
     github_help = cembed(
         title="Source Code for Alfred",
-        description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://nextcord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",
+        description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",
         color=re[8],
         thumbnail="https://github.githubassets.com/images/modules/open_graph/github-octocat.png",
         picture=thumbnail,

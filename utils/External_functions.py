@@ -312,42 +312,6 @@ def imdb_embed(movie,re):
         )
 
 
-def check_win(board):
-    board = board.replace("\n", "")
-    board = board.replace("-", "")
-    board = board.replace(" ", "")
-    board = board.replace("X", ":X:")
-    board = board.replace("O", ":O:")
-    board = board.replace("::", ":|:")
-    board = board.split("|")
-    if (
-        board[0] == board[1] == board[2] == emoji.emojize(":cross_mark:")
-        or board[3] == board[4] == board[5] == emoji.emojize(":cross_mark:")
-        or board[6] == board[7] == board[8] == emoji.emojize(":cross_mark:")
-        or board[0] == board[3] == board[6] == emoji.emojize(":cross_mark:")
-        or board[1] == board[4] == board[7] == emoji.emojize(":cross_mark:")
-        or board[2] == board[5] == board[8] == emoji.emojize(":cross_mark:")
-        or board[0] == board[4] == board[8] == emoji.emojize(":cross_mark:")
-        or board[2] == board[4] == board[6] == emoji.emojize(":cross_mark:")
-    ):
-        result = "You won"
-        return result
-    elif (
-        board[0] == board[1] == board[2] == emoji.emojize(":hollow_red_circle:")
-        or board[3] == board[4] == board[5] == emoji.emojize(":hollow_red_circle:")
-        or board[6] == board[7] == board[8] == emoji.emojize(":hollow_red_circle:")
-        or board[0] == board[3] == board[6] == emoji.emojize(":hollow_red_circle:")
-        or board[1] == board[4] == board[7] == emoji.emojize(":hollow_red_circle:")
-        or board[2] == board[5] == board[8] == emoji.emojize(":hollow_red_circle:")
-        or board[0] == board[4] == board[8] == emoji.emojize(":hollow_red_circle:")
-        or board[2] == board[4] == board[6] == emoji.emojize(":hollow_red_circle:")
-    ):
-        result = "Alfred won"
-        return result
-    else:
-        return " "
-
-
 def reddit(account="wholesomememes", number=25, single=True):
     a = requests.get(f"https://meme-api.herokuapp.com/gimme/{account}/{number}").json()
     l = []

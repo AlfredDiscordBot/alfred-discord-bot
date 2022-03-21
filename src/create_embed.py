@@ -403,8 +403,8 @@ def main(client, re, mspace, dev_channel):
             while True:
                 message = await client.wait_for("message", check = lambda message: message.author == ctx.author)
                 msg = message.clean_content
-                if msg in ef.m_options: 
-                    break
+                if msg in ef.m_options: pass
+                    
                 
         
         
