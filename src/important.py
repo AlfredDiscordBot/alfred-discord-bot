@@ -28,17 +28,17 @@ def main(client, re, dev_users):
     @client.command(aliases=["s_e"])
     async def search_emoji(ctx, name):
         try:
-            emoji_names = [i.name for i in client.emojis]
             st = ""
-            for i in emoji_names:
-                if i.lower().find(name.lower()) != -1:
-                    st += i + "\n"
-            if st == "":
-                st = "Not found"
-            embed = discord.Embed(
-                title="Emojis found", description=st, color=discord.Color(value=re[8])
+            for i in client.emojis:
+                if name in i.name:
+                    st += f"{i.name} -> {str(i)}"
+            embed=ef.cembed(
+                title="Emojis found",
+                description=st,
+                color=re[8],
+                thumbnail=client.user.avatar.url,
+                footer=f"Search results for {name}"
             )
-            embed.set_thumbnail(url=client.user.avatar.url)
             await ctx.send(embed=embed)
         except Exception as e:
             await ctx.send(

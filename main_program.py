@@ -96,7 +96,8 @@ config = {
     'snipe': [841026124174983188, 822445271019421746,830050310181486672, 912569937116147772],
     'respond': [],
     'youtube': {},
-    'welcome': {}
+    'welcome': {},
+    'ticket' : {}
     }
 da = {}
 errors = ["```arm"]
@@ -328,14 +329,14 @@ async def on_ready():
 async def send_file_loop():
     await client.get_channel(941601738815860756).send(file=nextcord.File("backup.dat",filename="backup.dat"))
     
-@tasks.loop(minutes=20)
+@tasks.loop(minutes=30)
 async def youtube_loop():
     await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=str(len(client.guilds))+" servers"))
     print("Youtube_loop")    
     for i,l in config['youtube'].items():
         await asyncio.sleep(2)
         for j in l:
-            a = await get_youtube_url(j[0])
+            a = get_youtube_url(j[0])
             if a[0]=="https://www.youtube.com/" or a[0]=="https://www.youtube.com":
                 return
             if not old_youtube_vid.get(i, None):
@@ -403,6 +404,7 @@ async def neofetch(ctx):
     text += f"ID     : {client.user.id}\n"
     text += f"Users  : {len(client.users)}\n"
     text += f"Servers: {len(client.guilds)}\n"
+    text += f"Uptime : {int(time.time()-start_time)}"
     await ctx.send("```yml\n"+text+"\n```")
 
 @client.command()
@@ -654,11 +656,13 @@ async def remove_autoreact(ctx, channel: nextcord.TextChannel = None):
     )
 
 @client.slash_command(name="reports",guild_ids = [822445271019421746],description="shows report and errors")
-async def report_slash():
+async def report_slash(ctx):
     embeds = []
     embed = cembed(
         title="Report",
-        description=""
+        description=report,
+        color=re[8],
+        thumbnail=client.user.avatar.url
     )
 
 @client.command(aliases=['suicide'])
@@ -709,7 +713,7 @@ async def subscribe(ctx, channel: nextcord.TextChannel=None, url=None, *, messag
                 thumbnail = client.user.avatar.url
             ))
     else:
-        await ctx.reply(
+        await ctx.send(
             embed=cembed(
                 title="Permission Denied",
                 description="Only an admin can set it",
@@ -744,7 +748,7 @@ async def unsubscribe(ctx, channel: nextcord.TextChannel=None, url=None):
         except KeyError:
             await ctx.reply(embed=cembed(title="Hmm",description=f"The URL provided is not in {channel.name}'s subscriptions",color=re[8]))
     else:
-        await ctx.reply(
+        await ctx.send(
             embed=cembed(
                 title="Permission Denied",
                 description="Only an admin can remove subscriptions",
@@ -1127,7 +1131,7 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
     req()
     if number == 1:
         embeds = []
-        a = reddit(account, single=False)
+        a = await redd(account, number = 40, single=False)
         if a[2]:
             for i in a:
                 embeds += [
@@ -1354,15 +1358,13 @@ async def docs(ctx, name):
 @client.slash_command(name="snipe", description="Get the last few deleted messages")
 async def snipe_slash(ctx, number=0):
     req()
-    await ctx.send("Sending a list of deleted message")
     await snipe(ctx, int(number))
 
 
 @client.command()
 async def snipe(ctx, number=0):
     if (
-        getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator
-        or getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.manage_messages
+        getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.manage_messages
         or ctx.guild.id not in config['snipe']
     ):
         message = deleted_message.get(ctx.channel.id,[("Empty","Nothing to snipe here")])[::-1]
@@ -2360,7 +2362,10 @@ async def play(ctx, *, index):
                     queue_song[str(ctx.guild.id)].append(url)
                 da1[URL] = name_of_the_song
                 voice.stop()
-                voice.play(nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                voice.play(
+                    nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
+                    after=lambda e: repeat(ctx, voice),
+                )
                 await ctx.send(
                     embed=nextcord.Embed(
                         title="Playing",
@@ -2788,7 +2793,7 @@ async def wikipedia(ctx, *, text):
     await pa1(embeds,ctx)
 
 
-@client.command(aliases=["hi"])
+@client.command(aliases=["hi","ping"])
 async def check(ctx):
     req()
     print("check")
@@ -2842,7 +2847,61 @@ async def clear(ctx, text, num=10):
     else:
         await ctx.send("Wrong password")
 
+@client.slash_command(name="ticket",description="create a ticket message")
+async def tick(ctx, description=None):
+    await ctx.response.defer()
+    if not ctx.user.guild_permissions.administrator:
+        await ctx.send(
+            embed=cembed(
+                title="Permissions Denied",
+                description="You're not an admin to create a ticket message",
+                color=re[8]
+            )
+        )
+        return
+    if not description:
+        description = "Open your tickets here"
+    message = await ctx.send(
+        embed=cembed(
+            title="Ticket",
+            description=description,
+            color=re[8],
+            thumbnail=ctx.guild.icon.url
+        )
+    )
+    await message.add_reaction(emoji.emojize(":ticket:"))    
+    config['ticket'][ctx.guild.id] = (ctx.channel.id, message.id)
 
+@client.command()
+async def close_ticket(ctx):
+    confirm = await wait_for_confirm(ctx,client,"Do you want to close this thread?", re[8])
+    if not confirm: return
+    await ctx.channel.delete()
+        
+
+@client.event
+async def on_raw_reaction_add(payload):
+    #0->channel id
+    #1->message id
+    if payload.member.bot: return
+    if True:
+        if payload.guild_id not in config['ticket']: return
+        if not client.get_channel(config['ticket'][payload.guild_id][0]):
+            del config['ticket'][payload.guild_id]
+            return
+        if payload.channel_id != config['ticket'][payload.guild_id][0]: return
+        msg = payload.message_id
+        channel = client.get_channel(config['ticket'][payload.guild_id][0])
+        mess = await channel.send(
+            embed=cembed(description=f"Creating Ticket for {payload.member.name}", color=re[8])
+        )
+        ms = await channel.fetch_message(msg)
+        if msg != config['ticket'][payload.guild_id][1]: return
+        await ms.remove_reaction(payload.emoji, payload.member)
+        th = await channel.create_thread(name = f"Ticket - {payload.member.name}", reason = f"Ticket - {payload.member.name}", auto_archive_duration = 60, message = mess)
+        await th.send(client.get_user(payload.user_id).mention)
+        
+    
 @client.event
 async def on_reaction_add(reaction, user):
     req()
@@ -3526,6 +3585,9 @@ def addt(p1, p2):
 def get_elem(k):
     return da.get(k, "Not assigned yet")
 
+def on_suicider():
+    global run_suicide
+    run_suicide = True
 
 def de(k):
     del da[k]

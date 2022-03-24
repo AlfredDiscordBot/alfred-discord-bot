@@ -31,7 +31,7 @@ author: True/False
 
 def preset_change(di, ctx, client, re = {8: 6619080}):
     presets = {
-        '<server-icon>' : ctx.guild.icon.url,
+        '<server-icon>' : getattr(ctx.guild.icon, 'url', None),
         '<author-icon>' : ctx.author.avatar.url,
         '<bot-icon>' : client.user.avatar.url,
         '<bot-color>' : str(discord.Color(re[8]).to_rgb())
@@ -400,10 +400,12 @@ def main(client, re, mspace, dev_channel):
                 color=re[8],
                 thumbnail=client.user.avatar.url
             )
+            emb = await ctx.send(embed = cembed())
             while True:
-                message = await client.wait_for("message", check = lambda message: message.author == ctx.author)
+                message = await client.wait_for("message", check = lambda message: message.author == ctx.author)                
                 msg = message.clean_content
-                if msg in ef.m_options: pass
+                if msg in ef.m_options:
+                    setup_value = msg
                     
                 
         

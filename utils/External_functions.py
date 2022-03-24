@@ -222,20 +222,18 @@ def instagram_get1(account, color, SESSIONID):
         return SESSIONID
 
 @lru_cache(maxsize=512)
-async def get_youtube_url(url):
-
+def get_youtube_url(url):
     """
     gets the list of url from a channel url
     """
-    st = await get_async(url)
+    st = requests.get(url).content.decode()
     stop = 0
     li = []
-
     for i in range(10):
         a = st.find("/watch?v", stop)
         b = st.find('"', a)
         li = li + ["https://www.youtube.com" + st[a:b]]
-        stop = b
+        stop = b+1
     return li
 
 
@@ -311,9 +309,8 @@ def imdb_embed(movie,re):
             color=re[8],
         )
 
-
-def reddit(account="wholesomememes", number=25, single=True):
-    a = requests.get(f"https://meme-api.herokuapp.com/gimme/{account}/{number}").json()
+async def redd(account="wholesomememes", number = 25, single=True):
+    a = await get_async(f"https://meme-api.herokuapp.com/gimme/{account}/{number}",kind=json)
     l = []
     if not "message" in a.keys():
         for i in a["memes"]:
@@ -323,19 +320,6 @@ def reddit(account="wholesomememes", number=25, single=True):
         return l
     else:
         return [(a["code"], a["message"], False)]
-
-
-help1 = "**COMMANDS**\n'google <text to search> \n'help to get this screen\n'wikipedia Topic \n'python_shell <Expression> for python shell\n'get_req for no. of requests so far\n'entrar for the latest announcements from Entrar\n"
-help2 = "**ALIAS**: \n'g <text to search> \n'h to show this message \n'm <Expression> for python eval \n'w for Wikipedia\n':: for memes\n'q for queue\n'> for next\n'< for previous\n'cm for connecting to a voice\n\n"
-help3 = "**EXAMPLE**:\n'help\n'q\n'w Wikipedia\n'again\n'next\n'memes\n'q Song\n\n"
-help4 = "**UPDATES**:\nAlfred now supports youtube subscriptions\nAlfred can  now execute code and its open for everyone\nIts for everyone. Check it out using\n '\nAlfred has 24/7 games and roast feature now, currently games include chess only, we'll add more, DW\nUse prefix `.` for that.\nBtw if you didnt get slash commands get the new invite for Alfred from dev or from Alfred's description.\nEnjoy\n\n"
-help5 = (
-    "**MUSIC**:\n'connect_music <channel_name> to connect the bot to the voice channel\n'play <song name> to play song without adding to the queue\n'queue <song name> to add a song to the queue\n'play <index no.> to play certain song from the queue list\n"
-    "'addto playlist <Playlist name> to add current queue to playlist\n'addto queue <Playlist name> to add playlist to the queue\n'clearqueue to clear the queue\n'resume\n'pause\n"
-    "'curr for current song.\n\n"
-)
-help_list = [help1, help2, help3, help4, help5]
-
 
 def protect(text):
     return (
