@@ -400,7 +400,7 @@ def main(client, re, mspace, dev_channel):
                 color=re[8],
                 thumbnail=client.user.avatar.url
             )
-            emb = await ctx.send(embed = cembed())
+            emb = await ctx.send(embed = ef.cembed())
             while True:
                 message = await client.wait_for("message", check = lambda message: message.author == ctx.author)                
                 msg = message.clean_content
