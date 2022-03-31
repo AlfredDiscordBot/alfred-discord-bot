@@ -20,7 +20,7 @@ class CodeExecutor:
         """
         try:
             runtime_url = "https://emkc.org/api/v2/piston/runtimes"
-            r = requests.get(runtime_url)
+            r = requests.get(runtime_url, timeout=10)
             data = json.loads(r.text)
             runtimes: List[Dict[str, Union[str, List[str]]]] = []
             for langs in data:

@@ -139,6 +139,26 @@ async def memes3():
         link += [st[a:b]]
     return link
 
+async def memes4():
+    safe_stop = 0
+    link = []
+    r = await get_async("https://bestlifeonline.com/funniest-cat-memes-ever/")
+    string = str(r)
+    for i in range(0, 94):
+        # https://bestlifeonline.com/funniest-cat-memes-ever/
+        n1 = string.find("<h2", safe_stop + len("<h2"))
+        n3 = string.find('<div class="number">', n1) + len(
+            '<div class="number">'
+        )
+        n4 = string.find("</div>", n3)
+        n2 = string.find("data-src=", n1) + len("data-src=") + 1
+        n1 = string.find('" ', n2)
+        safe_stop = n1
+        number = int(string[n3:n4])
+        if number >= 97:
+            safe_stop = 0
+        link += [string[n2:n1]]
+    return link
 
 load_dotenv()
 

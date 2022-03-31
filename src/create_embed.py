@@ -4,6 +4,7 @@ from requests.exceptions import MissingSchema
 from compile import filter_graves
 from yaml import safe_load, safe_dump
 import traceback
+import asyncio
 import External_functions as ef
 
 
@@ -199,6 +200,13 @@ def embed_from_dict(info: dict, ctx, client, re) -> discord.Embed:
 
     info["color"] = get_color(info.get("color", None))
     if info['color']: info['color']=info['color'].value
+    if info.get("author","False") == 'True': 
+        info['author'] = {
+            'name':ctx.author.name,
+            'icon_url':ctx.author.avatar.url            
+        }       
+    else:
+        info['author'] = False
     embed = ef.cembed(**info)
 
     if image := info.get("image", None):
@@ -218,9 +226,11 @@ def embed_from_dict(info: dict, ctx, client, re) -> discord.Embed:
         else:
             embed.set_author(**author)
       else:
-        embed.set_author(name=author.get("name", ""), url=author.get("url", ""), icon_url=author.get("icon_url", ""))
+          print(author)
+          embed.set_author(name=author.get("name", ""), url=author.get("url", ""), icon_url=author.get("icon_url", ""))
 
     if fields := info.get("fields", None):
+        print(fields)
         for field in fields:
             field = {k.lower(): v for k, v in field.items()}  # make it case insensitive
             embed.add_field(**field)
@@ -364,7 +374,55 @@ def main(client, re, mspace, dev_channel):
                 thumbnail=client.user.avatar.url
             )
         )
-    @client.command(aliases = ['mehsetup'])
+
+    def converter(a):
+        if a.get('thumbnail'):
+            a['thumbnail'] = a['thumbnail']['url']
+        del a['type']
+        if a.get('footer'):
+            a['footer']=a['footer']['text']
+        if a.get('image'):
+            a['image']=a['image']['url']
+        if a.get('color'):
+            a['color']=str(discord.Color(a['color']).to_rgb())
+        return a 
+
+    @client.command(aliases = ['info'])
+    async def embedinfo(ctx):
+        d = ctx.message.reference
+        if not d:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Hmm",
+                    description="Reply to an embed message to continue",
+                    color=re[8]
+                )
+            )
+            return
+        me = await client.get_channel(d.channel_id).fetch_message(d.message_id)
+        if me.embeds == [] or not me.author.bot:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Oops",
+                    description="We found no embed in that message, check again and try",
+                    color=re[8]
+                )
+            )
+            return
+        a = me.embeds[0].to_dict()
+        a = converter(a)
+        await ctx.send(
+            embed=ef.cembed(
+                title="Extracting Embed Information",
+                description="```yml\n"+safe_dump(a)+"\n```",
+                color=re[8],
+                thumbnail=me.author.avatar.url
+            )
+        )
+        
+
+            
+    @client.command(aliases = ['mehsetup','msetup'])
     async def m_setup(ctx, *, yml = None):
         if yml:
             try:
@@ -382,30 +440,99 @@ def main(client, re, mspace, dev_channel):
                     )
                 )
         else:
+            di = {}
+            setup_value = None
             await ctx.send(
                 embed=ef.cembed(
-                    title="Try again",
-                    description=help_for_m_setup,
+                    description=f"Settings up MehSpace. You can choose from:\n"+'\n'.join(ef.m_options)+"\nType done or cancel to finish this",
                     color=re[8],
-                    thumbnail = client.user.avatar.url
+                    footer=f"Follow this message along to setup | {ctx.author.name}"
                 )
             )
-            return
-            di = {}
-            setup_value = None     
-            diff = ef.subtract_list(ef.m_options, list(di))
-            embed=ef.cembed(
-                title="Setup",
-                description="hello",
-                color=re[8],
-                thumbnail=client.user.avatar.url
-            )
-            emb = await ctx.send(embed = ef.cembed())
+            emb = await ctx.send(embed=ef.cembed(description='Empty Embed',color=re[8]))
             while True:
-                message = await client.wait_for("message", check = lambda message: message.author == ctx.author)                
-                msg = message.clean_content
-                if msg in ef.m_options:
-                    setup_value = msg
+                try:
+                    
+                    diff = ef.subtract_list(ef.m_options, list(di))
+                    message = await client.wait_for("message", check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=720)                
+                    msg = message.clean_content
+                    if msg.startswith("send"):
+                        channel_id = int(message.content.split()[1][2:-1])
+                        channel = client.get_channel(channel_id)
+                        if channel in ctx.guild.channels:
+                            await channel.send(
+                                embed=embed_from_dict(di,ctx,client,re)
+                            )
+                        continue
+                    if msg == "import":
+                        if mspace.get(message.author.id):
+                            di = safe_load('\n'.join([i for i in mspace[ctx.author.id].split("\n") if not i.startswith("```")]))
+                            await emb.edit(
+                                embed=embed_from_dict(di,ctx,client,re)
+                            )
+                        else:
+                            await ctx.send("You do not have an existing mehspace")
+                    elif msg.lower() in (ef.m_options+['done','cancel','send']):
+                        if msg.lower() not in "cancel done send":
+                            setup_value = msg
+                            await emb.edit(
+                                embed=ef.cembed(
+                                    title="Setting up",
+                                    description=f"Setting up {setup_value}" if setup_value!="send" else "mention the channel to send",
+                                    color=re[8], thumbnail = client.user.avatar.url
+                                )
+                            )
+                        elif msg.lower() == "cancel":
+                            await ctx.send(
+                                embed=ef.cembed(
+                                    title="Cancelling",
+                                    description="Deleting the embed formed till now",
+                                    color=re[8]
+                                )
+                            )
+                            break
+                        else:                            
+                            if di == {}:
+                                await emb.edit(
+                                    embed=ef.cembed(
+                                        description=f"Your embed is empty\nYou can't save this\nSettings up MehSpace. You can choose from:\n"+'\n'.join(ef.m_options),
+                                        color=re[8],
+                                        footer=f"Follow this message along to setup | {ctx.author.name}"
+                                    )
+                                )
+                            else:
+                                s = "```yml\n"+safe_dump(di)+"\n```"
+                                mspace[ctx.author.id] = s
+                                break
+                    elif setup_value:
+                        di[setup_value] = msg
+                        await emb.edit(
+                            embed=embed_from_dict(di,ctx,client,re)
+                        )
+                    await message.delete()  
+                except asyncio.TimeoutError:
+                    await ctx.send(
+                        embed=ef.cembed(
+                            title="Timeout",
+                            description="Sorry Discord will kill me if i wait longer",
+                            color=re[8],
+                            thumbnail=client.user.avatar.url
+                        )
+                    )
+                except Exception as e:
+                    await ctx.send(
+                        embed=__import__("error").error(str(e))
+                    )
+                    await client.get_channel(dev_channel).send(
+                        embed=ef.cembed(
+                            title="Error in msetup new",
+                            description=str(traceback.format_exc()),
+                            color=re[8],
+                            footer=ctx.guild.name
+                        )
+                    )
+                    
+    
                     
                 
         

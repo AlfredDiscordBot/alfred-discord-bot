@@ -1,5 +1,5 @@
 from External_functions import cembed, defa
-
+from assets import *
 
 y = """
 'yml_embed #channel
@@ -20,6 +20,10 @@ author: True/False
 
 >>Enjoy and have fun, we will not restrict
 
+We've kept a new layout for mehSetup
+all you gotta do now is 
+`'mehSetup`
+and you'll be guided step by setup, just follow along on that
 """
 
 
@@ -34,10 +38,13 @@ You can kick someone using this command, the user can return if he has the invit
 Mutes a person
 `'suicide      `  
 Toggle suicide observation 
-`'respond      ` 
+`'response      ` 
 Toggle auto response when you start with the word 'Alfred'
 `'change_nickname @mention New name` 
 Change the nickname of the person, <alias: '*'>
+`'clear OK <number defaults to 10>`
+Clear <number> messages from a channel or thread
+Will ask permission if it's more than 15
 """
 
 effec = f"""
@@ -144,7 +151,7 @@ def help_him(ctx, client, re):
         description=f"You can use this to create embed, I can show you an example\n\n{y}",
         color=re[8],
         thumbnail=thumbnail,
-        picture="https://media.discordapp.net/attachments/877393101562445834/926120618603196416/unknown.png?width=391&height=436"
+        picture="https://c.tenor.com/umLj0CwClUIAAAAd/gotham-knights-dc.gif"
     )
     mod_help = cembed(
         title="Moderation commands",
@@ -158,18 +165,19 @@ def help_him(ctx, client, re):
         description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",
         color=re[8],
         thumbnail="https://github.githubassets.com/images/modules/open_graph/github-octocat.png",
-        picture=thumbnail,
+        picture="https://pbs.twimg.com/tweet_video_thumb/FNGjh0zXIAMRyxA?format=jpg&name=large",
     )
     first_page = cembed(
         title="Help",
-        description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '\n\nIf you have any complaints or issues with Alfred, please give us a feedback using the command `'feedback`",
+        description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '\n\nIf you have any complaints or issues with Alfred, please give us a feedback using the command `'feedback`\nVote for me in [top.gg](https://top.gg/bot/811591623242154046/vote). Thank you\n\n||Here's a lil tip from the developers which you probably wont find in any other bots, edit a command and it'll run again||",
         thumbnail="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903",
         picture=thumbnail,
         color=re[8],
+        footer="Have a great day"
     )
     message_developer = cembed(
         title = "Message from the developers",
-        description = "Hey guys, just wanted to say something about the bot, We just moved from discord.py to Nextcord, please check if there are some issues with the commands. You can report to us using the `'feedback` command, it's going to be fun.\n\nFor yml_embed, we kept little bit of Presets like\n```\n<server-icon>\n<author-icon>\n<bot-icon>\n<bot-color>\n```\n\nWe're moving to Slash command step by step, so keep watching that, it's going to be fun, and Thank you for choosing Alfred, I hope to see your irl, Good Bye, Check through this page btw to see more updates.",
+        description = "You can report to us using the `'feedback` command, it's going to be fun.\n\nFor yml_embed, we kept little bit of Presets like\n```\n<server-icon>\n<author-icon>\n<bot-icon>\n<bot-color>\n```\n\nWe're moving to Slash command step by step, so keep watching that, it's going to be fun, and Thank you for choosing Alfred, I hope to see your irl\n\nAded a new game called `guess the song <slash command>`, it's simple, you need to type the name of the song after executing this command and you need to be in a vc for this to work\n\nTickets are added to Alfred, only admins can set them up, it uses thread to create a ticket\n\n`Added some easter eggs of linux, like ProtonDB, Neofetch, etc. Have Fun, check through the slash commands.\n\nNew feature, added one of my favourite magazines currently, called CSVoyager\nCheck it out using 'csvoyager <edition number>\n\n-Alfred",
         color=re[8],
         thumbnail=thumbnail,
         picture="https://www.whitesourcesoftware.com/wp-content/media/2021/05/aHViPTcyNTE0JmNtZD1pdGVtZWRpdG9yaW1hZ2UmZmlsZW5hbWU9aXRlbWVkaXRvcmltYWdlXzVlMjA1MWQxOWY2NTUuanBnJnZlcnNpb249MDAwMCZzaWc9NGJhMDhmZWU5ZDQ4ZGVjNjcwNzFlNmFhMDg3NzliNzA3D.jpeg"
@@ -179,11 +187,18 @@ def help_him(ctx, client, re):
         description="This command will apply effects to your Profile Picture, Use it by `'effects <effect name> @mention`"+effec,
         color=re[8],
         thumbnail=thumbnail,
-        image="https://github.com/alvinbengeorge/alfred-discord-bot/blob/main/Krypton.png?raw=true"
+        image="https://raw.githubusercontent.com/alvinbengeorge/alfred-discord-bot/default/Krypton.png"
+    )
+    csv_help=cembed(
+        title="CSVoyager",
+        description="CS Voyager is a monthly newsletter which will keep you updated with the latest happenings around the globe in the field of Computer Science & will provide focused knowledge specifically designed for CS enthusiasts. Just like a person who goes on voyages, our newsletter is on its voyage & shall explore a different part of CS and this evolving Technology era & present them in front of the reader.\n\nUse the command `'csvoyager <edition number>` to read one of their articles and check out their [official website](https://csvoyager.vercel.app/) and [youtube channel](https://www.youtube.com/channel/UCGMSC8De3GQ5s8Ko1ZZ7W4w/featured)",
+        image="https://yt3.ggpht.com//js0MzlkhEXw7UlTJ3AOTbZsXgRd3M7sfpgtRVPs_Y6d97q6cGTZyN7PVgecuoaL4Hgo5cY4FgA=w1060-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
+    thumbnail=client.get_guild(841026124174983188).icon.url,
+        color=re[8]
     )
         
 
-    return [first_page, github_help, message_developer, effects_help, music_help, mod_help, yaml_help, reddit_help, wolfram_help, code_help, Emoji_help, prefix_help, youtube_help, instagram_help]
+    return [first_page, github_help, message_developer, csv_help, effects_help, music_help, mod_help, yaml_help, reddit_help, wolfram_help, code_help, Emoji_help, prefix_help, youtube_help, instagram_help]
 
 neofetch="""
   *(&@&&%%##%%&%                                                .%&%###%%&&&%/, 

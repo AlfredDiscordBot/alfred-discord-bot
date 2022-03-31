@@ -31,7 +31,7 @@ def main(client, re, dev_users):
             st = ""
             for i in client.emojis:
                 if name in i.name:
-                    st += f"{i.name} -> {str(i)}"
+                    st += f"{i.name} -> {str(i)} -> `{i.id}`\n"
             embed=ef.cembed(
                 title="Emojis found",
                 description=st,
@@ -132,3 +132,5 @@ def main(client, re, dev_users):
         fp = ef.svg2png("https://contrib.rocks/image?repo=alvinbengeorge/alfred-discord-bot")
         file = discord.File(io.BytesIO(fp), 'contrib.png')
         await ctx.send(file=file, embed=embed)
+
+    

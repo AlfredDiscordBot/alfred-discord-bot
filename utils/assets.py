@@ -34,7 +34,7 @@ class Confirm(nextcord.ui.View):
         self.stop()
         return self.value
 
-async def confirm_button(ctx, message, re={8: 5160}):
+async def confirm_button(ctx, message, client, re={8: 5160}):
     view = Confirm(re)
     await ctx.send(
         embed=ef.cembed(
@@ -48,6 +48,24 @@ async def confirm_button(ctx, message, re={8: 5160}):
     if view.value is None:
         print('Timed out...')
     elif view.value:
-        print('Confirmed...')
+        await ctx.message.edit(
+            embed=ef.cembed(
+                description="Confirmed",
+                color=re[8]                
+            )
+        )
     else:
         print('Cancelled...')
+
+
+class Emotes:
+    def __init__(self, client):
+        self.client = client
+        self.animated_wrong = client.get_emoji(958424684540612688)
+        self.red_arrow = client.get_emoji(945741947220402176)
+        self.animated_correct = client.get_emoji(958424323415212102)
+        self.join_vc = client.get_emoji(852810663603994624)
+        self.check = client.get_emoji(957688162610729070)
+        
+        
+    
