@@ -145,6 +145,7 @@ print("Starting")
 
 def reset_emo():
     emo = assets.Emotes(client)
+    return emo
     
 def youtube_download(ctx, url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
