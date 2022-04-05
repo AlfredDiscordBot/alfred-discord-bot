@@ -3282,8 +3282,8 @@ async def lyrics_slash(ctx, song):
     await ctx.send(embed=await ly(song,re))
 
 @client.slash_command(name="sealfred", description="Checks for behaviours like kicking out or banning regularly")
-async def SeCurity(ctx, log_channel: GuildChannel = defa(ChannelType.text)):
-    await ctx.response.defer()
+async def SeCurity(ctx, log_channel: GuildChannel = "delete"):
+    await ctx.response.defer()        
     if not ctx.permissions.administrator:
         await ctx.send(
             embed=cembed(
@@ -3303,7 +3303,17 @@ async def SeCurity(ctx, log_channel: GuildChannel = defa(ChannelType.text)):
             )
         )
         return
-    channel_id = log_channel.id
+    if log_channel == 'delete':
+        if ctx.guild.id in config['security']:
+            del config['security'][ctx.guild.id]
+        await ctx.send(
+            embed=cembed(
+                description="Removed SEAlfred from this server, this server is now left unprotected",
+                color=re[8]
+            )
+        )
+        return
+    channel_id = log_channel.id    
     config['security'][ctx.guild.id] = channel_id
     await ctx.send(
         embed=cembed(
