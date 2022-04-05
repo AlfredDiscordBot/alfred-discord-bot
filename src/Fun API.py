@@ -252,6 +252,10 @@ def main(client, re):
 
             )
         )
+    @client.command(aliases = ['dictionary', 'dict'])
+    async def diction(ctx, *, text):
+        embed = await ef.dictionary(ctx, text, client, re[8])
+        await ctx.send(embed=embed)
         
         
     async def pa1(embeds, ctx, start_from=0, restricted = False):

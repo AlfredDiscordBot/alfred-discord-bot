@@ -71,7 +71,7 @@ def effects_helper():
             'wave',
             'udnie'
         ],
-        default = None
+        default = 'cartoonify'
     )
 
 def help_him(ctx, client, re):

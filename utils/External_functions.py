@@ -36,7 +36,7 @@ ydl_op = {
 SVG2PNG_API_URI = os.getenv("svg2pnguri")
 SVG2PNG_API_TOKEN = os.getenv("svg2pngtoken")
 
-Emoji_alphabets = [emoji.emojize(f":regional_indicator_{chr(i+97)}:") for i in range(26)]
+Emoji_alphabets = [chr(i) for i in range(127462,127488)]
 
 @lru_cache(maxsize = 512)
 def youtube_info(url):
@@ -330,7 +330,7 @@ def imdb_embed(movie,re):
         )
 
 async def redd(account="wholesomememes", number = 25, single=True):
-    a = await get_async(f"https://meme-api.herokuapp.com/gimme/{account}/{number}",kind=json)
+    a = await get_async(f"https://meme-api.herokuapp.com/gimme/{account}/{number}",kind="json")
     l = []
     if not "message" in a.keys():
         for i in a["memes"]:
@@ -550,6 +550,12 @@ def remove_all(original,s):
         original.replace(i,"")
     return original
 
+def safe_pfp(user):
+    pfp = user.default_avatar.url
+    if user.avatar:
+        return user.avatar.url
+    return pfp
+
 def defa(*types, default = None, choices=[]):
     if types == []: return SlashOption(default = default, required = False)
     if choices != []:
@@ -614,6 +620,57 @@ class SpaceX:
             embeds.append(embed)
         print("Done")
         return embeds
+
+
+async def dictionary(ctx, text, client, color):
+    try:
+        data = await get_async(
+            url="https://api.dictionaryapi.dev/api/v2/entries/en/"+convert_to_url(text),
+            kind="json"
+        )
+        if type(data) == type([]):
+            data = data[0]
+            word = data["word"]
+            description = "**Here's What I found:**\n\n"
+            if "phonetics" in data.keys():
+                if "text" in data["phonetics"][0]:
+                    phonetics = (
+                        "**Phonetics:**\n" + data["phonetics"][0]["text"] + "\n\n"
+                    )
+                    description += phonetics
+            if "origin" in list(data.keys()):
+                origin = "**Origin: **" + data["origin"] + "\n\n"
+                description += origin
+            if "meanings" in data.keys() and "definitions" in data["meanings"][0]:
+                meanings = data["meanings"][0]["definitions"][0]
+                if "definition" in list(meanings.keys()):
+                    meaning = "**Definition: **" + meanings["definition"] + "\n\n"
+                    description += meaning
+                if "example" in list(meanings.keys()):
+                    example = "**Example: **" + meanings["example"]
+                    description += example
+        else:
+            word = data["title"]
+            description = data["message"]
+
+        return cembed(
+            title=word,
+            description=description,
+            color=color,
+            thumbnail=client.user.avatar.url,
+        )
+    except Exception as e:
+        print(e)
+        return cembed(
+            title="Oops",
+            description="Something is wrong\n" + str(e),
+            color=color,
+            thumbnail=client.user.avatar.url,
+        )
+
+def audit_check(log):
+    latest = log[0]
+    
 
 m_options = [
     'title',

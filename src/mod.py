@@ -4,10 +4,12 @@ def requirements():
 
 def main(client, re):
     import nextcord as discord
+    import nextcord.ext.commands as commands
     import datetime
     import External_functions as ef
 
     @client.command(aliases=["ban"])
+    @commands.cooldown(1,10,commands.BucketType.guild)
     async def ban_member(ctx, member: discord.Member, *, reason=None):
         if ctx.author.guild_permissions.ban_members:
             await member.ban(reason=reason)
@@ -28,6 +30,7 @@ def main(client, re):
             )
 
     @client.command(aliases=["kick"])
+    @commands.cooldown(1,10,commands.BucketType.guild)
     async def kick_member(ctx, member: discord.Member, *, reason=None):
         if ctx.author.guild_permissions.ban_members:
             await member.kick(reason=reason)
@@ -47,6 +50,7 @@ def main(client, re):
                 )
             )
     @client.command(aliases=["mu"])
+    @commands.cooldown(1,10,commands.BucketType.guild)
     async def mute(ctx, member: discord.Member, time=10):
         re[0]+=1
         if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.mute_members:

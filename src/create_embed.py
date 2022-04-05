@@ -197,16 +197,14 @@ def embed_from_dict(info: dict, ctx, client, re) -> discord.Embed:
     info = preset_change(info, ctx, client, re = re)
     ctx_author = getattr(ctx, 'author', getattr(ctx,'user',None))
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
+    if info.get('author') == 'True' or info.get('author'):
+        info['author'] = {
+            'name': ctx.author.name,
+            'icon_url': ef.safe_pfp(ctx.author)
+        }
 
     info["color"] = get_color(info.get("color", None))
-    if info['color']: info['color']=info['color'].value
-    if info.get("author","False") == 'True': 
-        info['author'] = {
-            'name':ctx.author.name,
-            'icon_url':ctx.author.avatar.url            
-        }       
-    else:
-        info['author'] = False
+    if info['color']: info['color']=info['color'].value     
     embed = ef.cembed(**info)
 
     if image := info.get("image", None):
@@ -505,6 +503,7 @@ def main(client, re, mspace, dev_channel):
                                 mspace[ctx.author.id] = s
                                 break
                     elif setup_value:
+                        if msg == 'True': msg = True
                         di[setup_value] = msg
                         await emb.edit(
                             embed=embed_from_dict(di,ctx,client,re)
@@ -519,6 +518,7 @@ def main(client, re, mspace, dev_channel):
                             thumbnail=client.user.avatar.url
                         )
                     )
+                    break
                 except Exception as e:
                     await ctx.send(
                         embed=__import__("error").error(str(e))
