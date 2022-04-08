@@ -668,6 +668,75 @@ async def dictionary(ctx, text, client, color):
             thumbnail=client.user.avatar.url,
         )
 
+class Meaning:
+    def __init__(self,word,color):
+        self.word = word,
+        self.url = "https://api.dictionaryapi.dev/api/v2/entries/en/"+convert_to_url(word)
+        self.result = None
+        self.embeds = []
+        self.color = color
+        self.thumbnail = "https://i.pinimg.com/originals/75/7c/da/757cda6d9ac2a7f0db09c41b83931b53.png"
+
+    async def setup(self):
+        self.result = await get_async(self.url, kind="json")
+        return self.result
+
+    def create_texts(self):
+        if self.result == None:
+            raise IndexError("Run setup first |coro|")
+        elif type(self.result) == dict:
+            a = cembed(
+                title=self.result['title'],
+                description=self.result['message'],
+                color = self.color,
+                thumbnail = self.thumbnail
+            )
+            self.embeds.append(a)
+        else:
+            r = self.result
+            print(r[0])
+            description=f"**Phonetics**: {r[0].get('phonetic')}\n"
+            description+=f"**Part of speech**: {r[0]['meanings'][0].get('partOfSpeech')}"
+            embed=cembed(
+                title=r[0]['word'],
+                description=description,
+                color=self.color,
+                thumbnail=self.thumbnail
+            )
+            self.embeds.append(embed)
+            definitions = r[0]['meanings'][0]['definitions']
+            page = 0
+            for i in definitions:
+                page+=1
+                des = i['definition']
+                example = i.get('example')
+                synonyms = i.get('synonyms')
+                antonyms = i.get('antonyms')
+                if example is None:
+                    example = page
+                embed = cembed(
+                    title = r[0]['word'],
+                    description = des,
+                    color=self.color,
+                    footer = example,
+                    thumbnail=self.thumbnail
+                )
+                if synonyms and synonyms != []:
+                    embed.add_field(
+                        name="Synonyms",
+                        value=','.join(synonmys),
+                        inline=True
+                    )
+                if antonyms and antonyms != []:
+                    embed.add_field(
+                        name="Antonyms",
+                        value=','.join(antonyms),
+                        inline=True
+                    )
+                self.embeds.append(embed)
+        return self.embeds
+                
+
 def audit_check(log):
     latest = log[0]
     

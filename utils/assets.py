@@ -67,6 +67,6 @@ class Emotes:
         self.join_vc = client.get_emoji(852810663603994624)
         self.check = client.get_emoji(957688162610729070)
         self.loading = client.get_emoji(948396323843997776)
-        
+        self.upvote = client.get_emoji(945509681256865845)
         
     

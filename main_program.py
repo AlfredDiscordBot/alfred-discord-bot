@@ -165,7 +165,7 @@ async def search_vid(name):
 
 def prefix_check(client, message):
     save_to_file()
-    return prefix_dict.get(message.guild.id if message.guild is not None else None, ["'"])
+    return prefix_dict.get(message.guild.id if message.guild is not None else None, "'"),f"<@{client.user.id}> "
 
 
 client = nextcord.ext.commands.Bot(
@@ -269,26 +269,28 @@ async def on_ready():
         sys.path.insert(1, location_of_file + "/src")
         for i in os.listdir(location_of_file + "/src"):
             if i.endswith(".py"):
+                a = ""
                 try:
                     print(i, end="")
                     requi = __import__(i[0 : len(i) - 3]).requirements()
                     # if requi != "":
                     #     requi = "," + requi
                     if type(requi) is str:
-                        eval(f"__import__('{i[0:len(i)-3]}').main(client,{requi})")
+                        a = f"__import__('{i[0:len(i)-3]}').main(client,{requi})"
+                        eval(a)
                     if type(requi) is list:
-                        eval(
-                            f"__import__('{i[0:len(i)-3]}').main(client,{','.join(requi)})"
-                        )
+                        a = f"__import__('{i[0:len(i)-3]}').main(client,{','.join(requi)})"
+                        eval(a)
                     imports = imports + i[0 : len(i) - 3] + "\n"
                     print(": Done")
                     report+=f"[ OK ] Imported {i} successfully\n"
                 except Exception as e:
                     await channel.send(
-                        embed=nextcord.Embed(
+                        embed=cembed(
                             title="Error in plugin " + i[0 : len(i) - 3],
                             description=str(e),
                             color=nextcord.Color(value=re[8]),
+                            footer=a
                         )
                     )
                     report+=f"[ {int(time.time()-start_time)} ] Error in {i}: {e}\n"
@@ -364,7 +366,6 @@ async def dev_loop():
         await get_async("https://Ellisa-Bot.arghyathegod.repl.co")
     except:
         pass
-    if client.is_ws_ratelimited(): os.system("busybox reboot") 
     save_to_file()
 
 @client.slash_command(name = "embed", description = "Create a quick embed using slash commands")
@@ -441,7 +442,7 @@ async def sniper(ctx):
                 color=re[8]
             )
         )
-@client.command(aliases=["vote","top.gg"])
+@client.command(aliases=["vote","top.gg",'v'])
 async def vote_alfred(ctx):
     await ctx.send(
         embed=cembed(
@@ -475,6 +476,15 @@ async def toggle_response(ctx):
             description=output,
             color=re[8],
             thumbnail=client.user.avatar.url)
+        )
+    else:
+        await ctx.reply(
+            embed=cembed(
+                title="Permissions Denied",
+                description="You need admin permissions to toggle this",
+                color=nextcord.Color.red(),
+                thumbnail=client.user.avatar.url
+            )
         )
 
 @client.slash_command(name = "giveaway", description = "You can use this for giveaway")
@@ -1000,6 +1010,10 @@ async def uemoji(ctx, emoji_name, number=1):
         await ctx.message.delete()
     except:
         pass
+    if emoji_name.startswith(":"):
+        emoji_name = emoji_name[1:]
+    if emoji_name.endswith(":"):
+        emoji_name = emoji_name[:-1]
     if nextcord.utils.get(client.emojis, name=emoji_name) != None:
         emoji_list = [names.name for names in client.emojis if names.name == emoji_name]
         le = len(emoji_list)
@@ -1093,9 +1107,17 @@ async def clear_webhooks(ctx):
     for webhook in webhooks:
         try:
             if webhook.user is client.user:
-                await webhook.delete()
+                await webhook.delete()            
         except Exception as e:
             print(e)
+    await ctx.send(
+        embed=cembed(
+            title="Done",
+            description="Deleted all the webhooks by alfred",
+            color=re[8],
+            thumbnail=client.user.avatar.url
+        )
+    )
 
 
 @client.command()
@@ -1473,7 +1495,7 @@ async def snipe(ctx, number=None):
                 title="Permissions Denied",
                 description="Sorry guys, only admins can snipe now",
                 color=re[8],
-                thumbnail=client.user.avatar.url,
+                thumbnail=getattr(client.user.avatar,'url'),
             )
         )
 
@@ -2105,7 +2127,7 @@ async def next(ctx):
 @client.command()
 async def set_prefix(ctx, *, pref):
     if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
-        if pref.startswith('"') and pref.endswith('"'):
+        if pref.startswith('"') and pref.endswith('"') and len(pref)>1:
             pref=pref[1:-1]
         prefix_dict[ctx.guild.id] = pref
         await ctx.send(
@@ -2212,8 +2234,19 @@ async def previous(ctx):
 @client.slash_command(name="dictionary", description="Use the dictionary for meaning")
 async def dic(ctx, word):
     await ctx.response.defer()
-    embed = await dictionary(ctx, word, client, re[8])
-    await ctx.send(embed=embed)
+    try:
+        mean = ef.Meaning(word = text, color = re[8])
+        await mean.setup()
+        await pa1(mean.create_texts(),ctx)
+    except Exception as e:
+        await ctx.send(
+            embed=ef.cembed(
+                title="Something is wrong",
+                description="Oops something went wrong, I gotta check this out real quick, sorry for the inconvenience",
+                color=discord.Color.red(),
+                thumbnail=client.user.avatar.url
+            )
+        )
 
 
 @client.command(aliases=["s_q"])
@@ -2571,7 +2604,7 @@ async def poll(ctx, Options = "", *, Question = ""):
     for i in range(len(Options)): await message.add_reaction(emoji.emojize(f":keycap_{i+1}:") if i<10 else Emoji_alphabets[i-10])
 
 @client.slash_command(name="polling", description="Seperate options with |")
-async def polling_slash(ctx, options = "", question = None):
+async def polling_slash(ctx, question = None, options="yes|no"):
     await ctx.response.defer()
     await poll(ctx, Options = options, Question = question if question else "")
 
@@ -2887,7 +2920,7 @@ async def on_raw_reaction_add(payload):
     #0->channel id
     #1->message id
     if payload.member.bot: return    
-    if True:
+    if payload.emoji.name == chr(127915):
         if payload.guild_id not in config['ticket']: return
         if not client.get_channel(config['ticket'][payload.guild_id][0]):
             del config['ticket'][payload.guild_id]
@@ -3031,7 +3064,7 @@ async def on_reaction_add(reaction, user):
                     await channel.send(
                         embed=nextcord.Embed(
                             title="Servers",
-                            description=[i.name+"\n" for i in client.guilds],
+                            description='\n'.join([i.name+"" for i in client.guilds]),
                             color=nextcord.Color(value=re[8]),
                         )
                     )
@@ -3116,7 +3149,8 @@ async def on_command_error(ctx, error):
     err = ''.join(traceback.format_tb(error.__traceback__))
     if err == '': erro = str(error)
     print(error.with_traceback(error.__traceback__))
-    await ctx.send(embed=ror.error(str(error)))
+    if type(error) != nextcord.ext.commands.errors.CommandNotFound:
+        await ctx.send(embed=ror.error(str(error)))
     await channel.send(embed=cembed(title="Error",description=f"\n{str(error)}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
 
 
@@ -3265,7 +3299,7 @@ async def on_message(msg):
 
         if msg.channel.id in autor:
             for emo in autor[msg.channel.id]:                
-                await msg.add_reaction(emoji.emojize(emo.strip()))            
+                await msg.add_reaction(emoji.emojize(emo.strip()))        
                 await asyncio.sleep(1)        
         
     except Exception as e:
@@ -3287,19 +3321,10 @@ async def SeCurity(ctx, log_channel: GuildChannel = "delete"):
     if not ctx.permissions.administrator:
         await ctx.send(
             embed=cembed(
-                title="This command is unavailable",
-                description="The bot does not have admin permissions to do the security work, please consider giving the required permission to run this command",
+                title="Permission",
+                description="You need admin permissions to do the security work, Ask your owner to execute this command for protection",
                 color=discord.Color.red(),
                 thumbnail=client.user.avatar.url
-            )
-        )
-        return
-    if not ctx.user.guild_permissions.administrator:
-        await ctx.send(
-            embed=cembed(
-                title="Permissions Denied",
-                description="You need admin permissions to set this up",
-                color=re[8]
             )
         )
         return
@@ -3467,12 +3492,12 @@ async def help(ctx):
     test_help += helping_hand.help_him(ctx, client, re)    
     await pa1(test_help, ctx, start_from=0)
 
-
 @client.slash_command(name="help", description="Help from Alfred")
 async def help_slash(ctx):
     req()
     await ctx.response.defer()
     await help(ctx)
+    
 keep_alive()
 if os.getenv("dev-bot"):
     client.run(os.getenv("token_dev"))

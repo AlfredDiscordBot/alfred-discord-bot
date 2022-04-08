@@ -6,6 +6,7 @@ import asyncio
 from bs4 import BeautifulSoup
 import datetime
 import requests
+import traceback
 import urllib.parse
 from googlesearch import search
 import External_functions as ef
@@ -252,10 +253,22 @@ def main(client, re):
 
             )
         )
-    @client.command(aliases = ['dictionary', 'dict'])
+
+    @client.command(aliases = ['dictionary', 'dict', 'dict_h'])
     async def diction(ctx, *, text):
-        embed = await ef.dictionary(ctx, text, client, re[8])
-        await ctx.send(embed=embed)
+        try:
+            mean = ef.Meaning(word = text, color = re[8])
+            await mean.setup()
+            await pa1(mean.create_texts(),ctx)
+        except Exception as e:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Something is wrong",
+                    description="Oops something went wrong, I gotta check this out real quick, sorry for the inconvenience",
+                    color=discord.Color.red(),
+                    thumbnail=client.user.avatar.url
+                )
+            )
         
         
     async def pa1(embeds, ctx, start_from=0, restricted = False):
