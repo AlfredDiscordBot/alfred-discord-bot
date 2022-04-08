@@ -2571,8 +2571,8 @@ async def memes(ctx):
     await ctx.send(choice(link_for_cats))
     save_to_file()
 
-@client.command()
-async def poll(ctx, Options = "", *, Question = ""):
+
+async def poll(ctx, Options = "", Question = "", image=""):
     channel = ctx.channel
     if Options == "":
         await ctx.send(
@@ -2586,7 +2586,18 @@ async def poll(ctx, Options = "", *, Question = ""):
         return
     text = Question+"\n\n"
     Options = Options.split("|")
-    print(Options)
+    if len(Options)>=20:
+        reply = "Use this if you want to redo\n\n"
+        reply+= f"Question: {Questions}"
+        reply+= f"Options: {'|'.join(Options)}"
+        await ctx.send(
+            embed=cembed(
+                title="Sorry you can only give 20 options",
+                description=reply,
+                color=discord.Color.red(),
+                thumbnail=client.user.avatar.url
+            )
+        )
     for i in range(len(Options)):
         text+=f"{emoji.emojize(f':keycap_{i+1}:') if i<10 else Emoji_alphabets[i-10]} | {Options[i].strip()}\n"
 
@@ -2594,7 +2605,8 @@ async def poll(ctx, Options = "", *, Question = ""):
         title="Poll",
         description=text,
         color=re[8],
-        footer=f"from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name} | {ctx.guild.name}"
+        footer=f"from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name} | {ctx.guild.name}",
+        picture = image
     )
     embed.set_author(name = getattr(ctx, 'author', getattr(ctx, 'user', None)).name, icon_url = getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar.url if getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar else client.user.avatar.url)
     message = await ctx.send(
@@ -2604,9 +2616,10 @@ async def poll(ctx, Options = "", *, Question = ""):
     for i in range(len(Options)): await message.add_reaction(emoji.emojize(f":keycap_{i+1}:") if i<10 else Emoji_alphabets[i-10])
 
 @client.slash_command(name="polling", description="Seperate options with |")
-async def polling_slash(ctx, question = None, options="yes|no"):
+async def polling_slash(ctx, question = None, options="yes|no",image=" "):
     await ctx.response.defer()
-    await poll(ctx, Options = options, Question = question if question else "")
+    if image == " ": image = None
+    await poll(ctx, Options = options, Question = question if question else "", image = image)
 
 @client.slash_command(name="eval",description="This is only for developers",guild_ids= [822445271019421746])
 async def eval_slash(ctx,text):
