@@ -689,7 +689,7 @@ class Meaning:
                 title=self.result['title'],
                 description=self.result['message'],
                 color = self.color,
-                thumbnail = self.thumbnail
+                thumbnail = "https://c.tenor.com/IHdlTRsmcS4AAAAC/404.gif"
             )
             self.embeds.append(a)
         else:
