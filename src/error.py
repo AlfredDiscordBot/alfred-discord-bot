@@ -4,9 +4,10 @@ import External_functions as ef
 def error(message):
     return ef.cembed(
         title="Error",
-        color=discord.Color.from_rgb(255,0,0).value,
+        color=discord.Color.red(),
         thumbnail="https://github.com/yashppawar/alfred-discord-bot/blob/replit/error.png?raw=true",
-        description=str(message)
+        description=str(message),
+        footer="The developers will work on this issue soon"
     )
 
 

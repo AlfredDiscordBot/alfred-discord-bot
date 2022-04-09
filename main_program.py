@@ -102,7 +102,6 @@ config = {
     }
 da = {}
 errors = ["```arm"]
-entr = {}
 da1 = {}
 queue_song = {}
 temporary_list = []
@@ -182,7 +181,6 @@ def save_to_file():
         censor = censor,
         da = da,
         da1 = da1,
-        entr = entr,
         queue_song = queue_song,
         a_channels = a_channels,
         re = re,
@@ -202,7 +200,6 @@ def load_from_file():
     global da
     global da1
     global queue_song
-    global entr
     global re
     global dev_users
     global prefix_dict
@@ -218,7 +215,6 @@ def load_from_file():
     da = v.get("da",{})
     da1 = v.get("da1", {})
     queue_song = v.get("queue_song",{})
-    entr = v.get("entr",{})
     a_channels = v.get("a_channels",[])
     re = v.get("re",re)
     dev_users = v.get("dev_users",dev_users)
@@ -635,31 +631,17 @@ async def effects(ctx, effect:str = None, member:nextcord.Member=None):
         
     await ctx.send(file=nextcord.File(BytesIO(byte), 'effect.png'))
 
-@client.command(aliases=['transform'])
-async def blend(ctx, urlef:str = None, member:nextcord.Member=None, ratio=0.5):
+@client.slash_command(name="blend",description="Blend your picture with")
+async def blend(ctx, url_of_picture:str, member:nextcord.Member="None", ratio=0.5):
     req()
-    if member == None:
-        url = getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar.url
+    await ctx.response.defer()
+    if member == "None":
+        url = safe_pfp(ctx.user)
     else:
-        url = member.avatar.url
-
-    url = str(url)
-
-    if urlef == None:
-        await ctx.send(
-                    embed=cembed(
-                        title="OOPS",
-                        description="""Hmm You seem to be forgetting an argument \n 'effects <style url> <member[optional]> <ratio[optional]> if member is none the users pfp will be modified. The default ratio is 0.5""",
-                        color=re[8],
-                    )
-                )
-        return
-
-    json = {"url":url, "url2":urlef, "ratio":ratio}
-
+        url = safe_pfp(member)
+    json = {"url":url, "url2":url_of_picture, "ratio":ratio}
     byte = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/style_predict", json=json)
     await ctx.send(file=nextcord.File(BytesIO(byte), 'effect.png'))
-
 
 @client.command(aliases=['autoreaction'])
 async def autoreact(ctx, channel: nextcord.TextChannel = None,*, Emojis: str = ""):
@@ -828,137 +810,6 @@ async def unsubscribe(ctx, channel: nextcord.TextChannel=None, url=None):
                 thumbnail=client.user.avatar.url
             )
         )
-
-
-
-@client.command()
-@commands.cooldown(1,1000,commands.BucketType.guild)
-async def entrar(ctx, *, num=re[6]):
-    print("Entrar", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
-    global re
-    re[0] = re[0] + 1
-    lol = ""
-    header = {
-        "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36",
-        "referer": "https://entrar.in",
-    }
-    suvzsjv = {
-        "username": os.getenv("sjdoskenv"),
-        "password": os.getenv("sjdoskenv1"),
-        "captcha": "0",
-    }
-    announcement_data = {"announcementlist": "true", "session": "205"}
-    re[6] = num
-    announcement_data["session"] = str(num)
-    # class="label-input100"
-    try:
-        with requests.Session() as s:
-            scraper = cloudscraper.create_scraper(sess=s)
-            r = scraper.get("https://entrar.in/login/login", headers=header)
-            st = r.content.decode()
-            start_captcha = st.find(
-                '<span class="label-input100" style="font-size: 18px;">'
-            ) + len('<span class="label-input100" style="font-size: 20px;">')
-            end_captcha = st.find("=", start_captcha)
-            suvzsjv["captcha"] = str(eval(st[start_captcha:end_captcha]))
-            url = "https://entrar.in/login/auth/"
-            r = scraper.post(url, data=suvzsjv, headers=header)
-            r = scraper.get("https://entrar.in/", headers=header)
-            r = scraper.post(
-                "https://entrar.in/parent_portal/announcement", headers=header
-            )
-            r = scraper.get(
-                "https://entrar.in/parent_portal/announcement", headers=header
-            )
-            await asyncio.sleep(2)
-            r = scraper.post(
-                "https://entrar.in/parent_portal/announcement",
-                data=announcement_data,
-                headers=header,
-            )
-            channel = nextcord.utils.get(ctx.guild.channels, name="announcement")
-            if ctx.guild.id == 727061931373887531:
-                channel = nextcord.utils.get(ctx.guild.channels, name="bot")
-            elif ctx.guild.id == 743323684705402951:
-                channel = client.get_channel(868085346867490866)
-            st = r.content.decode()
-            for i in range(1, 5):
-                await asyncio.sleep(1)
-                a = st.find('<td class="text-wrap">' + str(i) + "</td>")
-                b = st.find('<td class="text-wrap">' + str(i + 1) + "</td>")
-                print(a, b)
-                le = len('<td class="text-wrap">' + str(i + 1) + "</td>") - 1
-                if b == -1:
-                    await ctx.send(
-                        embed=nextcord.Embed(
-                            title="End Of List",
-                            description="",
-                            color=nextcord.Color(value=re[8]),
-                        )
-                    )
-                    break
-                c = st.find("&nbsp;&nbsp; ", a, b) + len("&nbsp;&nbsp; ")
-                d = st.find("<", c, b)
-                out = st[c:d].strip()
-                e = a + le
-                f = st.find("<td>", e, e + 15) + len("<td>")
-                g = st.find("</td>", e, e + 45)
-                date = st[f:g]
-                h = st.find('<a target="_blank" href="', a, b) + len(
-                    '<a target="_blank" href="'
-                )
-                j = st.find('"', h, b)
-                try:
-                    link = str(st[h:j])
-                    print(link)
-                    if (
-                        link
-                        == 'id="simpletable" class="table table-striped table-bordered nowrap'
-                    ):
-                        continue
-                    req = scraper.get(link)
-                    k = out + date
-                    if not str(ctx.guild.id) in entr:
-                        entr[str(ctx.guild.id)] = []
-                    if k in entr[str(ctx.guild.id)]:
-                        continue
-                    entr[str(ctx.guild.id)].append(str(k))
-                    lol = lol + out + " Date:" + date + "\n"
-                    with open((out + ".pdf"), "wb") as pdf:
-                        pdf.write(req.content)
-                        await channel.send(file=nextcord.File(out + ".pdf"))
-                        pdf.close()
-                    os.remove(out + ".pdf")
-                except Exception as e:
-                    print(traceback.print_exc())
-            if lol != "":
-                embed = nextcord.Embed(
-                    title="New announcements",
-                    description=lol,
-                    color=nextcord.Color(value=re[8]),
-                )
-                embed.set_thumbnail(url="https://entrar.in/logo_dir/entrar_white.png")
-                await channel.send(embed=embed)
-                await ctx.send("Done")
-            else:
-                await channel.send(
-                    embed=nextcord.Embed(
-                        title="Empty",
-                        description="No new announcement",
-                        color=nextcord.Color(value=re[8]),
-                    )
-                )
-                await ctx.send("Done")
-    except Exception as e:
-        await ctx.send(
-            embed=cembed(
-                title="Oops",
-                description="Something went wrong\n" + str(e),
-                color=re[8],
-                thumbnail="https://entrar.in/logo_dir/entrar_white.png",
-            )
-        )
-
 
 @client.slash_command(name="imdb", description="Give a movie name")
 async def imdb_slash(ctx, movie):
@@ -1133,7 +984,7 @@ async def color_slash(ctx, rgb_color=defa(default="")):
             embed=cembed(
                 title="Woopsies",
                 description="This is a `developer-only` function",
-                color=re[8],
+                color=discord.Color.red(),
                 thumbnail=client.user.avatar.url
             )
         )
@@ -1176,9 +1027,10 @@ async def load(ctx):
         swap = str(psutil.swap_memory().percent)
         usage = f"""
         CPU Percentage: {cpu_per}%
-        CPU Frequency : {cpu_freq}%
-        RAM usage: {ram}
-        Swap usage: {swap}
+        CPU Frequency : {cpu_freq}Mhz
+        RAM usage: {ram}%
+        Swap usage: {swap}%
+        Nextcord: {nextcord.__version__}
         """
         embed = nextcord.Embed(
             title="Current load",
@@ -1386,43 +1238,6 @@ async def addto(ctx, mode = defa(choices=['queue','playlist','show','clear'])):
             )
             embeds.append(embed)
         await pa1(embeds,ctx)
-        
-            
-
-@client.command()
-async def reset_from_backup(ctx):
-    print("reset_from_backup", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
-    channel = client.get_channel(dev_channel)
-    if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in list(dev_users):
-        try:
-            load_from_file()
-            await ctx.send(
-                embed=nextcord.Embed(
-                    title="Done",
-                    description="Reset from backup: done",
-                    color=nextcord.Color(value=re[8]),
-                )
-            )
-            await channel.send(
-                embed=nextcord.Embed(
-                    title="Done",
-                    description="Reset from backup: done\nBy: " + str(getattr(ctx, 'author', getattr(ctx, 'user', None))),
-                    color=nextcord.Color(value=re[8]),
-                )
-            )
-        except Exception as e:
-            await channel.send(
-                embed=nextcord.Embed(
-                    title="Reset_from_backup failed",
-                    description=str(e),
-                    color=nextcord.Color(value=re[8]),
-                )
-            )
-    else:
-        await ctx.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar.url))
-
-        await channel.send(embed=cembed(description=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name} from {ctx.guild.name} tried to use reset_from_backup command",color=re[8]))
-
 
 @client.command()
 async def docs(ctx, name):
@@ -1538,7 +1353,7 @@ async def wel(ctx, channel: GuildChannel = defa(ChannelType.text)):
                 title="Permissions Denied",
                 description="You need to be an admin to do this",
                 thumbnail = client.user.avatar.url,
-                color=re[8]
+                color=discord.Color.red()
             )
         )
 
@@ -1835,8 +1650,7 @@ def repeat(ctx, voice):
     description="Plays the next song automatically if its turned on",
 )
 async def autoplay_slash(ctx):
-    req()
-    
+    req()    
     await autoplay(ctx)
 
 
@@ -2013,7 +1827,6 @@ async def queue(ctx, *, name=""):
                             st = st + str(num) + ". " + da1[i] + "\n"
                 except Exception as e:
                     pass
-
         if st == "":
             st = "_Empty_"
         embed = nextcord.Embed(
@@ -2032,7 +1845,6 @@ async def queue(ctx, *, name=""):
                 color=nextcord.Color(value=re[8]),
             )
         )
-
 
 
 async def player_pages(mess):
@@ -2235,7 +2047,7 @@ async def previous(ctx):
 async def dic(ctx, word):
     await ctx.response.defer()
     try:
-        mean = ef.Meaning(word = text, color = re[8])
+        mean = ef.Meaning(word = word, color = re[8])
         await mean.setup()
         await pa1(mean.create_texts(),ctx)
     except Exception as e:
@@ -2247,6 +2059,7 @@ async def dic(ctx, word):
                 thumbnail=client.user.avatar.url
             )
         )
+        print(traceback.format_exc())
 
 
 @client.command(aliases=["s_q"])
@@ -2317,6 +2130,7 @@ async def guess(ctx):
             await ctx.send(f"Incorrect, that was {da1[song]}")
     except asyncio.TimeoutError:
         await ctx.send(f"Time up, that was {da1[song]}")
+
     
 @client.command(aliases=["p"])
 @commands.cooldown(1,10,commands.BucketType.guild)
@@ -2574,22 +2388,12 @@ async def memes(ctx):
 
 async def poll(ctx, Options = "", Question = "", image=""):
     channel = ctx.channel
-    if Options == "":
-        await ctx.send(
-            embed=cembed(
-                title="Here's how you should do it",
-                description="First give the options seperated with `|`(make sure there's no space when writing the options), then mention the channel and write down the question",
-                color=re[8],
-                footer="There's also a slash command if you feel this is uncomfortable"
-            )
-        )
-        return
     text = Question+"\n\n"
     Options = Options.split("|")
     if len(Options)>=20:
         reply = "Use this if you want to redo\n\n"
-        reply+= f"Question: {Questions}"
-        reply+= f"Options: {'|'.join(Options)}"
+        reply+= f"Question: `{Question}` \n"
+        reply+= f"Options: `{'|'.join(Options)}`"
         await ctx.send(
             embed=cembed(
                 title="Sorry you can only give 20 options",
@@ -2616,9 +2420,8 @@ async def poll(ctx, Options = "", Question = "", image=""):
     for i in range(len(Options)): await message.add_reaction(emoji.emojize(f":keycap_{i+1}:") if i<10 else Emoji_alphabets[i-10])
 
 @client.slash_command(name="polling", description="Seperate options with |")
-async def polling_slash(ctx, question = None, options="yes|no",image=" "):
+async def polling_slash(ctx, question = None, options="yes|no",image="https://upload.wikimedia.org/wikipedia/commons/archive/c/ca/20200404084254%211x1.png"):
     await ctx.response.defer()
-    if image == " ": image = None
     await poll(ctx, Options = options, Question = question if question else "", image = image)
 
 @client.slash_command(name="eval",description="This is only for developers",guild_ids= [822445271019421746])
@@ -2805,29 +2608,18 @@ async def wiki_slash(ctx, text):
 
 @client.command(aliases=["w"])
 async def wikipedia(ctx, *, text):
-    try:
-        req()
-        embeds = []
-        for i in search(text):
-            t = str(i.encode("utf-8"))
-            em = cembed(
-                title=str(t).title(),
-                description=str(summary(t, sentences=5)),
-                color=nextcord.Color(value=re[8]),
-                thumbnail="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
-            )
-            embeds.append(em)
-        await pa1(embeds,ctx)
-    except Exception as e:
-        await ctx.send(
-            embed=cembed(
-                title="Hmm",
-                description=str(e),
-                color=re[8],
-                thumbnail=client.user.avatar.url
-            )
+    req()
+    embeds = []
+    for i in search(text):
+        t = str(i.encode("utf-8"))
+        em = cembed(
+            title=str(t).title(),
+            description=str(summary(t, sentences=5)),
+            color=nextcord.Color(value=re[8]),
+            thumbnail="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
         )
-
+        embeds.append(em)
+    await pa1(embeds,ctx)
 
 @client.command(aliases=["hi","ping"])
 async def check(ctx):
@@ -3086,6 +2878,9 @@ async def on_reaction_add(reaction, user):
                 ) == str(channel.id):
                     reaction.message.author = user
                     await restart_program(reaction.message,re[1])
+                if reaction.emoji == '💾' and reaction.message.channel.id == channel.id:
+                    save_to_file()
+                    await reaction.remove(user)
                 if reaction.emoji == emoji.emojize(":cross_mark:") and str(
                     reaction.message.channel.id
                 ) == str(channel.id):
@@ -3235,15 +3030,12 @@ async def on_message(msg):
             whitelist = string.ascii_letters + ' '
             global new_s
             new_s = ''.join(c for c in s if c in whitelist)
-            req()
-    
-            new_s = regex.sub(' +', ' ', new_s)
-            
+            req()    
+            new_s = regex.sub(' +', ' ', new_s)            
             if new_s != '' or new_s is not None: 
                 json = {"text" : new_s}
                 if msg.author.id not in deathrate.keys():
-                    deathrate[msg.author.id]=0
-    
+                    deathrate[msg.author.id]=0    
                 preds = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/classify", json=json) 
                 if preds["result"] == "Sucide":
                     deathrate[msg.author.id]+=1
@@ -3279,7 +3071,6 @@ async def on_message(msg):
                 }
 
             output = await post_async(API_URL, header=headeras, json=payload)
-
             if len(past_respose) < 50:
                 past_respose.append(input_text)
                 generated.append(output["generated_text"])

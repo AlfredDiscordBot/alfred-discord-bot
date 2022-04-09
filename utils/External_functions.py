@@ -367,7 +367,7 @@ async def devop_mtext(client, channel, color):
     )
     text_dev = (
         "You get to activate and reset certain functions in this channel \n"
-        "" + (emoji.emojize(":safety_vest:")) + " for recovery \n"
+        "💾 for saving to file \n"
         "⭕ for list of all servers \n"
         "❌ for exiting \n"
         "🔥 for restart\n"
@@ -381,7 +381,7 @@ async def devop_mtext(client, channel, color):
     )
     embed.set_thumbnail(url=client.user.avatar.url)
     mess = await channel.send(embed=embed)
-    await mess.add_reaction(emoji.emojize(":safety_vest:"))
+    await mess.add_reaction("💾")
     await mess.add_reaction("⭕")
     await mess.add_reaction("❌")
     await mess.add_reaction(emoji.emojize(":fire:"))
@@ -713,7 +713,7 @@ class Meaning:
                 synonyms = i.get('synonyms')
                 antonyms = i.get('antonyms')
                 if example is None:
-                    example = page
+                    example = f"{page} of {len(definitions)}"
                 embed = cembed(
                     title = r[0]['word'],
                     description = des,
