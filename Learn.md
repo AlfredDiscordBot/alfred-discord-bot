@@ -40,7 +40,7 @@ async def command_name(ctx, arg1, arg2, arg3, *, args):
 
 ```py
 @client.slash_command(name="name",description="This is a slash command")
-async def sl(ctx: nextcord.Interaction, arg1, default_arg = "Here")
+async def sl(ctx: nextcord.Interaction, arg1, default_arg = "Here"):
   '''
   We may have named it ctx,
   but this is not the same as context in the regular command as you've seen above
@@ -50,4 +50,8 @@ async def sl(ctx: nextcord.Interaction, arg1, default_arg = "Here")
   and original message
   '''
   await ctx.send("Hellow world")
+  #To edit a message
+  await ctx.response.edit_message("Hello world")
 ```
+
+**WARNING: PLEASE DON'T COPY PASTE THIS CODE AS IT'S INDENTATION IS ONLY 2 SPACES, ALFRED BY DEFAULT USES 4 AND IF YOU DO, IT COULD MESS YOUR EDIT AND WILL HAVE TO REMOVE THE LINES OR RESET** 
