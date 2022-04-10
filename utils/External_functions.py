@@ -505,7 +505,7 @@ async def post_async(api, header = {}, json = {}, output = "content"):
 def suicide_m(client,color):
     return cembed(
         title="Suicide and Self harm prevention",
-        description=""" 
+        description='\n'.join([i.strip() for i in """ 
     You are not alone ...
     And your Life is worth a lot ..
     SPEAK OUT !!
@@ -515,7 +515,7 @@ def suicide_m(client,color):
 
 
     international suicide helplines>>> https://www.opencounseling.com/suicide-hotlines
-        """,
+        """.split('\n')]),
         color=color,
         thumbnail=client.user.avatar.url,
         picture="https://www.humanium.org/en/wp-content/uploads/2019/09/shutterstock_1140282473-scaled.jpg"
@@ -620,53 +620,6 @@ class SpaceX:
             embeds.append(embed)
         print("Done")
         return embeds
-
-
-async def dictionary(ctx, text, client, color):
-    try:
-        data = await get_async(
-            url="https://api.dictionaryapi.dev/api/v2/entries/en/"+convert_to_url(text),
-            kind="json"
-        )
-        if type(data) == type([]):
-            data = data[0]
-            word = data["word"]
-            description = "**Here's What I found:**\n\n"
-            if "phonetics" in data.keys():
-                if "text" in data["phonetics"][0]:
-                    phonetics = (
-                        "**Phonetics:**\n" + data["phonetics"][0]["text"] + "\n\n"
-                    )
-                    description += phonetics
-            if "origin" in list(data.keys()):
-                origin = "**Origin: **" + data["origin"] + "\n\n"
-                description += origin
-            if "meanings" in data.keys() and "definitions" in data["meanings"][0]:
-                meanings = data["meanings"][0]["definitions"][0]
-                if "definition" in list(meanings.keys()):
-                    meaning = "**Definition: **" + meanings["definition"] + "\n\n"
-                    description += meaning
-                if "example" in list(meanings.keys()):
-                    example = "**Example: **" + meanings["example"]
-                    description += example
-        else:
-            word = data["title"]
-            description = data["message"]
-
-        return cembed(
-            title=word,
-            description=description,
-            color=color,
-            thumbnail=client.user.avatar.url,
-        )
-    except Exception as e:
-        print(e)
-        return cembed(
-            title="Oops",
-            description="Something is wrong\n" + str(e),
-            color=color,
-            thumbnail=client.user.avatar.url,
-        )
 
 class Meaning:
     def __init__(self,word,color):

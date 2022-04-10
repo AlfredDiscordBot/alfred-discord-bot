@@ -15,7 +15,7 @@ def temporary_fix():
 import os
 import sys
 sys.path.insert(1,f"{os.getcwd()}/utils/")
-temporary_fix()
+#temporary_fix()
 from keep_alive import keep_alive
 import string
 import nextcord
@@ -3294,7 +3294,7 @@ client.remove_command("help")
 async def help(ctx):
     test_help = []    
     test_help += helping_hand.help_him(ctx, client, re)    
-    await pa1(test_help, ctx, start_from=0)
+    await pa1(test_help, ctx, start_from=0, restricted=True)
 
 @client.slash_command(name="help", description="Help from Alfred")
 async def help_slash(ctx):
