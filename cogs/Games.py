@@ -110,7 +110,7 @@ class Games(commands.Cog):
             except asyncio.TimeoutError:
                 await message.clear_reactions()
                 await message.edit(
-                    embed=cembed(
+                    embed=ef.cembed(
                         title="Timeout",
                         description="Sorry gtg, the reactions timed out",
                         color=nextcord.Color.red()
