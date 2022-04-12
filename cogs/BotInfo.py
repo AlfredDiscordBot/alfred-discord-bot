@@ -21,7 +21,7 @@ class BotInfo(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        channel = self.client.get_channel(dev_channel)
+        channel = self.client.get_channel(self.dev_channel)
         await channel.send(
             embed=ef.cembed(
                 title=guild.name,
@@ -34,7 +34,7 @@ class BotInfo(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        channel = self.client.get_channel(dev_channel)
+        channel = self.client.get_channel(self.dev_channel)
         await channel.send(
             embed=ef.cembed(
                 title=guild.name,
