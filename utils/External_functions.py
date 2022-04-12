@@ -19,6 +19,7 @@ import aiohttp
 import traceback
 import aiofiles
 
+from io import BytesIO
 from functools import lru_cache
 from datetime import datetime
 from collections import Counter
@@ -376,8 +377,8 @@ async def devop_mtext(client, channel, color):
         "" + emoji.emojize(":satellite:") + " for speedtest\n"
         "" + emoji.emojize(":black_circle:") + " for clear screen\n"
     )
-    embed = discord.Embed(
-        title="DEVOP", description=text_dev, color=discord.Color(value=color)
+    embed = cembed(
+        title="DEVOP", description=text_dev, color=color,footer="Good day Master Wayne"
     )
     embed.set_thumbnail(url=client.user.avatar.url)
     mess = await channel.send(embed=embed)
@@ -488,7 +489,7 @@ async def get_async(url, headers = {}, kind = "content"):
                 await f.close()
                 return
             elif kind == "fp":
-                output = await resp.read()
+                output = BytesIO(await resp.read()).getvalue()
             else:
                 output = await resp.text()
                 
@@ -688,11 +689,39 @@ class Meaning:
                     )
                 self.embeds.append(embed)
         return self.embeds
-                
+
+async def animals(client, ctx, color):
+    d = await get_async("https://zoo-animal-api.herokuapp.com/animals/rand",kind="json")
+    user = getattr(ctx,'author',getattr(ctx,'user',None))
+    icon_url = safe_pfp(user)
+    embed=cembed(
+        title=d['name'],
+        description=d['diet'],
+        color=color,
+        thumbnail=client.user.avatar.url,
+        image=d['image_link'],
+        footer=d['active_time']
+    )
+    embed.set_author(name=user.name,icon_url=icon_url)
+    d1 = {
+        'Latin name': d['latin_name'],
+        'Animal Type': d['animal_type'],
+        'Length': f"{d['length_min']} to {d['length_max']} feet",
+        'Weight': f"{int(float(d['weight_min'])*0.453592)} to {int(float(d['weight_max'])*0.453592)} kg",
+        'Life Span': f"{d['lifespan']} years",
+        'Habitat': f"{d['habitat']}, {d['geo_range']}"
+    }
+    for i in d1.items():
+        embed.add_field(name=i[0], value=i[1], inline=True)
+
+    return embed
 
 def audit_check(log):
     latest = log[0]
-    
+
+def create_requirements(require):
+    a = ', '.join([f"'{i}':{i}" for i in require])
+    return "{"+a+"}"
 
 m_options = [
     'title',
@@ -702,5 +731,6 @@ m_options = [
     'thumbnail',
     'image',
     'picture',
-    'author'   
+    'author',
+    'url'
 ]

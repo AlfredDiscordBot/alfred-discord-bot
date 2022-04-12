@@ -1,8 +1,6 @@
 """
 Set your env like the example below:
 token=
-sjdoskenv=
-sjdoskenv1=
 mysql=
 default=
 dev=
@@ -15,7 +13,10 @@ def temporary_fix():
 import os
 import sys
 sys.path.insert(1,f"{os.getcwd()}/utils/")
-#temporary_fix()
+sys.path.insert(1,f"{os.getcwd()}/src")
+sys.path.insert(1,f"{os.getcwd()}/cogs")
+print("Booting up")
+temporary_fix()
 from keep_alive import keep_alive
 import string
 import nextcord
@@ -87,10 +88,8 @@ sent = None
 instagram_posts = []
 intents = nextcord.Intents().default()
 intents.members = True
-censor = []
 old_youtube_vid = {}
 youtube_cache = {}
-run_suicide = False
 deleted_message = {}
 config = {
     'snipe': [841026124174983188, 822445271019421746,830050310181486672, 912569937116147772],
@@ -176,9 +175,8 @@ client = nextcord.ext.commands.Bot(
 def save_to_file():
     global dev_users
     #print("save")
-    v = Variables("backup")
+    v = Variables("storage")
     v.pass_all(
-        censor = censor,
         da = da,
         da1 = da1,
         queue_song = queue_song,
@@ -196,7 +194,6 @@ def save_to_file():
 
 
 def load_from_file():
-    global censor
     global da
     global da1
     global queue_song
@@ -209,9 +206,7 @@ def load_from_file():
     global mspace
     global autor
 
-
-    v = Variables("backup").show_data()
-    censor = v.get("censor",[])
+    v = Variables("storage").show_data()
     da = v.get("da",{})
     da1 = v.get("da1", {})
     queue_song = v.get("queue_song",{})
@@ -261,8 +256,7 @@ async def on_ready():
         report+="[ OK ] Sending Devop Message\n"
         print("Finished devop display")
         print("Starting imports")
-        imports = ""
-        sys.path.insert(1, location_of_file + "/src")
+        imports = ""             
         for i in os.listdir(location_of_file + "/src"):
             if i.endswith(".py"):
                 a = ""
@@ -298,8 +292,6 @@ async def on_ready():
                 color=nextcord.Color(value=re[8]),
             )
         )
-        global run_suicide
-        run_suicide = True
         await client.rollout_application_commands()
         
     except Exception as e:
@@ -327,7 +319,7 @@ async def on_ready():
 
 @tasks.loop(hours=4)
 async def send_file_loop():
-    await client.get_channel(941601738815860756).send(file=nextcord.File("backup.dat",filename="backup.dat"))
+    await client.get_channel(941601738815860756).send(file=nextcord.File("storage.dat",filename="storage.dat"))
     
 @tasks.loop(minutes=30)
 async def youtube_loop():
@@ -372,21 +364,6 @@ async def quickembed(ctx, text):
             color=re[8]
         )
     )
-
-@client.slash_command(name="neofetch", description="Get Status of the bot")
-async def neo(ctx):
-    await ctx.response.defer()    
-    await neofetch(ctx)
-    
-@client.command()
-async def neofetch(ctx):
-    text = helping_hand.neofetch
-    text += f"Name   : {client.user.name}\n"
-    text += f"ID     : {client.user.id}\n"
-    text += f"Users  : {len(client.users)}\n"
-    text += f"Servers: {len(client.guilds)}\n"
-    text += f"Uptime : {int(time.time()-start_time)}"
-    await ctx.send("```yml\n"+text+"\n```")
 
 @client.command()
 async def svg(ctx, *, url):
@@ -440,13 +417,14 @@ async def sniper(ctx):
         )
 @client.command(aliases=["vote","top.gg",'v'])
 async def vote_alfred(ctx):
+    upvote = assets.Emotes(client).upvote    
     await ctx.send(
         embed=cembed(
-            title="Hi there",
-            description="Alfred is now available in top.gg, so pls vote for it using [the link](https://top.gg/bot/811591623242154046/vote)",
+            title="Vote for Alfred",
+            description=f"`Top.gg:         `>>[{upvote}](https://top.gg/bot/811591623242154046/vote)<<\n`DiscordBotList: `>>[{upvote}](https://discordbotlist.com/bots/811591623242154046/upvote)<<\n`Botsfordiscord: `>>[{upvote}](https://botsfordiscord.com/bot/811591623242154046/vote)<<\n`Batcave Top.gg: `>>[{upvote}](https://top.gg/servers/822445271019421746/vote)<<",
             color=re[8],
             thumbnail=client.user.avatar.url,
-            image="https://blog.top.gg/content/images/2021/12/logo-white-5.png",
+            image="https://previews.123rf.com/images/aquir/aquir1311/aquir131100570/24053063-voz-del-sello-del-grunge-rojo.jpg",
             footer="Stay Safe and be happy | Gotham Knights"
         )
     )
@@ -484,14 +462,14 @@ async def toggle_response(ctx):
         )
 
 @client.slash_command(name = "giveaway", description = "You can use this for giveaway")
-async def giveaway(ctx, role_to_ping:nextcord.Role = None, donor:nextcord.User = None, heading = "Giveaway", description = "Giveaway", emoj = emoji.emojize(":party_popper:")):
+async def giveaway(ctx, role_to_ping:nextcord.Role = None, donor:nextcord.User = None, heading = "Giveaway", description = "Giveaway", emoj = emoji.emojize(":party_popper:"), image = "https://media.discordapp.net/attachments/960070023563603968/963041700996063282/standard_6.gif"):
     await ctx.response.defer()
     if not ctx.user.guild_permissions.administrator:
         await ctx.send(
             embed=cembed(
                 title="Permissions Denied",
                 description="You need admin permission to access this function",
-                color=re[8]
+                color=re[8]                
             )
         )
         return
@@ -500,12 +478,13 @@ async def giveaway(ctx, role_to_ping:nextcord.Role = None, donor:nextcord.User =
     embed=cembed(
         title=heading,
         description=description,
-        color=re[8]
+        color=re[8],
+        thumbnail=client.user.avatar.url,
+        image=image
     )    
     text = "Giveaway" + str(role_to_ping.mention) if role_to_ping is not None else ""
     embed.set_author(name=donor.name,icon_url=safe_pfp(donor))
     m = await ctx.send("Giveaway",embed=embed)
-    await ctx.send(text)
     await m.add_reaction(emoj)
 
 @client.command()
@@ -543,7 +522,7 @@ async def roll(ctx):
     lu = random.choice(users)
     await reaction.remove(lu)
     lu = lu.mention
-    await ctx.send(f"Congragulations, {lu} has won the giveaway")
+    await ctx.send(f"Congratulations, {lu} has won the giveaway")
     
 
 @client.slash_command(name = "pfp",description="Get a person's avatar")
@@ -829,10 +808,9 @@ async def imdb_slash(ctx, movie):
 
 
 @client.slash_command(name="emoji", description="Get Emojis from other servers")
-async def emoji_slash(ctx, emoji_name, number=None):
+async def emoji_slash(ctx, emoji_name, number=1):
     req()
-    if not number: number = 0
-    number=int(number)
+    number=int(number) - 1
     if nextcord.utils.get(client.emojis, name=emoji_name) != None:
         emoji_list = [names.name for names in client.emojis if names.name == emoji_name]
         le = len(emoji_list)
@@ -1092,8 +1070,7 @@ async def pa1(embeds, ctx, start_from=0, restricted = False):
         message = await ctx.original_message()
     pag = start_from
     await message.add_reaction("◀️")
-    await message.add_reaction("▶️")
-    
+    await message.add_reaction("▶️")    
     
 
     def check(reaction, user):
@@ -1297,11 +1274,9 @@ async def snipe(ctx, number=None):
                         thumbnail=ctx.guild.icon.url
                     )
                     embeds.append(embed)
-                    s=""        
-                
+                    s=""                        
             else:
-                await ctx.send("**" + i[0] + ":**")
-                await ctx.send(embed=i[1])
+                await ctx.send("**" + i[0] + ":**",embed=i[1])
         if len(embeds)>0: 
             await pa1(embeds, ctx, start_from = 0, restricted = True)
     else:
@@ -2204,7 +2179,7 @@ async def play(ctx, *, index):
                 if queue_song[str(ctx.guild.id)]==[]: queue_song[str(ctx.guild.id)].append(url)
                 if queue_song[str(ctx.guild.id)][-1] != url:
                     queue_song[str(ctx.guild.id)].append(url)
-                da1[URL] = name_of_the_song
+                da1[url] = name_of_the_song
                 voice.stop()
                 voice.play(
                     nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
@@ -2621,27 +2596,6 @@ async def wikipedia(ctx, *, text):
         embeds.append(em)
     await pa1(embeds,ctx)
 
-@client.command(aliases=["hi","ping"])
-async def check(ctx):
-    req()
-    print("check")
-    emo = assets.Emotes(client)
-    r = g_req()
-    em = cembed(
-        title=f"Online {emo.check}",
-        description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(client.latency*1000)}ms\nRequests: \t{r:,}\nAwake time: {int(time.time()-start_time)}s",
-        color=re[8],
-        footer="Have fun, bot has many features, check out /help",
-        thumbnail = client.user.avatar.url
-    )
-    await ctx.send(embed=em)
-
-
-@client.slash_command(name="check", description="Check if the bot is online")
-async def check_slash(ctx):
-    req()
-    await check(ctx)
-
 
 @client.event
 async def on_message_edit(message_before, message_after):
@@ -2698,53 +2652,7 @@ async def tick(ctx, description=None):
         )
     )
     await message.add_reaction(emoji.emojize(":ticket:"))    
-    config['ticket'][ctx.guild.id] = (ctx.channel.id, message.id)
-
-@client.command()
-async def close_ticket(ctx):    
-    if type(ctx.channel) != nextcord.Thread: return
-    if ctx.channel.owner == client.user:
-        confirm = await wait_for_confirm(ctx,client,"Do you want to close this ticket?", re[8])
-        if not confirm: return
-        if not ctx.author.id == int(ctx.channel.name.split()[-1]):
-            if not ctx.author.guild_permissions.administrator:
-                return
-        
-        await ctx.send(
-            embed=cembed(
-                description="Deleting the ticket in 5 seconds",
-                color=re[8]
-            )
-        )
-        await asyncio.sleep(5)
-        await ctx.channel.delete()
-        
-
-@client.event
-async def on_raw_reaction_add(payload):
-    #0->channel id
-    #1->message id
-    if payload.member.bot: return    
-    if payload.emoji.name == chr(127915):
-        if payload.guild_id not in config['ticket']: return
-        if not client.get_channel(config['ticket'][payload.guild_id][0]):
-            del config['ticket'][payload.guild_id]
-            return
-        if payload.channel_id != config['ticket'][payload.guild_id][0]: return
-        msg = payload.message_id
-        channel = client.get_channel(config['ticket'][payload.guild_id][0])
-        print(payload.emoji.name)
-        ms = await channel.fetch_message(msg)
-        if msg != config['ticket'][payload.guild_id][1]: return
-        await ms.remove_reaction(payload.emoji, payload.member)
-        mess = await channel.send(
-            embed=cembed(description=f"Creating Ticket for {payload.member.name}", color=re[8])
-        )
-        
-        th = await channel.create_thread(name = f"Ticket - {payload.member.name} {payload.member.id}", reason = f"Ticket - {payload.member.name}", auto_archive_duration = 60, message = mess)
-        await mess.delete()
-        await th.send(client.get_user(payload.user_id).mention)
-        
+    config['ticket'][ctx.guild.id] = (ctx.channel.id, message.id)        
     
 @client.event
 async def on_reaction_add(reaction, user):
@@ -2961,22 +2869,6 @@ async def on_command_error(ctx, error):
         await ctx.send(embed=ror.error(str(error)))
     await channel.send(embed=cembed(title="Error",description=f"\n{str(error)}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
 
-
-@client.command(aliases=["cen"])
-async def add_censor(ctx, *, text):
-    req()
-    string = ""
-    censor.append(text.lower())
-    for i in range(0, len(text)):
-        string = string + "-"
-    em = nextcord.Embed(
-        title="Added " + string + " to the list",
-        decription="Done",
-        color=nextcord.Color(value=re[8]),
-    )
-    await ctx.send(embed=em)
-
-
 @client.command()
 async def changeM(ctx, *, num):
     if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in dev_users:
@@ -3022,7 +2914,6 @@ async def changeM(ctx, *, num):
 async def on_message(msg):
     save_to_file()
     await client.process_commands(msg) 
-    global run_suicide
     if (not msg.guild.id in observer) and (not msg.author.bot):
         try:
             s = msg.clean_content
@@ -3208,7 +3099,6 @@ async def python_shell(ctx, *, text):
             )
         )
 
-
 @client.command()
 async def exe(ctx, *, text):
     req()
@@ -3242,7 +3132,7 @@ async def exe(ctx, *, text):
                         if "in exe" not in line
                     ]
                 )
-                await ctx.send(embed = ror.error(str(e)))
+                await ctx.send(embed = ror.error(error_mssg))
         output = f.getvalue()
         embeds=[]
         if output == "":
@@ -3272,10 +3162,6 @@ def addt(p1, p2):
 def get_elem(k):
     return da.get(k, "Not assigned yet")
 
-def on_suicider():
-    global run_suicide
-    run_suicide = True
-
 def de(k):
     del da[k]
     return "Done"
@@ -3287,6 +3173,21 @@ def req():
 
 def g_req():
     return re[0]
+
+def load_extension(name):
+    '''
+    This will safely add cog for alfred with all the requirements
+    '''
+    try:
+        d = eval(f"__import__('{name}').requirements()")
+        print(d)
+        eval(f"client.load_extension('cogs.{name}',extras={d})")
+        return f"[ OK ] Added {name}\n"
+    except:
+        return f"Error in cog {name}:\n"+traceback.format_exc()+"\n"
+
+for i in os.listdir(os.getcwd()+"/cogs"):
+    if i.endswith(".py"): report+=load_extension(i[:-3])
 
 client.remove_command("help")
 

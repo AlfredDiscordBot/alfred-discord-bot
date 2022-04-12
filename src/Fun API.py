@@ -269,6 +269,11 @@ def main(client, re):
                     thumbnail=client.user.avatar.url
                 )
             )
+
+    @client.command(aliases = ['zoo','animals'])
+    async def animal(ctx):
+        embed=await ef.animals(client,ctx,re[8])
+        await ctx.send(embed=embed)
         
         
     async def pa1(embeds, ctx, start_from=0, restricted = False):
