@@ -26,7 +26,7 @@ class BotInfo(commands.Cog):
             embed=ef.cembed(
                 title=guild.name,
                 description=f"{len(guild.members)-1} Lucky Member(s) Found",
-                color=self.re[8],
+                color=self.client.re[8],
                 thumbnail=self.client.user.avatar.url,
                 footer=f"Currently in {len(self.client.guilds)} servers | {len(self.client.users)} Users"
             )
@@ -40,7 +40,7 @@ class BotInfo(commands.Cog):
                 title=guild.name,
                 description=f"I left this guild",
                 footer=f"Currently in {len(self.client.guilds)} servers | {len(self.client.users)} Users",
-                color=self.re[8],
+                color=self.client.re[8],
                 thumbnail=self.client.user.avatar.url
             )
         )
@@ -51,14 +51,14 @@ class BotInfo(commands.Cog):
 
     @commands.command(aliases=["hi","ping"])
     async def check(self,ctx):
-        self.re[0]+=1
+        self.client.re[0]+=1
         print("check")
         emo = assets.Emotes(self.client)
-        r = self.re[0]
+        r = self.client.re[0]
         em = ef.cembed(
             title=f"Online {emo.check}",
             description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(self.client.latency*1000)}ms\nRequests: \t{r:,}\nAwake time: {int(time.time()-self.start_time):,}s",
-            color=self.re[8],
+            color=self.client.re[8],
             footer="Have fun, bot has many features, check out /help",
             thumbnail = self.client.user.avatar.url
         )
@@ -84,6 +84,41 @@ class BotInfo(commands.Cog):
         text += f"Uptime : {int(time.time()-self.start_time)}"
         await ctx.send("```yml\n"+text+"\n```")
 
+    @commands.command()
+    async def set_prefix(ctx, *, pref):
+        if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
+            if pref.startswith('"') and pref.endswith('"') and len(pref)>1:
+                pref=pref[1:-1]
+            self.client.prefix_dict[ctx.guild.id] = pref
+            await ctx.send(
+                embed=ef.cembed(title="Done", description=f"Prefix set as {pref}", color=self.client.re[8])
+            )
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description="You cannot change the prefix, you need to be an admin",
+                    color=self.client.re[8],
+                )
+            )
+    
+    
+    @commands.command()
+    async def remove_prefix(ctx):
+        if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
+            if self.client.prefix_dict.get(ctx.guild.id):
+                self.client.prefix_dict.pop(ctx.guild.id)
+            await ctx.send(
+                embed=cembed(title="Done", description=f"Prefix removed", color=self.client.re[8])
+            )
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description="You cannot change the prefix, you need to be an admin",
+                    color=self.client.re[8],
+                )
+            )
 
         
 def setup(client,**i):

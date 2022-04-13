@@ -33,7 +33,7 @@ class Games(commands.Cog):
     @nextcord.slash_command(name="rps", description="play some rock paper scissors against me")
     async def rp(self, inter):
         await inter.response.defer()
-        await self.rocpaperscissor(inter)
+        await self.rockpaperscissor(inter)
 
         
     @commands.command(aliases = ['rps','stonepaperscissor'])
@@ -42,11 +42,11 @@ class Games(commands.Cog):
         embed = ef.cembed(
             title="Rock Paper Scissor",
             description="Hi, You will be playing rock paper scissor against me, please try not to delay it as discord hates me for waiting",
-            color=self.re[8],
+            color=self.client.re[8],
             thumbnail=self.client.user.avatar.url,
             footer="You can press X when you wanna stop or else it'll timeout after 10 minutes"
         )
-        user = getattr(ctx,'user', ctx.author)
+        user = getattr(ctx,'user', getattr(ctx,'author', None))
         s[user] = 0
         s[self.client.user] = 0
         embed.set_author(name=user.name, icon_url=ef.safe_pfp(user))
@@ -80,7 +80,7 @@ class Games(commands.Cog):
                             embed=ef.cembed(
                                 title="Draw",
                                 description=f"You both put {r}",
-                                color=self.re[8],
+                                color=self.client.re[8],
                                 thumbnail=self.client.user.avatar.url,
                                 footer="Try again"
                             )
@@ -89,7 +89,7 @@ class Games(commands.Cog):
                         embed=ef.cembed(
                             title="You won",
                             description=f"You put {r}, I put {alfred}",
-                            color=self.re[8],
+                            color=self.client.re[8],
                             thumbnail=ef.safe_pfp(user)
                         )
                         s[user]+=1
@@ -100,7 +100,7 @@ class Games(commands.Cog):
                         embed=ef.cembed(
                             title="You lost",
                             description=f"You put {r}, I put {alfred}",
-                            color=self.re[8],
+                            color=self.client.re[8],
                             thumbnail=ef.safe_pfp(user)
                         )
                         s[self.client.user]+=1
