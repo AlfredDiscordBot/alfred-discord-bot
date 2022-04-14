@@ -5,6 +5,7 @@ import helping_hand
 import External_functions as ef
 import emoji
 import asyncio
+import traceback
 
 from nextcord.abc import GuildChannel
 from nextcord import Interaction, SlashOption, ChannelType
@@ -139,7 +140,7 @@ class Music(commands.Cog):
         await ef.isReaction(ctx,embed)
 
     @nextcord.slash_command(name="disconnect", description="Disconnect the bot from your voice channel")
-    async def leave_slash(inter):        
+    async def leave_slash(self, inter):        
         await self.leave(inter)
     
     
@@ -148,7 +149,7 @@ class Music(commands.Cog):
         self.client.re[0]+=1
         mem = [names.id for names in ctx.guild.voice_client.channel.members] if ctx.guild.voice_client else []
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
-        if len(mem) == 1 and mem[0] == client.user.id:
+        if len(mem) == 1 and mem[0] == self.client.user.id:
             if user.guild_permissions.administrator:
                 user = self.client.user
         if mem.count(user.id) > 0: 
@@ -269,7 +270,7 @@ class Music(commands.Cog):
                 if channel in [i.name for i in ctx.guild.voice_channels]:
                     voiceChannel = nextcord.utils.get(ctx.guild.voice_channels, name=channel)
                     await voiceChannel.connect()
-                    voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
+                    voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
                     await ctx.send(
                         embed=ef.cembed(
                             title="Connected",

@@ -76,7 +76,7 @@ class Ticket(commands.Cog):
     async def tick(self, inter, description="None"):
         await inter.response.defer()
         if not inter.user.guild_permissions.administrator:
-            e = assets.Emotes(client)
+            e = assets.Emotes(self.client)
             await inter.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
