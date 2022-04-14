@@ -33,10 +33,15 @@ author: True/False
 def preset_change(di, ctx, client, re = {8: 6619080}):
     presets = {
         '<server-icon>' : getattr(ctx.guild.icon, 'url', None),
-        '<author-icon>' : ctx.author.avatar.url,
+        '<author-icon>' : ef.safe_pfp(ctx.author),
         '<bot-icon>' : client.user.avatar.url,
         '<bot-color>' : str(discord.Color(re[8]).to_rgb())
     }
+    if type(di) == str:
+        di ={
+            'description': di,
+            'color': '<bot-color>'
+        }
     
     for i in di:
         if i in ['color','thumbnail','image','picture']:

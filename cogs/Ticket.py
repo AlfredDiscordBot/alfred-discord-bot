@@ -2,21 +2,22 @@ import nextcord
 import assets
 import time
 import helping_hand
+import emoji
 import asyncio
+import assets
 import External_functions as ef
 from nextcord.ext import commands, tasks
 
 
 
 def requirements():
-    require = ['re', 'config']
-    return ef.create_requirements(require)
+    return []
 
 class Ticket(commands.Cog):
-    def __init__(self, client, re, config):
+    def __init__(self, client):
         self.client = client
-        self.re = re
-        self.ticket = client.config['ticket']
+        self.re = self.client.re
+        self.ticket = self.client.config['ticket']
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self,payload):
@@ -37,7 +38,7 @@ class Ticket(commands.Cog):
             if msg != self.ticket[payload.guild_id][1]: return
             await ms.remove_reaction(payload.emoji, payload.member)
             mess = await channel.send(
-                embed=ef.cembed(description=f"Creating Ticket for {payload.member.name}", color=self.client.re[8])
+                embed=ef.cembed(description=f"Creating Ticket for {payload.member.name}", color=self.re[8])
             )
             
             th = await channel.create_thread(name = f"Ticket - {payload.member.name} {payload.member.id}", reason = f"Ticket - {payload.member.name}", auto_archive_duration = 60, message = mess)
@@ -48,7 +49,7 @@ class Ticket(commands.Cog):
     async def close_ticket(self, ctx):    
         if type(ctx.channel) != nextcord.Thread: return
         if ctx.channel.owner == self.client.user:
-            confirm = await ef.wait_for_confirm(ctx,self.client,"Do you want to close this ticket?", self.client.re[8])
+            confirm = await ef.wait_for_confirm(ctx,self.client,"Do you want to close this ticket?", self.re[8])
             if not confirm: return
             if not ctx.author.id == int(ctx.channel.name.split()[-1]):
                 if not ctx.author.guild_permissions.administrator:
@@ -65,11 +66,40 @@ class Ticket(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(
                     description="Deleting the ticket in 5 seconds",
-                    color=self.client.re[8]
+                    color=self.re[8]
                 )
             )
             await asyncio.sleep(5)
             await ctx.channel.delete()
 
+    @nextcord.slash_command(name="ticket",description="create a ticket message")
+    async def tick(self, inter, description="None"):
+        await inter.response.defer()
+        if not inter.user.guild_permissions.administrator:
+            e = assets.Emotes(client)
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description=f"{e.animated_wrong}You're not an admin to create a ticket message",
+                    color=self.re[8]
+                )
+            )
+            return
+        if description == "None":
+            description = "Open your tickets here"
+        message = await inter.send(
+            embed=ef.cembed(
+                title="Ticket",
+                description=description,
+                color=self.re[8],
+                thumbnail=inter.guild.icon.url
+            )
+        )
+        await message.add_reaction(emoji.emojize(":ticket:"))    
+        self.ticket[inter.guild.id] = (inter.channel.id, message.id)     
+
 def setup(client,**i):
     client.add_cog(Ticket(client,**i))
+
+
+

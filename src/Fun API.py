@@ -245,14 +245,16 @@ def main(client, re):
     @spacex.command()
     async def latest(ctx):
         await space.setup()
-        await ctx.send(
-            embed=ef.cembed(
-                title=space.name,
-                description=f"Time: {space.time}\nYoutube: [Link]({space.youtube})\nWikipedia: Wikipedia: [Link]({space.wikipedia})\n",
-                thumbnail=space.thumbnail, footer="This feature is still in its beta stage, sorry for inconvenience",color=space.color
+        embed=ef.cembed(
+            title=space.name,
+            description=f"Time: {space.time}\nVisit the [official website](https://www.spacex.com/) for more",
+            thumbnail=space.thumbnail, footer="This feature is still in its beta stage, sorry for inconvenience",color=space.color,
+            image = "https://static01.nyt.com/images/2021/01/30/business/29musk-print/29musk-1-videoSixteenByNineJumbo1600.jpg"
 
-            )
         )
+        embed.add_field(name="Youtube",value=f"[Link]({space.youtube})", inline=True)
+        embed.add_field(name="Wikipedia", value=f"[Link]({space.wikipedia})", inline=True)
+        await ctx.send(embed=embed)
 
     @client.command(aliases = ['dictionary', 'dict', 'dict_h'])
     async def diction(ctx, *, text):

@@ -2,22 +2,21 @@ import nextcord
 import assets
 import time
 import helping_hand
+import assets
 import External_functions as ef
 from nextcord.ext import commands, tasks
 
 #Use nextcord.slash_command()
 
 def requirements():
-    require = ['re', 'dev_channel', 'start_time']
-    return ef.create_requirements(require)
+    return ['dev_channel', 'start_time']
 
 class BotInfo(commands.Cog):
-    def __init__(self, client, re, dev_channel, start_time):
+    def __init__(self, client, dev_channel, start_time):
         self.client = client
         self.start_time = start_time
-        self.re = re
+        self.re = self.client.re
         self.dev_channel = dev_channel
-        print(dev_channel)
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -77,48 +76,31 @@ class BotInfo(commands.Cog):
     @commands.command()
     async def neofetch(self, ctx):
         text = helping_hand.neofetch
-        text += f"Name   : {self.client.user.name}\n"
-        text += f"ID     : {self.client.user.id}\n"
-        text += f"Users  : {len(self.client.users)}\n"
-        text += f"Servers: {len(self.client.guilds)}\n"
-        text += f"Uptime : {int(time.time()-self.start_time)}"
+        text += f"Name    : {self.client.user.name}\n"
+        text += f"ID      : {self.client.user.id}\n"
+        text += f"Users   : {len(self.client.users)}\n"
+        text += f"Servers : {len(self.client.guilds)}\n"
+        text += f"Uptime  : {int(time.time()-self.start_time)}\n"
+        text += f"Nextcord: {nextcord.__version__}"
         await ctx.send("```yml\n"+text+"\n```")
 
-    @commands.command()
-    async def set_prefix(ctx, *, pref):
-        if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
-            if pref.startswith('"') and pref.endswith('"') and len(pref)>1:
-                pref=pref[1:-1]
-            self.client.prefix_dict[ctx.guild.id] = pref
-            await ctx.send(
-                embed=ef.cembed(title="Done", description=f"Prefix set as {pref}", color=self.client.re[8])
+    @commands.command(aliases=["vote","top.gg",'v'])
+    async def vote_alfred(self, ctx):
+        upvote = assets.Emotes(self.client).upvote    
+        await ctx.send(
+            embed=ef.cembed(
+                title="Vote for Alfred",
+                description=f"`Top.gg:         `>>[{upvote}](https://top.gg/bot/811591623242154046/vote)<<\n`DiscordBotList: `>>[{upvote}](https://discordbotlist.com/bots/811591623242154046/upvote)<<\n`Botsfordiscord: `>>[{upvote}](https://botsfordiscord.com/bot/811591623242154046/vote)<<\n`Batcave Top.gg: `>>[{upvote}](https://top.gg/servers/822445271019421746/vote)<<",
+                color=self.client.re[8],
+                thumbnail=self.client.user.avatar.url,
+                image = "https://previews.123rf.com/images/aquir/aquir1311/aquir131100570/24053063-voz-del-sello-del-grunge-rojo.jpg",
+                footer="Stay Safe and be happy | Gotham Knights"
             )
-        else:
-            await ctx.send(
-                embed=ef.cembed(
-                    title="Permissions Denied",
-                    description="You cannot change the prefix, you need to be an admin",
-                    color=self.client.re[8],
-                )
-            )
+        )
     
-    
-    @commands.command()
-    async def remove_prefix(ctx):
-        if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
-            if self.client.prefix_dict.get(ctx.guild.id):
-                self.client.prefix_dict.pop(ctx.guild.id)
-            await ctx.send(
-                embed=cembed(title="Done", description=f"Prefix removed", color=self.client.re[8])
-            )
-        else:
-            await ctx.send(
-                embed=ef.cembed(
-                    title="Permissions Denied",
-                    description="You cannot change the prefix, you need to be an admin",
-                    color=self.client.re[8],
-                )
-            )
+    @nextcord.slash_command("vote",description="Vote for Alfred in Bot Listing servers")
+    async def vo(self, inter):
+        await self.vote_alfred(inter)
 
         
 def setup(client,**i):

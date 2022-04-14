@@ -11,13 +11,12 @@ from random import choice
 #Use nextcord.slash_command()
 
 def requirements():
-    require = ['re']
-    return ef.create_requirements(require)
+    return []
 
 class Games(commands.Cog):
-    def __init__(self, client, re):
+    def __init__(self, client):
         self.client = client
-        self.re = re
+        self.re = self.client.re
         self.choices = [
             emoji.emojize(":rock:"),
             emoji.emojize(":roll_of_paper:"),
@@ -116,9 +115,6 @@ class Games(commands.Cog):
                         color=nextcord.Color.red()
                     )
                 )
-                
-            
-        
         
 def setup(client,**i):
     client.add_cog(Games(client,**i))
