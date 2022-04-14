@@ -124,7 +124,7 @@ class Music(commands.Cog):
         if mem.count(user.id) > 0:
             voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
             voice.pause()
-            url = self.queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
+            url = self.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
             song = self.da1.get(url, "Unavailable")
             embed=nextcord.Embed(
                 title="Paused",
