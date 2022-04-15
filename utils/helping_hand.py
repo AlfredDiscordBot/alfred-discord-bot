@@ -171,7 +171,7 @@ def help_him(ctx, client, re):
         title="Help",
         description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '\n\nIf you have any complaints or issues with Alfred, please give us a feedback using the command `'feedback`\nVote for me in [top.gg](https://top.gg/bot/811591623242154046/vote). Thank you\n\n||Here's a lil tip from the developers which you probably wont find in any other bots, edit a command and it'll run again||",
         thumbnail="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903",
-        picture=thumbnail,
+        picture="https://github.com/alvinbengeorge/alfred-discord-bot/blob/default/Intents/BAT_animation.gif?raw=true",
         color=re[8],
         footer="Have a great day"
     )

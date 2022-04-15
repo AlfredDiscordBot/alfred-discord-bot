@@ -132,7 +132,7 @@ class Configuration(commands.Cog):
             )
             return
         if command.lower() not in [i.lower() for i in self.client.all_commands] and mode in ['enable','disable']:
-            await ctx.send("This is not a command, check the spelling")
+            await inter.send("This is not a command, check the spelling")
             return
         if command not in self.client.config['commands'] and command!='-':
             self.client.config['commands'][command] = []

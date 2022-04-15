@@ -315,7 +315,7 @@ class Music(commands.Cog):
             if i in self.da1:
                 found_songs += 1
                 if self.da1[i].lower().find(part.lower()) != -1:
-                    st += str(index) + ". " + da1[i] + "\n"
+                    st += str(index) + ". " + self.da1[i] + "\n"
             index += 1
         if st == "":
             st = "Not found"

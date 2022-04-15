@@ -3,6 +3,7 @@ import requests
 from dataclasses import dataclass
 from functools import lru_cache
 from create_embed import embed_from_dict
+import External_function as ef
 import nextcord as discord
 
 
