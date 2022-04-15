@@ -1,6 +1,7 @@
 import requests
 import traceback
 import json
+import External_functions as ef
 from typing import List, Dict, Union
 from functools import lru_cache
 
@@ -109,8 +110,10 @@ def requirements():
 def main(client, color):
     rce = CodeExecutor()
     import nextcord as discord
+    from nextcord.ext import commands
 
     @client.command()
+    @commands.check(ef.check_command)
     async def code(ctx, lang, *, code):
         actual_code = filter_graves(code)
         output = rce.execute_code(language=lang, code=actual_code)

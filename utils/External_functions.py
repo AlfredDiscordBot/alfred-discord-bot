@@ -784,6 +784,16 @@ async def pa1(embeds, ctx, client, start_from=0, restricted = False):
             await message.remove_reaction("▶️", client.user)
             break
 
+def check_command(ctx):
+    a = ctx.bot.config['commands']
+    if a.get(str(ctx.command.name)):
+        if ctx.guild.id in a[ctx.command.name]:
+            print("False")
+            return False
+    print("True")
+    return True
+    
+
 m_options = [
     'title',
     'description',

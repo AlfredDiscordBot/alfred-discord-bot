@@ -212,6 +212,7 @@ def user_stats_dict(stats: GitHubUserStats, color: int = None, uname: str = ""):
 
 def main(client, re):
     @client.command(aliases=["ghrepo", "ghr"])
+    @commands.check(ef.check_command)
     async def github_repo(ctx, *, repo):
         stats = get_repo_stats(repo)
 
@@ -229,6 +230,7 @@ def main(client, re):
         await ctx.send(embed=embed)
 
     @client.command(aliases=["ghuser", "ghu"])
+    @commands.check(ef.check_command)
     async def github_user(ctx, *, username: str = ''):
         if username  == '': username = "octocat"
         stats = get_user_stats(username)

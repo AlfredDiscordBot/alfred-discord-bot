@@ -44,11 +44,8 @@ class BotInfo(commands.Cog):
             )
         )
 
-    @commands.command()
-    async def cogs_check(self, ctx):
-        await ctx.reply("This works")
-
     @commands.command(aliases=["hi","ping"])
+    @commands.check(ef.check_command)
     async def check(self,ctx):
         self.client.re[0]+=1
         print("check")
@@ -74,6 +71,7 @@ class BotInfo(commands.Cog):
         await self.neofetch(inter)
         
     @commands.command()
+    @commands.check(ef.check_command)
     async def neofetch(self, ctx):
         text = helping_hand.neofetch
         text += f"Name    : {self.client.user.name}\n"

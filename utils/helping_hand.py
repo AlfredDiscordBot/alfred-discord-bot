@@ -177,10 +177,10 @@ def help_him(ctx, client, re):
     )
     message_developer = cembed(
         title = "Message from the developers",
-        description = "**Alfred Verified**\n`Alfred is fully verified`, you can invite him using this [link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands) and you can join the [support server](https://discord.gg/XESZGvjDaT)\nUse the `'feedback` commands if you think something is wrong with the bot, and check the status of the bot to check if it's restarting or not\n\n**New Games available**\nTwo new games added to the bot\n- Rock Paper Scissor\n- Guess the song\n\nCheck it out using slash commands `rps` and `guess`",
+        description = "**Alfred Verified**\n`Alfred is fully verified`, you can invite him using this [link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands) and you can join the [support server](https://discord.gg/XESZGvjDaT)\nUse the `'feedback` commands if you think something is wrong with the bot, and check the status of the bot to check if it's restarting or not\n\n**New Games available**\nTwo new games added to the bot\n- Rock Paper Scissor\n- Guess the song\n\nCheck it out using slash commands `rps` and `guess`\n\n**Moved to nextcord Fully**\nDiscord.py has died and we've decided that we should probably move to something better and updating. Nextcord is great for this as it's similar to Dpy",
         color=re[8],
         thumbnail=thumbnail,
-        picture="https://www.whitesourcesoftware.com/wp-content/media/2021/05/aHViPTcyNTE0JmNtZD1pdGVtZWRpdG9yaW1hZ2UmZmlsZW5hbWU9aXRlbWVkaXRvcmltYWdlXzVlMjA1MWQxOWY2NTUuanBnJnZlcnNpb249MDAwMCZzaWc9NGJhMDhmZWU5ZDQ4ZGVjNjcwNzFlNmFhMDg3NzliNzA3D.jpeg"
+        picture = "https://raw.githubusercontent.com/nextcord/nextcord/master/assets/repo-banner.png"
     )
     effects_help = cembed(
         title="Effects",

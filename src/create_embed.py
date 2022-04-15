@@ -1,4 +1,5 @@
 import nextcord as discord
+from nextcord.ext import commands
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 from compile import filter_graves
@@ -287,6 +288,7 @@ def main(client, re, mspace, dev_channel):
 
         
     @client.command(aliases=["init_embed", "embed_init"])
+    @commands.check(ef.check_command)
     async def create_embed_init(ctx):
         re[0] += 1
         if (
@@ -303,6 +305,7 @@ def main(client, re, mspace, dev_channel):
             )
 
     @client.command(aliases=["yml_embed"])
+    @commands.check(ef.check_command)
     async def embed_using_yaml(
         ctx, channel: discord.TextChannel = None, *, yaml: str = None
     ):
@@ -347,7 +350,8 @@ def main(client, re, mspace, dev_channel):
             )
             return "Error"
 
-    @client.command(aliases=['mehspace'])
+    @client.command(aliases=['mehspace','mspace'])
+    @commands.check(ef.check_command)
     async def myspace(ctx, member :discord.Member = None):
         if not member:
             if ctx.author.id in mspace: 
@@ -392,6 +396,7 @@ def main(client, re, mspace, dev_channel):
         return a 
 
     @client.command(aliases = ['info'])
+    @commands.check(ef.check_command)
     async def embedinfo(ctx):
         d = ctx.message.reference
         if not d:
@@ -427,6 +432,7 @@ def main(client, re, mspace, dev_channel):
 
             
     @client.command(aliases = ['mehsetup','msetup'])
+    @commands.check(ef.check_command)
     async def m_setup(ctx, *, yml = None):
         if yml:
             try:
@@ -558,13 +564,9 @@ def main(client, re, mspace, dev_channel):
                         )
                     )
                     
-    
-                    
-                
-        
-        
 
     @client.command(aliases=["emd"])
+    @commands.check(ef.check_command)
     async def embed_it(ctx, *, string: str):
         """
         Uses the new custom class and makes embed out of it, does the same thing as `embed_it()`
@@ -582,6 +584,7 @@ def main(client, re, mspace, dev_channel):
                 await ctx.send(str(e))
 
     @client.command(aliases=["color_for_embed"])
+    @commands.check(ef.check_command)
     async def set_color(ctx, color):
         if (
             ctx.author.guild_permissions.manage_messages
@@ -599,6 +602,7 @@ def main(client, re, mspace, dev_channel):
                 await ctx.send(str(e))
 
     @client.command(aliases=["title"])
+    @commands.check(ef.check_command)
     async def set_title(ctx, *, title: str):
         if (
             ctx.author.guild_permissions.manage_messages
@@ -612,6 +616,7 @@ def main(client, re, mspace, dev_channel):
             await ctx.send(embed=quick_embed("Title Set to " + title))
 
     @client.command(aliases=["description"])
+    @commands.check(ef.check_command)
     async def set_description(ctx, *, description: str):
         if (
             ctx.author.guild_permissions.manage_messages
@@ -634,6 +639,7 @@ def main(client, re, mspace, dev_channel):
             )
 
     @client.command(aliases=["footer"])
+    @commands.check(ef.check_command)
     async def set_footer(ctx, *, footer: str):
         if (
             ctx.author.guild_permissions.manage_messages
@@ -646,6 +652,7 @@ def main(client, re, mspace, dev_channel):
             await ctx.send(embed=quick_embed("Footer Set to " + footer))
 
     @client.command(aliases=["thumbnail"])
+    @commands.check(ef.check_command)
     async def set_thumbnail(ctx, url: str):
         if (
             ctx.author.guild_permissions.manage_messages
@@ -658,6 +665,7 @@ def main(client, re, mspace, dev_channel):
             await ctx.send(embed=quick_embed("Thumbnail Set"))
 
     @client.command(aliases=["image"])
+    @commands.check(ef.check_command)
     async def set_image(ctx, url: str):
         if (
             ctx.author.guild_permissions.manage_messages
@@ -670,6 +678,7 @@ def main(client, re, mspace, dev_channel):
             await ctx.send(embed=quick_embed("Image Set"))
 
     @client.command(aliases=["send"])
+    @commands.check(ef.check_command)
     async def send_embed(ctx, channel: discord.TextChannel):
         if (
             ctx.author.guild_permissions.manage_messages

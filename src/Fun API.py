@@ -6,6 +6,7 @@ import asyncio
 from bs4 import BeautifulSoup
 import datetime
 import requests
+import assets
 import traceback
 import urllib.parse
 from googlesearch import search
@@ -24,6 +25,7 @@ def main(client, re):
         return name
 
     @client.command()
+    @commands.check(ef.check_command)
     async def gen(ctx, *, text):
         print(ctx.guild.name)
         re[0]+=1
@@ -46,6 +48,7 @@ def main(client, re):
       
       
     @client.command()
+    @commands.check(ef.check_command)
     async def kanye(ctx):
         re[0] += 1
         text = await ef.get_async("https://api.kanye.rest", kind="json");text=text["quote"]
@@ -59,6 +62,7 @@ def main(client, re):
         
         
     @client.command()
+    @commands.check(ef.check_command)
     async def age(ctx, name):
         try:
             re[0] += 1
@@ -84,6 +88,7 @@ def main(client, re):
             )
             
     @client.command()
+    @commands.check(ef.check_command)
     async def apis(ctx, page: int = 0):
         re[0]+=1
         a = await ef.get_async("https://api.publicapis.org/entries",kind="json")
@@ -100,10 +105,11 @@ def main(client, re):
             )
             embeds.append(embed)
 
-        await pa1(embeds,ctx,page)
+        await assets.pa(ctx, embeds, start_from=page, restricted=False)
 
         
     @client.command()
+    @commands.check(ef.check_command)
     async def pokemon(ctx, pokemon=None):
         re[0] + re[0] + 1
         try:
@@ -136,6 +142,7 @@ def main(client, re):
             
             
     @client.command()
+    @commands.check(ef.check_command)
     async def ip(ctx, *, ip):
         re[0] + re[0] + 1
         ip = convert_to_url(ip)
@@ -162,6 +169,7 @@ def main(client, re):
             
             
     @client.command(aliases=["cat"])
+    @commands.check(ef.check_command)
     async def cat_fact(ctx):
         re[0] + re[0] + 1
         a = eval(requests.get("https://catfact.ninja/fact").content.decode())
@@ -173,6 +181,7 @@ def main(client, re):
 
 
     @client.command(aliases=["desktop"])
+    @commands.check(ef.check_command)
     @commands.cooldown(1,10,commands.BucketType.user)
     async def gs_stat(ctx):        
         a = await ef.get_async("https://gs.statcounter.com/os-market-share/desktop/worldwide/")
@@ -182,6 +191,7 @@ def main(client, re):
         await ctx.send(embed=ef.cembed(title="Gs.statcounter Desktop OS",description="This contains the market share of desktop operating systems worldwide", color=re[8], thumbnail="https://pbs.twimg.com/profile_images/918460707787681792/fMVNRhz4_400x400.jpg",picture = url))
 
     @client.command()
+    @commands.check(ef.check_command)
     async def csvoyager(ctx, edition = 0):
         embeds=[]
         if edition <0: 
@@ -217,14 +227,16 @@ def main(client, re):
                 url = "https://csvoyager.vercel.app/"
             )
             embeds.append(embed)
-        await pa1(embeds,ctx)
+        await assets.pa(ctx, embeds, start_from=0, restricted=False)
 
     
     @client.command()
+    @commands.check(ef.check_command)
     async def lyrics(ctx, *, song):
         await ctx.send(embed=ef.ly(song, re))
 
     @client.group()
+    @commands.check(ef.check_command)
     async def spacex(ctx):        
         if not ctx.invoked_subcommand:
             await ctx.send(
@@ -240,7 +252,7 @@ def main(client, re):
     @spacex.command()
     async def history(ctx):
         embeds = await space.history()
-        await pa1(embeds, ctx)
+        await assets.pa(ctx, embeds, start_from=0, restricted=False)
 
     @spacex.command()
     async def latest(ctx):
@@ -257,11 +269,12 @@ def main(client, re):
         await ctx.send(embed=embed)
 
     @client.command(aliases = ['dictionary', 'dict', 'dict_h'])
+    @commands.check(ef.check_command)
     async def diction(ctx, *, text):
         try:
             mean = ef.Meaning(word = text, color = re[8])
             await mean.setup()
-            await pa1(mean.create_texts(),ctx)
+            await assets.pa(ctx, mean.create_texts(), start_from=0, restricted=False)
         except Exception as e:
             await ctx.send(
                 embed=ef.cembed(
@@ -273,6 +286,7 @@ def main(client, re):
             )
 
     @client.command(aliases = ['zoo','animals'])
+    @commands.check(ef.check_command)
     async def animal(ctx):
         embed=await ef.animals(client,ctx,re[8])
         await ctx.send(embed=embed)

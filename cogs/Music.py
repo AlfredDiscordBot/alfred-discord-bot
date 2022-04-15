@@ -225,7 +225,7 @@ class Music(commands.Cog):
                     thumbnail=thumbnail
                 )
                 embeds.append(embed)
-            await ef.pa1(embeds,inter,self.client)
+            await assets.pa(inter, embeds, start_from=0, restricted=False)
 
     @nextcord.slash_command(name="connect", description="Connect to a voice channel")
     async def connect_slash(self, inter, channel: GuildChannel = ef.defa(ChannelType.voice)):
@@ -290,7 +290,9 @@ class Music(commands.Cog):
         except Exception as e:
             await ctx.send(
                 embed=nextcord.Embed(
-                    title="Hmm", description=str(e), color=nextcord.Color(value=self.re[8])
+                    title="Hmm", 
+                    description=str(e), 
+                    color=nextcord.Color(value=self.re[8])
                 )
             )
             channel = self.client.get_channel(self.dev_channel)
@@ -302,7 +304,35 @@ class Music(commands.Cog):
                     color=self.re[8],
                 )
             )
-    
+
+    @commands.command(aliases=["s_q"])
+    @commands.check(ef.check_command)
+    async def search_queue(self,ctx, part):
+        st = ""
+        index = 0
+        found_songs = 0
+        for i in self.queue_song[str(ctx.guild.id)]:
+            if i in self.da1:
+                found_songs += 1
+                if self.da1[i].lower().find(part.lower()) != -1:
+                    st += str(index) + ". " + da1[i] + "\n"
+            index += 1
+        if st == "":
+            st = "Not found"
+        if len(self.queue_song[str(ctx.guild.id)]) - found_songs > 0:
+            st += "\n\nWARNING: Some song names may not be loaded properly, this search may not be accurate"
+            st += "\nSongs not found: " + str(
+                len(self.queue_song[str(ctx.guild.id)]) - found_songs
+            )
+        await ctx.send(
+            embed=cembed(
+                title="Songs in queue",
+                description=st,
+                color=self.re[8],
+                thumbnail=self.client.user.avatar.url,
+            )
+        )
+        
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
         if user.bot: return

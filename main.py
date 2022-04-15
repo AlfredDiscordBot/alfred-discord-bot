@@ -346,6 +346,7 @@ async def quickembed(ctx, text):
     )
 
 @client.command()
+@commands.check(check_command)
 async def svg(ctx, *, url):
     img = svg2png(url)
     await ctx.send(file=nextcord.File(BytesIO(img), "svg.png"))
@@ -366,6 +367,7 @@ async def wait_for_ready():
 
 
 @client.command()
+@commands.check(check_command)
 async def imdb(ctx, *, movie):
     await ctx.send(embed=imdb_embed(movie,re))
 
@@ -396,9 +398,10 @@ async def giveaway(ctx, role_to_ping:nextcord.Role = None, donor:nextcord.User =
     await m.add_reaction(emoj)
 
 @client.command()
+@commands.check(check_command)
 @commands.cooldown(1,10,commands.BucketType.guild)
 async def roll(ctx):
-    if not ctx.author.guild_permissions.administrator:
+    if not ctx.author.guild_permissions.manage_channels:
         await ctx.send(
             embed=cembed(
                 title="Permissions Denied",
@@ -439,6 +442,7 @@ async def pfp_pic(ctx, member: nextcord.User = "-"):
     await get_pfp(ctx, member)
 
 @client.command(aliases=["pfp"])
+@commands.check(check_command)
 async def get_pfp(ctx, member:nextcord.Member=None):    
     req()   
     user = getattr(ctx,'author',getattr(ctx,'user',None))
@@ -474,6 +478,7 @@ async def remove_duplicates(ctx):
     )
     
 @client.command(aliases=['ef','effect'])
+@commands.check(check_command)
 async def effects(ctx, effect:str = None, member:nextcord.Member=None):
     req()
     if member == None:
@@ -531,6 +536,7 @@ async def blend(ctx, url_of_picture:str, member:nextcord.Member="None", ratio=0.
     await ctx.send(file=nextcord.File(BytesIO(byte), 'effect.png'))
 
 @client.command(aliases=['autoreaction'])
+@commands.check(check_command)
 async def autoreact(ctx, channel: nextcord.TextChannel = None,*, Emojis: str = ""):
     if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
         await ctx.send(
@@ -575,6 +581,7 @@ async def autoreact(ctx, channel: nextcord.TextChannel = None,*, Emojis: str = "
 
 
 @client.command()
+@commands.check(check_command)
 async def remove_autoreact(ctx, channel: nextcord.TextChannel = None):
     if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
         await ctx.send(
@@ -607,6 +614,7 @@ async def remove_autoreact(ctx, channel: nextcord.TextChannel = None):
     )
 
 @client.command(aliases=['suicide'])
+@commands.check(check_command)
 async def toggle_suicide(ctx):
     if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
         output=""
@@ -637,6 +645,7 @@ async def unsub_slash(ctx, channel: GuildChannel = None, url = None):
     await unsubscribe(ctx, channel = channel, url = url)
 
 @client.command()
+@commands.check(check_command)
 async def subscribe(ctx, channel: nextcord.TextChannel=None, url=None, *, message=""):
     if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
         if 'youtube' not in config: config['youtube']={}
@@ -664,6 +673,7 @@ async def subscribe(ctx, channel: nextcord.TextChannel=None, url=None, *, messag
         )
 
 @client.command()
+@commands.check(check_command)
 async def unsubscribe(ctx, channel: nextcord.TextChannel=None, url=None):
     if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
         if 'youtube' not in config: config['youtube']={}
@@ -739,6 +749,7 @@ async def emoji_slash(ctx, emoji_name, number=1):
 
 
 @client.command(aliases=["e", "emoji"])
+@commands.check(check_command)
 @commands.cooldown(1,5,commands.BucketType.guild)
 async def uemoji(ctx, emoji_name, number=1):
     req()
@@ -785,6 +796,7 @@ async def insta_slash(ctx, account):
     await instagram(ctx, account = account)
 
 @client.command(alias=['insta'])
+@commands.check(check_command)
 async def instagram(ctx, account):    
     try:
         links = instagram_get1(account, re[8], re[9])
@@ -815,7 +827,7 @@ async def instagram(ctx, account):
                     )
                 )
                 break
-        await pa1(embeds, ctx, client)
+        await assets.pa(ctx, embeds, start_from=0, restricted=False)
     except IndexError:
         embed = cembed(
             title="Error in instagram",
@@ -828,6 +840,7 @@ async def instagram(ctx, account):
 
 
 @client.command(aliases=["cw"])
+@commands.check(check_command)
 async def clear_webhooks(ctx):
     webhooks = await ctx.channel.webhooks()
     print(webhooks)
@@ -845,12 +858,6 @@ async def clear_webhooks(ctx):
             thumbnail=client.user.avatar.url
         )
     )
-
-
-@client.command()
-async def show_webhooks(ctx):
-    webhooks = await ctx.channel.webhooks()
-    await ctx.send(str(webhooks))
 
 @client.slash_command(name="color",description="Change color theme", guild_ids= [822445271019421746])
 async def color_slash(ctx, rgb_color=defa(default="")):    
@@ -891,6 +898,7 @@ async def color_slash(ctx, rgb_color=defa(default="")):
 
     
 @client.command()
+@commands.check(check_command)
 async def load(ctx):
     print("Load", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
     req()
@@ -941,6 +949,7 @@ async def reddit_slash(ctx, account="wholesomememes"):
 
 
 @client.command(aliases=["reddit"])
+@commands.check(check_command)
 async def reddit_search(ctx, account="wholesomememes", number=1):
     req()
     if number == 1:
@@ -956,12 +965,13 @@ async def reddit_search(ctx, account="wholesomememes", number=1):
                         thumbnail=client.user.avatar.url,
                     )
                 ]
-            await pa1(embeds, ctx, client)
+            await assets.pa(ctx, embeds, start_from=0, restricted=False)
         else:
             await ctx.send(embed=cembed(title=a[0], color=re[8], description=a[1]))
 
 
 @client.command(aliases=["c"])
+@commands.check(check_command)
 async def cover_up(ctx):
     await ctx.message.delete()
     await asyncio.sleep(0.5)
@@ -970,6 +980,7 @@ async def cover_up(ctx):
 
 
 @client.command()
+@commands.check(check_command)
 async def remove_dev(ctx, member: nextcord.Member):
     print(member)
     global dev_users
@@ -987,6 +998,7 @@ async def remove_dev(ctx, member: nextcord.Member):
 
 
 @client.command()
+@commands.check(check_command)
 async def add_dev(ctx, member: nextcord.Member):
     print(member)
     print("Add dev", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
@@ -1004,6 +1016,7 @@ async def add_dev(ctx, member: nextcord.Member):
         )
 
 @client.command()
+@commands.check(check_command)
 async def dev_op(ctx):
     if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in list(dev_users):
         print("devop", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
@@ -1013,6 +1026,7 @@ async def dev_op(ctx):
         await ctx.send(embed=cembed(title="Permission Denied",description="You cannot use the devop function, only a developer can",color=re[8]))
 
 @client.command()
+@commands.check(check_command)
 async def docs(ctx, name):
     try:
         if name.find("(") == -1:
@@ -1046,6 +1060,7 @@ async def snipe_slash(ctx, number):
 
 
 @client.command()
+@commands.check(check_command)
 async def snipe(ctx, number=None):
     if not number:
         number = 50
@@ -1074,7 +1089,7 @@ async def snipe(ctx, number=None):
             else:
                 await ctx.send("**" + i[0] + ":**",embed=i[1])
         if len(embeds)>0: 
-            await pa1(embeds, ctx, start_from = 0, restricted = True)
+            await assets.pa(ctx, embeds, start_from=0, restricted=True)
     else:
         await ctx.send(
             embed=cembed(
@@ -1200,6 +1215,7 @@ async def on_member_remove(member):
                 )
 
 @client.command()
+@commands.check(check_command)
 async def remove(ctx, n):
     req()
     mem = [names.id for names in ctx.guild.voice_client.channel.members] if ctx.guild.voice_client else []
@@ -1236,6 +1252,7 @@ async def remove(ctx, n):
 
 
 @client.command(aliases=["curr"])
+@commands.check(check_command)
 async def currentmusic(ctx):
     req()
     if len(queue_song[str(ctx.guild.id)]) > 0:
@@ -1298,6 +1315,7 @@ def repeat(ctx, voice):
 
 
 @client.command(aliases=["q"])
+@commands.check(check_command)
 @commands.cooldown(1,5,commands.BucketType.guild)
 async def queue(ctx, *, name=""):
     req()
@@ -1466,6 +1484,7 @@ async def player_pages(mess):
                 
 
 @client.command(aliases=[">", "skip"])
+@commands.check(check_command)
 async def next(ctx):
     req()
     try:
@@ -1525,6 +1544,7 @@ async def news_slash(ctx, subject="Technology"):
     await news(ctx, subject)
 
 @client.command()
+@commands.check(check_command)
 async def news(ctx, subject="Technology"):
     googlenews.get_news(subject)
     news_list = googlenews.get_texts()
@@ -1542,6 +1562,7 @@ async def news(ctx, subject="Technology"):
     )
 
 @client.command(aliases=["<"])
+@commands.check(check_command)
 async def previous(ctx):
     req()
     try:
@@ -1593,7 +1614,7 @@ async def dic(ctx, word):
     try:
         mean = Meaning(word = word, color = re[8])
         await mean.setup()
-        await pa1(mean.create_texts(),ctx,client)
+        await assets.pa(ctx, mean.create_texts(), start_from=0, restricted=False)
     except Exception as e:
         await ctx.send(
             embed=ef.cembed(
@@ -1605,43 +1626,14 @@ async def dic(ctx, word):
         )
         print(traceback.format_exc())
 
-
-@client.command(aliases=["s_q"])
-async def search_queue(ctx, part):
-    st = ""
-    index = 0
-    found_songs = 0
-    for i in queue_song[str(ctx.guild.id)]:
-        if i in da1:
-            found_songs += 1
-            if da1[i].lower().find(part.lower()) != -1:
-                st += str(index) + ". " + da1[i] + "\n"
-        index += 1
-    if st == "":
-        st = "Not found"
-    if len(queue_song[str(ctx.guild.id)]) - found_songs > 0:
-        st += "\n\nWARNING: Some song names may not be loaded properly, this search may not be accurate"
-        st += "\nSongs not found: " + str(
-            len(queue_song[str(ctx.guild.id)]) - found_songs
-        )
-    await ctx.send(
-        embed=cembed(
-            title="Songs in queue",
-            description=st,
-            color=re[8],
-            thumbnail=client.user.avatar.url,
-        )
-    )
-
 @client.slash_command(name = "play", description = "play a song, you can also put a song name in that")
-async def play_slash(ctx, index):
-    await play(ctx, index = index)
+async def play_slash(inter, index):
+    await play(inter, index = index)
 
 @client.slash_command(name = "queue", description = "play a song")
-async def queue_slash(ctx, song = "-"):
-    if song is None: await ctx.send("Sending queue")
+async def queue_slash(inter, song = "-"):
     if song == "-": song = ""
-    await queue(ctx, name = song)
+    await queue(inter, name = song)
 
 @client.slash_command(name="guess",description="guess the song game")
 async def guess(ctx):
@@ -1677,6 +1669,7 @@ async def guess(ctx):
 
     
 @client.command(aliases=["p"])
+@commands.check(check_command)
 @commands.cooldown(1,10,commands.BucketType.guild)
 async def play(ctx, *, index):
     ind = index
@@ -1789,6 +1782,7 @@ async def play(ctx, *, index):
 
 
 @client.command()
+@commands.check(check_command)
 async def again(ctx):
     req()
     if getattr(ctx, 'author', getattr(ctx, 'user', None)).voice and getattr(ctx, 'author', getattr(ctx, 'user', None)).voice.channel:
@@ -1903,6 +1897,7 @@ async def f_slash(ctx, text):
     await feedback(ctx, text=text)
 
 @client.command(aliases=["::"])
+@commands.check(check_command)
 async def memes(ctx):
     global link_for_cats
     if len(link_for_cats) == 0:
@@ -1973,6 +1968,7 @@ async def eval_slash(ctx,text):
     await python_shell(ctx, text = text)
 
 @client.command(aliases=["!"])
+@commands.check(check_command)
 async def restart_program(ctx, text):
     if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in list(dev_users):
         
@@ -2015,6 +2011,7 @@ async def restart_program(ctx, text):
 
 
 @client.command(aliases=["*"])
+@commands.check(check_command)
 async def change_nickname(ctx, member: nextcord.Member, *, nickname):
     if (
         getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.change_nickname
@@ -2042,6 +2039,7 @@ async def change_nickname(ctx, member: nextcord.Member, *, nickname):
             )
         )
 @client.command()
+@commands.check(check_command)
 async def dev_test(ctx, id:nextcord.Member=None):
     if id:
         if str(id.id) in dev_users:
@@ -2053,6 +2051,7 @@ async def dev_test(ctx, id:nextcord.Member=None):
 
 
 @client.command()
+@commands.check(check_command)
 async def resume(ctx):
     req()
     try:
@@ -2080,12 +2079,14 @@ async def resume(ctx):
 
 
 @client.slash_command(name="wikipedia", description="Get a topic from wikipedia")
+@commands.check(check_command)
 async def wiki_slash(ctx, text):
     await ctx.response.defer()
     await wikipedia(ctx, text = text)
 
 
 @client.command(aliases=["w"])
+@commands.check(check_command)
 async def wikipedia(ctx, *, text):
     req()
     embeds = []
@@ -2098,14 +2099,14 @@ async def wikipedia(ctx, *, text):
             thumbnail="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
         )
         embeds.append(em)
-    await pa1(embeds,ctx,client)
-
+    await assets.pa(ctx, embeds, start_from=0, restricted=False)
 
 @client.event
 async def on_message_edit(message_before, message_after):
     await client.process_commands(message_after)
 
 @client.command()
+@commands.check(check_command)
 async def clear(ctx, text, num=10):
     req()
     await ctx.message.delete()
@@ -2332,6 +2333,7 @@ async def on_command_error(ctx, error):
     await channel.send(embed=cembed(title="Error",description=f"\n{str(error)}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
 
 @client.command()
+@commands.check(check_command)
 async def changeM(ctx, *, num):
     if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in dev_users:
         num = int(num)
@@ -2505,6 +2507,7 @@ async def SeCurity(ctx, log_channel: GuildChannel = "delete"):
     )
 
 @client.command()
+@commands.check(check_command)
 async def stop(ctx):
     req()
     try:
@@ -2519,6 +2522,7 @@ async def stop(ctx):
         await ctx.send(embed=nextcord.Embed(title="Permission denied",description="Join the channel to resume the song",color=nextcord.Color(value=re[8])))
 
 @client.command(aliases=["m"])
+@commands.check(check_command)
 async def python_shell(ctx, *, text):
     req()
     print("Python Shell", text, str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
@@ -2559,6 +2563,7 @@ async def python_shell(ctx, *, text):
         )
 
 @client.command()
+@commands.check(check_command)
 async def exe(ctx, *, text):
     req()
     if (
@@ -2601,7 +2606,7 @@ async def exe(ctx, *, text):
                 url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
             )
             embeds.append(em)
-        await pa1(embeds,ctx,client,restricted=True)
+        await assets.pa(ctx, embeds, start_from=0, restricted=False)
     else:
         await ctx.send(
             embed=nextcord.Embed(
@@ -2657,9 +2662,8 @@ client.remove_command("help")
 
 @client.command(aliases=['h'])
 async def help(ctx):
-    test_help = []    
-    test_help += helping_hand.help_him(ctx, client, re)    
-    await pa1(test_help, ctx, client, start_from=0, restricted=True)
+    test_help = helping_hand.help_him(ctx, client, re)
+    await assets.pa(ctx, test_help, start_from=0, restricted=True)
 
 @client.slash_command(name="help", description="Help from Alfred")
 async def help_slash(ctx):

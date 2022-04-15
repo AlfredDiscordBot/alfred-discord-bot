@@ -21,7 +21,7 @@ class Confirm(nextcord.ui.View):
         self.stop()
         return self.value
         
-    @nextcord.ui.button(label="Confirm",style=nextcord.ButtonStyle.red)
+    @nextcord.ui.button(label="Cancel",style=nextcord.ButtonStyle.red)
     async def cancel(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
         await interaction.response.edit_message(
             embed=ef.cembed(
@@ -44,19 +44,44 @@ async def confirm_button(ctx, message, client, re={8: 5160}):
         ),
         view=view
     )
-    await view.wait()
-    if view.value is None:
-        print('Timed out...')
-    elif view.value:
-        await ctx.message.edit(
-            embed=ef.cembed(
-                description="Confirmed",
-                color=re[8]                
-            )
-        )
-    else:
-        print('Cancelled...')
+    a = await view.wait()
+    return a
+    
 
+class Pages(nextcord.ui.View):
+    def __init__(self, ctx, embeds, restricted = False, start_from = 0):
+        super().__init__()
+        self.embeds = embeds
+        self.ctx = ctx
+        self.restricted = restricted
+        self.current_embed = embeds[start_from]
+        self.page = start_from
+        self.user = getattr(ctx, 'user', getattr(ctx,'author',None))
+        
+    @nextcord.ui.button(label="Previous",style=nextcord.ButtonStyle.red)
+    async def previous(self, button, inter):
+        if self.restricted:
+            if not self.user == inter.user:
+                return
+        if self.page > 0:
+            self.page-=1
+        await inter.response.edit_message(embed=self.embeds[self.page])
+
+    @nextcord.ui.button(label="Next",style=nextcord.ButtonStyle.red)
+    async def next(self, button, inter):
+        if self.restricted:
+            if not self.user == inter.user:
+                return
+                
+        if self.page < len(self.embeds)-1:
+            self.page+=1
+        await inter.response.edit_message(embed=self.embeds[self.page])
+
+async def pa(ctx, embeds, restricted = False, start_from = 0):
+    await ctx.send(
+        embed = embeds[start_from],
+        view = Pages(ctx, embeds, restricted, start_from)
+    )
 
 class Emotes:
     def __init__(self, client):
@@ -69,4 +94,3 @@ class Emotes:
         self.loading = client.get_emoji(948396323843997776)
         self.upvote = client.get_emoji(945509681256865845)
         
-    

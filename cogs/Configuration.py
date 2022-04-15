@@ -11,12 +11,15 @@ def requirements():
     return []
 
 class Configuration(commands.Cog):
-    def __init__(self, client):
+    client = None
+    def __init__(self, client):        
+        client = client
         self.client = client
         self.re = self.client.re
         self.config = self.client.config
 
     @commands.command()
+    @commands.check(ef.check_command)
     async def sniper(self, ctx):
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if user.guild_permissions.administrator:
@@ -46,6 +49,7 @@ class Configuration(commands.Cog):
             )
             
     @commands.command()
+    @commands.check(ef.check_command)
     async def set_prefix(self, ctx, *, pref):
         if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
             if pref.startswith('"') and pref.endswith('"') and len(pref)>1:
@@ -64,6 +68,7 @@ class Configuration(commands.Cog):
             )
     
     @commands.command()
+    @commands.check(ef.check_command)
     async def remove_prefix(self, ctx):
         if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
             if self.client.prefix_dict.get(ctx.guild.id):
@@ -112,6 +117,73 @@ class Configuration(commands.Cog):
                     thumbnail=self.client.user.avatar.url
                 )
             )
+    @nextcord.slash_command(name="commands", description="Enable and Disable commands, only for admins")
+    async def comm(self, inter, mode = ef.defa(choices=['enable','disable','show']), command = "-"):
+        await inter.response.defer()
+        command = command.lower()        
+        if not inter.user.guild_permissions.administrator:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description="Only an admin can use this command, please ask an admin to enable this",
+                    color=nextcord.Color.red(),
+                    
+                )
+            )
+            return
+        if command.lower() not in [i.lower() for i in self.client.all_commands] and mode in ['enable','disable']:
+            await ctx.send("This is not a command, check the spelling")
+            return
+        if command not in self.client.config['commands'] and command!='-':
+            self.client.config['commands'][command] = []
+        if mode == 'enable' and command != '-':
+            if inter.guild.id in self.client.config['commands'][command]:
+                self.client.config['commands'][command].remove(inter.guild.id)
+                await inter.send(
+                    embed=ef.cembed(
+                        title="Done",
+                        description=f"Enabled {command} in this server",
+                        color=self.re[8],
+                        thumbnail=self.client.user.avatar.url
+                    )
+                )
+                return
+            await inter.send("Already Enabled")
+        elif mode == 'disable' and command != '-':
+            if inter.guild.id not in self.client.config['commands'][command]:
+                self.client.config['commands'][command].append(inter.guild.id)
+                await inter.send(
+                    embed=ef.cembed(
+                        title="Done",
+                        description=f"Disabled {command} in this server",
+                        color=self.re[8],
+                        thumbnail=self.client.user.avatar.url
+                    )
+                )
+                return
+            await inter.send("Already Disabled")
+        else:
+            disabled_commands = []
+            enabled_commands = []
+            for i in self.client.all_commands:
+                if inter.guild.id in self.client.config['commands'].get(i,[]):
+                    disabled_commands.append(i)
+                else:
+                    enabled_commands.append(i)
+
+            disabled_commands = "**Disabled commands**\n"+', '.join(disabled_commands)
+            enabled_commands = "**Enabled commands**\n"+', '.join(enabled_commands)
+            await inter.send(
+                embed=ef.cembed(
+                    title="Commands",
+                    description=enabled_commands+"\n\n"+disabled_commands,
+                    color=self.re[8],
+                    thumbnail=self.client.user.avatar.url,
+                    footer="Everything is enabled by default"
+                )
+            )
+            
+            
 
 def setup(client,**i):
     client.add_cog(Configuration(client,**i))

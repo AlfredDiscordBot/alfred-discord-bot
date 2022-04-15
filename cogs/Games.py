@@ -36,6 +36,7 @@ class Games(commands.Cog):
 
         
     @commands.command(aliases = ['rps','stonepaperscissor'])
+    @commands.check(ef.check_command)
     async def rockpaperscissor(self, ctx):
         s = {}
         embed = ef.cembed(
