@@ -171,13 +171,13 @@ def help_him(ctx, client, re):
         title="Help",
         description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '\n\nIf you have any complaints or issues with Alfred, please give us a feedback using the command `'feedback`\nVote for me in [top.gg](https://top.gg/bot/811591623242154046/vote). Thank you\n\n||Here's a lil tip from the developers which you probably wont find in any other bots, edit a command and it'll run again||",
         thumbnail="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903",
-        picture="https://github.com/alvinbengeorge/alfred-discord-bot/blob/default/Intents/BAT_animation.gif?raw=true",
+        picture=thumbnail,
         color=re[8],
         footer="Have a great day"
     )
     message_developer = cembed(
         title = "Message from the developers",
-        description = "**Alfred Verified**\n`Alfred is fully verified`, you can invite him using this [link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands) and you can join the [support server](https://discord.gg/XESZGvjDaT)\nUse the `'feedback` commands if you think something is wrong with the bot, and check the status of the bot to check if it's restarting or not\n\n**New Games available**\nTwo new games added to the bot\n- Rock Paper Scissor\n- Guess the song\n\nCheck it out using slash commands `rps` and `guess`\n\n**Moved to nextcord Fully**\nDiscord.py has died and we've decided that we should probably move to something better and updating. Nextcord is great for this as it's similar to Dpy",
+        description = "**Alfred Verified**\n`Alfred is fully verified`, you can invite him using this [link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands) and you can join the [support server](https://discord.gg/XESZGvjDaT)\nUse the `'feedback` commands if you think something is wrong with the bot, and check the status of the bot to check if it's restarting or not\n\n**New Games available**\nTwo new games added to the bot\n- Rock Paper Scissor\n- Guess the song\n\nCheck it out using slash commands `rps` and `guess`\n\n**Moved to nextcord Fully**\nDiscord.py has died and we've decided that we should probably move to something better and updating. Nextcord is great for this as it's similar to Dpy\n\n**Enable and Disable commands**\nNow you can choose to keep or remove a command from your server, use the slash command `/command`, still in Beta stage, but it should do ",
         color=re[8],
         thumbnail=thumbnail,
         picture = "https://raw.githubusercontent.com/nextcord/nextcord/master/assets/repo-banner.png"

@@ -325,7 +325,7 @@ class Music(commands.Cog):
                 len(self.queue_song[str(ctx.guild.id)]) - found_songs
             )
         await ctx.send(
-            embed=cembed(
+            embed=ef.cembed(
                 title="Songs in queue",
                 description=st,
                 color=self.re[8],
