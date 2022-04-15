@@ -14,6 +14,7 @@ def main(client, re, AiD, dev_channel):
     import io
     import requests
     import urllib.parse
+    from nextcord.ext import commands
 
     w = Client(AiD)
 
@@ -47,6 +48,7 @@ def main(client, re, AiD, dev_channel):
             return (embed, None)
 
     @client.command()
+    @commands.check(ef.check_command)
     async def wolf(ctx, *, question=""):
         out = await get_answer1(question)
         await ctx.send(embed=out[0], file=out[1])

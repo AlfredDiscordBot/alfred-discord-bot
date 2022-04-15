@@ -9,6 +9,7 @@ def main(client, re):
     import External_functions as ef
 
     @client.command(aliases=["ban"])
+    @commands.check(ef.check_command)
     @commands.cooldown(1,10,commands.BucketType.guild)
     async def ban_member(ctx, member: discord.Member, *, reason=None):
         if ctx.author.guild_permissions.ban_members:
@@ -30,6 +31,7 @@ def main(client, re):
             )
 
     @client.command(aliases=["kick"])
+    @commands.check(ef.check_command)
     @commands.cooldown(1,10,commands.BucketType.guild)
     async def kick_member(ctx, member: discord.Member, *, reason=None):
         if ctx.author.guild_permissions.ban_members:
@@ -50,6 +52,7 @@ def main(client, re):
                 )
             )
     @client.command(aliases=["mu"])
+    @commands.check(ef.check_command)
     @commands.cooldown(1,10,commands.BucketType.guild)
     async def mute(ctx, member: discord.Member, time=10):
         re[0]+=1
@@ -76,6 +79,7 @@ def main(client, re):
 
 
     @client.command(aliases=["um"])
+    @commands.check(ef.check_command)
     async def unmute(ctx, member: discord.Member, time=100):
         re[0]+=1
         if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.mute_members:

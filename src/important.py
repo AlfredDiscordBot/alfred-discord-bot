@@ -4,11 +4,13 @@ def requirements():
 
 def main(client, re, dev_users):
     import nextcord as discord
+    from discord.ext import commands
     import random
     import External_functions as ef
     import io
     # from gi.repository import Notify
     @client.command()
+    @commands.check(ef.check_command)
     async def f(ctx):
         urls = [
             "https://c.tenor.com/BaJDchtzSMQAAAAC/f-letter-f-burts.gif",
@@ -26,6 +28,7 @@ def main(client, re, dev_users):
         await ctx.send(embed=embed)
 
     @client.command(aliases=["s_e"])
+    @commands.check(ef.check_command)
     async def search_emoji(ctx, name):
         try:
             st = ""
@@ -48,6 +51,7 @@ def main(client, re, dev_users):
             )
 
     @client.command(aliases=["src", "github", "source_code", "sc", "source"])
+    @commands.check(ef.check_command)
     async def repo(ctx):
         embed = discord.Embed(
             title="Source Code for Alfred",
@@ -61,6 +65,7 @@ def main(client, re, dev_users):
         await ctx.send(embed=embed)
 
     @client.command()
+    @commands.check(ef.check_command)
     async def batsignal(ctx):
         # https://c.tenor.com/0GJ-XEcYLfcAAAAd/wongwingchun58.gif
         alvin = client.get_user(432801163126243328).mention
@@ -93,6 +98,7 @@ def main(client, re, dev_users):
 
 
     @client.command()
+    @commands.check(ef.check_command)
     async def reply(ctx, channel, user, *, repl):
         if str(ctx.author.id) in dev_users and ctx.guild.id == 822445271019421746:
             channel = client.get_channel(int(channel))
@@ -120,6 +126,7 @@ def main(client, re, dev_users):
             )
 
     @client.command(aliases = ['developers','dev','contributors'])
+    @commands.check(ef.check_command)
     async def contribution(ctx):
         embed=ef.cembed(
             title="Contributors and Contributions",

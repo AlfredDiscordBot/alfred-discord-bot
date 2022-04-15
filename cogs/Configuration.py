@@ -10,13 +10,12 @@ from nextcord.ext import commands, tasks
 def requirements():
     return []
 
-class Configuration(commands.Cog):
-    client = None
-    def __init__(self, client):        
-        client = client
+class Configuration(commands.Cog):    
+    def __init__(self, client):
         self.client = client
         self.re = self.client.re
         self.config = self.client.config
+        self.command_list = open("commands.txt","r").read().split("\n")[:-1]
 
     @commands.command()
     @commands.check(ef.check_command)
@@ -131,7 +130,7 @@ class Configuration(commands.Cog):
                 )
             )
             return
-        if command.lower() not in [i.lower() for i in self.client.all_commands] and mode in ['enable','disable']:
+        if command.lower() not in [i.name.lower() for i in self.client.commands] and mode in ['enable','disable']:
             await inter.send("This is not a command, check the spelling")
             return
         if command not in self.client.config['commands'] and command!='-':
@@ -165,7 +164,7 @@ class Configuration(commands.Cog):
         else:
             disabled_commands = []
             enabled_commands = []
-            for i in self.client.all_commands:
+            for i in [j.name for j in self.client.commands]:
                 if inter.guild.id in self.client.config['commands'].get(i,[]):
                     disabled_commands.append(i)
                 else:
@@ -182,6 +181,10 @@ class Configuration(commands.Cog):
                     footer="Everything is enabled by default"
                 )
             )
+    @comm.on_autocomplete("command")
+    async def auto(self, inter, command):
+        autocomp_command = [i for i in self.command_list if command.lower() in i.lower()][:25]
+        await inter.response.send_autocomplete(autocomp_command)
             
             
 

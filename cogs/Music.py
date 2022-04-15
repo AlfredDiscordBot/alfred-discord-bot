@@ -38,6 +38,7 @@ class Music(commands.Cog):
         await self.loop(inter)
 
     @commands.command()
+    @commands.check(ef.check_command)
     async def autoplay(self, ctx):
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if ctx.guild.voice_client and user.id in [i.id for i in ctx.guild.voice_client.channel.members]:
@@ -65,6 +66,7 @@ class Music(commands.Cog):
     
     
     @commands.command()
+    @commands.check(ef.check_command)
     async def loop(self, ctx):
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if ctx.guild.voice_client and user.id in [i.id for i in ctx.guild.voice_client.channel.members]:
@@ -91,6 +93,7 @@ class Music(commands.Cog):
             )
             
     @commands.command(aliases=["cq"])
+    @commands.check(ef.check_command)
     async def clearqueue(self, ctx):
         mem = [names.id for names in ctx.guild.voice_client.channel.members] if ctx.guild.voice_client else []
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
@@ -116,6 +119,7 @@ class Music(commands.Cog):
             )
 
     @commands.command()
+    @commands.check(ef.check_command)
     async def pause(self, ctx):
         self.re[0]+=1
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
@@ -145,6 +149,7 @@ class Music(commands.Cog):
     
     
     @commands.command(aliases=["dc"])
+    @commands.check(ef.check_command)
     async def leave(self, ctx):
         self.client.re[0]+=1
         mem = [names.id for names in ctx.guild.voice_client.channel.members] if ctx.guild.voice_client else []
@@ -233,6 +238,7 @@ class Music(commands.Cog):
     
     
     @commands.command(aliases=["cm",'join','cn','connect'])
+    @commands.check(ef.check_command)
     async def connect_music(self, ctx, channel=None):
         if type(channel) == nextcord.channel.VoiceChannel: 
             channel = channel.name

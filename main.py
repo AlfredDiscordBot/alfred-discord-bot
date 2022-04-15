@@ -213,17 +213,33 @@ Color: {nextcord.Color(re[8]).to_rgb()}
 [ OK ] Variables initialised 
 [ OK ] Load From File Completed
 [ OK ] Switching Root ...
-[ OK ] Starting On Ready
 """
 
-
+for i in os.listdir(location_of_file + "/src"):
+    if i.endswith(".py"):
+        a = ""
+        try:
+            print(i, end="")
+            requi = __import__(i[0 : len(i) - 3]).requirements()
+            if type(requi) is str:
+                a = f"__import__('{i[0:len(i)-3]}').main(client,{requi})"
+                eval(a)
+            if type(requi) is list:
+                a = f"__import__('{i[0:len(i)-3]}').main(client,{','.join(requi)})"
+                eval(a)
+            print(": Done")
+            report+=f"[ OK ] Imported {i} successfully\n"
+        except Exception as e:
+            print(": Error")
+            report+=f"[ {int(time.time()-start_time)} ] Error in {i}: {e}\n{a} \n"
+            errors.append(f"[ {int(time.time()-start_time)} ] Error in {i}: {str(e)[:10]}...\n")
 
 @client.event
 async def on_ready():
     print(client.user)    
     global report
     await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.watching, name="Booting in progress"))
-    report+=f"[ OK ] Bot named as {client.user.name}\n"
+    report+=f"[ OK ] Starting On Ready\n[ OK ] Bot named as {client.user.name}\n"
     channel = client.get_channel(dev_channel)
     if channel:
         report+="[ OK ] Devop found, let's go\n"
@@ -234,46 +250,12 @@ async def on_ready():
         print("\nStarting devop display")
         await devop_mtext(client, channel, re[8])
         report+="[ OK ] Sending Devop Message\n"
-        print("Finished devop display")
-        print("Starting imports")
-        imports = ""             
-        for i in os.listdir(location_of_file + "/src"):
-            if i.endswith(".py"):
-                a = ""
-                try:
-                    print(i, end="")
-                    requi = __import__(i[0 : len(i) - 3]).requirements()
-                    # if requi != "":
-                    #     requi = "," + requi
-                    if type(requi) is str:
-                        a = f"__import__('{i[0:len(i)-3]}').main(client,{requi})"
-                        eval(a)
-                    if type(requi) is list:
-                        a = f"__import__('{i[0:len(i)-3]}').main(client,{','.join(requi)})"
-                        eval(a)
-                    imports = imports + i[0 : len(i) - 3] + "\n"
-                    print(": Done")
-                    report+=f"[ OK ] Imported {i} successfully\n"
-                except Exception as e:
-                    await channel.send(
-                        embed=cembed(
-                            title="Error in plugin " + i[0 : len(i) - 3],
-                            description=str(e),
-                            color=nextcord.Color(value=re[8]),
-                            footer=a
-                        )
-                    )
-                    report+=f"[ {int(time.time()-start_time)} ] Error in {i}: {e}\n"
-                    errors.append(f"[ {int(time.time()-start_time)} ] Error in {i}: {str(e)[:10]}...\n")
-        await channel.send(
-            embed=nextcord.Embed(
-                title="Successfully imported",
-                description=imports,
-                color=nextcord.Color(value=re[8]),
-            )
-        )
+        print("Finished devop display")        
         await client.rollout_application_commands()
-        
+        with open("commands.txt","w") as f:
+          for i in client.commands:
+            f.write(i.name+"\n")
+        report+="[ OK ] Updated commands txt file"
     except Exception as e:
         mess = await channel.send(
             embed=nextcord.Embed(
@@ -296,6 +278,7 @@ async def on_ready():
             thumbnail=client.user.avatar.url
         )
     )
+    
 
 @tasks.loop(hours=4)
 async def send_file_loop():
@@ -576,8 +559,6 @@ async def autoreact(ctx, channel: nextcord.TextChannel = None,*, Emojis: str = "
             color=re[8]
         )
     )
-
-
 
 
 @client.command()

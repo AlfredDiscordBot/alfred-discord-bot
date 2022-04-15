@@ -4,9 +4,12 @@ def requirements():
 
 def main(client, re):
     import nextcord as discord
+    from discord.ext import commands
+    import External_functions as ef
     import requests
 
     @client.command()
+    @commands.check(ef.check_command)
     async def titan(ctx, url, mode="random", preference="blah"):
         with requests.Session() as s:
             true = True

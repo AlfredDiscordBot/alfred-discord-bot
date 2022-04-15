@@ -4,8 +4,11 @@ def requirements():
 
 def main(client, dev_users, re):
     import nextcord as discord
+    from discord.ext import commands
+    import External_functions as ef
 
     @client.command()
+    @commands.check(ef.check_command)
     async def leave_server(ctx, *, server_name):
         if str(ctx.author.id) in dev_users:
             guild = discord.utils.get(client.guilds, name=server_name)
@@ -36,6 +39,7 @@ def main(client, dev_users, re):
             )
 
     @client.command()
+    @commands.check(ef.check_command)
     async def nay(ctx):
         await ctx.send(
             embed=discord.Embed(

@@ -4,8 +4,11 @@ def requirements():
 
 def main(client, re):
     import nextcord as discord
+    from discord.ext import commands
+    import External_functions as ef
 
     @client.command()
+    @commands.check(ef.check_command)
     async def eng2pig(ctx, *, data):
         output = ""
         for i in data.split(" "):
@@ -26,6 +29,7 @@ def main(client, re):
         )
 
     @client.command()
+    @commands.check(ef.check_command)
     async def pig2eng(ctx, *, data):
         output = ""
         for i in data.split(" "):

@@ -43,9 +43,11 @@ class Proton:
 def main(client, re):
     import nextcord as discord
     import External_functions as ef    
+    from discord.ext import commands
     DB = Proton(ef)
     
     @client.command()
+    @commands.check(ef.check_command)
     async def protonDB(ctx, *, text):        
         if text.isdigit():
             report = await DB.report(text)
@@ -65,7 +67,7 @@ def main(client, re):
                 embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url)
                 embeds.append(embed)
 
-            await pa1(embeds, ctx)
+            await ef.pa(ctx, embeds)
         else:
             li = await DB.search_game(text)
             length = len(li)
@@ -80,46 +82,3 @@ def main(client, re):
                     color=re[8]
                 )
             )
-            
-    async def pa1(embeds, ctx, start_from=0, restricted = False):
-        message = await ctx.send(embed=embeds[start_from])
-        pag = start_from
-        await message.add_reaction("◀️")
-        await message.add_reaction("▶️")
-        
-    
-        def check(reaction, user):
-            if not restricted:            
-                return (
-                    user.id != client.user.id
-                    and str(reaction.emoji) in ["◀️", "▶️"]
-                    and reaction.message.id == message.id
-                )
-            else:
-                a = (
-                    user.id != client.user.id
-                    and str(reaction.emoji) in ["◀️", "▶️"]
-                    and reaction.message.id == message.id
-                    and user.id == getattr(ctx, 'author', getattr(ctx,'user',None)).id
-                )
-                return a
-    
-        while True:
-            try:
-                reaction, user = await client.wait_for(
-                    "reaction_add", timeout=720, check=check
-                )            
-                if str(reaction.emoji) == "▶️" and pag + 1 != len(embeds):
-                    pag += 1
-                    await message.edit(embed=embeds[pag])
-                elif str(reaction.emoji) == "◀️" and pag != 0:
-                    pag -= 1
-                    await message.edit(embed=embeds[pag])
-                try:
-                    await message.remove_reaction(reaction, user)
-                except:
-                    pass
-            except asyncio.TimeoutError:
-                await message.remove_reaction("◀️", client.user)
-                await message.remove_reaction("▶️", client.user)
-                break
