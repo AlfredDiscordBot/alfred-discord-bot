@@ -353,7 +353,7 @@ class Music(commands.Cog):
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if user.voice and user.voice.channel:
             if not str(ctx.guild.id) in self.queue_song:
-                queue_song[str(ctx.guild.id)] = []
+                self.queue_song[str(ctx.guild.id)] = []
             if not str(ctx.guild.id) in self.client.re[3]:
                 self.client.re[3][str(ctx.guild.id)] = 0
                 
@@ -385,7 +385,7 @@ class Music(commands.Cog):
                         thumbnail=self.client.user.avatar.url,
                     )
                     if type(ctx) != nextcord.message: 
-                        mess = await ctx.send(embed=embed)
+                        mess = await ctx.channel.send(embed=embed)
                         await self.player_pages(mess)
                     else:
                         await ef.isReaction(ctx,embed)
