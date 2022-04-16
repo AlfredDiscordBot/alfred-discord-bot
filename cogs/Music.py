@@ -6,6 +6,7 @@ import External_functions as ef
 import emoji
 import asyncio
 import traceback
+import urllib
 
 from nextcord.abc import GuildChannel
 from nextcord import Interaction, SlashOption, ChannelType
@@ -15,11 +16,12 @@ from random import choice
 #Use nextcord.slash_command() and commands.command()
 
 def requirements():
-    return ['dev_channel']
+    return ['dev_channel', 'FFMPEG_OPTIONS']
 
 class Music(commands.Cog):
-    def __init__(self, client, dev_channel):
+    def __init__(self, client, dev_channel, FFMPEG_OPTIONS):
         self.client = client
+        self.FFMPEG_OPTIONS = FFMPEG_OPTIONS
         self.re = self.client.re
         self.da = self.client.da
         self.da1 = self.client.da1
@@ -338,6 +340,144 @@ class Music(commands.Cog):
                 thumbnail=self.client.user.avatar.url,
             )
         )
+
+    @nextcord.slash_command(name="again", description="Repeat the song")
+    async def again_slash(self, inter):
+        await inter.response.defer()
+        await self.again(inter)
+        
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def again(self, ctx):
+        self.client.re[0]+=1
+        user = getattr(ctx, 'author', getattr(ctx, 'user', None))
+        if user.voice and user.voice.channel:
+            if not str(ctx.guild.id) in self.queue_song:
+                queue_song[str(ctx.guild.id)] = []
+            if not str(ctx.guild.id) in self.client.re[3]:
+                self.client.re[3][str(ctx.guild.id)] = 0
+                
+            if ctx.guild.voice_client == None:
+                voiceChannel = user.voice.channel
+                await voiceChannel.connect()
+            mem = []
+            try:
+                try:
+                    mem = [i.id for i in ctx.guild.voice_client.channel.members]    
+                except:
+                    mem = []
+                if mem.count(user.id) > 0:
+                    voice = ctx.guild.voice_client
+                    bitrate = "\nBitrate of the channel: " +str(voice.channel.bitrate // 1000)
+                    song = self.queue_song[str(ctx.guild.id)][self.re[3][str(ctx.guild.id)]]
+                    if song not in self.da1:
+                        self.da1[song] = ef.youtube_info(song)["title"]                
+                    URL = ef.youtube_download(ctx, song)
+                    voice.stop()
+                    voice.play(
+                        nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS),
+                        after=lambda e: self.repeat(ctx, voice),
+                    )
+                    embed=ef.cembed(
+                        title="Playing",
+                        description=self.da1[song] + bitrate,
+                        color=self.re[8],
+                        thumbnail=self.client.user.avatar.url,
+                    )
+                    if type(ctx) != nextcord.message: 
+                        mess = await ctx.send(embed=embed)
+                        await self.player_pages(mess)
+                    else:
+                        await ef.isReaction(ctx,embed)
+                else:
+                    emo = assets.Emotes(self.client)
+                    embed=ef.cembed(
+                        title="Permission denied",
+                        description=f"{emo.animated_wrong} Join the voice channel to play the song",
+                        color=self.re[8],
+                        thumbnail=self.client.user.avatar.url,
+                    )
+            except Exception as e:
+                channel = self.client.get_channel(self.dev_channel)
+                await ctx.channel.send(
+                    embed=ef.cembed(
+                        title="Error",
+                        description=str(e),
+                        color=self.re[8],
+                        thumbnail=self.client.user.avatar.url,
+                    )
+                )
+                await channel.send(
+                    embed=nextcord.Embed(
+                        title="Error in play function",
+                        description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
+                        color=nextcord.Color(value=self.re[8]),
+                    )
+                )
+
+    async def player_pages(self, mess):
+        await ef.player_reaction(mess)    
+        emojis = emoji.emojize(":upwards_button:"),emoji.emojize(":downwards_button:")
+        def check(reaction, user):
+            return (
+                user.id != self.client.user.id
+                and str(reaction.emoji) in emojis
+                and reaction.message.id == mess.id
+            )
+        page=self.re[3][str(mess.guild.id)]//10
+        while True:
+            songs = self.queue_song[str(mess.guild.id)]
+            try:
+                reaction, user = await self.client.wait_for("reaction_add", check = check, timeout=None)
+                if reaction.emoji == emojis[0] and page>0:
+                    page-=1
+                elif reaction.emoji == emojis[1] and page<=len(songs):
+                    page+=1
+                cu = page * 10
+                st = '\n'.join([f"{i}. {self.da1[songs[i]]}" for i in range(cu,cu+10) if len(songs)>i])
+                await mess.edit(
+                    embed=ef.cembed(
+                        title="Queue",
+                        description=st,
+                        color=self.re[8],
+                        footer='Amazing songs btw, keep going' if len(songs)!=0 else 'Use queue to add some songs'
+                    )
+                )
+                await reaction.remove(user)
+            except asyncio.TimeoutError:
+                await mess.clear_reactions()
+
+            
+    def repeat(self, ctx, voice):
+        songs = self.queue_song.get(str(ctx.guild.id),[])
+        if len(songs) == 0: return
+        index = self.re[3].get(str(ctx.guild.id),0)
+        if len(songs)<index:
+            index = 0
+            self.re[3][str(ctx.guild.id)]=index
+        song = songs[index]
+        if not song in self.da1.keys():
+            aa = str(urllib.request.urlopen(song).read().decode())
+            starting = aa.find("<title>") + len("<title>")
+            ending = aa.find("</title>")
+            self.da1[song] = (
+                aa[starting:ending]
+                .replace("&#39;", "'")
+                .replace(" - YouTube", "")
+                .replace("&amp;", "&")
+            )
+        time.sleep(1)
+        if self.re[7].get(ctx.guild.id,-1) == 1 and not voice.is_playing():
+            self.re[3][str(ctx.guild.id)] += 1
+            if self.re[3][str(ctx.guild.id)] >= len(self.queue_song[str(ctx.guild.id)]):
+                self.re[3][str(ctx.guild.id)] = 0
+        if self.client.re[2].get(ctx.guild.id,-1) == 1 or self.re[7].get(ctx.guild.id,-1) == 1:
+            if not voice.is_playing():
+                URL = ef.youtube_download(ctx, song)
+                voice.play(
+                    nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS),
+                    after=lambda e: self.repeat(ctx, voice),
+                )    
         
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
@@ -359,6 +499,14 @@ class Music(commands.Cog):
                 await reaction.remove(user)
                 reaction.message.author = user
                 await self.leave(reaction.message)
+        if reaction.emoji == "🔁":
+            if (
+                str(user) != str(self.client.user)
+                and reaction.message.author == self.client.user
+            ):
+                await reaction.remove(user)
+                reaction.message.author = user
+                await self.again(reaction.message)
 
                 
 def setup(client,**i):

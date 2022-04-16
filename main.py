@@ -1428,7 +1428,6 @@ async def queue(ctx, *, name=""):
             )
         )
 
-
 async def player_pages(mess):
     await player_reaction(mess)    
     emojis = emoji.emojize(":upwards_button:"),emoji.emojize(":downwards_button:")
@@ -1459,8 +1458,7 @@ async def player_pages(mess):
             )
             await reaction.remove(user)
         except asyncio.TimeoutError:
-            await mess.clear_reactions()
-            
+            await mess.clear_reactions()       
                 
                 
 
@@ -1728,87 +1726,6 @@ async def play(ctx, *, index):
                 color=nextcord.Color(value=re[8]),
             )
         )
-
-
-@client.command()
-@commands.check(check_command)
-async def again(ctx):
-    req()
-    if getattr(ctx, 'author', getattr(ctx, 'user', None)).voice and getattr(ctx, 'author', getattr(ctx, 'user', None)).voice.channel:
-        if not str(ctx.guild.id) in queue_song:
-            queue_song[str(ctx.guild.id)] = []
-        if not str(ctx.guild.id) in re[3]:
-            re[3][str(ctx.guild.id)] = 0
-            
-        if ctx.guild.voice_client == None:
-            channel = getattr(ctx, 'author', getattr(ctx, 'user', None)).voice.channel.id
-            vc_channel[str(ctx.guild.id)] = channel
-            voiceChannel = nextcord.utils.get(ctx.guild.voice_channels, id=channel)
-            await voiceChannel.connect()
-        mem = []
-        try:
-            try:
-                mem = [str(names) for names in getattr(ctx, 'voice_client', getattr(ctx.guild, 'voice_client', None)).channel.members]
-            except:
-                mem = []
-            if mem.count(str(getattr(ctx, 'author', getattr(ctx, 'user', None)))) > 0:
-                voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
-                bitrate = "\nBitrate of the channel: " + str(
-                    getattr(ctx, 'voice_client', getattr(ctx.guild, 'voice_client', None)).channel.bitrate // 1000
-                )
-                song = queue_song[str(ctx.guild.id)][re[3][str(ctx.guild.id)]]
-                if song not in da1:
-                    da1[song] = youtube_info(song)["title"]                
-                URL = youtube_download(ctx, song)
-                voice.stop()
-                voice.play(
-                    nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
-                    after=lambda e: repeat(ctx, voice),
-                )
-                embed=cembed(
-                        title="Playing",
-                        description=da1[song] + bitrate,
-                        color=re[8],
-                        thumbnail=client.user.avatar.url,
-                    )
-                if type(ctx) != nextcord.message: 
-                    mess = await ctx.send(embed=embed)
-                    await player_pages(mess)
-                else:
-                    await isReaction(ctx,embed)
-            else:
-                emo = assets.Emotes(client)
-                embed=cembed(
-                    title="Permission denied",
-                    description=f"{emo.animated_wrong} Join the voice channel to play the song",
-                    color=re[8],
-                    thumbnail=client.user.avatar.url,
-                )
-        except Exception as e:
-            channel = client.get_channel(dev_channel)
-            await ctx.channel.send(
-                embed=cembed(
-                    title="Error",
-                    description=str(e),
-                    color=re[8],
-                    thumbnail=client.user.avatar.url,
-                )
-            )
-            await channel.send(
-                embed=nextcord.Embed(
-                    title="Error in play function",
-                    description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
-                    color=nextcord.Color(value=re[8]),
-                )
-            )
-
-
-@client.slash_command(name="again", description="Repeat the song")
-async def again_slash(ctx):
-    req()
-    await ctx.response.defer()
-    await again(ctx)
-
 
 @client.slash_command(name="memes", description="Memes from Alfred yey")
 async def memes(ctx):
@@ -2112,15 +2029,7 @@ async def on_reaction_add(reaction, user):
                     await reaction.remove(user)
                     req()
                     reaction.message.author = user
-                    await resume(reaction.message)
-            if reaction.emoji == "🔁":
-                if (
-                    str(user) != str(client.user)
-                    and reaction.message.author == client.user
-                ):
-                    await reaction.remove(user)
-                    reaction.message.author = user
-                    await again(reaction.message)
+                    await resume(reaction.message)            
             if reaction.emoji == "⏭":
                 if (
                     str(user) != str(client.user)
