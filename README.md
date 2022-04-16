@@ -1,5 +1,5 @@
 # Discord_bot
-
+![Typing SVG](https://readme-typing-svg.herokuapp.com/?lines=Hi%20I%20am%20Alfred)
 ## All in One Discord bot
 
 It is so great to see that the bot crossed 70,000 users and 90 servers in the past few days, I would like to thank all developers and users of Alfred. 

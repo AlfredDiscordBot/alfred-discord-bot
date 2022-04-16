@@ -11,12 +11,16 @@ from random import choice
 #Use nextcord.slash_command()
 
 def requirements():
-    return []
+    return ["FFMPEG_OPTIONS"]
 
 class Games(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client, FFMPEG_OPTIONS):
         self.client = client
         self.re = self.client.re
+        self.FFMPEG_OPTIONS = FFMPEG_OPTIONS
+        self.da = self.client.da
+        self.da1 = self.client.da1
+        self.queue_song = self.client.queue_song
         self.choices = [
             emoji.emojize(":rock:"),
             emoji.emojize(":roll_of_paper:"),
@@ -116,6 +120,38 @@ class Games(commands.Cog):
                         color=nextcord.Color.red()
                     )
                 )
+
+    @nextcord.slash_command(name="guess",description="guess the song game")
+    async def guess(self, inter):
+        await inter.response.defer()
+        if not inter.user.voice:
+            await inter.send("Join a vc and then try again")
+            return
+        songs = self.da[432801163126243328]    
+        voice = inter.user.voice
+        if not inter.guild.voice_client:
+            await voice.channel.connect()    
+        voice = inter.guild.voice_client
+        voice.stop()
+        song = choice(songs)
+        URL = ef.youtube_download(inter, song)
+        voice.play(nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS))
+        await inter.send("Guess this Song, you have 30 seconds to tell")
+        try:
+            message = await self.client.wait_for("message",timeout=30,check=lambda m: m.author == inter.user and inter.channel == m.channel)
+            voice.stop()
+            if len(message.content)<3: 
+                await inter.send("Type more than 3 letters of the song")
+                return
+            if message.content.lower() in ["lyrics", "official", 'video']:
+                await inter.send(f"That's cheating, anyway that was {self.da1[song]}")
+                return
+            if message.content.lower() in self.da1[song].lower(): 
+                await inter.send(f"Correct that was {self.da1[song]}")
+            else:
+                await inter.send(f"Incorrect, that was {self.da1[song]}")
+        except asyncio.TimeoutError:
+            await inter.send(f"Time up, that was {self.da1[song]}")
         
 def setup(client,**i):
     client.add_cog(Games(client,**i))

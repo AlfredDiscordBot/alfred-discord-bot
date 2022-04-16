@@ -1616,38 +1616,6 @@ async def queue_slash(inter, song = "-"):
     if song == "-": song = ""
     await queue(inter, name = song)
 
-@client.slash_command(name="guess",description="guess the song game")
-async def guess(ctx):
-    await ctx.response.defer()
-    if not ctx.user.voice:
-        await ctx.send("Join a vc and then try again")
-        return
-    songs = da[432801163126243328]    
-    voice = ctx.user.voice
-    if not ctx.guild.voice_client:
-        await voice.channel.connect()    
-    voice = ctx.guild.voice_client
-    voice.stop()
-    song = random.choice(songs)
-    URL = youtube_download(ctx, song)
-    voice.play(nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-    await ctx.send("Guess this Song, you have 30 seconds to tell")
-    try:
-        message = await client.wait_for("message",timeout=30,check=lambda m: m.author == ctx.user and ctx.channel == m.channel)
-        voice.stop()
-        if len(message.content)<3: 
-            await ctx.send("Type more than 5 letters of the song")
-            return
-        if message.content.lower() in ["lyrics", "official", 'video']:
-            await ctx.send(f"That's cheating, anyway that was {da1[song]}")
-            return
-        if message.content.lower() in da1[song].lower(): 
-            await ctx.send(f"Correct that was {da1[song]}")
-        else:
-            await ctx.send(f"Incorrect, that was {da1[song]}")
-    except asyncio.TimeoutError:
-        await ctx.send(f"Time up, that was {da1[song]}")
-
     
 @client.command(aliases=["p"])
 @commands.check(check_command)
@@ -2306,6 +2274,7 @@ async def on_reaction_add(reaction, user):
 @client.event
 async def on_command_error(ctx, error):    
     channel = client.get_channel(dev_channel)
+    if error == nextcord.HTTPException: os.system("busybox reboot")
     err = ''.join(traceback.format_tb(error.__traceback__))
     if err == '': erro = str(error)
     print(error.with_traceback(error.__traceback__))

@@ -335,7 +335,7 @@ def main(client, re, mspace, dev_channel):
                             color=discord.Color(value=re[8]),
                         )
                     )
-        except:
+        except Exception as e:
             embed=ef.cembed(
                 title="Error in yml embed",
                 description=f"{traceback.format_exc()}",
@@ -343,7 +343,12 @@ def main(client, re, mspace, dev_channel):
                 footer="Reporting this to the developer"
             )
             await ctx.send(
-                embed=embed
+                embed=ef.cembed(
+                    title="Error",
+                    description=str(e),
+                    footer="Reporting to developers",
+                    color=re[8]
+                )
             )
             await client.get_channel(dev_channel).send(
                 embed=embed
