@@ -478,6 +478,11 @@ class Music(commands.Cog):
                     nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS),
                     after=lambda e: self.repeat(ctx, voice),
                 )    
+
+    @nextcord.slash_command(name = "lyrics", description = "Gets lyrics of a song")
+    async def lyrics_slash(self, inter, song):
+        await inter.response.defer()
+        await inter.send(embed=await ef.ly(song,self.re))
         
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
@@ -511,3 +516,4 @@ class Music(commands.Cog):
                 
 def setup(client,**i):
     client.add_cog(Music(client,**i))
+    

@@ -4,6 +4,8 @@ import time
 import helping_hand
 import External_functions as ef
 from nextcord.ext import commands, tasks
+from nextcord import Interaction, SlashOption, ChannelType
+from nextcord.abc import GuildChannel
 
 #Use nextcord.slash_command()
 
@@ -116,6 +118,29 @@ class Configuration(commands.Cog):
                     thumbnail=self.client.user.avatar.url
                 )
             )
+
+    @commands.command(aliases=['suicide'])
+    @commands.check(ef.check_command)
+    async def toggle_suicide(self, ctx):
+        if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
+            output=""
+            if ctx.guild.id in self.client.observer:
+                observer.remove(ctx.guild.id)
+                output="enabled"
+            else:
+                observer.append(ctx.guild.id)
+                output="disabled"
+            await ctx.reply(embed=ef.cembed(title="Done",description=f"I've {output} the suicide observer",color=self.re[8]))
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="Only an admin can toggle this setting",
+                    color=nextcord.Color.red()
+                )
+            )
+
+    
     @nextcord.slash_command(name="commands", description="Enable and Disable commands, only for admins")
     async def comm(self, inter, mode = ef.defa(choices=['enable','disable','show']), command = "-"):
         await inter.response.defer()
@@ -185,7 +210,42 @@ class Configuration(commands.Cog):
     async def auto(self, inter, command):
         autocomp_command = [i for i in self.command_list if command.lower() in i.lower()][:25]
         await inter.response.send_autocomplete(autocomp_command)
-            
+
+    @nextcord.slash_command(name = "welcome", description = "set welcome channel")
+    async def wel(self, inter, channel: GuildChannel = "-"):
+        await inter.response.defer()
+        if inter.user.guild_permissions.administrator:
+            if channel != "-":                
+                self.client.config['welcome'][inter.guild.id] = channel.id
+                await inter.send(
+                    embed=ef.cembed(
+                        title="Done",
+                        description=f"Set {channel.mention} for welcome and exit messages.",
+                        color=self.re[8],
+                        thumbnail=self.client.user.avatar.url
+                    )
+                )
+            else:
+                if self.client.config['welcome'].get(inter.guild.id):
+                    del self.client.config['welcome'][inter.guild.id]
+                await inter.send(
+                    embed=ef.cembed(
+                        title="Done",
+                        description="Removed welcome channel from config",
+                        color=self.re[8],
+                        thumbnail=self.client.user.avatar.url
+                    )
+                )
+        else:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description="You need to be an admin to do this",
+                    thumbnail = self.client.user.avatar.url,
+                    color=nextcord.Color.red()
+                )
+            )
+        
             
 
 def setup(client,**i):

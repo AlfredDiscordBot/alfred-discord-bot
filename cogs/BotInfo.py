@@ -4,6 +4,7 @@ import time
 import helping_hand
 import assets
 import External_functions as ef
+import helping_hand
 from nextcord.ext import commands, tasks
 
 #Use nextcord.slash_command()
@@ -99,6 +100,17 @@ class BotInfo(commands.Cog):
     @nextcord.slash_command("vote",description="Vote for Alfred in Bot Listing servers")
     async def vo(self, inter):
         await self.vote_alfred(inter)
+
+    @commands.command(aliases=['h'])
+    async def help(self, ctx):
+        self.client.re[0]+=1
+        test_help = helping_hand.help_him(ctx, self.client, self.re)
+        await assets.pa(ctx, test_help, start_from=0, restricted=True)
+    
+    @nextcord.slash_command(name="help", description="Help from Alfred")
+    async def help_slash(self, inter):    
+        await inter.response.defer()
+        await self.help(inter)
 
         
 def setup(client,**i):

@@ -300,9 +300,8 @@ def cembed(
         pass
         
     return embed
-
-
-def imdb_embed(movie,re):
+    
+def imdb_embed(movie="",re={8:5160}):
     """
     Returns details about a movie as an embed in discord
     Parameters include movies
@@ -311,21 +310,34 @@ def imdb_embed(movie,re):
         return cembed(
             title="Oops",
             description="You must enter a movie name",
-            color=discord.Color.from_rgb(255, 255, 255).value,
+            color=discord.Color.red(),
         )
     try:
         ia = imdb.IMDb()
         movie = ia.search_movie(movie)
         title = movie[0]["title"]
-        summary = ia.get_movie(movie[0].getID()).summary()
+        mov = ia.get_movie(movie[0].getID())
+        di = {
+            'Cast' : ', '.join([str(i) for i in mov['cast']][:5]),
+            'Director': mov['director'][0],
+            'writer': ', '.join([str(j) for j in mov['writer']]),
+            'Rating': ':star:'*int(mov['rating']),
+            'Genres': ', '.join(mov['genres']),
+            'Year' : mov['year']
+        }
+        plot = mov['plot'][0]
         image = movie[0]["full-size cover url"]
-        return cembed(
-            title=title,
-            description=summary[summary.find("=") + 5 :],
+        embed = cembed(
+            title=mov['title'],
+            description=plot,
             color=re[8],
-            picture=image,
+            image = image
         )
-    except:
+        for i in di:
+            embed.add_field(name=i, value=di[i], inline=True)
+        return embed
+    except Exception as e:
+        print(traceback.format_exc())
         return cembed(
             title="Oops",
             description="Something went wrong, check if the name is correct",
@@ -571,6 +583,8 @@ def remove_all(original,s):
     return original
 
 def safe_pfp(user):
+    if type(user) == discord.guild.Guild:
+        return user.icon.url if user.icon else None
     pfp = user.default_avatar.url
     if user.avatar:
         return user.avatar.url
@@ -788,9 +802,7 @@ def check_command(ctx):
     a = ctx.bot.config['commands']
     if a.get(str(ctx.command.name)):
         if ctx.guild.id in a[ctx.command.name]:
-            print("False")
             return False
-    print("True")
     return True
     
 

@@ -199,6 +199,9 @@ def load_from_file():
     client.da = da
     client.da1 = da1
     client.queue_song = queue_song
+    client.prefix_dict = prefix_dict
+    client.observer = observer
+    
     
 
 
@@ -593,27 +596,6 @@ async def remove_autoreact(ctx, channel: nextcord.TextChannel = None):
             color=re[8]
         )
     )
-
-@client.command(aliases=['suicide'])
-@commands.check(check_command)
-async def toggle_suicide(ctx):
-    if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
-        output=""
-        if ctx.guild.id in observer:
-            observer.remove(ctx.guild.id)
-            output="enabled"
-        else:
-            observer.append(ctx.guild.id)
-            output="disabled"
-        await ctx.reply(embed=cembed(title="Done",description=f"I've {output} the suicide observer",color=re[8]))
-    else:
-        await ctx.send(
-            embed=cembed(
-                title="Permission Denied",
-                description="Only an admin can toggle this setting",
-                color=re[8]
-            )
-        )
 
 @client.slash_command(name = "subscribe", description = "Subscribe to a youtube channel")
 async def sub_slash(ctx, channel: GuildChannel = None, url = None, message = ""):
@@ -1035,16 +1017,14 @@ async def docs(ctx, name):
 
 
 @client.slash_command(name="snipe", description="Get the last few deleted messages")
-async def snipe_slash(ctx, number):
+async def snipe_slash(inter, number = 50):
     req()
-    await snipe(ctx, number)
+    await snipe(inter, number)
 
 
 @client.command()
 @commands.check(check_command)
-async def snipe(ctx, number=None):
-    if not number:
-        number = 50
+async def snipe(ctx, number=50):
     number = int(number)
     if (
         getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator
@@ -1063,7 +1043,7 @@ async def snipe(ctx, number=None):
                         title="Snipe",
                         description=s,
                         color=re[8],
-                        thumbnail=ctx.guild.icon.url
+                        thumbnail=safe_pfp(ctx.guild)
                     )
                     embeds.append(embed)
                     s=""                        
@@ -1101,32 +1081,10 @@ async def on_message_delete(message):
                 (str(message.author), message.embeds[0], True)
             )
 
-@client.slash_command(name = "welcome", description = "set welcome channel")
-async def wel(ctx, channel: GuildChannel = defa(ChannelType.text)):
-    await ctx.response.defer()
-    if ctx.user.guild_permissions.administrator:
-        config['welcome'][ctx.guild.id] = channel.id
-        await ctx.send(
-            embed=cembed(
-                title="Done",
-                description=f"Set {channel.mention} for welcome and exit messages.",
-                color=re[8],
-                thumbnail=client.user.avatar.url
-            )
-        )
-    else:
-        await ctx.send(
-            embed=cembed(
-                title="Permissions Denied",
-                description="You need to be an admin to do this",
-                thumbnail = client.user.avatar.url,
-                color=discord.Color.red()
-            )
-        )
-
 @client.event
 async def on_member_join(member):
     print(member.guild)
+    print("Join")
     if member.guild.id in config['welcome']:
         channel = client.get_channel(config['welcome'][member.guild.id])
     else: return
@@ -2016,7 +1974,10 @@ async def on_reaction_add(reaction, user):
                     str(user) != str(client.user)
                     and reaction.message.author == client.user
                 ):
-                    await reaction.remove(user)
+                    try:
+                        await reaction.remove(user)
+                    except:
+                        pass
                     req()
                     reaction.message.author = user
                     await previous(reaction.message)            
@@ -2026,7 +1987,10 @@ async def on_reaction_add(reaction, user):
                     str(user) != str(client.user)
                     and reaction.message.author == client.user
                 ):
-                    await reaction.remove(user)
+                    try:
+                        await reaction.remove(user)
+                    except:
+                        pass
                     req()
                     reaction.message.author = user
                     await resume(reaction.message)            
@@ -2035,7 +1999,10 @@ async def on_reaction_add(reaction, user):
                     str(user) != str(client.user)
                     and reaction.message.author == client.user
                 ):
-                    await reaction.remove(user)
+                    try:
+                        await reaction.remove(user)
+                    except:
+                        pass
                     req()
                     reaction.message.author = user
                     await next(reaction.message)            
@@ -2043,7 +2010,10 @@ async def on_reaction_add(reaction, user):
                 reaction.emoji == emoji.emojize(":keycap_*:")
                 and reaction.message.author == client.user
             ):
-                await reaction.remove(user)
+                try:
+                    await reaction.remove(user)
+                except:
+                    pass
                 st= ""
                 index = re[3][str(ctx.guild.id)] 
                 songs = queue_song[str(ctx.guild.id)]
@@ -2327,11 +2297,6 @@ async def on_message(msg):
             )
         )
 
-@client.slash_command(name = "lyrics", description = "Gets a lyrics of a song")
-async def lyrics_slash(ctx, song):
-    await ctx.response.defer()
-    await ctx.send(embed=await ly(song,re))
-
 @client.slash_command(name="sealfred", description="Checks for behaviours like kicking out or banning regularly")
 async def SeCurity(ctx, log_channel: GuildChannel = "delete"):
     await ctx.response.defer()        
@@ -2515,22 +2480,11 @@ def load_all():
         if i.endswith(".py"):
             global report
             report+=load_extension(i[:-3])
-
-load_all()
+            
 client.remove_command("help")
-
-@client.command(aliases=['h'])
-async def help(ctx):
-    test_help = helping_hand.help_him(ctx, client, re)
-    await assets.pa(ctx, test_help, start_from=0, restricted=True)
-
-@client.slash_command(name="help", description="Help from Alfred")
-async def help_slash(ctx):
-    req()
-    await ctx.response.defer()
-    await help(ctx)
-    
+load_all()
 keep_alive()
+
 if os.getenv("dev-bot"):
     client.run(os.getenv("token_dev"))
 else:

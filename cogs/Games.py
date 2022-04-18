@@ -64,7 +64,11 @@ class Games(commands.Cog):
         while True:
             try:
                 r,u = await self.client.wait_for("reaction_add", timeout=600, check = check)
-                await r.remove(u)
+                
+                try:
+                    await r.remove(u)
+                except:
+                    pass
                 r = r.emoji                
                 alfred = choice(self.choices)
                 if r == self.exit:

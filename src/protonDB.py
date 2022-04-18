@@ -26,10 +26,10 @@ class Proton:
     async def report(self, id):
         report = await self.ef.get_async(f'https://protondb.max-p.me/games/{id}/reports',kind="json")        
         reports = []
-        for i in report[:3]:            
-            details  = f"{i['notes'] if i['notes'] else ''}\n\nCompatibility: {i['rating']}\nOperating System: {i['os']}\nGPU Driver: {i['gpuDriver']}\n Proton: {i['protonVersion']}\nSpecs: {i['specs']}\n"            
+        for i in report:            
+            details  = f"{i['notes'] if i['notes'] else ''}\n\nCompatibility: {i['rating']}\nOperating System: {i['os']}\nGPU Driver: {i['gpuDriver']}\n Proton: {i['protonVersion']}\nSpecs: {i['specs']}\n"    
             reports.append({
-                'title': str(id),
+                'title': str([j[1] for j in self.games if j[0]==id][0]),
                 'description': details,
                 'footer': self.ef.timestamp(int(i['timestamp'])),
                 'thumbnail': "https://live.mrf.io/statics/i/ps/www.muylinux.com/wp-content/uploads/2019/01/ProtonDB.png?width=1200&enable=upscale",
@@ -42,6 +42,7 @@ class Proton:
 
 def main(client, re):
     import nextcord as discord
+    import assets
     import External_functions as ef    
     from discord.ext import commands
     DB = Proton(ef)
@@ -67,7 +68,7 @@ def main(client, re):
                 embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url)
                 embeds.append(embed)
 
-            await ef.pa(ctx, embeds)
+            await assets.pa(ctx, embeds)
         else:
             li = await DB.search_game(text)
             length = len(li)

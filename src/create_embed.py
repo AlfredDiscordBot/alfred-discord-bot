@@ -483,6 +483,7 @@ def main(client, re, mspace, dev_channel):
                                         thumbnail=client.user.avatar.url
                                     )
                                 )
+                                continue
                             await channel.send(
                                 embed=embed_from_dict(di,ctx,client,re)
                             )
