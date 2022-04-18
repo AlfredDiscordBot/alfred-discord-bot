@@ -125,10 +125,10 @@ class Configuration(commands.Cog):
         if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
             output=""
             if ctx.guild.id in self.client.observer:
-                observer.remove(ctx.guild.id)
+                self.client.observer.remove(ctx.guild.id)
                 output="enabled"
             else:
-                observer.append(ctx.guild.id)
+                self.client.observer.append(ctx.guild.id)
                 output="disabled"
             await ctx.reply(embed=ef.cembed(title="Done",description=f"I've {output} the suicide observer",color=self.re[8]))
         else:

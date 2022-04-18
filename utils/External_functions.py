@@ -681,7 +681,6 @@ class Meaning:
             self.embeds.append(a)
         else:
             r = self.result
-            print(r[0])
             description=f"**Phonetics**: {r[0].get('phonetic')}\n"
             description+=f"**Part of speech**: {r[0]['meanings'][0].get('partOfSpeech')}"
             embed=cembed(
@@ -751,52 +750,6 @@ async def animals(client, ctx, color):
 
 def audit_check(log):
     latest = log[0]
-
-async def pa1(embeds, ctx, client, start_from=0, restricted = False):    
-    message = await ctx.send(embed=embeds[start_from])
-    if len(embeds) == 1: return
-    if type(ctx) == discord.Interaction:
-        message = await ctx.original_message()
-    pag = start_from
-    await message.add_reaction("◀️")
-    await message.add_reaction("▶️")    
-    
-
-    def check(reaction, user):
-        if not restricted:            
-            return (
-                user.id != client.user.id
-                and str(reaction.emoji) in ["◀️", "▶️"]
-                and reaction.message.id == message.id
-            )
-        else:
-            a = (
-                user.id != client.user.id
-                and str(reaction.emoji) in ["◀️", "▶️"]
-                and reaction.message.id == message.id
-                and user.id == getattr(ctx, 'author', getattr(ctx,'user',None)).id
-            )
-            return a
-
-    while True:
-        try:
-            reaction, user = await client.wait_for(
-                "reaction_add", timeout=720, check=check
-            )            
-            if str(reaction.emoji) == "▶️" and pag + 1 != len(embeds):
-                pag += 1
-                await message.edit(embed=embeds[pag])
-            elif str(reaction.emoji) == "◀️" and pag != 0:
-                pag -= 1
-                await message.edit(embed=embeds[pag])
-            try:
-                await message.remove_reaction(reaction, user)
-            except:
-                pass
-        except asyncio.TimeoutError:
-            await message.remove_reaction("◀️", client.user)
-            await message.remove_reaction("▶️", client.user)
-            break
 
 def check_command(ctx):
     a = ctx.bot.config['commands']
