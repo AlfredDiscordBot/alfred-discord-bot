@@ -328,7 +328,7 @@ class Configuration(commands.Cog):
             
     @commands.command()
     @commands.check(ef.check_command)
-    async def changeM(ctx, *, num):
+    async def changeM(self, ctx, *, num):
         if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in self.client.dev_users:
             num = int(num)
             if num == 1:
