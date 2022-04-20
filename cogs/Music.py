@@ -519,7 +519,7 @@ class Music(commands.Cog):
     @commands.check(ef.check_command)
     async def currentmusic(self, ctx):
         self.client.re[0]+=1
-        if len(queue_song[str(ctx.guild.id)]) > 0:
+        if len(self.client.queue_song[str(ctx.guild.id)]) > 0:
             songs = self.client.queue_song[str(ctx.guild.id)]
             index = self.client.re[3][str(ctx.guild.id)]
             description = f"[Current index: {index}]({songs[index]})\n"
@@ -532,7 +532,7 @@ class Music(commands.Cog):
                 + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n"
             )        
             embed=ef.cembed(
-                title=da1[songs][index],
+                title=self.client.da1[songs][index],
                 description=description,
                 color=self.client.re[8],
                 thumbnail=info["thumbnail"],

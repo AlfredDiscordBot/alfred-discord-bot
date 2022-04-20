@@ -253,7 +253,7 @@ class Configuration(commands.Cog):
         await self.subscribe(inter, channel = channel, url = url, message = message)
     
     @nextcord.slash_command(name = "unsubscribe", description = "remove a youtube channel from a textchannel")
-    async def unsub_slash(ctx, channel: GuildChannel = None, url = None):
+    async def unsub_slash(self, ctx, channel: GuildChannel = None, url = None):
         await ctx.response.defer()
         await self.unsubscribe(ctx, channel = channel, url = url)
     
@@ -375,7 +375,7 @@ class Configuration(commands.Cog):
                 embed=ef.cembed(
                     title="Permission",
                     description="You need admin permissions to do the security work, Ask your owner to execute this command for protection",
-                    color=discord.Color.red(),
+                    color=nextcord.Color.red(),
                     thumbnail=self.client.user.avatar.url
                 )
             )

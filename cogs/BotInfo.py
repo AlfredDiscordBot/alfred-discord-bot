@@ -3,6 +3,7 @@ import assets
 import time
 import helping_hand
 import assets
+import random
 import External_functions as ef
 import helping_hand
 from nextcord.ext import commands, tasks
@@ -119,7 +120,7 @@ class BotInfo(commands.Cog):
             embed = nextcord.Embed(
                 title="Hi!! I am Alfred.",
                 description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""",
-                color=nextcord.Color(value=re[8]),
+                color=nextcord.Color(value=self.client.re[8]),
             )
             embed.set_image(
                 url=random.choice(
