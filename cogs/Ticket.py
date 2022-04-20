@@ -38,7 +38,7 @@ class Ticket(commands.Cog):
             if msg != self.ticket[payload.guild_id][1]: return
             await ms.remove_reaction(payload.emoji, payload.member)
             mess = await channel.send(
-                embed=ef.cembed(description=f"Creating Ticket for {payload.member.name}", color=self.re[8])
+                embed=ef.cembed(description=f"Creating Ticket for {payload.member.name}", color=self.client.re[8])
             )
             
             th = await channel.create_thread(name = f"Ticket - {payload.member.name} {payload.member.id}", reason = f"Ticket - {payload.member.name}", auto_archive_duration = 60, message = mess)
@@ -49,7 +49,7 @@ class Ticket(commands.Cog):
     async def close_ticket(self, ctx):    
         if type(ctx.channel) != nextcord.Thread: return
         if ctx.channel.owner == self.client.user:
-            confirm = await ef.wait_for_confirm(ctx,self.client,"Do you want to close this ticket?", self.re[8])
+            confirm = await ef.wait_for_confirm(ctx,self.client,"Do you want to close this ticket?", self.client.re[8])
             if not confirm: return
             if not ctx.author.id == int(ctx.channel.name.split()[-1]):
                 if not ctx.author.guild_permissions.administrator:
@@ -66,7 +66,7 @@ class Ticket(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(
                     description="Deleting the ticket in 5 seconds",
-                    color=self.re[8]
+                    color=self.client.re[8]
                 )
             )
             await asyncio.sleep(5)
@@ -81,7 +81,7 @@ class Ticket(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description=f"{e.animated_wrong}You're not an admin to create a ticket message",
-                    color=self.re[8]
+                    color=self.client.re[8]
                 )
             )
             return
@@ -91,8 +91,8 @@ class Ticket(commands.Cog):
             embed=ef.cembed(
                 title="Ticket",
                 description=description,
-                color=self.re[8],
-                thumbnail=inter.guild.icon.url
+                color=self.client.re[8],
+                thumbnail=ef.safe_pfp(inter.guild)
             )
         )
         await message.add_reaction(emoji.emojize(":ticket:"))    

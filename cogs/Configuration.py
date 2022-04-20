@@ -2,6 +2,7 @@ import nextcord
 import assets
 import time
 import helping_hand
+import traceback
 import External_functions as ef
 from nextcord.ext import commands, tasks
 from nextcord import Interaction, SlashOption, ChannelType
@@ -36,7 +37,7 @@ class Configuration(commands.Cog):
             await ctx.send(embed=ef.cembed(
                 title="Done",
                 description=output,
-                color=self.re[8],
+                color=self.client.re[8],
                 thumbnail=self.client.user.avatar.url)
             )
         else:
@@ -106,7 +107,7 @@ class Configuration(commands.Cog):
             await ctx.send(embed=ef.cembed(
                 title="Enabled",
                 description=output,
-                color=self.re[8],
+                color=self.client.re[8],
                 thumbnail=self.client.user.avatar.url)
             )
         else:
@@ -130,7 +131,7 @@ class Configuration(commands.Cog):
             else:
                 self.client.observer.append(ctx.guild.id)
                 output="disabled"
-            await ctx.reply(embed=ef.cembed(title="Done",description=f"I've {output} the suicide observer",color=self.re[8]))
+            await ctx.reply(embed=ef.cembed(title="Done",description=f"I've {output} the suicide observer",color=self.client.re[8]))
         else:
             await ctx.send(
                 embed=ef.cembed(
@@ -167,7 +168,7 @@ class Configuration(commands.Cog):
                     embed=ef.cembed(
                         title="Done",
                         description=f"Enabled {command} in this server",
-                        color=self.re[8],
+                        color=self.client.re[8],
                         thumbnail=self.client.user.avatar.url
                     )
                 )
@@ -180,7 +181,7 @@ class Configuration(commands.Cog):
                     embed=ef.cembed(
                         title="Done",
                         description=f"Disabled {command} in this server",
-                        color=self.re[8],
+                        color=self.client.re[8],
                         thumbnail=self.client.user.avatar.url
                     )
                 )
@@ -201,7 +202,7 @@ class Configuration(commands.Cog):
                 embed=ef.cembed(
                     title="Commands",
                     description=enabled_commands+"\n\n"+disabled_commands,
-                    color=self.re[8],
+                    color=self.client.re[8],
                     thumbnail=self.client.user.avatar.url,
                     footer="Everything is enabled by default"
                 )
@@ -221,7 +222,7 @@ class Configuration(commands.Cog):
                     embed=ef.cembed(
                         title="Done",
                         description=f"Set {channel.mention} for welcome and exit messages.",
-                        color=self.re[8],
+                        color=self.client.re[8],
                         thumbnail=self.client.user.avatar.url
                     )
                 )
@@ -232,7 +233,7 @@ class Configuration(commands.Cog):
                     embed=ef.cembed(
                         title="Done",
                         description="Removed welcome channel from config",
-                        color=self.re[8],
+                        color=self.client.re[8],
                         thumbnail=self.client.user.avatar.url
                     )
                 )
@@ -245,6 +246,159 @@ class Configuration(commands.Cog):
                     color=nextcord.Color.red()
                 )
             )
+
+    @nextcord.slash_command(name = "subscribe", description = "Subscribe to a youtube channel")
+    async def sub_slash(self, inter, channel: GuildChannel = None, url = None, message = ""):
+        await inter.response.defer()
+        await self.subscribe(inter, channel = channel, url = url, message = message)
+    
+    @nextcord.slash_command(name = "unsubscribe", description = "remove a youtube channel from a textchannel")
+    async def unsub_slash(ctx, channel: GuildChannel = None, url = None):
+        await ctx.response.defer()
+        await self.unsubscribe(ctx, channel = channel, url = url)
+    
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def subscribe(self, ctx, channel: nextcord.TextChannel=None, url=None, *, message=""):
+        if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
+            if 'youtube' not in self.client.config: 
+                self.client.config['youtube']={}
+            if channel.id not in self.client.config['youtube']: 
+                self.client.config['youtube'][channel.id]=set()
+            if url is not None:
+                url = ef.check_end(url)
+                self.client.config['youtube'][channel.id].add((url,message))
+                await ctx.send(embed=ef.cembed(title="Done",description=f"Added {url} to the list and it'll be displayed in {channel.mention}",color=self.client.re[8],thumbnail=self.client.user.avatar.url))
+            else:
+                all_links = "\n".join([i[0] for i in self.client.config['youtube'][channel.id]])
+                await ctx.send(embed=ef.cembed(
+                    title="All youtube subscriptions in this channel",
+                    description=all_links,
+                    color=self.client.re[8],
+                    thumbnail = self.client.user.avatar.url
+                ))
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="Only an admin can set it",
+                    color=self.client.re[8],
+                    thumbnail=self.client.user.avatar.url
+                )
+            )
+    
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def unsubscribe(self, ctx, channel: nextcord.TextChannel=None, url=None):
+        if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
+            if 'youtube' not in self.client.config:
+                self.client.config['youtube']={}
+            if channel.id not in self.client.config['youtube']: 
+                self.client.config['youtube'][channel.id]=set()
+            if url is None:   
+                all_links = "\n".join([i[0] for i in self.client.config['youtube'][channel.id]])
+                await ctx.send(embed=ef.cembed(
+                    title="All youtube subscriptions in this channel",
+                    description=all_links,
+                    color=self.client.re[8],
+                    thumbnail = self.client.user.avatar.url
+                ))
+                return
+            try:
+                url = ef.check_end(url)
+                for u,m in self.client.config['youtube'][channel.id]:
+                    if u == url:
+                        self.client.config['youtube'][channel.id].remove((u,m))
+                        break   
+                
+                await ctx.send(embed=ef.cembed(title="Done", description=f"Removed {url} from the list", color=self.client.re[8], thumbnail=self.client.user.avatar.url))
+            except KeyError:
+                print(traceback.format_exc())
+                await ctx.reply(embed=ef.cembed(title="Hmm",description=f"The URL provided is not in {channel.name}'s subscriptions",color=self.client.re[8]))
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="Only an admin can remove subscriptions",
+                    color=self.client.re[8],
+                    thumbnail=self.client.user.avatar.url
+                )
+            )
+
+            
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def changeM(ctx, *, num):
+        if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in self.client.dev_users:
+            num = int(num)
+            if num == 1:
+                self.client.re[10] = 1
+                await ctx.send(
+                    embed=nextcord.Embed(
+                        title="Model change",
+                        description="Changed to blenderbot",
+                        color=nextcord.Color(value=self.client.re[8]),
+                    )
+                )
+            elif num == 2:
+                self.client.re[10] = 2
+                await ctx.send(
+                    embed=ef.cembed(
+                        title="Model change",
+                        description="Changed to dialo-gpt",
+                        color=self.client.re[8],
+                    )
+                )
+            else:    
+                await ctx.send(
+                    embed=ef.cembed(
+                        title="Model change",
+                        description="Bruh thats not a valid option",
+                        color=self.client.re[8],
+                    )
+                )
+    
+        else:
+            await ctx.send(
+                embed=nextcord.Embed(
+                    title="Model change",
+                    description="F off thout isn't un dev user",
+                    color=nextcord.Color(value=self.client.re[8]),
+                )
+            )
+
+    @nextcord.slash_command(name="sealfred", description="Checks for behaviours like kicking out or banning regularly")
+    async def SeCurity(self, inter, log_channel: GuildChannel = "delete"):
+        await inter.response.defer()        
+        if not inter.permissions.administrator:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permission",
+                    description="You need admin permissions to do the security work, Ask your owner to execute this command for protection",
+                    color=discord.Color.red(),
+                    thumbnail=self.client.user.avatar.url
+                )
+            )
+            return
+        if log_channel == 'delete':
+            if inter.guild.id in self.client.config['security']:
+                del self.client.config['security'][inter.guild.id]
+            await inter.send(
+                embed=ef.cembed(
+                    description="Removed SEAlfred from this server, this server is now left unprotected",
+                    color=self.client.re[8]
+                )
+            )
+            return
+        channel_id = log_channel.id    
+        self.client.config['security'][inter.guild.id] = channel_id
+        await inter.send(
+            embed=ef.cembed(
+                title="Done",
+                description=f"Set {log_channel.mention} as the log channel, all the updates will be pushed to this",
+                color=self.client.re[8]
+            )
+        )
         
             
 

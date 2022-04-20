@@ -112,6 +112,24 @@ class BotInfo(commands.Cog):
         await inter.response.defer()
         await self.help(inter)
 
+    @commands.Cog.listener()
+    async def on_message(self, msg):
+        if f"<@!{self.client.user.id}>" in msg.content:
+            prefi = self.client.prefix_dict.get(msg.guild.id if msg.guild is not None else None, "'")
+            embed = nextcord.Embed(
+                title="Hi!! I am Alfred.",
+                description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""",
+                color=nextcord.Color(value=re[8]),
+            )
+            embed.set_image(
+                url=random.choice(
+                    [                        "https://giffiles.alphacoders.com/205/205331.gif",
+                        "https://c.tenor.com/PQu-tE-5HxwAAAAd/michael-caine-the-dark-knight.gif",
+                    ]
+                )
+            )
+            await msg.channel.send(embed=embed)
+
         
 def setup(client,**i):
     client.add_cog(BotInfo(client,**i))
