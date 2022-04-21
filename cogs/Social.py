@@ -89,7 +89,7 @@ class Social(commands.Cog):
             em = ef.cembed(
                 title=t.decode().title(),
                 description=str(summary(t, sentences=5)),
-                color=nextcord.Color(value=re[8]),
+                color=nextcord.Color(value=self.client.re[8]),
                 thumbnail="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
             )
             embeds.append(em)
