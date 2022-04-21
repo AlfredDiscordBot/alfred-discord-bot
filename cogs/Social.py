@@ -40,7 +40,7 @@ class Social(commands.Cog):
     async def reddit_slash(self, inter, account="wholesomememes"):
         self.client.re[0]+=1
         await inter.response.defer()
-        await reddit_search(inter, account)
+        await self.reddit_search(inter, account)
     
     
     @commands.command(aliases=["reddit"])
@@ -61,7 +61,7 @@ class Social(commands.Cog):
                     ]
                 await assets.pa(ctx, embeds, start_from=0, restricted=False)
             else:
-                await ctx.send(embed=ef.cembed(title=a[0], color=re[8], description=a[1]))
+                await ctx.send(embed=ef.cembed(title=a[0], color=self.client.re[8], description=a[1]))
 
     @nextcord.slash_command(name="wikipedia", description="Get a topic from wikipedia")
     async def wiki_slash(self, inter, text):
@@ -86,7 +86,7 @@ class Social(commands.Cog):
             return
         for i in search(text):
             t = str(i.encode("utf-8"))
-            em = cembed(
+            em = ef.cembed(
                 title=t.decode().title(),
                 description=str(summary(t, sentences=5)),
                 color=nextcord.Color(value=re[8]),
