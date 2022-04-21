@@ -750,6 +750,9 @@ async def animals(client, ctx, color):
 
 def audit_check(log):
     latest = log[0]
+    che = log[:5]
+    action_list = all([True])
+    
 
 def check_command(ctx):
     a = ctx.bot.config['commands']
@@ -757,6 +760,19 @@ def check_command(ctx):
         if ctx.guild.id in a[ctx.command.name]:
             return False
     return True
+
+async def quo(color):
+    a = await get_async("https://api.quotable.io/random", kind="json")
+    footer = ', '.join(a['tags'])
+    description = a['content']
+    title = a['author']
+    return cembed(
+        title=title,
+        description=description,
+        footer=footer,
+        color=color
+    )
+    
     
 
 m_options = [

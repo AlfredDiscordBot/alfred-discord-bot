@@ -9,7 +9,6 @@ import requests
 import assets
 import traceback
 import urllib.parse
-from googlesearch import search
 import External_functions as ef
 from nextcord.ext import commands
 
@@ -283,15 +282,6 @@ def main(client, re):
                     color=discord.Color.red(),
                     thumbnail=client.user.avatar.url
                 )
-            )
-
-    @client.command(aliases = ['zoo','animals'])
-    @commands.check(ef.check_command)
-    async def animal(ctx):
-        embed=await ef.animals(client,ctx,re[8])
-        await ctx.send(embed=embed)
-        
-        
-    
+            ) 
     
                     

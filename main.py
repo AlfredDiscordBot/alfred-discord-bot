@@ -29,13 +29,11 @@ from GoogleNews import GoogleNews
 from dotenv import load_dotenv
 from math import *
 from statistics import *
-from wikipedia import search, summary
 from utils.Storage_facility import Variables
 from io import StringIO
 from contextlib import redirect_stdout
 from utils.External_functions import *
 import traceback
-import googlesearch
 import youtube_dl
 import re as regex
 import urllib.request
@@ -85,7 +83,8 @@ config = {
     'youtube': {},
     'welcome': {},
     'ticket' : {},
-    'security':{}
+    'security':{},
+    'commands':{}
     }
 da = {}
 errors = ["```arm"]
@@ -132,7 +131,6 @@ async def search_vid(name):
     pass
 
 def prefix_check(client, message):
-    save_to_file()
     return prefix_dict.get(message.guild.id if message.guild is not None else None, "'"),f"<@{client.user.id}> "
 
 
@@ -144,7 +142,7 @@ client = nextcord.ext.commands.Bot(
 
 def save_to_file():
     global dev_users
-    #print("save")
+    print("save")
     v = Variables("storage")
     v.pass_all(
         da = da,
@@ -284,6 +282,7 @@ async def on_ready():
 
 @tasks.loop(hours=4)
 async def send_file_loop():
+    save_to_file()
     await client.get_channel(941601738815860756).send(file=nextcord.File("storage.dat",filename="storage.dat"))
     
 @tasks.loop(minutes=30)
@@ -308,8 +307,7 @@ async def youtube_loop():
                 await client.get_channel(i).send(embed=cembed(title="New Video out", description=f"New Video from {j[0]}",url=a[0],color=re[8],thumbnail=client.get_channel(i).guild.icon.url))
                 await client.get_channel(i).send(a[0]+"\n"+message)
             except Exception as e:
-                await client.get_channel(dev_channel).send(embed=cembed(title="Error in youtube_loop",description=f"{str(e)}\nSomething is wrong with channel no. {i}",color=re[8]))            
-    save_to_file()
+                await client.get_channel(dev_channel).send(embed=cembed(title="Error in youtube_loop",description=f"{str(e)}\nSomething is wrong with channel no. {i}",color=re[8]))          
 
 
 @tasks.loop(minutes = 1)
@@ -732,38 +730,6 @@ async def pr_slash(ctx, text):
     req()
     await ctx.send(text)
 
-@client.slash_command(
-    name="reddit",
-    description="Gives you a random reddit post from the account you specify",
-)
-async def reddit_slash(inter, account="wholesomememes"):
-    req()
-    await inter.response.defer()
-    await reddit_search(inter, account)
-
-
-@client.command(aliases=["reddit"])
-@commands.check(check_command)
-async def reddit_search(ctx, account="wholesomememes", number=1):
-    req()
-    if number == 1:
-        embeds = []
-        a = await redd(account, number = 40, single=False)
-        if a[2]:
-            for i in a:
-                embeds += [
-                    cembed(
-                        description="**" + i[0] + "**",
-                        picture=i[1],
-                        color=re[8],
-                        thumbnail=client.user.avatar.url,
-                    )
-                ]
-            await assets.pa(ctx, embeds, start_from=0, restricted=False)
-        else:
-            await ctx.send(embed=cembed(title=a[0], color=re[8], description=a[1]))
-
-
 @client.command(aliases=["c"])
 @commands.check(check_command)
 async def cover_up(ctx):
@@ -771,7 +737,6 @@ async def cover_up(ctx):
     await asyncio.sleep(0.5)
     mess = await ctx.send(nextcord.utils.get(client.emojis, name="enrique"))
     await mess.delete()
-
 
 @client.command()
 @commands.check(check_command)
@@ -1525,7 +1490,6 @@ async def memes(ctx):
                 )
             )
     await ctx.send(choice(link_for_cats))
-    save_to_file()
 
 
 async def poll(ctx, Options = "", Question = "", image=""):
@@ -1574,7 +1538,7 @@ async def eval_slash(ctx,text):
 @commands.check(check_command)
 async def restart_program(ctx, text):
     if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in list(dev_users):
-        
+        save_to_file()        
         if len(client.voice_clients)>0:
             confirmation = await wait_for_confirm(
                 ctx, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8]                        
@@ -1587,8 +1551,7 @@ async def restart_program(ctx, text):
                 await voice.disconnect()
         except:
             pass
-        await client.change_presence(activity = nextcord.Activity(type = nextcord.ActivityType.listening, name= "Restart"))
-        save_to_file()
+        await client.change_presence(activity = nextcord.Activity(type = nextcord.ActivityType.listening, name= "Restart"))        
         print("Restart")
         await ctx.channel.send(
             embed=cembed(
@@ -1680,30 +1643,6 @@ async def resume(ctx):
         )
     await isReaction(ctx,embed)
 
-
-@client.slash_command(name="wikipedia", description="Get a topic from wikipedia")
-@commands.check(check_command)
-async def wiki_slash(ctx, text):
-    await ctx.response.defer()
-    await wikipedia(ctx, text = text)
-
-
-@client.command(aliases=["w"])
-@commands.check(check_command)
-async def wikipedia(ctx, *, text):
-    req()
-    embeds = []
-    for i in search(text):
-        t = str(i.encode("utf-8"))
-        em = cembed(
-            title=str(t).title(),
-            description=str(summary(t, sentences=5)),
-            color=nextcord.Color(value=re[8]),
-            thumbnail="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
-        )
-        embeds.append(em)
-    await assets.pa(ctx, embeds, start_from=0, restricted=False)
-
 @client.event
 async def on_message_edit(message_before, message_after):
     await client.process_commands(message_after)
@@ -1743,7 +1682,6 @@ async def on_reaction_add(reaction, user):
     ctx = reaction.message
     try:
         if not user.bot:
-            save_to_file()
             global Emoji_list           
             if reaction.emoji == "⏮":
                 if (
@@ -1854,7 +1792,7 @@ async def on_reaction_add(reaction, user):
                     reaction.message.author = user
                     await restart_program(reaction.message,re[1])
                 if reaction.emoji == '💾' and reaction.message.channel.id == channel.id:
-                    save_to_file()
+                    save_to_file()                    
                     await reaction.remove(user)
                 if reaction.emoji == emoji.emojize(":cross_mark:") and str(
                     reaction.message.channel.id
@@ -1928,10 +1866,18 @@ async def on_reaction_add(reaction, user):
 
 @client.event
 async def on_command_error(ctx, error):    
+    if type(error) == nextcord.ext.commands.errors.CheckFailure:
+        await ctx.send(
+            embed=cembed(
+                title="Disabled command",
+                description="This command has been disabled by your admin, please ask them to enable it to use this\n\nIf you're an admin and you want to enable this command, use `/commands <enable> <command_name>`",
+                color=client.re[8],
+                thumbnail=safe_pfp(ctx.author)
+            )
+        )       
+        return
     channel = client.get_channel(dev_channel)
     if error == nextcord.HTTPException: os.system("busybox reboot")
-    err = ''.join(traceback.format_tb(error.__traceback__))
-    if err == '': erro = str(error)
     print(error.with_traceback(error.__traceback__))
     if type(error) != nextcord.ext.commands.errors.CommandNotFound:
         await ctx.send(embed=ror.error(str(error)))
@@ -1939,7 +1885,6 @@ async def on_command_error(ctx, error):
 
 @client.event
 async def on_message(msg):
-    save_to_file()
     await client.process_commands(msg) 
     if (not msg.guild.id in observer) and (not msg.author.bot):
         try:

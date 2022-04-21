@@ -1,3 +1,4 @@
+import nextcord
 from External_functions import cembed, defa
 from assets import *
 
@@ -74,8 +75,7 @@ def effects_helper():
         default = 'cartoonify'
     )
 
-def help_him(ctx, client, re):
-
+def help_him(client, re):
     thumbnail = client.user.avatar.url
 
     Emoji_help = cembed(
@@ -85,23 +85,7 @@ def help_him(ctx, client, re):
         thumbnail=thumbnail,
         picture="https://copyrightalliance.org/wp-content/uploads/2017/07/emojis-cropped.png",
     )
-
-    instagram_help = cembed(
-        title="Instagram",
-        description="Yes, you heard that right, if you give instagram account as parameter, it'll give you the latest post from instagram\n\nEx: 'instagram econhacksbangalore",
-        color=re[8],
-        thumbnail=thumbnail,
-        picture="https://akm-img-a-in.tosshub.com/indiatoday/images/story/202106/photo-1611262588024-d12430b989_1200x768.jpeg?cKq2xcBMBm5eaadsXhYdeAAaFJXk5745&size=770:433",
-    )
-
-    reddit_help = cembed(
-        title="Reddit",
-        description="Alfred has reddit now, you can use the / command or 'reddit <account_name>",
-        color=re[8],
-        thumbnail=thumbnail,
-        picture="https://play-lh.googleusercontent.com/MDRjKWEIHO9cGiWt-tlvOGpAP3x14_89jwAT-nQTS6Fra-gxfakizwJ3NHBTClNGYK4",
-    )
-
+    
     wolfram_help = cembed(
         title="Wolfram",
         description="I've added a simple API of Wolfram in Alfred, you can use it through 'wolf <expression>",
@@ -173,14 +157,15 @@ def help_him(ctx, client, re):
         thumbnail="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903",
         picture=thumbnail,
         color=re[8],
-        footer="Have a great day"
+        footer="Have a great day | Best with slash command"
     )
     message_developer = cembed(
         title = "Message from the developers",
-        description = "**Alfred Verified**\n`Alfred is fully verified`, you can invite him using this [link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands) and you can join the [support server](https://discord.gg/XESZGvjDaT)\nUse the `'feedback` commands if you think something is wrong with the bot, and check the status of the bot to check if it's restarting or not\n\n**New Games available**\nTwo new games added to the bot\n- Rock Paper Scissor\n- Guess the song\n\nCheck it out using slash commands `rps` and `guess`\n\n**Moved to nextcord Fully**\nDiscord.py has died and we've decided that we should probably move to something better and updating. Nextcord is great for this as it's similar to Dpy\n\n**Enable and Disable commands**\nNow you can choose to keep or remove a command from your server, use the slash command `/command`, still in Beta stage, but it should do ",
+        description = "**New Games available**\nTwo new games added to the bot\n- Rock Paper Scissor\n- Guess the song\n\nCheck it out using slash commands `rps` and `guess`\n\n**Moved to nextcord Fully**\nDiscord.py has died and we've decided that we should probably move to something better and updating. Nextcord is great for this as it's similar to Dpy\n\n**Enable and Disable commands**\nNow you can choose to keep or remove a command from your server, use the slash command `/command`\n\n**Wikipedia, only for NSFW**\nI just found out that Wikipedia could be used in a wrong way, Wikipedia will only work in NSFW channels\n\n**Removed Legacy embed system**\nRemember those commands, 'set_title, 'set_color, some may probably not, found out that no one really used it, everyone used msetup or yml_embed, so we decided to remove it",
         color=re[8],
         thumbnail=thumbnail,
-        picture = "https://raw.githubusercontent.com/nextcord/nextcord/master/assets/repo-banner.png"
+        picture = "https://raw.githubusercontent.com/nextcord/nextcord/master/assets/repo-banner.png",
+        footer=f"Powered by Nextcord {nextcord.__version__}"
     )
     effects_help = cembed(
         title="Effects",
@@ -196,9 +181,21 @@ def help_him(ctx, client, re):
     thumbnail=client.get_guild(841026124174983188).icon.url,
         color=re[8]
     )
+    social_help=cembed(
+        title="Socials",
+        description="`'reddit <account>` for reddit posts\n`'instagram <account>` for 7 latest instagram postst\n`'quote` gives a random quote\n`'mehspace @mention` will give a person's mehspace\n`/subscribe` command for subscribing to a channel\n`/unsubscribe` command to unsubscribe from a channel\n\nIf you need to learn to setup mehspace, go to  the `Yaml help page`",
+        color=re[8],
+        image="https://media.smallbiztrends.com/2022/01/social-audio.png"
+    )
         
 
-    return [first_page, github_help, message_developer, csv_help, effects_help, music_help, mod_help, yaml_help, reddit_help, wolfram_help, code_help, Emoji_help, prefix_help, youtube_help, instagram_help]
+    all_embeds = [first_page, github_help, message_developer, csv_help, effects_help, music_help, mod_help, yaml_help, code_help, wolfram_help, Emoji_help, social_help]
+    new_embeds = []
+    for i in all_embeds:
+        i.set_author(name=client.user.name, icon_url=client.user.avatar.url)
+        new_embeds.append(i)
+
+    return new_embeds
 
 neofetch="""
   *(&@&&%%##%%&%                                                .%&%###%%&&&%/, 

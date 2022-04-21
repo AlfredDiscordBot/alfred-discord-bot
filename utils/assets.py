@@ -58,7 +58,7 @@ class Pages(nextcord.ui.View):
         self.page = start_from
         self.user = getattr(ctx, 'user', getattr(ctx,'author',None))
         
-    @nextcord.ui.button(label="Previous",style=nextcord.ButtonStyle.red)
+    @nextcord.ui.button(label="<",style=nextcord.ButtonStyle.red)
     async def previous(self, button, inter):
         if self.restricted:
             if not self.user == inter.user:
@@ -67,7 +67,7 @@ class Pages(nextcord.ui.View):
             self.page-=1
         await inter.response.edit_message(embed=self.embeds[self.page])
 
-    @nextcord.ui.button(label="Next",style=nextcord.ButtonStyle.red)
+    @nextcord.ui.button(label=">",style=nextcord.ButtonStyle.red)
     async def next(self, button, inter):
         if self.restricted:
             if not self.user == inter.user:
@@ -78,10 +78,13 @@ class Pages(nextcord.ui.View):
         await inter.response.edit_message(embed=self.embeds[self.page])
 
 async def pa(ctx, embeds, restricted = False, start_from = 0):
-    await ctx.send(
-        embed = embeds[start_from],
-        view = Pages(ctx, embeds, restricted, start_from)
-    )
+    if len(embeds)>1:
+        await ctx.send(
+            embed = embeds[start_from],
+            view = Pages(ctx, embeds, restricted, start_from)
+        )
+    else:
+        await ctx.send(embed=embeds[0])
 
 class Emotes:
     def __init__(self, client):

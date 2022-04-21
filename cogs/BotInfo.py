@@ -1,6 +1,7 @@
 import nextcord
 import assets
 import time
+import traceback
 import helping_hand
 import assets
 import random
@@ -19,6 +20,8 @@ class BotInfo(commands.Cog):
         self.start_time = start_time
         self.re = self.client.re
         self.dev_channel = dev_channel
+        self.embe = []
+        self.index = []
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -103,15 +106,46 @@ class BotInfo(commands.Cog):
         await self.vote_alfred(inter)
 
     @commands.command(aliases=['h'])
-    async def help(self, ctx):
+    async def help(self, ctx, text = "unique stuff"):
         self.client.re[0]+=1
-        test_help = helping_hand.help_him(ctx, self.client, self.re)
-        await assets.pa(ctx, test_help, start_from=0, restricted=True)
+        try:
+            if self.embe == []:
+                self.embe = helping_hand.help_him(self.client, self.client.re)
+                new_embed = ef.cembed(
+                    title='Index',
+                    description="Type `help <section>` to get to the help page\n```diff\n"+"\n+ ".join([i.title for i in self.embe])+"\n```",
+                    color=self.client.re[8]
+                )
+                self.embe.insert(1, new_embed)
+                self.index = [i.title for i in self.embe]
+            if text in self.index:
+                n  = self.index.index(text)
+                await assets.pa(ctx,[self.embe[n]],restricted=True)
+            else:
+                n = 0
+                await assets.pa(ctx, self.embe, start_from=n, restricted=True)
+        except:
+            print(traceback.format_exc())
     
     @nextcord.slash_command(name="help", description="Help from Alfred")
-    async def help_slash(self, inter):    
-        await inter.response.defer()
-        await self.help(inter)
+    async def help_slash(self, inter, text = "unique stuff"):    
+        await inter.response.defer()        
+        await self.help(inter, text = text)
+
+    @help_slash.on_autocomplete("text")
+    async def auto_com(self, inter, text):
+        if self.embe == []:
+            self.embe = helping_hand.help_him(self.client, self.client.re)
+            new_embed = ef.cembed(
+                title='Index',
+                description="Type `help <section>` to get to the help page\n```diff\n"+"\n+ ".join([i.title for i in self.embe])+"\n```",
+                color=self.client.re[8],
+                thumbnail=self.client.user.avatar.url
+            )
+            self.embe.insert(1, new_embed)
+            self.index = [i.title for i in self.embe]
+        autocomp_help = [i for i in self.index if text.lower() in i.lower()][:25]
+        await inter.response.send_autocomplete(autocomp_help)
 
     @commands.Cog.listener()
     async def on_message(self, msg):
@@ -124,7 +158,8 @@ class BotInfo(commands.Cog):
             )
             embed.set_image(
                 url=random.choice(
-                    [                        "https://giffiles.alphacoders.com/205/205331.gif",
+                    [                        
+                        "https://giffiles.alphacoders.com/205/205331.gif",
                         "https://c.tenor.com/PQu-tE-5HxwAAAAd/michael-caine-the-dark-knight.gif",
                     ]
                 )

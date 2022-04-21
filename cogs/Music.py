@@ -384,7 +384,8 @@ class Music(commands.Cog):
                         color=self.client.re[8],
                         thumbnail=self.client.user.avatar.url,
                     )
-                    if type(ctx) != nextcord.message: 
+                    print(type(ctx))
+                    if type(ctx) != nextcord.Message: 
                         mess = await ctx.channel.send(embed=embed)
                         await self.player_pages(mess)
                     else:
@@ -532,7 +533,7 @@ class Music(commands.Cog):
                 + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n"
             )        
             embed=ef.cembed(
-                title=self.client.da1[songs][index],
+                title=self.client.da1[songs[index]],
                 description=description,
                 color=self.client.re[8],
                 thumbnail=info["thumbnail"],

@@ -79,12 +79,6 @@ class EmbedInfo:
 
         self.color = discord.Color.from_rgb(*color)
 
-    def set_color(self, color: tuple) -> None:
-        """
-        Set's the color for the embed
-        """
-        self.color = discord.Color.from_rgb(*color)
-
     def set_thumbnail(self, url: str) -> None:
         """
         Set's the url for the thumbnail of the embed.
@@ -284,25 +278,6 @@ def main(client, re, mspace, dev_channel):
             description=description,
             color=discord.Color(value=re[8]),
         )
-    
-
-        
-    @client.command(aliases=["init_embed", "embed_init"])
-    @commands.check(ef.check_command)
-    async def create_embed_init(ctx):
-        re[0] += 1
-        if (
-            ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == SUPER_AUTHOR_ID
-        ):
-            # embeds.pop(ctx.guild.id)
-            embeds[ctx.guild.id] = EmbedInfo()
-
-            await ctx.send(
-                embed=quick_embed(
-                    "Embed initialization complete"
-                )  # add embeds[ctx.guild.id] in description for debugging
-            )
 
     @client.command(aliases=["yml_embed"])
     @commands.check(ef.check_command)
@@ -359,8 +334,8 @@ def main(client, re, mspace, dev_channel):
     @commands.check(ef.check_command)
     async def myspace(ctx, member :discord.Member = None):
         if not member:
-            if ctx.author.id in mspace: 
-                await embed_using_yaml(ctx, channel = ctx.channel, yaml = mspace[ctx.author.id])
+            if ctx.author.id in client.mspace: 
+                await embed_using_yaml(ctx, channel = ctx.channel, yaml = client.mspace[ctx.author.id])
                 return
             
             else:
@@ -374,8 +349,8 @@ def main(client, re, mspace, dev_channel):
                     )
                 )
             return
-        if member.id in mspace:
-            await embed_using_yaml(ctx,channel=ctx.channel,yaml=mspace[member.id])
+        if member.id in client.mspace:
+            await embed_using_yaml(ctx,channel=ctx.channel,yaml=client.mspace[member.id])
             return
         
 
@@ -444,7 +419,7 @@ def main(client, re, mspace, dev_channel):
                 a = await embed_using_yaml(ctx,channel = ctx.channel, yaml = yml)
                 #ctx, client, message, color=61620,usr=None
                 confirm = await ef.wait_for_confirm(ctx,client,"Do you want to use this as your profile?",color=re[8],usr=ctx.author)
-                if confirm and not a: mspace[ctx.author.id]=yml
+                if confirm and not a: client.mspace[ctx.author.id]=yml
             except Exception as e:
                 await ctx.send(
                     embed=ef.cembed(
@@ -457,7 +432,7 @@ def main(client, re, mspace, dev_channel):
         else:
             di = {}
             setup_value = None
-            await ctx.send(
+            mai = await ctx.send(
                 embed=ef.cembed(
                     description=f"Settings up MehSpace. You can choose from:\n"+'\n'.join(ef.m_options)+"\nType done or cancel to finish this\nsend #channel will send it to the channel",
                     color=re[8],
@@ -489,8 +464,8 @@ def main(client, re, mspace, dev_channel):
                             )
                         continue
                     if msg.lower() == "import":
-                        if mspace.get(message.author.id):
-                            di = safe_load('\n'.join([i for i in mspace[ctx.author.id].split("\n") if not i.startswith("```")]))
+                        if client.mspace.get(message.author.id):
+                            di = safe_load('\n'.join([i for i in client.mspace[ctx.author.id].split("\n") if not i.startswith("```")]))
                             await emb.edit(
                                 embed=embed_from_dict(di,ctx,client,re)
                             )
@@ -528,7 +503,7 @@ def main(client, re, mspace, dev_channel):
                                 confirm = await ef.wait_for_confirm(ctx,client,"Do you want to use this as your profile?",color=re[8],usr=ctx.author)
                                 if confirm:
                                     s = "```yml\n"+safe_dump(di)+"\n```"
-                                    mspace[ctx.author.id] = s
+                                    client.mspace[ctx.author.id] = s
                                     te = await ctx.send("Finished Setting up mehspace")
                                     await asyncio.sleep(5)
                                     await te.delete()
@@ -544,13 +519,16 @@ def main(client, re, mspace, dev_channel):
                         await emb.edit(
                             embed=embed_from_dict(di,ctx,client,re)
                         )                        
-                    await message.delete()  
+                    try:
+                        await message.delete()  
+                    except:
+                        await mai.edit("Insufficient Permissions, you can continue, but the bot can't delete the message, which could potentially over crowd the chat, Keep an eye on the edits")
                 except asyncio.TimeoutError:
                     await ctx.send(
                         embed=ef.cembed(
                             title="Timeout",
                             description="Sorry Discord will kill me if i wait longer",
-                            color=re[8],
+                            color=client.re[8],
                             thumbnail=client.user.avatar.url
                         )
                     )
@@ -560,7 +538,10 @@ def main(client, re, mspace, dev_channel):
                     await ctx.send(
                         embed=__import__("error").error(str(e)+causes)
                     )
-                    di.pop(setup_value)
+                    try:
+                        di.pop(setup_value)
+                    except:
+                        pass
                     await client.get_channel(dev_channel).send(
                         embed=ef.cembed(
                             title="Error in mehsetup new",
@@ -570,147 +551,3 @@ def main(client, re, mspace, dev_channel):
                         )
                     )
                     
-
-    @client.command(aliases=["emd"])
-    @commands.check(ef.check_command)
-    async def embed_it(ctx, *, string: str):
-        """
-        Uses the new custom class and makes embed out of it, does the same thing as `embed_it()`
-        """
-        if (
-            ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == SUPER_AUTHOR_ID
-        ):
-            try:
-                re[0] += 1
-                embeds[ctx.guild.id] = EmbedInfo.from_md(string)
-
-                await ctx.send(embed=quick_embed("Done"))
-            except Exception as e:
-                await ctx.send(str(e))
-
-    @client.command(aliases=["color_for_embed"])
-    @commands.check(ef.check_command)
-    async def set_color(ctx, color):
-        if (
-            ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == SUPER_AUTHOR_ID
-        ):
-            try:
-                c = [int(i) for i in color.replace(")", "").replace("(", "").split(",")]
-                re[0] += 1
-                if ctx.guild.id not in embeds:
-                    create_embed_init(ctx)
-                print(c, type(c))
-                embeds[ctx.guild.id].set_color(*c)
-                await ctx.send(embed=quick_embed("Color Set to " + str(c)))
-            except Exception as e:
-                await ctx.send(str(e))
-
-    @client.command(aliases=["title"])
-    @commands.check(ef.check_command)
-    async def set_title(ctx, *, title: str):
-        if (
-            ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == SUPER_AUTHOR_ID
-        ):
-            if not embeds.get(ctx.guild.id, False):
-                embeds[ctx.guild.id] = EmbedInfo()
-
-            embeds[ctx.guild.id].title = title
-            re[0] += 1
-            await ctx.send(embed=quick_embed("Title Set to " + title))
-
-    @client.command(aliases=["description"])
-    @commands.check(ef.check_command)
-    async def set_description(ctx, *, description: str):
-        if (
-            ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == SUPER_AUTHOR_ID
-        ):
-            if not embeds.get(ctx.guild.id, False):
-                embeds[ctx.guild.id] = EmbedInfo()
-
-            embeds[ctx.guild.id].description = description
-            re[0] += 1
-            await ctx.send(
-                embed=quick_embed(
-                    "Description Set to "
-                    + (
-                        description
-                        if len(description) < 21
-                        else (description[:20] + "...")
-                    )
-                )
-            )
-
-    @client.command(aliases=["footer"])
-    @commands.check(ef.check_command)
-    async def set_footer(ctx, *, footer: str):
-        if (
-            ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == SUPER_AUTHOR_ID
-        ):
-            if not embeds.get(ctx.guild.id, False):
-                embeds[ctx.guild.id] = EmbedInfo()
-
-            embeds[ctx.guild.id].footer = footer
-            await ctx.send(embed=quick_embed("Footer Set to " + footer))
-
-    @client.command(aliases=["thumbnail"])
-    @commands.check(ef.check_command)
-    async def set_thumbnail(ctx, url: str):
-        if (
-            ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == SUPER_AUTHOR_ID
-        ):
-            if not embeds.get(ctx.guild.id, False):
-                embeds[ctx.guild.id] = EmbedInfo()
-
-            embeds[ctx.guild.id].set_thumbnail(url)
-            await ctx.send(embed=quick_embed("Thumbnail Set"))
-
-    @client.command(aliases=["image"])
-    @commands.check(ef.check_command)
-    async def set_image(ctx, url: str):
-        if (
-            ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == SUPER_AUTHOR_ID
-        ):
-            if not embeds.get(ctx.guild.id, False):
-                embeds[ctx.guild.id] = EmbedInfo()
-
-            embeds[ctx.guild.id].set_image(url)
-            await ctx.send(embed=quick_embed("Image Set"))
-
-    @client.command(aliases=["send"])
-    @commands.check(ef.check_command)
-    async def send_embed(ctx, channel: discord.TextChannel):
-        if (
-            ctx.author.guild_permissions.manage_messages
-            or ctx.author.id == SUPER_AUTHOR_ID
-        ):
-            if client.get_channel(channel.id) != None:
-                send_channel = client.get_channel(channel.id)
-                embed = discord.Embed()
-                embed.set_author(
-                    name=ctx.author.name,
-                    icon_url=ctx.author.avatar.url,
-                )
-                if ctx.guild.id in embeds and embeds.get(
-                    ctx.guild.id, None
-                ).attributes.get("description", False):
-                    try:
-                        embed = embed_from_info(embeds[ctx.guild.id])
-                    except Exception as e:
-                        await ctx.send(str(e))
-
-                await send_channel.send(embed=embed)
-            else:
-                await ctx.send(
-                    embed=discord.Embed(
-                        title="Oops",
-                        description="This channel does not exist. Please check again",
-                        color=discord.Color(value=re[8]),
-                    )
-                )

@@ -125,6 +125,12 @@ class Games(commands.Cog):
                     )
                 )
 
+    @commands.command(aliases = ['zoo','animals'])
+    @commands.check(ef.check_command)
+    async def animal(self,ctx):
+        embed=await ef.animals(self.client,ctx,self.client.re[8])
+        await ctx.send(embed=embed)
+
     @nextcord.slash_command(name="guess",description="guess the song game")
     async def guess(self, inter):
         await inter.response.defer()
