@@ -1,5 +1,5 @@
 import nextcord
-from External_functions import cembed, defa
+from External_functions import cembed, defa, safe_pfp
 from assets import *
 
 y = """
@@ -178,7 +178,7 @@ def help_him(client, re):
         title="CSVoyager",
         description="CS Voyager is a monthly newsletter which will keep you updated with the latest happenings around the globe in the field of Computer Science & will provide focused knowledge specifically designed for CS enthusiasts. Just like a person who goes on voyages, our newsletter is on its voyage & shall explore a different part of CS and this evolving Technology era & present them in front of the reader.\n\nUse the command `'csvoyager <edition number>` to read one of their articles and check out their [official website](https://csvoyager.vercel.app/) and [youtube channel](https://www.youtube.com/channel/UCGMSC8De3GQ5s8Ko1ZZ7W4w/featured)",
         image="https://yt3.ggpht.com//js0MzlkhEXw7UlTJ3AOTbZsXgRd3M7sfpgtRVPs_Y6d97q6cGTZyN7PVgecuoaL4Hgo5cY4FgA=w1060-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
-    thumbnail=client.get_guild(841026124174983188).icon.url,
+        thumbnail=safe_pfp(client.get_guild(841026124174983188)),
         color=re[8]
     )
     

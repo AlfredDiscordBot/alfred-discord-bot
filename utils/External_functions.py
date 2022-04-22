@@ -229,11 +229,10 @@ def instagram_get1(account, color, SESSIONID):
             thumb = user.profile_picture_url
             embed = cembed(
                 title="Instagram", color=color,
-                description=pos.caption,
-                footer=str(user.posts[number].comments) + " comments"
+                footer=str(user.posts[number].comments) + " comments",
+                image=user.posts[number].post_source,
+                thumbnail=thumb
             )
-            embed.set_image(url=user.posts[number].post_source)
-            embed.set_thumbnail(url=thumb)
             list_of_posts.append((embed, url))
             number += 1
         return list_of_posts
@@ -346,17 +345,38 @@ def imdb_embed(movie="",re={8:5160}):
             color=re[8],
         )
 
-async def redd(account="wholesomememes", number = 25, single=True):
+async def redd(ctx, account="wholesomememes", number = 25, single=True):
     a = await get_async(f"https://meme-api.herokuapp.com/gimme/{account}/{number}",kind="json")
-    l = []
-    if not "message" in a.keys():
-        for i in a["memes"]:
-            l.append((i["title"], i["url"]))
-        if single:
-            l = [random.choice(l)]
-        return l
-    else:
-        return [(a["code"], a["message"], False)]
+    embeds = []
+    if 'message' in a.keys():
+        return [cembed(
+            title="Oops",
+            description=a['message'],
+            color=ctx.bot.re[8]
+        )]
+    memes = a['memes']
+    for i in memes:
+        embed = cembed(
+            title=i['title'],
+            image=i['url'],
+            url=i['postLink'],
+            footer=i['author']+" | "+str(i['ups'])+" votes",
+            color=ctx.bot.re[8],
+            thumbnail=ctx.bot.user.avatar.url
+        )
+        if not ctx.channel.nsfw:
+            if i['nsfw']:
+                continue
+        embeds.append(embed)
+    if embeds == []:
+        embed = cembed(
+            title="Something seems wrong",
+            description="There are no posts in this accounts, or it may be `NSFW`",
+            color = ctx.bot.re[8]
+        )
+        embeds.append(embed)
+    return embeds
+        
 
 def protect(text):
     return (
@@ -585,6 +605,7 @@ def remove_all(original,s):
     return original
 
 def safe_pfp(user):
+    if user is None: return
     if type(user) == discord.guild.Guild:
         return user.icon.url if user.icon else None
     pfp = user.default_avatar.url

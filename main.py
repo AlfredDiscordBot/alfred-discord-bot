@@ -16,7 +16,7 @@ sys.path.insert(1,f"{os.getcwd()}/utils/")
 sys.path.insert(1,f"{os.getcwd()}/src")
 sys.path.insert(1,f"{os.getcwd()}/cogs")
 print("Booting up")
-temporary_fix()
+#temporary_fix()
 from keep_alive import keep_alive
 import string
 import nextcord
@@ -83,7 +83,8 @@ config = {
     'welcome': {},
     'ticket' : {},
     'security':{},
-    'commands':{}
+    'commands':{},
+    'reactions':{}
     }
 da = {}
 errors = ["```arm"]
@@ -557,56 +558,7 @@ async def svg2png_slash(ctx, url):
     await ctx.response.defer()
     img = svg2png(url)
     await ctx.send(file=nextcord.File(BytesIO(img), "svg.png"))
-
-@client.slash_command(name="instagram",description="get recnt instagram posts of the account")
-async def insta_slash(ctx, account):
-    await ctx.response.defer()
-    await instagram(ctx, account = account)
-
-@client.command(alias=['insta'])
-@commands.check(check_command)
-async def instagram(ctx, account):    
-    try:
-        links = instagram_get1(account, re[8], re[9])
-        if links == "User Not Found, please check the spelling":
-            await ctx.send(
-                embed=cembed(
-                    title="Hmm",
-                    description=links,
-                    color=re[8],
-                    thumbnail=client.user.avatar.url
-                )
-            )
-            return
-        if type(links) == str:
-            re[9]=links
-            links=instagram_get1(account, re[8], re[9])
-        embeds = []
-        for a in links:
-            if a is not None and type(a) != type("aa"):
-                embeds.append(a[0])
-            elif type(a) != type("aa"):
-                re[9] = links
-            else:                
-                await ctx.send(
-                    embed=nextcord.Embed(
-                        description="Oops!, something is wrong.",
-                        color=nextcord.Color(value=re[8]),
-                    )
-                )
-                break
-        await assets.pa(ctx, embeds, start_from=0, restricted=False)
-    except IndexError:
-        embed = cembed(
-            title="Error in instagram",
-            description=f"Sorry, we couldnt find posts in {account}, please check again if it's private or if {account} has posted anything",
-            color=re[8],
-            thumbnail=client.user.avatar.url,
-        )
-        await ctx.send(embed=embed)
-        await client.get_channel(dev_channel).send(embed=embed)
-
-
+    
 @client.command(aliases=["cw"])
 @commands.check(check_command)
 async def clear_webhooks(ctx):
@@ -672,9 +624,7 @@ async def load(ctx):
     req()
     try:
         cpu_per = str(int(psutil.cpu_percent()))
-        cpu_freq = (
-            str(int(psutil.cpu_freq().current)) + "/" + str(int(psutil.cpu_freq().max))
-        )
+        cpu_freq = str(int(psutil.cpu_freq().current))
         ram = str(psutil.virtual_memory().percent)
         swap = str(psutil.swap_memory().percent)
         usage = f"""
