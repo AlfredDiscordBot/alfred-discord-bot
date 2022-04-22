@@ -21,6 +21,7 @@ class Social(commands.Cog):
     def __init__(self, client, dev_channel):
         self.client = client
         self.dev_channel = dev_channel
+        self.link_for_cats = []
         
 
     @commands.command()
@@ -107,6 +108,32 @@ class Social(commands.Cog):
             embeds.append(em)
         await assets.pa(ctx, embeds, start_from=0, restricted=False)
 
+    @commands.command(aliases=["::"])
+    @commands.check(ef.check_command)
+    async def memes(self, ctx):
+        if len(self.link_for_cats) == 0:
+            try:            
+                print("Finished meme")
+                self.link_for_cats += await ef.memes1()
+                print("Finished meme1")
+                self.link_for_cats += await ef.memes2()
+                print("Finished meme2")
+                self.link_for_cats += await ef.memes3()
+                print("Finished meme3")
+                self.link_for_cats += await ef.memes4()
+                print("Finished meme4")
+            except Exception as e:
+                await ctx.channel.send(
+                    embed=ef.cembed(
+                        title="Meme issues",
+                        description="Something went wrong during importing memes\n"
+                        + str(e),
+                        color=self.client.re[8],
+                        thumbnail=self.client.user.avatar.url,
+                    )
+                )
+        await ctx.send(choice(self.link_for_cats))
+
     @nextcord.slash_command(name="instagram",description="get recent instagram posts of the account")
     async def insta_slash(self, ctx, account):
         await ctx.response.defer()
@@ -123,7 +150,7 @@ class Social(commands.Cog):
             )
             if links == "User Not Found, please check the spelling":
                 await ctx.send(
-                    embed=cembed(
+                    embed=ef.cembed(
                         title="Hmm",
                         description=links,
                         color=self.client.re[8],

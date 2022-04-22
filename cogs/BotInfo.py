@@ -106,7 +106,7 @@ class BotInfo(commands.Cog):
         await self.vote_alfred(inter)
 
     @commands.command(aliases=['h'])
-    async def help(self, ctx, text = "unique stuff"):
+    async def help(self, ctx, *,text = "unique stuff"):
         self.client.re[0]+=1
         try:
             if self.embe == []:

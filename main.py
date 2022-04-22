@@ -101,7 +101,6 @@ autor = {}
 SESSIONID = None
 color_message = None
 color_temp = ()
-link_for_cats = []
 vc_channel = {}
 wolfram = os.getenv("wolfram")
 prefix_dict = {}
@@ -1236,6 +1235,7 @@ async def dic(ctx, word):
 
 @client.slash_command(name = "play", description = "play a song, you can also put a song name in that")
 async def play_slash(inter, index):
+    await inter.response.defer()
     await play(inter, index = index)
 
 @client.slash_command(name = "queue", description = "play a song")
@@ -1390,35 +1390,7 @@ async def feedback(ctx, *, text):
 @client.slash_command(name = "feedback",description="Send a feedback to the developers")
 async def f_slash(ctx, text):
     await feedback(ctx, text=text)
-
-@client.command(aliases=["::"])
-@commands.check(check_command)
-async def memes(ctx):
-    global link_for_cats
-    if len(link_for_cats) == 0:
-        try:            
-            print("Finished meme")
-            link_for_cats += await memes1()
-            print("Finished meme1")
-            link_for_cats += await memes2()
-            print("Finished meme2")
-            link_for_cats += await memes3()
-            print("Finished meme3")
-            link_for_cats += await memes4()
-            print("Finished meme4")
-        except Exception as e:
-            await ctx.channel.send(
-                embed=cembed(
-                    title="Meme issues",
-                    description="Something went wrong during importing memes\n"
-                    + str(e),
-                    color=re[8],
-                    thumbnail=client.user.avatar.url,
-                )
-            )
-    await ctx.send(choice(link_for_cats))
-
-
+    
 async def poll(ctx, Options = "", Question = "", image=""):
     channel = ctx.channel
     text = Question+"\n\n"
