@@ -135,7 +135,7 @@ def help_him(client, re):
         description=f"You can use this to create embed, I can show you an example\n\n{y}",
         color=re[8],
         thumbnail=thumbnail,
-        picture="https://c.tenor.com/umLj0CwClUIAAAAd/gotham-knights-dc.gif"
+        picture="https://c.tenor.com/oHyLJOAYQBsAAAAC/gotham-knights-dc.gif"
     )
     mod_help = cembed(
         title="Moderation commands",
@@ -181,20 +181,27 @@ def help_him(client, re):
     thumbnail=client.get_guild(841026124174983188).icon.url,
         color=re[8]
     )
+    
     social_help=cembed(
         title="Socials",
         description="`'reddit <account>` for reddit posts\n`'instagram <account>` for 7 latest instagram postst\n`'quote` gives a random quote\n`'mehspace @mention` will give a person's mehspace\n`/subscribe` command for subscribing to a channel\n`/unsubscribe` command to unsubscribe from a channel\n\nIf you need to learn to setup mehspace, go to  the `Yaml help page`",
         color=re[8],
         image="https://media.smallbiztrends.com/2022/01/social-audio.png"
     )
+    games_help = cembed(
+        title="Games",
+        description="This is a new feature in Alfred.\nAlfred currently has two new games\n```diff\n+ RockPaperScissor\n+ Guess\n```\n\nNote that `Guess` is not written in the regular prefix command anymore as we're shifting to slash commands",
+        color=re[8],
+        footer="More games coming soon",
+        image="https://c.tenor.com/_yS6EXe8Tc0AAAAC/gotham-knights-dc.gif"
+    )
         
 
-    all_embeds = [first_page, github_help, message_developer, csv_help, effects_help, music_help, mod_help, yaml_help, code_help, wolfram_help, Emoji_help, social_help]
+    all_embeds = [first_page, github_help, message_developer, csv_help, effects_help, music_help, games_help, mod_help, yaml_help, code_help, wolfram_help, Emoji_help, social_help]
     new_embeds = []
     for i in all_embeds:
-        i.set_author(name=client.user.name, icon_url=client.user.avatar.url)
+        i.set_author(name = client.user.name, icon_url = client.user.avatar.url, url = "https://www.github.com/alvinbengeorge/alfred-discord-bot")
         new_embeds.append(i)
-
     return new_embeds
 
 neofetch="""

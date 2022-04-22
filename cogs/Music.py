@@ -150,7 +150,7 @@ class Music(commands.Cog):
         await self.leave(inter)
     
     
-    @commands.command(aliases=["dc"])
+    @commands.command(aliases=["dc","disconnect"])
     @commands.check(ef.check_command)
     async def leave(self, ctx):
         self.client.re[0]+=1

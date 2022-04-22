@@ -41,8 +41,7 @@ import ffmpeg
 import time
 import emoji
 import psutil
-import asyncio
-import cloudscraper
+import asyncio 
 import requests
 import aiohttp
 from io import BytesIO
@@ -348,12 +347,6 @@ async def wait_for_ready():
 async def wait_for_ready():
     await client.wait_until_ready()
 
-
-@client.command()
-@commands.check(check_command)
-async def imdb(ctx, *, movie):
-    await ctx.send(embed=imdb_embed(movie,re))
-
 @client.slash_command(name = "giveaway", description = "You can use this for giveaway")
 async def giveaway(ctx, donor:nextcord.User = None, required_role:nextcord.Role = " ", heading = "Giveaway", description = "Giveaway", emoj = emoji.emojize(":party_popper:"), image = "https://media.discordapp.net/attachments/960070023563603968/963041700996063282/standard_6.gif"):
     await ctx.response.defer()
@@ -498,22 +491,6 @@ async def remove_autoreact(ctx, channel: nextcord.TextChannel = None):
             color=re[8]
         )
     )
-
-@client.slash_command(name="imdb", description="Give a movie name")
-async def imdb_slash(ctx, movie):
-    await ctx.response.defer()
-    req()
-    try:
-        await ctx.send(embed=imdb_embed(movie,re))
-    except Exception as e:
-        await ctx.send(
-            embed=cembed(
-                title="Oops",
-                description=str(e),
-                color=re[8],
-                thumbnail=client.user.avatar.url,
-            )
-        )
 
 
 @client.slash_command(name="emoji", description="Get Emojis from other servers")
@@ -1170,7 +1147,7 @@ async def next(ctx):
     req()
     try:
         try:
-            mem = [str(names) for names in getattr(ctx, 'voice_client', getattr(ctx.guild, 'voice_client', None)).channel.members]
+            mem = [str(names) for names in ctx.guild.voice_client.channel.members]
         except:
             mem = []
         if mem.count(str(getattr(ctx, 'author', getattr(ctx, 'user', None)))) > 0:
@@ -1248,7 +1225,7 @@ async def previous(ctx):
     req()
     try:
         try:
-            mem = [str(names) for names in getattr(ctx, 'voice_client', getattr(ctx.guild, 'voice_client', None)).channel.members]
+            mem = [str(names) for names in ctx.guild.voice_client.channel.members]
         except:
             mem = []
         if mem.count(str(getattr(ctx, 'author', getattr(ctx, 'user', None)))) > 0:            
@@ -1901,10 +1878,7 @@ async def on_message(msg):
                     deathrate[msg.author.id]=0    
                 preds = await post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/classify", json=json) 
                 if preds["result"] == "Sucide":
-                    deathrate[msg.author.id]+=1
-                if deathrate[msg.author.id] >=10:
-                    await msg.reply(embed=suicide_m(client,re[8]))
-                    deathrate[msg.author.id] = 0
+                    await message.add_reaction()
         except Exception as e:
             pass
     
@@ -1994,8 +1968,7 @@ async def python_shell(ctx, *, text):
             pass
         await ctx.send(
             embed=nextcord.Embed(
-                title="Permission denied",
-                description="",
+                description="Permissions Denied",
                 color=nextcord.Color(value=re[8]),
             )
         )

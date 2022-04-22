@@ -63,11 +63,36 @@ class Social(commands.Cog):
             else:
                 await ctx.send(embed=ef.cembed(title=a[0], color=self.client.re[8], description=a[1]))
 
+    @nextcord.slash_command(name="imdb", description="Give a movie name")
+    async def imdb_slash(self, inter, movie):
+        await inter.response.defer()
+        try:
+            await inter.send(embed = ef.imdb_embed(movie, self.client.re))
+        except Exception as e:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Oops",
+                    description=str(e),
+                    color=self.client.re[8],
+                    thumbnail=self.client.user.avatar.url,
+                )
+            )
+
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def imdb(self, ctx, *, movie):
+        await ctx.send(embed=ef.imdb_embed(movie,self.client.re))
+
+    @commands.command(aliases = ['zoo','animals'])
+    @commands.check(ef.check_command)
+    async def animal(self,ctx):        
+        embeds=await ef.animals(self.client,ctx,self.client.re[8])
+        await assets.pa(ctx, embeds)
+
     @nextcord.slash_command(name="wikipedia", description="Get a topic from wikipedia")
     async def wiki_slash(self, inter, text):
         await inter.response.defer()
-        await self.wikipedia(inter, text = text)
-    
+        await self.wikipedia(inter, text = text)  
     
     @commands.command(aliases=["w"])
     @commands.check(ef.check_command)
