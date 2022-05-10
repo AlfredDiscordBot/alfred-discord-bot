@@ -1455,23 +1455,31 @@ async def restart_program(ctx, text):
 @client.command(aliases=["*"])
 @commands.check(check_command)
 async def change_nickname(ctx, member: nextcord.Member, *, nickname):
-    if (
-        getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.change_nickname
-        or getattr(ctx, 'author', getattr(ctx, 'user', None)).id == 432801163126243328
-    ):
-        await member.edit(nick=nickname)
-        await ctx.send(
-            embed=nextcord.Embed(
-                title="Nickname Changed",
-                description=(
-                    "Nickname changed to "
-                    + member.mention
-                    + " by "
-                    + getattr(ctx, 'author', getattr(ctx, 'user', None)).mention
-                ),
-                color=nextcord.Color(value=re[8]),
+    if (getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.change_nickname or getattr(ctx, 'author', getattr(ctx, 'user', None)).id == 432801163126243328):
+        if (getattr(ctx, 'author', getattr(ctx, 'user', None)).top_role.position > member.top_role.position):
+            await member.edit(nick=nickname)
+            await ctx.send(
+                embed=nextcord.Embed(
+                    title="Nickname Changed",
+                    description=(
+                        "Nickname changed to "
+                        + member.mention
+                        + " by "
+                        + getattr(ctx, 'author', getattr(ctx, 'user', None)).mention
+                    ),
+                    color=nextcord.Color(value=re[8]),
+                )
             )
-        )
+        else:
+            await ctx.send(
+                embed=nextcord.Embed(
+                    title="Permission Denied",
+                    description=(
+                        "You do not have the required permissions."
+                    ),
+                    color=nextcord.Color(value=re[8]),
+                )
+            )
     else:
         await ctx.send(
             embed=nextcord.Embed(
