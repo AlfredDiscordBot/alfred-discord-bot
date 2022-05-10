@@ -366,7 +366,7 @@ class Configuration(commands.Cog):
                     output = "Enabled Auto response, try saying `Alfred hello`"
                 else:
                     if inter.guild.id in self.client.observer:
-                        self.client.observer.remove(ctx.guild.id)
+                        self.client.observer.remove(inter.guild.id)
                         output="Enabled Suicide observer"
                 await inter.send(
                     embed=ef.cembed(

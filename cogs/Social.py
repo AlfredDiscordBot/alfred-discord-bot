@@ -141,7 +141,7 @@ class Social(commands.Cog):
     async def news_slash(self, inter, subject="Technology"):
         self.client.re[0]+=1  
         await inter.response.defer()
-        await news(ctx, subject)
+        await self.news(inter, subject)
     
     @commands.command()
     @commands.check(ef.check_command)

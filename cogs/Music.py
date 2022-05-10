@@ -598,7 +598,7 @@ class Music(commands.Cog):
                 await self.again(reaction.message)
         if reaction.emoji == "▶":
             if (
-                str(user) != str(client.user)
+                str(user) != str(self.client.user)
                 and reaction.message.author == self.client.user
             ):
                 try: await reaction.remove(user)
