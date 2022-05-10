@@ -1,4 +1,6 @@
 .env
+*.csv
+*.dat
 .safe.txt
 Files/
 .google-cookie
@@ -11,7 +13,7 @@ nohup.out
 __pycache__/
 .pytest_cache/
 venv/
-
+output.png
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
