@@ -63,3 +63,4 @@ wolframalpha==5.0.0
 xmltodict==0.12.0
 yarl==1.6.3
 youtube-dl==2021.12.17
+howdoi

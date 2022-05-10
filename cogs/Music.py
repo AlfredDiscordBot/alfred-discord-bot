@@ -468,16 +468,35 @@ class Music(commands.Cog):
     @commands.check(ef.check_command)
     async def stop(self, ctx):
         self.client.re[0]+=1
-        try:
-            mem = [str(names) for names in ctx.guild.voice_client.channel.members]
-        except:
-            mem = []
-        if mem.count(str(getattr(ctx, 'author', getattr(ctx, 'user', None))))>0:
+        if ef.check_voice(ctx):
             voice=nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
             voice.stop()
             await ctx.send(embed=ef.cembed(title="Stop", color=self.client.re[8]))
         else:
-            await ctx.send(embed=nextcord.Embed(title="Permission denied",description="Join the channel to resume the song",color=nextcord.Color(value=self.client.re[8])))
+            await ctx.send(embed=nextcord.Embed(title="Permission denied",description="Join the channel to stop the song",color=nextcord.Color(value=self.client.re[8])))
+
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def resume(self, ctx):
+        self.client.re[0]+=1
+        if ef.check_voice(ctx):
+            voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
+            voice.resume()
+            url = self.client.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
+            song_name = self.client.da1[url]
+            embed=nextcord.Embed(
+                title="Playing",
+                description=f"[{song_name}]({url})",
+                color=nextcord.Color(value=self.re[8]),
+            )
+    
+        else:
+            embed = ef.cembed(
+                title="Permissions Denied",
+                description="You need to be in the voice channel to resume this",
+                color=self.client.re[8]
+            )
+        await ef.isReaction(ctx,embed)
 
             
     def repeat(self, ctx, voice):
@@ -573,13 +592,58 @@ class Music(commands.Cog):
                 str(user) != str(self.client.user)
                 and reaction.message.author == self.client.user
             ):
-                await reaction.remove(user)
+                try: await reaction.remove(user)
+                except: pass
                 reaction.message.author = user
                 await self.again(reaction.message)
-                
+        if reaction.emoji == "▶":
+            if (
+                str(user) != str(client.user)
+                and reaction.message.author == self.client.user
+            ):
+                try: await reaction.remove(user)
+                except:pass
+                reaction.message.author = user
+                await self.resume(reaction.message)   
         if reaction.emoji == emoji.emojize(":musical_note:"):
             await self.currentmusic(reaction.message)    
             await reaction.remove(user)
+
+        if (
+            reaction.emoji == emoji.emojize(":keycap_*:")
+            and reaction.message.author == self.client.user
+        ):
+            ctx = reaction.message
+            try:
+                await reaction.remove(user)
+            except:
+                pass
+            st= ""
+            index = self.client.re[3][str(ctx.guild.id)] 
+            songs = self.client.queue_song[str(ctx.guild.id)]
+            lower = 0 if index - 10 < 0 else index - 10
+            higher = len(songs) if index+10>len(songs) else index+10
+            length = f"Length of queue: {len(songs)}\n"
+            if ctx.guild.voice_client:
+                bitrate = f"\n\nBitrate of the channel {reaction.message.guild.voice_client.channel.bitrate//1000}kbps\n"
+                latency = f"Latency: {int(reaction.message.guild.voice_client.latency*1000)}ms"
+            else:
+                bitrate = "Not Connected\n"
+                latency = ""
+            
+            
+            for i in range(lower,higher):
+                song = f"{i}. {self.client.da1[songs[i]]}"
+                if i == index: 
+                    song = f"*{song}*"
+                st = f"{st}{song}\n"
+            await reaction.message.edit(
+                embed=nextcord.Embed(
+                    title="Queue",
+                    description=st + bitrate + length + latency,
+                    color=nextcord.Color(value=self.client.re[8]),
+                )
+            )
 
                 
 def setup(client,**i):

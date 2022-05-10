@@ -86,11 +86,7 @@ class Configuration(commands.Cog):
                     color=self.client.re[8],
                 )
             )
-
-    @nextcord.slash_command('sniper', description='Toggle Snipe permissions')
-    async def snipr(self, inter):
-        await self.sniper(inter)
-
+            
     @commands.command(aliases=['response'])
     async def toggle_response(self, ctx):
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
@@ -325,6 +321,69 @@ class Configuration(commands.Cog):
                 )
             )
 
+    @nextcord.slash_command(name="config",description="Set your configuration")
+    async def config_slash(self, inter, mode = ef.defa(choices = ['enable', 'disable', 'show']), feature = ef.defa(choices = ['snipe','response','suicide_detector'])):
+        await inter.response.defer()        
+        if mode == "show":
+            embed = ef.cembed(
+                title="Features",
+                description="This shows all the extra features in alfred",
+                color=self.client.re[8],
+                thumbnail=ef.safe_pfp(inter.guild)
+            )
+            su = not inter.guild.id in self.client.observer
+            embed.add_field(name="Suicide detector", value=str(su))
+            rs = not inter.guild.id in self.client.config['respond']
+            embed.add_field(name="Auto Response", value=str(rs))
+            sn = not inter.guild.id in self.client.config['snipe']
+            if not sn: sn = "Only Admins"
+            else: sn = "All people"
+            embed.add_field(name="Snipe", value=sn)    
+            await inter.send(embed=embed)
+            return
+
+        if not inter.user.guild_permissions.administrator:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description="You need to be an admin to toggle settings",
+                    color=self.client.re[8],
+                    thumbnail=ef.safe_pfp(inter.guild)
+                )
+            )
+            return          
+
+        try:
+            if mode == "enable":
+                output=""
+                if feature == "snipe":
+                    if not inter.guild.id in self.client.config['snipe']:
+                        self.client.config['snipe'].append(inter.guild.id)
+                    output = "Only admins can use snipe command"
+                elif feature == "response":
+                    if inter.guild.id in self.client.config['respond']:
+                        self.client.config['respond'].remove(inter.guild.id)
+                    output = "Enabled Auto response, try saying `Alfred hello`"
+                else:
+                    if inter.guild.id in self.client.observer:
+                        self.client.observer.remove(ctx.guild.id)
+                        output="Enabled Suicide observer"
+                await inter.send(
+                    embed=ef.cembed(
+                        description=output,
+                        title="Done",
+                        color=self.client.re[8]
+                    )
+                )                    
+        except:
+            print(traceback.format_exc())
+
+        await inter.send("Coming soon")
+        return
+                    
+                        
+            
+            
             
     @commands.command()
     @commands.check(ef.check_command)

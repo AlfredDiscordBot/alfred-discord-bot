@@ -178,17 +178,6 @@ def main(client, re):
         embed.set_thumbnail(url="https://i.imgur.com/u1TPbIp.png?1")
         await ctx.send(embed=embed)
 
-
-    @client.command(aliases=["desktop"])
-    @commands.check(ef.check_command)
-    @commands.cooldown(1,10,commands.BucketType.user)
-    async def gs_stat(ctx):        
-        a = await ef.get_async("https://gs.statcounter.com/os-market-share/desktop/worldwide/")
-        start = a.find('og:image" content="')+len('og:image" content="')
-        end = a.find(".png",start)+len(".png")
-        url = a[start:end]
-        await ctx.send(embed=ef.cembed(title="Gs.statcounter Desktop OS",description="This contains the market share of desktop operating systems worldwide", color=re[8], thumbnail="https://pbs.twimg.com/profile_images/918460707787681792/fMVNRhz4_400x400.jpg",picture = url))
-
     @client.command()
     @commands.check(ef.check_command)
     async def csvoyager(ctx, edition = 0):

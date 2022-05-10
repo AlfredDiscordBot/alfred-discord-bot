@@ -16,8 +16,6 @@ def requirements():
 class Ticket(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.re = self.client.re
-        self.ticket = self.client.config['ticket']
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self,payload):
@@ -26,16 +24,17 @@ class Ticket(commands.Cog):
         if payload.member.bot: return    
         if payload.emoji.name == chr(127915):
             print("Check 1")
-            if payload.guild_id not in self.ticket: return
-            if not self.client.get_channel(self.ticket[payload.guild_id][0]):
-                del self.ticket[payload.guild_id]
+            if payload.guild_id not in self.client.config['ticket']:
                 return
-            if payload.channel_id != self.ticket[payload.guild_id][0]: return
+            if not self.client.get_channel(self.client.config['ticket'][payload.guild_id][0]):
+                del self.client.config['ticket'][payload.guild_id]
+                return
+            if payload.channel_id != self.client.config['ticket'][payload.guild_id][0]: return
             msg = payload.message_id
-            channel = self.client.get_channel(self.ticket[payload.guild_id][0])
+            channel = self.client.get_channel(self.client.config['ticket'][payload.guild_id][0])
             print(payload.emoji.name)
             ms = await channel.fetch_message(msg)
-            if msg != self.ticket[payload.guild_id][1]: return
+            if msg != self.client.config['ticket'][payload.guild_id][1]: return
             await ms.remove_reaction(payload.emoji, payload.member)
             mess = await channel.send(
                 embed=ef.cembed(description=f"Creating Ticket for {payload.member.name}", color=self.client.re[8])
@@ -96,7 +95,7 @@ class Ticket(commands.Cog):
             )
         )
         await message.add_reaction(emoji.emojize(":ticket:"))    
-        self.ticket[inter.guild.id] = (inter.channel.id, message.id)     
+        self.client.config['ticket'][inter.guild.id] = (inter.channel.id, message.id)     
 
 def setup(client,**i):
     client.add_cog(Ticket(client,**i))

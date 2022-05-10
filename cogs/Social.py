@@ -15,13 +15,14 @@ from random import choice
 from wikipedia import search, summary
 
 def requirements():
-    return ["dev_channel"]
+    return ["dev_channel","googlenews"]
 
 class Social(commands.Cog):
-    def __init__(self, client, dev_channel):
+    def __init__(self, client, dev_channel, googlenews):
         self.client = client
         self.dev_channel = dev_channel
         self.link_for_cats = []
+        self.googlenews = googlenews
         
 
     @commands.command()
@@ -35,14 +36,11 @@ class Social(commands.Cog):
         await inter.response.defer()
         await self.quote(inter)
 
-    @nextcord.slash_command(
-        name="reddit",
-        description="Gives you a random reddit post from the account you specify",
-    )
+    @nextcord.slash_command(name="reddit")
     async def reddit_slash(self, inter, account="wholesomememes", number=1):
         self.client.re[0]+=1
         await inter.response.defer()
-        await self.reddit_search(inter, account)
+        await self.reddit_search(inter, account, number)
     
     
     @commands.command(aliases=["reddit"])
@@ -100,7 +98,7 @@ class Social(commands.Cog):
         for i in search(text):
             t = str(i.encode("utf-8"))
             em = ef.cembed(
-                title=t.decode().title(),
+                title=str(t).title(),
                 description=str(summary(t, sentences=5)),
                 color=nextcord.Color(value=self.client.re[8]),
                 thumbnail="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
@@ -133,6 +131,35 @@ class Social(commands.Cog):
                     )
                 )
         await ctx.send(choice(self.link_for_cats))
+
+    @nextcord.slash_command(name="memes", description="Memes from Alfred yey")
+    async def memes_slash(self, inter):
+        await inter.response.defer()
+        await self.memes(inter)
+
+    @nextcord.slash_command(name="news", description="Latest news from a given subject")
+    async def news_slash(self, inter, subject="Technology"):
+        self.client.re[0]+=1  
+        await inter.response.defer()
+        await news(ctx, subject)
+    
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def news(self, ctx, subject="Technology"):
+        self.googlenews.get_news(subject)
+        news_list = self.googlenews.get_texts()
+        self.googlenews.clear()
+        string = ""
+        for i in range(0, 10):
+            string = string + str(i) + ". " + news_list[i] + "\n"
+        await ctx.send(
+            embed=ef.cembed(
+                title="News",
+                description=string,
+                color=self.client.re[8],
+                thumbnail=self.client.user.avatar.url,
+            )
+        )
 
     @nextcord.slash_command(name="instagram",description="get recent instagram posts of the account")
     async def insta_slash(self, ctx, account):

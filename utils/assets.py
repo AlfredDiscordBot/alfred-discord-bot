@@ -93,7 +93,7 @@ class Emotes:
         self.red_arrow = client.get_emoji(945741947220402176)
         self.animated_correct = client.get_emoji(958424323415212102)
         self.join_vc = client.get_emoji(852810663603994624)
-        self.check = client.get_emoji(931095242772467722)
+        self.check = client.get_emoji(967279216343277579)
         self.loading = client.get_emoji(948396323843997776)
         self.upvote = client.get_emoji(945509681256865845)
         

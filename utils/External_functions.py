@@ -348,11 +348,12 @@ def imdb_embed(movie="",re={8:5160}):
 async def redd(ctx, account="wholesomememes", number = 25, single=True):
     a = await get_async(f"https://meme-api.herokuapp.com/gimme/{account}/{number}",kind="json")
     embeds = []
+    bot = getattr(ctx, 'bot', getattr(ctx, 'client', None))
     if 'message' in a.keys():
         return [cembed(
             title="Oops",
             description=a['message'],
-            color=ctx.bot.re[8]
+            color=bot.re[8]
         )]
     memes = a['memes']
     for i in memes:
@@ -361,8 +362,8 @@ async def redd(ctx, account="wholesomememes", number = 25, single=True):
             image=i['url'],
             url=i['postLink'],
             footer=i['author']+" | "+str(i['ups'])+" votes",
-            color=ctx.bot.re[8],
-            thumbnail=ctx.bot.user.avatar.url
+            color=bot.re[8],
+            thumbnail=bot.user.avatar.url
         )
         if not ctx.channel.nsfw:
             if i['nsfw']:
@@ -372,7 +373,7 @@ async def redd(ctx, account="wholesomememes", number = 25, single=True):
         embed = cembed(
             title="Something seems wrong",
             description="There are no posts in this accounts, or it may be `NSFW`",
-            color = ctx.bot.re[8]
+            color = bot.re[8]
         )
         embeds.append(embed)
     return embeds
@@ -441,7 +442,7 @@ async def wait_for_confirm(ctx, client, message, color=61620,usr=None):
     person=usr
 
     def check(reaction, user):
-        a = user == ctx.author if person is None else person == user
+        a = user == getattr(ctx, 'author', getattr(ctx,'user',None)) if person is None else person == user
         return (
             reaction.message.id == mess.id
             and reaction.emoji
@@ -582,7 +583,7 @@ def check_end(s : str):
 
 def check_voice(ctx):
     try:
-        mem = [str(names) for names in getattr(ctx, 'voice_client', getattr(ctx.guild, 'voice_client', None)).channel.members]
+        mem = [str(names) for names in ctx.guild.voice_client.channel.members]
     except:
         mem = []
     return mem.count(str(getattr(ctx, 'author', getattr(ctx, 'user', None)))) > 0
@@ -733,7 +734,7 @@ class Meaning:
                 if synonyms and synonyms != []:
                     embed.add_field(
                         name="Synonyms",
-                        value=','.join(synonmys),
+                        value=', '.join(synonyms),
                         inline=True
                     )
                 if antonyms and antonyms != []:

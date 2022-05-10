@@ -58,7 +58,7 @@ class BotInfo(commands.Cog):
         r = self.client.re[0]
         em = ef.cembed(
             title=f"Online {emo.check}",
-            description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(self.client.latency*1000)}ms\nRequests: \t{r:,}\nAwake time: {int(time.time()-self.start_time):,}s",
+            description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(self.client.latency*1000)}ms\nRequests: \t{r:,}\nUptime: {int(time.time()-self.start_time):,}s\nReady: {self.client.is_ready()}",
             color=self.client.re[8],
             footer="Have fun, bot has many features, check out /help",
             thumbnail = self.client.user.avatar.url
@@ -106,10 +106,10 @@ class BotInfo(commands.Cog):
         await self.vote_alfred(inter)
 
     @commands.command(aliases=['h'])
-    async def help(self, ctx, *,text = "unique stuff"):
+    async def help(self, ctx, *, text = "<Optional>"):
         self.client.re[0]+=1
         try:
-            if self.embe == []:
+            if len(self.embe) < 30:
                 self.embe = helping_hand.help_him(self.client, self.client.re)
                 new_embed = ef.cembed(
                     title='Index',
@@ -118,9 +118,20 @@ class BotInfo(commands.Cog):
                 )
                 self.embe.insert(1, new_embed)
                 self.index = [i.title for i in self.embe]
-            if text in self.index:
+            index = self.index + self.index+[i.name for i in self.client.commands]
+            if text in self.index:                
                 n  = self.index.index(text)
                 await assets.pa(ctx,[self.embe[n]],restricted=True)
+            elif text in [i.name for i in self.client.commands]:
+                prefix = self.client.prefix_dict.get(ctx.guild.id, "'")
+                i=self.client.get_command(text)
+                embed=ef.cembed(
+                    title=i.name,
+                    description=f"`{prefix}{i.name} {i.signature}`",
+                    color=self.client.re[8]
+                )
+                embed.set_author(name=self.client.user.name, icon_url = self.client.user.avatar.url)
+                await ctx.send(embed=embed)
             else:
                 n = 0
                 await assets.pa(ctx, self.embe, start_from=n, restricted=True)
@@ -134,7 +145,7 @@ class BotInfo(commands.Cog):
 
     @help_slash.on_autocomplete("text")
     async def auto_com(self, inter, text):
-        if self.embe == []:
+        if len(self.embe) < 30:
             self.embe = helping_hand.help_him(self.client, self.client.re)
             new_embed = ef.cembed(
                 title='Index',
@@ -144,12 +155,13 @@ class BotInfo(commands.Cog):
             )
             self.embe.insert(1, new_embed)
             self.index = [i.title for i in self.embe]
-        autocomp_help = [i for i in self.index if text.lower() in i.lower()][:25]
+        autocomp_help = [str(i) for i in list(self.index)+list(self.client.commands) if text.lower() in str(i).lower()][:25]
         await inter.response.send_autocomplete(autocomp_help)
 
     @commands.Cog.listener()
-    async def on_message(self, msg):
-        if f"<@!{self.client.user.id}>" in msg.content:
+    async def on_message(self, msg):        
+        if f"<@{self.client.user.id}>" in msg.clean_content:
+            print("Listening")
             prefi = self.client.prefix_dict.get(msg.guild.id if msg.guild is not None else None, "'")
             embed = nextcord.Embed(
                 title="Hi!! I am Alfred.",

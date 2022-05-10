@@ -43,6 +43,10 @@ def preset_change(di, ctx, client, re = {8: 6619080}):
             'description': di,
             'color': '<bot-color>'
         }
+    if type(di.get('author')) == str:
+        di['author'] = {
+            'name' : di['author']
+        }
     
     for i in di:
         if i in ['color','thumbnail','image','picture']:
@@ -197,11 +201,6 @@ def embed_from_dict(info: dict, ctx, client, re) -> discord.Embed:
     info = preset_change(info, ctx, client, re = re)
     ctx_author = getattr(ctx, 'author', getattr(ctx,'user',None))
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
-    if info.get('author') == 'True' or info.get('author'):
-        info['author'] = {
-            'name': ctx.author.name,
-            'icon_url': ef.safe_pfp(ctx.author)
-        }
 
     info["color"] = get_color(info.get("color", None))
     if info['color']: info['color']=info['color'].value     
@@ -336,8 +335,7 @@ def main(client, re, mspace, dev_channel):
         if not member:
             if ctx.author.id in client.mspace: 
                 await embed_using_yaml(ctx, channel = ctx.channel, yaml = client.mspace[ctx.author.id])
-                return
-            
+                return            
             else:
                 await ctx.send(
                     embed = ef.cembed(
@@ -434,7 +432,7 @@ def main(client, re, mspace, dev_channel):
             setup_value = None
             mai = await ctx.send(
                 embed=ef.cembed(
-                    description=f"Settings up MehSpace. You can choose from:\n"+'\n'.join(ef.m_options)+"\nType done or cancel to finish this\nsend #channel will send it to the channel",
+                    description=f"Settings up MehSpace. You can choose from:\n"+'\n'.join(ef.m_options)+"\n\nType done or cancel to finish this\nsend #channel will send it to the channel\n\nType `-` to remove the setup value",
                     color=re[8],
                     footer=f"Follow this message along to setup | {ctx.author.name}"
                 )
@@ -513,9 +511,22 @@ def main(client, re, mspace, dev_channel):
                                     await asyncio.sleep(5)
                                     await te.delete()
                                     
-                    elif setup_value:
-                        if msg == 'True': msg = True
-                        di[setup_value] = msg
+                    elif setup_value:       
+                        
+                        if msg == '-' and di.get(setup_value):
+                            di.pop(setup_value)
+                        elif msg.lower() == 'true' and setup_value.lower() == "author":
+                            di[setup_value] ={
+                                'name' : ctx.author.name,
+                                'icon_url': ef.safe_pfp(ctx.author)
+                            }
+                        else:
+                            di[setup_value] = msg
+
+                        if di == {}:
+                            di == {
+                                'description': 'Empty Embed'
+                            }
                         await emb.edit(
                             embed=embed_from_dict(di,ctx,client,re)
                         )                        

@@ -48,7 +48,7 @@ class Image(commands.Cog):
         byte = await ef.post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/style_predict", json=json)
         await inter.send(file=nextcord.File(BytesIO(byte), 'blend.png'))
 
-    @nextcord.slash_command(name="effects",description="cool effects with your profile picture")
+    @nextcord.slash_command(name="effects",description="effects with your profile picture")
     async def eff(self, inter, effect = helping_hand.effects_helper(), member:nextcord.Member="-"):
         await inter.response.defer()
         if member == "-": member = inter.user
@@ -62,7 +62,7 @@ class Image(commands.Cog):
             url = ef.safe_pfp(getattr(ctx, 'author', getattr(ctx, 'user', None)))
         else:
             print(member)
-            url = member.avatar.url
+            url = ef.safe_pfp(member)
         url = str(url)
     
         if effect == None:

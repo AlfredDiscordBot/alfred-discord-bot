@@ -100,7 +100,7 @@ def main(client, re, dev_users):
     @client.command()
     @commands.check(ef.check_command)
     async def reply(ctx, channel, user, *, repl):
-        if str(ctx.author.id) in dev_users and ctx.guild.id == 822445271019421746:
+        if str(ctx.author.id) in client.dev_users and ctx.guild.id == 822445271019421746:
             channel = client.get_channel(int(channel))
             if not channel:
                 await ctx.send(
@@ -116,6 +116,7 @@ def main(client, re, dev_users):
                     color=re[8]
                 )
             )
+            await ctx.send("Done")
         else:
             await ctx.send(
                 embed=ef.cembed(

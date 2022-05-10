@@ -14,17 +14,25 @@ author: True/False
 ```
 
 **Here's some Tips when you write this**
+```diff
++ In description, if you do `[something](https://link.com)`, the word something becomes a hyperlink
 
->In description, if you do `[something](https://link.com)`, the word something becomes a hyperlink
++ You can use symbols like `*~|>` just like you do in your regular chat
 
->You can use symbols like `*~|>` just like you do in your regular chat
++ Color should be in (R, G, B) format only, if you type `red` or `blue` or a hexcode, it will give error
 
->>Enjoy and have fun, we will not restrict
++ Do not worry when you get the error, you can edit the same message if you're using yml, look at the given error, especially the bottom part of it, it'll point you in the right direction
 
-We've kept a new layout for mehSetup
-all you gotta do now is 
-`'mehSetup`
-and you'll be guided step by setup, just follow along on that
++ For yml_embed, give a space after colon, could solve error, we still recommend trying msetup if you don't need fields, and learn to type yaml from google
+```
+
+**If you find the above method confusing, use the regular msetup, although I must warn that there's no fields implemented, plus no modification in the author space**
+
+Type `'msetup` and follow along the message, type one of the options given in the first embed, `-` to remove the value,
+
+It'll delete the message, and edit the second embed, you can see the changes there, follow along with it
+
+`The above mentioned tips will be applicable to this also`
 """
 
 
@@ -161,7 +169,7 @@ def help_him(client, re):
     )
     message_developer = cembed(
         title = "Message from the developers",
-        description = "**New Games available**\nTwo new games added to the bot\n- Rock Paper Scissor\n- Guess the song\n\nCheck it out using slash commands `rps` and `guess`\n\n**Moved to nextcord Fully**\nDiscord.py has died and we've decided that we should probably move to something better and updating. Nextcord is great for this as it's similar to Dpy\n\n**Enable and Disable commands**\nNow you can choose to keep or remove a command from your server, use the slash command `/command`\n\n**Wikipedia, only for NSFW**\nI just found out that Wikipedia could be used in a wrong way, Wikipedia will only work in NSFW channels\n\n**Removed Legacy embed system**\nRemember those commands, 'set_title, 'set_color, some may probably not, found out that no one really used it, everyone used msetup or yml_embed, so we decided to remove it",
+        description = "**New Learn.md page**\n\nUse `'learn` to know the basic of coding in nextcord python, and to familiarise the layout of alfred, Go through it, if you have any doubts join Batcave and talk to the developers\n\n**Intercom ready**\nYou can contact other servers using intercom\nTo setup use `/intercom channel: #channel` and use the command `'call <server_id>` A request will be send to the server, if they accept it you'll be replied to answer. ||It's amazing tbh, check it out, positive feedbacks till now||\n\nIf you find any bugs, please report it through `'feedback`\nThank you",
         color=re[8],
         thumbnail=thumbnail,
         picture = "https://raw.githubusercontent.com/nextcord/nextcord/master/assets/repo-banner.png",
