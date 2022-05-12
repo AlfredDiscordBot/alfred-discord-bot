@@ -1,5 +1,6 @@
 .env
 *.csv
+commands.txt
 *.dat
 .safe.txt
 Files/
