@@ -1871,7 +1871,19 @@ async def exe(ctx, *, text):
                 color=nextcord.Color(value=re[8]),
             )
         )
-
+        
+@client.command()
+async def cute_cat(ctx, res="1920x1080"):
+    query = "kitten"
+    resp = requests.get(f"https://source.unsplash.com/{res}?{query}")
+    file = open("cat.png", "wb")
+    file.write(resp.content)
+    file.close()
+    with open("cat.png","rb") as f:
+        file = discord.File(f)
+        em = discord.Embed(title=ctx.author, color=re[8])
+        em.set_image(url="attachment://cat.png")
+        await ctx.send(file=file, embed=em)
 
 def addt(p1, p2):
     da[p1] = p2
