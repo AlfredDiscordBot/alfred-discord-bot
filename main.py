@@ -1333,7 +1333,7 @@ async def play(ctx, *, index):
         await channel.send(
             embed=nextcord.Embed(
                 title="Error in play function",
-                description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
+                description=f"{traceback.format_exc()}\n{ctx.guild.name}: {ctx.channel.name}",
                 color=nextcord.Color(value=re[8]),
             )
         )
@@ -1884,6 +1884,7 @@ async def cute_cat(ctx, res="1920x1080"):
         em = discord.Embed(title=ctx.author, color=re[8])
         em.set_image(url="attachment://cat.png")
         await ctx.send(file=file, embed=em)
+    os.remove("cat.png")
 
 def addt(p1, p2):
     da[p1] = p2
