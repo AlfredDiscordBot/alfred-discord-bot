@@ -62,6 +62,9 @@ class Intercom(commands.Cog):
     @commands.command(aliases=['call'])
     @commands.check(ef.check_command)
     async def start_call(self, ctx, number = None):
+        if not self.client.is_ready():
+            await ctx.send("Sorry for the inconvenience, the bot is not fully ready")
+            return
         if not number:
             st = ""
             for i in list(self.client.config['connect']).copy():
@@ -109,6 +112,9 @@ class Intercom(commands.Cog):
             return
 
         ch = self.client.get_channel(self.client.config['connect'][number])
+        if not ch:
+            await ctx.send("Sorry, something seems wrong")
+            return
         ay = await ch.send(
             embed=ef.cembed(
                 title="Intercom",
@@ -120,7 +126,7 @@ class Intercom(commands.Cog):
         while True:
             try:
                 def check(m):
-                    return m.content.lower() in ["accept","decline"] and m.author.guild_permissions.manage_guild
+                    return m.content.lower() in ["accept","decline"] and m.channel.id == ch.id
                 message = await self.client.wait_for("message", check=check, timeout=720)
                 if message.content.lower() == "accept":
                     break
@@ -149,6 +155,8 @@ class Intercom(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, msg):
+        if not self.client.is_ready():
+            return
         if msg.guild.id in self.calls:
             b = msg.guild.id
             a = self.calls[b]

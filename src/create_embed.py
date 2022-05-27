@@ -34,7 +34,7 @@ author: True/False
 def preset_change(di, ctx, client, re = {8: 6619080}):
     presets = {
         '<server-icon>' : getattr(ctx.guild.icon, 'url', None),
-        '<author-icon>' : ef.safe_pfp(ctx.author),
+        '<author-icon>' : ef.safe_pfp(getattr(ctx, 'author', getattr(ctx,'user',None))),
         '<bot-icon>' : client.user.avatar.url,
         '<bot-color>' : str(discord.Color(re[8]).to_rgb())
     }
@@ -406,6 +406,50 @@ def main(client, re, mspace, dev_channel):
                 thumbnail=me.author.avatar.url
             )
         )
+
+    @client.message_command()
+    async def embedinfo(inter, message):
+        if len(message.embeds) == 0:
+            await inter.response.send_message(
+                "I dont see any embed in that message",
+                ephemeral=True                
+            )
+        a = message.embeds[0].to_dict()
+        a = converter(a)
+        await inter.response.send_message(
+            embed=ef.cembed(
+                title="Extracting Embed Information",
+                description="```yml\n"+safe_dump(a)+"\n```",
+                color=re[8],
+                thumbnail=ef.safe_pfp(message.author)
+            ),
+            ephemeral = True
+        )
+
+    @client.slash_command(name="embed",description="Create your embed using this")
+    async def em(inter, description, title = "None", red:int = 1, green:int = 1, blue:int = 1, thumbnail = "None", image = "None", footer = "None", author:discord.Member = "None"):
+        await inter.response.defer()
+        d = {
+            'description' : description,
+            'color': discord.Color.from_rgb(red, green, blue),
+        }
+        if author != 'None':
+            d['author'] = {
+                'name' : author.name,
+                'icon_url' : ef.safe_pfp(author)
+            }
+        if image != 'None':
+            d['image'] = image
+        if thumbnail != 'None':
+            d['thumbnail'] = thumbnail
+        if footer != 'None':
+            d['footer'] = footer
+        if title != 'None':
+            d['title'] = title
+
+        embed = embed_from_dict(d,inter,client,re)
+        await inter.send(embed=embed)
+        
         
 
             
@@ -442,7 +486,7 @@ def main(client, re, mspace, dev_channel):
                 try:                    
                     diff = ef.subtract_list(ef.m_options, list(di))
                     message = await client.wait_for("message", check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=720)                
-                    msg = message.clean_content
+                    msg = message.content
                     if msg.startswith("send"):
                         channel_id = int(message.content.split()[1][2:-1])
                         channel = client.get_channel(channel_id)
@@ -471,7 +515,7 @@ def main(client, re, mspace, dev_channel):
                             await ctx.send("You do not have an existing mehspace")
                     elif msg.lower() in (ef.m_options+['done','cancel','send']):
                         if msg.lower() not in "cancel done send":
-                            setup_value = msg
+                            setup_value = msg.lower()
                             await emb.edit(
                                 embed=ef.cembed(
                                     title="Setting up",
@@ -511,8 +555,7 @@ def main(client, re, mspace, dev_channel):
                                     await asyncio.sleep(5)
                                     await te.delete()
                                     
-                    elif setup_value:       
-                        
+                    elif setup_value:                               
                         if msg == '-' and di.get(setup_value):
                             di.pop(setup_value)
                         elif msg.lower() == 'true' and setup_value.lower() == "author":

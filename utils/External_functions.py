@@ -777,8 +777,19 @@ async def animals(client, ctx, color, number = 10):
 
 def audit_check(log):
     latest = log[0]
-    che = log[:5]
-    action_list = all([True])
+    che = log[:10]
+    initiators = Counter([i.user for i in che])
+    for i in initiators:
+        tim = time.time()-120
+        offensive = [
+            discord.AuditLogAction.kick,
+            discord.AuditLogAction.ban,
+            discord.AuditLogAction.channel_delete,
+        ]
+        actions = [j.action for j in che if j.user == i and j.action in offensive and j.created_at.timestamp()>tim]
+        if len(actions)>5:
+            return i      
+        
     
 
 def check_command(ctx):

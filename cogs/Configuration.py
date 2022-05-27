@@ -11,13 +11,12 @@ from nextcord.abc import GuildChannel
 #Use nextcord.slash_command()
 
 def requirements():
-    return []
+    return ["dev_channel"]
 
 class Configuration(commands.Cog):    
-    def __init__(self, client):
+    def __init__(self, client, dev_channel):
         self.client = client
-        self.re = self.client.re
-        self.config = self.client.config
+        self.dev_channel = dev_channel
         self.command_list = open("commands.txt","r").read().split("\n")[:-1]
 
     @commands.command()
@@ -209,7 +208,7 @@ class Configuration(commands.Cog):
         await inter.response.send_autocomplete(autocomp_command)
 
     @nextcord.slash_command(name = "welcome", description = "set welcome channel")
-    async def wel(self, inter, channel: GuildChannel = "-"):
+    async def wel(self, inter, channel: GuildChannel = "-", text = "Welcome to the server <user>"):
         await inter.response.defer()
         if inter.user.guild_permissions.administrator:
             if channel != "-":                
@@ -354,8 +353,8 @@ class Configuration(commands.Cog):
             return          
 
         try:
-            if mode == "enable":
-                output=""
+            output=""
+            if mode == "enable":                
                 if feature == "snipe":
                     if not inter.guild.id in self.client.config['snipe']:
                         self.client.config['snipe'].append(inter.guild.id)
@@ -367,20 +366,39 @@ class Configuration(commands.Cog):
                 else:
                     if inter.guild.id in self.client.observer:
                         self.client.observer.remove(inter.guild.id)
-                        output="Enabled Suicide observer"
-                await inter.send(
-                    embed=ef.cembed(
-                        description=output,
-                        title="Done",
-                        color=self.client.re[8]
-                    )
-                )                    
+                        output="Enabled Suicide observer"                 
+            elif mode == "disable":
+                if feature == "snipe":
+                    if inter.guild.id in self.client.config['snipe']:
+                        self.client.config['snipe'].remove(inter.guild.id)
+                    output="All people can use snipe command"
+                elif feature == "response":
+                    if not inter.guild.id in self.client.config['respond']:
+                        self.client.config['respond'].append(inter.guild.id)
+                    output="Disabled Auto Response. You've decided to not talk to Alfred :sob:"
+                else:
+                    if not inter.guild.id in self.client.observer:
+                        self.client.observer.append(inter.guild.id)
+                    output="Disabled suicide observer"
+            await inter.send(
+                embed=ef.cembed(
+                    description=output,
+                    title="Done",
+                    color=self.client.re[8]
+                )
+            )     
         except:
-            print(traceback.format_exc())
-
-        await inter.send("Coming soon")
-        return
-                    
+            a = traceback.format_exc()
+            d = self.client.get_channel(self.dev_channel)
+            await d.send(
+                embed=ef.cembed(
+                    title="Error in config",
+                    description=str(a),
+                    color=self.client.re[8],
+                    footer=f"{inter.user.name} -> {inter.guild.name}",
+                    thumbnail=self.client.user.avatar.url
+                )
+            )              
                         
             
             
@@ -457,9 +475,7 @@ class Configuration(commands.Cog):
                 description=f"Set {log_channel.mention} as the log channel, all the updates will be pushed to this",
                 color=self.client.re[8]
             )
-        )
-        
-            
+        )         
 
 def setup(client,**i):
     client.add_cog(Configuration(client,**i))

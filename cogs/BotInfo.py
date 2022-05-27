@@ -158,9 +158,42 @@ class BotInfo(commands.Cog):
         autocomp_help = [str(i) for i in list(self.index)+list(self.client.commands) if text.lower() in str(i).lower()][:25]
         await inter.response.send_autocomplete(autocomp_help)
 
+    @nextcord.slash_command(name="serverinfo",description="Get your server information")
+    async def serverinfo(self, inter):
+        g = inter.guild
+        b = f"{len(g.bots)} Bots"
+        h = f"{len(g.humans)} Humans"
+        m = f"{len(g.members)} Total members"
+        r = "\n\n**Roles:**\n"+', '.join([i.mention for i in g.roles])
+        emos = "\n\n**Emojis:**\n"+''.join([str(i) for i in g.emojis])
+        description=g.description if g.description else ""
+        embed=ef.cembed(
+            title=g.name,
+            description=description+emos,
+            thumbnail=ef.safe_pfp(g),
+            image=g.banner if g.banner else "",
+            color=self.client.re[8],
+            footer=f"{b} | {h} | {m}"
+        )
+        boost = assets.Emotes(self.client).boost
+        boosts = str(boost)*inter.guild.premium_tier + f" {inter.guild.premium_subscription_count}"
+        embed.add_field(name="Owner", value=str(g.owner))
+        embed.add_field(name="Server ID", value=str(g.id))
+        created = nextcord.utils.format_dt(g.created_at,"r").replace(":r","")
+        embed.add_field(name="Created at", value=created)
+        embed.add_field(name="Boosts", value=boosts)
+        embed1 = ef.cembed(
+            title=g.name,
+            description=r,
+            color=self.client.re[8],
+            thumbnail=ef.safe_pfp(g),
+            footer=f"{len(g.roles)} Roles"
+        )
+        await assets.pa(inter, [embed, embed1])
+
     @commands.Cog.listener()
     async def on_message(self, msg):        
-        if f"<@{self.client.user.id}>" in msg.clean_content:
+        if f"<@{self.client.user.id}>" in msg.content:
             print("Listening")
             prefi = self.client.prefix_dict.get(msg.guild.id if msg.guild is not None else None, "'")
             embed = nextcord.Embed(
@@ -178,6 +211,29 @@ class BotInfo(commands.Cog):
             )
             await msg.channel.send(embed=embed)
 
-        
+    @nextcord.message_command()
+    async def view_raw(self, inter, message):
+        a = message.clean_content.replace("`","\\`")
+        await inter.response.send_message(
+            ephemeral = True,
+            embed=ef.cembed(
+                title="Raw text",
+                description=f"```\n{a}\n```",
+                color=self.client.re[8]
+            )
+        )
+
+    @nextcord.slash_command(name="license", description="View Alfred's Open Source License")
+    async def license(self,inter):
+        await inter.response.send_message(
+            ephemeral = True,
+            embed=ef.cembed(
+                title="LICENSE",
+                description="```\n"+open('LICENSE').read()+"\n```",
+                color=self.client.re[8],
+                thumbnail=self.client.user.avatar.url,
+                url="https://www.github.com/alvinbengeorge/alfred-discord-bot"
+            )
+        )
 def setup(client,**i):
     client.add_cog(BotInfo(client,**i))

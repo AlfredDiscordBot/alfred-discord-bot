@@ -96,4 +96,5 @@ class Emotes:
         self.check = client.get_emoji(967279216343277579)
         self.loading = client.get_emoji(948396323843997776)
         self.upvote = client.get_emoji(945509681256865845)
+        self.boost = client.get_emoji(975323250546597888)
         

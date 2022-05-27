@@ -221,7 +221,8 @@ def main(client, re):
     @client.command()
     @commands.check(ef.check_command)
     async def lyrics(ctx, *, song):
-        await ctx.send(embed=ef.ly(song, re))
+        embed=await ef.ly(song, re)
+        await ctx.send(embed=embed)
 
     @client.group()
     @commands.check(ef.check_command)
