@@ -75,7 +75,7 @@ class Games(commands.Cog):
                     embed=ef.cembed(
                         title="Bye",
                         description="Ig I'll see you later",
-                        color=nextcord.Color.red(),
+                        color=self.client.re[8],
                         thumbnail=self.client.user.avatar.url
                     )
                     embed.add_field(name="You",value=s[user],inline=True)

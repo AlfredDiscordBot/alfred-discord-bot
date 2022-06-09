@@ -149,14 +149,12 @@ class Intercom(commands.Cog):
                 color=self.client.re[8],
                 footer="'end to end the call"
             )
-        )
-        
+        )       
         
 
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if not self.client.is_ready():
-            return
+        await self.client.wait_until_ready()
         if msg.guild.id in self.calls:
             b = msg.guild.id
             a = self.calls[b]

@@ -1,4 +1,3 @@
-from wolframalpha import *
 import External_functions as ef
 
 def requirements():
@@ -15,38 +14,7 @@ def main(client, re, AiD, dev_channel):
     import requests
     import urllib.parse
     from nextcord.ext import commands
-
-    w = Client(AiD)
-
-    def get_answer(question=""):
-        if question == "":
-            embed = nextcord.Embed(
-                title="Oops",
-                description="You need to enter a question",
-                color=nextcord.Color(value=re[8]),
-            )
-            embed.set_thumbnail(url=client.user.avatar.url)
-            return embed
-        else:
-            res = w.query(question)
-            st = ""
-            pic = ""
-            for i in res["pod"]:
-                try:
-                    a = (str(i["@title"]), str(i["subpod"]["img"]["@alt"]))
-                    if a[0] == "Number line" or a[0] == "Plot":
-                        a = ("\n", "\n")
-                        pic = str(i["subpod"]["img"]["@src"])
-                    st += f"**{a[0]}**\n{a[1]}\n\n"
-                except Exception as e:
-                    print(e)
-            embed = nextcord.Embed(
-                title=question, description=st, color=nextcord.Color(value=re[8])
-            )
-            embed.set_thumbnail(url=client.user.avatar.url)
-            embed.set_image(url=pic)
-            return (embed, None)
-
+    
     @client.command()
     @commands.check(ef.check_command)
     async def wolf(ctx, *, question=""):

@@ -83,6 +83,14 @@ def effects_helper():
         default = 'cartoonify'
     )
 
+message_from = r"""
+**Increased stability and improvement**
+Alfred is much faster than ever before, even with more command and slash commands. Effects and Blend(image commands) is much better to interact with using slash command. Text in voice channel works more or less, you cant delete messages, you cant create webhooks like `'e <emoji>` command
+
+**Running latest Nextcord version**
+Alfred gets updates a lot quicker, and compatibility
+"""
+
 def help_him(client, re):
     thumbnail = client.user.avatar.url
 
@@ -169,7 +177,7 @@ def help_him(client, re):
     )
     message_developer = cembed(
         title = "Message from the developers",
-        description = "**New Learn.md page**\n\nUse `'learn` to know the basic of coding in nextcord python, and to familiarise the layout of alfred, Go through it, if you have any doubts join Batcave and talk to the developers\n\n**Intercom ready**\nYou can contact other servers using intercom\nTo setup use `/intercom channel: #channel` and use the command `'call <server_id>` A request will be send to the server, if they accept it you'll be replied to answer. ||It's amazing tbh, check it out, positive feedbacks till now||\n\nIf you find any bugs, please report it through `'feedback`\nThank you",
+        description = message_from,
         color=re[8],
         thumbnail=thumbnail,
         picture = "https://raw.githubusercontent.com/nextcord/nextcord/master/assets/repo-banner.png",
@@ -181,13 +189,6 @@ def help_him(client, re):
         color=re[8],
         thumbnail=thumbnail,
         image="https://raw.githubusercontent.com/alvinbengeorge/alfred-discord-bot/default/Krypton.png"
-    )
-    csv_help=cembed(
-        title="CSVoyager",
-        description="CS Voyager is a monthly newsletter which will keep you updated with the latest happenings around the globe in the field of Computer Science & will provide focused knowledge specifically designed for CS enthusiasts. Just like a person who goes on voyages, our newsletter is on its voyage & shall explore a different part of CS and this evolving Technology era & present them in front of the reader.\n\nUse the command `'csvoyager <edition number>` to read one of their articles and check out their [official website](https://csvoyager.vercel.app/) and [youtube channel](https://www.youtube.com/channel/UCGMSC8De3GQ5s8Ko1ZZ7W4w/featured)",
-        image="https://yt3.ggpht.com//js0MzlkhEXw7UlTJ3AOTbZsXgRd3M7sfpgtRVPs_Y6d97q6cGTZyN7PVgecuoaL4Hgo5cY4FgA=w1060-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj",
-        thumbnail=safe_pfp(client.get_guild(841026124174983188)),
-        color=re[8]
     )
     
     social_help=cembed(
@@ -205,7 +206,8 @@ def help_him(client, re):
     )
         
 
-    all_embeds = [first_page, github_help, message_developer, csv_help, effects_help, music_help, games_help, mod_help, yaml_help, code_help, wolfram_help, Emoji_help, social_help]
+    all_embeds = [first_page, github_help, message_developer, effects_help, music_help, games_help, mod_help, yaml_help, code_help, wolfram_help, Emoji_help, social_help]
+    
     new_embeds = []
     for i in all_embeds:
         i.set_author(name = client.user.name, icon_url = client.user.avatar.url, url = "https://www.github.com/alvinbengeorge/alfred-discord-bot")

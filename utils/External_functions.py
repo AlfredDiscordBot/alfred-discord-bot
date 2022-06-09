@@ -39,6 +39,18 @@ ydl_op = {
 SVG2PNG_API_URI = os.getenv("svg2pnguri")
 SVG2PNG_API_TOKEN = os.getenv("svg2pngtoken")
 
+m_options = [
+    'title',
+    'description',
+    'color',
+    'footer',
+    'thumbnail',
+    'image',
+    'picture',
+    'author',
+    'url'
+]
+
 Emoji_alphabets = [chr(i) for i in range(127462,127488)]
 
 @lru_cache(maxsize = 512)
@@ -206,6 +218,10 @@ def get_sessionid(username, password):
 
     return response.text
 
+async def wolf_spoken(wolfram, question):
+    question = convert_to_url(question)
+    url = f"http://api.wolframalpha.com/v1/spoken?appid={wolfram}&i={question}"
+    return await get_async(url)
 
 def get_it():
     return get_sessionid(username, password)
@@ -810,17 +826,68 @@ async def quo(color):
         footer=footer,
         color=color
     )
-    
-    
 
-m_options = [
-    'title',
-    'description',
-    'color',
-    'footer',
-    'thumbnail',
-    'image',
-    'picture',
-    'author',
-    'url'
-]
+co = """
+import nextcord
+import assets
+import time
+import traceback
+import helping_hand
+import assets
+import random
+import External_functions as ef
+import helping_hand
+from nextcord.ext import commands, tasks
+
+#Use nextcord.slash_command()
+
+def requirements():
+    return []
+
+class <name>(commands.Cog):
+    def __init__(self, client):
+        self.client = client
+
+
+def setup(client,**i):
+    client.add_cog(<name>(client,**i))
+"""
+
+def cog_creator(name: str):
+    if f"{name}.py" in os.listdir("cogs/"):
+        return "Already exists"
+
+    with open(f"cogs/{name}.py", "w") as f:
+        f.write(co.replace("<name>",name))
+
+    return "Done"
+
+class Attributor:
+    def __init__(self, data: dict):
+        for i in data:
+            setattr(self, i, data[i])
+
+
+class Pokemon:
+    def __init__(self):
+        self.pokemons = {}
+        for i in requests.get("https://pokeapi.co/api/v2/pokemon/?limit=1000000").json()['results']:
+            self.pokemons.update({i['name']:i['url']})
+
+    def search(self, name: str):
+        return [i for i in self.pokemons if name.lower() in i.lower()][:25]
+
+    async def get_stats(self, pokemon: str, embed: bool = False, color = 28656):
+        d = await get_async(self.pokemons[pokemon], kind="json")
+        if not embed:
+            return d
+        embed=cembed(
+            title="Pokemon",
+            color=color,
+            thumbnail=a['sprites']['front_default']
+        )
+        
+        
+        
+        
+

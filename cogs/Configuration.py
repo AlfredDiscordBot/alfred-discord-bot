@@ -49,9 +49,18 @@ class Configuration(commands.Cog):
                 )
             )
             
-    @commands.command()
+    @commands.command(aliases=["prefix","setprefix"])
     @commands.check(ef.check_command)
-    async def set_prefix(self, ctx, *, pref):
+    async def set_prefix(self, ctx, *, pref = None):
+        default_prefix = "'"
+        if pref == None:
+            await ctx.send(
+                embed=ef.cembed(
+                    description=f"My Prefix is `{self.client.prefix_dict.get(ctx.guild.id,default_prefix)}`",
+                    color=re[8]
+                )
+            )
+            return
         if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
             if pref.startswith('"') and pref.endswith('"') and len(pref)>1:
                 pref=pref[1:-1]
@@ -63,7 +72,7 @@ class Configuration(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description="You cannot change the prefix, you need to be an admin",
+                    description="You cannot change the prefix, you need to be an admin"+str(assets.Emotes(self.client).animated_wrong),
                     color=self.client.re[8],
                 )
             )
@@ -81,7 +90,7 @@ class Configuration(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description="You cannot change the prefix, you need to be an admin",
+                    description="You cannot change the prefix, you need to be an admin"+str(assets.Emotes(self.client).animated_wrong),
                     color=self.client.re[8],
                 )
             )
@@ -109,7 +118,7 @@ class Configuration(commands.Cog):
             await ctx.reply(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description="You need admin permissions to toggle this",
+                    description="You need admin permissions to toggle this"+str(assets.Emotes(self.client).animated_wrong),
                     color=nextcord.Color.red(),
                     thumbnail=self.client.user.avatar.url
                 )
@@ -131,7 +140,7 @@ class Configuration(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(
                     title="Permission Denied",
-                    description="Only an admin can toggle this setting",
+                    description="Only an admin can toggle this setting"+str(assets.Emotes(self.client).animated_wrong),
                     color=nextcord.Color.red()
                 )
             )
@@ -145,7 +154,7 @@ class Configuration(commands.Cog):
             await inter.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description="Only an admin can use this command, please ask an admin to enable this",
+                    description="Only an admin can use this command, please ask an admin to enable this"+str(assets.Emotes(self.client).animated_wrong),
                     color=nextcord.Color.red(),
                     
                 )
@@ -398,51 +407,7 @@ class Configuration(commands.Cog):
                     footer=f"{inter.user.name} -> {inter.guild.name}",
                     thumbnail=self.client.user.avatar.url
                 )
-            )              
-                        
-            
-            
-            
-    @commands.command()
-    @commands.check(ef.check_command)
-    async def changeM(self, ctx, *, num):
-        if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in self.client.dev_users:
-            num = int(num)
-            if num == 1:
-                self.client.re[10] = 1
-                await ctx.send(
-                    embed=nextcord.Embed(
-                        title="Model change",
-                        description="Changed to blenderbot",
-                        color=nextcord.Color(value=self.client.re[8]),
-                    )
-                )
-            elif num == 2:
-                self.client.re[10] = 2
-                await ctx.send(
-                    embed=ef.cembed(
-                        title="Model change",
-                        description="Changed to dialo-gpt",
-                        color=self.client.re[8],
-                    )
-                )
-            else:    
-                await ctx.send(
-                    embed=ef.cembed(
-                        title="Model change",
-                        description="Bruh thats not a valid option",
-                        color=self.client.re[8],
-                    )
-                )
-    
-        else:
-            await ctx.send(
-                embed=nextcord.Embed(
-                    title="Model change",
-                    description="F off thout isn't un dev user",
-                    color=nextcord.Color(value=self.client.re[8]),
-                )
-            )
+            )      
 
     @nextcord.slash_command(name="sealfred", description="Checks for behaviours like kicking out or banning regularly")
     async def SeCurity(self, inter, log_channel: GuildChannel = "delete"):

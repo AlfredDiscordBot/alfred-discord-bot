@@ -104,21 +104,26 @@ def filter_graves(code):
 
 
 def requirements():
-    return ["re[8]"]
+    return ["re"]
 
 
-def main(client, color):
+def main(client, re):
     rce = CodeExecutor()
     import nextcord as discord
     from nextcord.ext import commands
 
     @client.command()
+    @commands.cooldown(1,5,commands.BucketType.user)
     @commands.check(ef.check_command)
     async def code(ctx, lang, *, code):
         actual_code = filter_graves(code)
         output = rce.execute_code(language=lang, code=actual_code)
+        if len(output)>150:
+            output=output[:150]+"..."
+        elif len(output.split("\n"))>10:
+            output='\n'.join(output.split("\n")[:10])+"\n..."
         embed = discord.Embed(
-            title="Result", description=output, color=discord.Color(value=color)
+            title="Result", description=output, color=discord.Color(value=re[8])
         )
         embed.set_thumbnail(url=client.user.avatar.url)
         embed.set_footer(text="Result from https://emkc.org/")

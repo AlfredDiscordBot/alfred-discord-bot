@@ -6,6 +6,7 @@ from compile import filter_graves
 from yaml import safe_load, safe_dump
 import traceback
 import asyncio
+import assets
 import External_functions as ef
 
 
@@ -32,9 +33,11 @@ author: True/False
 """
 
 def preset_change(di, ctx, client, re = {8: 6619080}):
+    user = getattr(ctx, 'author', getattr(ctx,'user',None))
     presets = {
         '<server-icon>' : getattr(ctx.guild.icon, 'url', None),
-        '<author-icon>' : ef.safe_pfp(getattr(ctx, 'author', getattr(ctx,'user',None))),
+        '<author-icon>' : ef.safe_pfp(user),
+        '<author-color>': str(user.color.to_rgb()),
         '<bot-icon>' : client.user.avatar.url,
         '<bot-color>' : str(discord.Color(re[8]).to_rgb())
     }
@@ -201,7 +204,6 @@ def embed_from_dict(info: dict, ctx, client, re) -> discord.Embed:
     info = preset_change(info, ctx, client, re = re)
     ctx_author = getattr(ctx, 'author', getattr(ctx,'user',None))
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
-
     info["color"] = get_color(info.get("color", None))
     if info['color']: info['color']=info['color'].value     
     embed = ef.cembed(**info)
@@ -340,7 +342,7 @@ def main(client, re, mspace, dev_channel):
                 await ctx.send(
                     embed = ef.cembed(
                         title="Oops",
-                        description="You haven't set MehSpace yet, use the command m_setup to set up your Mehspace. It follows a similar pattern to yml_embed, Instructions for yml_embed is in help\n\n"+help_for_m_setup,
+                        description="You haven't set MehSpace yet"+str(assets.Emotes(client).yikes)+", use the command m_setup to set up your Mehspace. It follows a similar pattern to yml_embed, Instructions for yml_embed is in help\n\n"+help_for_m_setup,
                         color=re[8],
                         thumbnail=client.user.avatar.url
                     
@@ -427,28 +429,37 @@ def main(client, re, mspace, dev_channel):
         )
 
     @client.slash_command(name="embed",description="Create your embed using this")
-    async def em(inter, description, title = "None", red:int = 1, green:int = 1, blue:int = 1, thumbnail = "None", image = "None", footer = "None", author:discord.Member = "None"):
-        await inter.response.defer()
-        d = {
-            'description' : description,
-            'color': discord.Color.from_rgb(red, green, blue),
-        }
-        if author != 'None':
-            d['author'] = {
-                'name' : author.name,
-                'icon_url' : ef.safe_pfp(author)
+    async def em(inter, description, title = "None", color = "(1,1,1)", thumbnail = "None", image = "None", footer = "None", author:discord.Member = "None"):
+        await inter.response.defer()       
+        try:
+            d = {
+                'description' : description,
+                'color': color,
             }
-        if image != 'None':
-            d['image'] = image
-        if thumbnail != 'None':
-            d['thumbnail'] = thumbnail
-        if footer != 'None':
-            d['footer'] = footer
-        if title != 'None':
-            d['title'] = title
-
-        embed = embed_from_dict(d,inter,client,re)
-        await inter.send(embed=embed)
+            if author != 'None':
+                d['author'] = {
+                    'name' : author.name,
+                    'icon_url' : ef.safe_pfp(author)
+                }
+            if image != 'None':
+                d['image'] = image
+            if thumbnail != 'None':
+                d['thumbnail'] = thumbnail
+            if footer != 'None':
+                d['footer'] = footer
+            if title != 'None':
+                d['title'] = title
+    
+            embed = embed_from_dict(d,inter,client,re)
+            await inter.send(embed=embed)
+        except:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Oops",
+                    description="Something is wrong",
+                    color=re[8]
+                )
+            )
         
         
 
@@ -512,7 +523,8 @@ def main(client, re, mspace, dev_channel):
                                 embed=embed_from_dict(di,ctx,client,re)
                             )
                         else:
-                            await ctx.send("You do not have an existing mehspace")
+                            await ctx.send("You do not have an existing mehspace"+assets.Emotes(client).yikes)
+                            
                     elif msg.lower() in (ef.m_options+['done','cancel','send']):
                         if msg.lower() not in "cancel done send":
                             setup_value = msg.lower()

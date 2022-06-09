@@ -21,7 +21,7 @@ class Confirm(nextcord.ui.View):
         self.stop()
         return self.value
         
-    @nextcord.ui.button(label="Cancel",style=nextcord.ButtonStyle.red)
+    @nextcord.ui.button(label="Cancel",style=nextcord.ButtonStyle.blurple)
     async def cancel(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
         await interaction.response.edit_message(
             embed=ef.cembed(
@@ -58,7 +58,7 @@ class Pages(nextcord.ui.View):
         self.page = start_from
         self.user = getattr(ctx, 'user', getattr(ctx,'author',None))
         
-    @nextcord.ui.button(label="<",style=nextcord.ButtonStyle.red)
+    @nextcord.ui.button(label="<",style=nextcord.ButtonStyle.blurple)
     async def previous(self, button, inter):
         if self.restricted:
             if not self.user == inter.user:
@@ -67,7 +67,7 @@ class Pages(nextcord.ui.View):
             self.page-=1
         await inter.response.edit_message(embed=self.embeds[self.page])
 
-    @nextcord.ui.button(label=">",style=nextcord.ButtonStyle.red)
+    @nextcord.ui.button(label=">",style=nextcord.ButtonStyle.blurple)
     async def next(self, button, inter):
         if self.restricted:
             if not self.user == inter.user:
@@ -97,4 +97,5 @@ class Emotes:
         self.loading = client.get_emoji(948396323843997776)
         self.upvote = client.get_emoji(945509681256865845)
         self.boost = client.get_emoji(975323250546597888)
+        self.yikes = client.get_emoji(852810342991527946)
         

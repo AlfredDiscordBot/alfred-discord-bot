@@ -63,6 +63,10 @@ class BotInfo(commands.Cog):
             footer="Have fun, bot has many features, check out /help",
             thumbnail = self.client.user.avatar.url
         )
+        permissions1 = "`"*3+"diff\n+ "+'\n+ '.join([i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if i[1]])+"\n"+"`"*3+"\n\n"
+        permissions2 = "`"*3+"diff\n- "+'\n- '.join([i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if not i[1]])+"\n"+"`"*3+"\n\n"
+        em.add_field(name="Allowed",value=permissions1,inline=False)
+        em.add_field(name="Denied",value=permissions2,inline=False)
         await ctx.send(embed=em)
     
     
@@ -93,7 +97,7 @@ class BotInfo(commands.Cog):
         await ctx.send(
             embed=ef.cembed(
                 title="Vote for Alfred",
-                description=f"`Top.gg:         `>>[{upvote}](https://top.gg/bot/811591623242154046/vote)<<\n`DiscordBotList: `>>[{upvote}](https://discordbotlist.com/bots/811591623242154046/upvote)<<\n`Botsfordiscord: `>>[{upvote}](https://botsfordiscord.com/bot/811591623242154046/vote)<<\n`Batcave Top.gg: `>>[{upvote}](https://top.gg/servers/822445271019421746/vote)<<",
+                description=f"`Top.gg:         `>>[{upvote}](https://top.gg/bot/811591623242154046/vote)<<\n`DiscordBotList: `>>[{upvote}](https://discordbotlist.com/bots/811591623242154046/upvote)<<\n`Botsfordiscord: `>>[{upvote}](https://botsfordiscord.com/bot/811591623242154046/vote)<<\n`Wayne Enterprises Top.gg: `>>[{upvote}](https://top.gg/servers/822445271019421746/vote)<<",
                 color=self.client.re[8],
                 thumbnail=self.client.user.avatar.url,
                 image = "https://previews.123rf.com/images/aquir/aquir1311/aquir131100570/24053063-voz-del-sello-del-grunge-rojo.jpg",
@@ -139,7 +143,7 @@ class BotInfo(commands.Cog):
             print(traceback.format_exc())
     
     @nextcord.slash_command(name="help", description="Help from Alfred")
-    async def help_slash(self, inter, text = "unique stuff"):    
+    async def help_slash(self, inter, text = None):    
         await inter.response.defer()        
         await self.help(inter, text = text)
 
@@ -156,6 +160,7 @@ class BotInfo(commands.Cog):
             self.embe.insert(1, new_embed)
             self.index = [i.title for i in self.embe]
         autocomp_help = [str(i) for i in list(self.index)+list(self.client.commands) if text.lower() in str(i).lower()][:25]
+        print(autocomp_help)
         await inter.response.send_autocomplete(autocomp_help)
 
     @nextcord.slash_command(name="serverinfo",description="Get your server information")
@@ -222,6 +227,20 @@ class BotInfo(commands.Cog):
                 color=self.client.re[8]
             )
         )
+        
+    @commands.command()
+    async def learn(self, ctx):
+        embeds = []
+        with open("Learn.md") as f:
+            l = f.read().replace("- ",":diamond_shape_with_a_dot_inside: ").split("\n\n")
+            j = l[:8]
+            j.append("\n\n".join(l[8:]))
+            a=0
+            for i in j:
+                a+=1
+                embed = ef.cembed(title="Learn", color=self.client.re[8], description=i, footer=str(a)+" of "+str(len(j)))
+                embeds.append(embed)
+        await assets.pa(ctx,embeds)
 
     @nextcord.slash_command(name="license", description="View Alfred's Open Source License")
     async def license(self,inter):

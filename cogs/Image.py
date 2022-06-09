@@ -29,10 +29,11 @@ class Image(commands.Cog):
         self.client.re[0]+=1
         user = getattr(ctx,'author',getattr(ctx,'user',None))
         if not member: member = user
+        picture = member.guild_avatar or ef.safe_pfp(member)
         embed=ef.cembed(
             title=f"Profile Picture -> {member.name}",
             footer=f"Amazing picture | Requested by {user.name}",
-            picture=ef.safe_pfp(member),
+            picture=picture,
             color=member.color
         )
         await ctx.send(embed=embed)

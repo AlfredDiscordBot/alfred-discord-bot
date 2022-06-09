@@ -14,6 +14,7 @@ from nextcord import Interaction, SlashOption, ChannelType
 from nextcord.ext import commands, tasks
 from random import choice
 from spotify_client import *
+from nextcord import SlashOption
 
 #Use nextcord.slash_command() and commands.command()
 
@@ -243,11 +244,15 @@ class Music(commands.Cog):
     @nextcord.slash_command(name="connect", description="Connect to a voice channel")
     async def connect_slash(self, inter, channel: GuildChannel = ef.defa(ChannelType.voice)):
         await self.connect_music(inter, channel)
+
+    @nextcord.slash_command(name="testing1", guild_ids=[822445271019421746])
+    async def testing(self, inter, op = SlashOption(name="foo_bar2")):
+        await inter.send("Done")
     
     
     @commands.command(aliases=["cm",'join','cn','connect'])
     @commands.check(ef.check_command)
-    async def connect_music(self, ctx, channel=None):
+    async def connect_music(self, ctx, channel=None):        
         if type(channel) == nextcord.channel.VoiceChannel: 
             channel = channel.name
         print("Connect music", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
@@ -260,8 +265,7 @@ class Music(commands.Cog):
                 self.client.re[3][str(ctx.guild.id)] = 0
             if channel == None:
                 if user.voice and user.voice.channel:
-                    channel = user.voice.channel.id
-                    voiceChannel = nextcord.utils.get(ctx.guild.voice_channels, id=channel)
+                    voiceChannel = user.voice.channel               
                     await voiceChannel.connect()
                     voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
                     await ctx.send(
@@ -747,7 +751,7 @@ class Music(commands.Cog):
                         mess = await ctx.send(
                             embed=nextcord.Embed(
                                 title="Playing",
-                                description=self.cliet.da1[song],
+                                description=self.client.da1[song],
                                 color=nextcord.Color(self.client.re[8]),
                             )
                         )
@@ -859,6 +863,56 @@ class Music(commands.Cog):
     async def play_slash(self, inter, index):
         await inter.response.defer()
         await self.play(inter, index = index)
+
+    @commands.command(aliases=[">", "skip"])
+    @commands.check(ef.check_command)
+    async def next(self, ctx):
+        self.client.re[0]+=1
+        try:
+            if ef.check_voice(ctx):
+                self.client.re[3][str(ctx.guild.id)] += 1
+                if self.client.re[3][str(ctx.guild.id)] >= len(self.client.queue_song[str(ctx.guild.id)]):
+                    self.client.re[3][str(ctx.guild.id)] = len(self.client.queue_song[str(ctx.guild.id)]) - 1
+                    await ctx.send(
+                        embed=ef.cembed(
+                            title="Last song",
+                            description="Only "
+                            + str(len(self.client.queue_song[str(ctx.guild.id)]))
+                            + " songs in your queue",
+                            color=self.client.re[8],
+                        )
+                    )
+                song = self.client.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
+                voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
+                URL = ef.youtube_download(ctx, song)            
+                embed=ef.cembed(
+                    title="Playing",
+                    description=self.client.da1.get(song,"Unavailable"),
+                    color=self.client.re[8],
+                )
+                await ef.isReaction(ctx,embed)
+                voice.stop()
+                voice.play(
+                    nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS),
+                    after=lambda e: repeat(ctx, voice),
+                )
+            else:
+                embed=nextcord.Embed(
+                    title="Permission denied",
+                    description="Join the voice channel to move to the next song",
+                    color=nextcord.Color(value=re[8]),
+                )
+                await ef.isReaction(ctx,embed)
+        except Exception as e:
+            channel = self.client.get_channel(self.dev_channel)
+            await channel.send(
+                embed=ef.cembed(
+                    title="Error in next function",
+                    description=traceback.format_exc(),
+                    footer=f"{ctx.channel.name}:{ctx.guild.name}",
+                    color=self.client.re[8],
+                )
+            )
     
         
     @commands.Cog.listener()
@@ -902,6 +956,15 @@ class Music(commands.Cog):
                     pass
                 reaction.message.author = user
                 await self.previous(reaction.message)  
+        if reaction.emoji == "⏭":
+            if (
+                str(user) != str(self.client.user)
+                and reaction.message.author == self.client.user
+            ):
+                try:await reaction.remove(user)
+                except:pass
+                reaction.message.author = user
+                await self.next(reaction.message)       
         if reaction.emoji == "▶":
             if (
                 str(user) != str(self.client.user)

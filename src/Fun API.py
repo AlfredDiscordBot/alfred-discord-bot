@@ -177,46 +177,6 @@ def main(client, re):
         )
         embed.set_thumbnail(url="https://i.imgur.com/u1TPbIp.png?1")
         await ctx.send(embed=embed)
-
-    @client.command()
-    @commands.check(ef.check_command)
-    async def csvoyager(ctx, edition = 0):
-        embeds=[]
-        if edition <0: 
-            await ctx.send(
-                embed=ef.cembed(
-                    title = "Oops, an error occured",
-                    description = "You've chosen an edition number less than 0, we'll display the latest if you put the number as 0 or if you just dont put an edition number",
-                    thumbnail = "https://csvoyager-again.vercel.app/img/logo.png",
-                    footer = "CSVoyager discord server:  https://discord.gg/nez9zCM57Y | Have a great day and sorry for inconvenience",
-                    color = re[8]
-                )
-            )
-            return
-        posts = await ef.get_async("https://csvoyager-api.vercel.app/api/posts", kind = "json")
-        if edition > len(posts):
-            await ctx.send(
-                embed=ef.cembed(
-                    title = "Oops, this edition does not exist",
-                    description = "Keep in touch, this edition may come soon",
-                    color = re[8],
-                    thumbnail = "https://csvoyager-again.vercel.app/img/logo.png",
-                    footer = "CSVoyager discord server:  https://discord.gg/nez9zCM57Y | Have a great day and sorry for inconvenience"
-                )
-            )
-            return
-        post = posts[int(edition)-1]
-
-        for i in range(len(post['book']['url'])):
-            embed = ef.cembed(title=post['title'], description = post['desc'], footer=f"{i+1} of {len(post['book']['url'])}", color=re[8], picture=post['book']['url'][i], thumbnail = "https://csvoyager-again.vercel.app/img/logo.png")
-            embed.set_author(
-                name = "CS Voyager",
-                icon_url = "https://csvoyager-again.vercel.app/img/logo.png",
-                url = "https://csvoyager.vercel.app/"
-            )
-            embeds.append(embed)
-        await assets.pa(ctx, embeds, start_from=0, restricted=False)
-
     
     @client.command()
     @commands.check(ef.check_command)
