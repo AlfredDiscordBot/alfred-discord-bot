@@ -1,4 +1,5 @@
 import External_functions as ef
+import os
 
 def requirements():
     return [
@@ -36,10 +37,10 @@ def main(client, re, AiD, dev_channel):
             a = await ef.get_async(
                 f"http://api.wolframalpha.com/v1/simple?appid={AiD}&i={question}&layout=labelbar&width=1500",kind="file>output.png"
             )
-            embed = nextcord.Embed(
+            embed = ef.cembed(
                 title="Wolfram",
                 description="This result is from Wolfram",
-                color=nextcord.Color(value=re[8]),
+                color=re[8]
             )
             embed.set_thumbnail(
                 url="https://www.wolfram.com/homepage/img/carousel-wolfram-alpha.png"

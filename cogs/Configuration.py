@@ -57,7 +57,7 @@ class Configuration(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(
                     description=f"My Prefix is `{self.client.prefix_dict.get(ctx.guild.id,default_prefix)}`",
-                    color=re[8]
+                    color=self.client.re[8]
                 )
             )
             return
