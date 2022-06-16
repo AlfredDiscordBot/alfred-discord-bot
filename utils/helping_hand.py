@@ -80,7 +80,7 @@ def effects_helper():
             'wave',
             'udnie'
         ],
-        default = 'cartoonify'
+        required = True
     )
 
 message_from = r"""
@@ -89,6 +89,11 @@ Alfred is much faster than ever before, even with more command and slash command
 
 **Running latest Nextcord version**
 Alfred gets updates a lot quicker, and compatibility
+
+**Added a new feature called wordcloud**
+Wordcloud basically collects the messages specified *we do not store it anywhere*, and creates a picture with the words in it. Larger font means more you say that word.
+
+
 """
 
 def help_him(client, re):

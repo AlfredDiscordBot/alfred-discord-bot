@@ -352,8 +352,7 @@ class Music(commands.Cog):
         )
 
     @nextcord.slash_command(name = "queue", description = "play a song")
-    async def queue_slash(inter, song = "-"):
-        if song == "-": song = ""
+    async def queue_slash(self, inter, song: str = None):
         await self.queue(inter, name = song)
     
         

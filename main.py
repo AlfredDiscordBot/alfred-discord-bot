@@ -66,7 +66,6 @@ observer=[]
 mspace={}
 deathrate = {}
 sent = None
-instagram_posts = []
 intents = nextcord.Intents().default()
 intents.members = True
 intents.message_content = True

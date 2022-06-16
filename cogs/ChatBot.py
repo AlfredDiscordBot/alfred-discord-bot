@@ -84,6 +84,14 @@ class ChatBot(commands.Cog):
 
     @nextcord.slash_command("model")
     async def changeM(self, inter, model = ef.defa(choices=models)):
+        if not model:
+            mod = models[self.client.re[10].get(inter.guild.id, 1)-1]
+            await inter.send(
+                embed=ef.cembed(
+                    description=f"Current model is {mod}"
+                )
+            )
+            return
         if not inter.user.guild_permissions.manage_guild:
             d = assets.Emotes(self.client).animated_wrong
             await inter.send(

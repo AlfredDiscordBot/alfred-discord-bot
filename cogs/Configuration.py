@@ -147,7 +147,7 @@ class Configuration(commands.Cog):
 
     
     @nextcord.slash_command(name="commands", description="Enable and Disable commands, only for admins")
-    async def comm(self, inter, mode = ef.defa(choices=['enable','disable','show']), command = "-"):
+    async def comm(self, inter, mode = ef.defa(choices=['enable','disable','show'], required=True), command = "-"):
         await inter.response.defer()
         command = command.lower()        
         if not inter.user.guild_permissions.administrator:
@@ -330,7 +330,7 @@ class Configuration(commands.Cog):
             )
 
     @nextcord.slash_command(name="config",description="Set your configuration")
-    async def config_slash(self, inter, mode = ef.defa(choices = ['enable', 'disable', 'show']), feature = ef.defa(choices = ['snipe','response','suicide_detector'])):
+    async def config_slash(self, inter, mode = ef.defa(choices = ['enable', 'disable', 'show'], required=True), feature = ef.defa(choices = ['snipe','response','suicide_detector'])):
         await inter.response.defer()        
         if mode == "show":
             embed = ef.cembed(

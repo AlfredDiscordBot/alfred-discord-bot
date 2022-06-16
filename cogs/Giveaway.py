@@ -89,7 +89,7 @@ class Giveaway(commands.Cog):
         await ctx.send(f"Congratulations, {l} has won the giveaway")
 
     @nextcord.message_command(name="roll")
-    async def roll_interaction(inter, message):
+    async def roll_interaction(self, inter, message):
         if not inter.user.guild_permissions.manage_channels:
             await inter.response.send_message(
                 "Permission Denied, you need manage channels permission",

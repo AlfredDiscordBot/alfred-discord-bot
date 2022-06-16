@@ -118,8 +118,10 @@ def main(client, re):
     async def code(ctx, lang, *, code):
         actual_code = filter_graves(code)
         output = rce.execute_code(language=lang, code=actual_code)
-        if len(output)>150:
+        if len(output)>500:
             output=output[:150]+"..."
+            if not output.endswith("```"):
+                output+="```"
         elif len(output.split("\n"))>10:
             output='\n'.join(output.split("\n")[:10])+"\n..."
         embed = discord.Embed(

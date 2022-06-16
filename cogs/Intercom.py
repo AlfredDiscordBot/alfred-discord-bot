@@ -17,6 +17,7 @@ class Intercom(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.calls = {}
+        self.old_message = {}
 
     @nextcord.slash_command(name="intercom", description="Set a channel for intercom, if not given removes the existing channel")
     async def intercom(self, inter, channel:GuildChannel = "-"):
@@ -54,7 +55,15 @@ class Intercom(commands.Cog):
             await ctx.send("Permissions Denied")
             return
         if ctx.guild.id in self.calls:
+            await self.client.get_channel(self.client.config['connect'][self.calls[ctx.guild.id]]).send(
+                embed=ef.cembed(
+                    title="Call Ended",
+                    description="The server has ended the call",
+                    color=self.client.re[8]
+                )
+            )
             self.calls.pop(self.calls.pop(ctx.guild.id))
+            
             await ctx.send("Ended call")
             return
         await ctx.send("No call in progress")
@@ -158,7 +167,8 @@ class Intercom(commands.Cog):
         if msg.guild.id in self.calls:
             b = msg.guild.id
             a = self.calls[b]
-            if msg.author.bot: return            
+            if msg.author.bot: return           
+                
             if msg.guild.id == a:
                 if not msg.channel.id == self.client.config['connect'][a]: return
                 c = self.client.get_channel(self.client.config['connect'][b])
@@ -167,6 +177,9 @@ class Intercom(commands.Cog):
                     color=self.client.re[8],                    
                 )
                 embed.set_author(name = msg.author.name, icon_url = ef.safe_pfp(msg.author))
+                if msg.attachments != []:
+                    if msg.attachments[0].url[-4:] in (".gif", ".jpg", ".png"):
+                        embed.set_image(msg.attachments[0].url)
                 await c.send(embed=embed)
 
             if msg.guild.id == b:
@@ -175,9 +188,12 @@ class Intercom(commands.Cog):
                 embed = ef.cembed(
                     description = msg.content,
                     color=self.client.re[8],   
-                    footer=msg.guild.name + f'> {msg.guild.id}'
+                    footer=f'{msg.guild.name} > {msg.guild.id}'
                 )
-                embed.set_author(name = msg.author.name, icon_url = ef.safe_pfp(msg.author))
+                embed.set_author(name = msg.author.name, icon_url = ef.safe_pfp(msg.author))    
+                if msg.attachments != []:
+                    if msg.attachments[0].url[-4:] in (".gif", ".jpg", ".png"):
+                        embed.set_image(msg.attachments[0].url)
                 await c.send(embed=embed)
                 await msg.add_reaction("✅")
             

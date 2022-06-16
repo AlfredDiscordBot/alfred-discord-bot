@@ -39,18 +39,16 @@ async def command_name(ctx, arg1, arg2, arg3, *, args):
 ### Here's how you create a slash command
 ```py
 @client.slash_command(name="name",description="This is a slash command")
-async def sl(ctx: nextcord.Interaction, arg1, default_arg = "Here"):
+async def sl(inter: nextcord.Interaction, arg1, default_arg = "Here"):
   '''
-  We may have named it ctx,
-  but this is not the same as context in the regular command as you've seen above
-  This is a little different from that, this is Interaction
+  This is a little different from ctx, this is Interaction
   User is used instead of author
   Has an attribute called response
   and original message
   '''
-  await ctx.send("Hellow world")
+  await inter.send("Hellow world")
   #To edit a message
-  await ctx.response.edit_message("Hello world")
+  await inter.response.edit_message("Hello world")
 ```
 
 ### Cogs

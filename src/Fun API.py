@@ -105,39 +105,6 @@ def main(client, re):
             embeds.append(embed)
 
         await assets.pa(ctx, embeds, start_from=page, restricted=False)
-
-        
-    @client.command()
-    @commands.check(ef.check_command)
-    async def pokemon(ctx, pokemon=None):
-        re[0] + re[0] + 1
-        try:
-            a = await ef.get_async(f"https://pokeapi.co/api/v2/pokemon/{ef.convert_to_url(pokemon.lower())}",kind="json")
-        except:
-            a = "Not Found"
-        if a != "Not Found":
-            response = a
-            title = response["name"]
-            thumbnail = response["sprites"]["front_default"]
-            ability = "**ABILITIES:**\n"
-            for i in response["abilities"]:
-                ability += i["ability"]["name"] + "\n"
-            weight = "\n**WEIGHT**\n" + str(response["weight"])
-            embed = discord.Embed(
-                title=title,
-                description=ability + weight,
-                color=discord.Color(value=re[8]),
-            )
-            embed.set_thumbnail(url=thumbnail)
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send(
-                embed=discord.Embed(
-                    title="Hmm",
-                    description="Not found",
-                    color=discord.Color(value=re[8]),
-                )
-            )
             
             
     @client.command()

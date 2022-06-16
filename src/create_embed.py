@@ -416,6 +416,7 @@ def main(client, re, mspace, dev_channel):
                 "I dont see any embed in that message",
                 ephemeral=True                
             )
+            return
         a = message.embeds[0].to_dict()
         a = converter(a)
         await inter.response.send_message(

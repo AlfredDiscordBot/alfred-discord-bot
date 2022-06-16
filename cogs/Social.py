@@ -180,6 +180,38 @@ class Social(commands.Cog):
     @commands.command(alias=['insta'])
     @commands.check(ef.check_command)
     async def instagram(self, ctx, account):    
+        embeds = []
+        pop_in = await ef.get_async(f"https://api.popcat.xyz/instagram?user={ef.convert_to_url(account)}", kind="json")
+        if pop_in.get('error'):
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Error",
+                    description=pop_in['error'],
+                    color=self.client.re[8]
+                )
+            )
+            return
+        elif pop_in.get('private'):
+            embed=ef.cembed(
+                title=pop_in.get("full_name"),
+                description=pop_in.get("biography"),
+                color=self.client.re[8],
+                thumbnail=pop_in.get("profile_pic"),
+                footer="This user has a private account, cannot share his posts, sorry for the inconvenience"
+            )
+            for i in ("followers", "following"):
+                embed.add_field(name=i, value=pop_in.get(i))
+            await ctx.send(embed=embed)
+            return
+        embed=ef.cembed(
+            title=pop_in.get("full_name"),
+            description=pop_in.get("biography"),
+            color=self.client.re[8],
+            thumbnail=pop_in.get("profile_pic")
+        )
+        for i in ("followers", "following", "posts", "reels", "private", "verified"):
+            embed.add_field(name=i, value=str(pop_in.get(i)))
+        embeds.append(embed)
         try:
             links = ef.instagram_get1(
                 account,
@@ -202,8 +234,7 @@ class Social(commands.Cog):
                     account,
                     self.client.re[8],
                     self.client.re[9]
-                )
-            embeds = []
+                )            
             for a in links:
                 if a is not None and type(a) != str:
                     embeds.append(a[0])

@@ -109,7 +109,7 @@ class BotInfo(commands.Cog):
     async def vo(self, inter):
         await self.vote_alfred(inter)
 
-    @commands.command(aliases=['h'])
+    @commands.command(aliases=['h','alfred'])
     async def help(self, ctx, *, text = "<Optional>"):
         self.client.re[0]+=1
         try:
@@ -220,13 +220,15 @@ class BotInfo(commands.Cog):
     async def view_raw(self, inter, message):
         a = message.clean_content.replace("`","\\`")
         await inter.response.send_message(
-            ephemeral = True,
-            embed=ef.cembed(
-                title="Raw text",
-                description=f"```\n{a}\n```",
-                color=self.client.re[8]
-            )
+            f"```\n{a}\n```",
+            ephemeral = True
         )
+
+    @commands.command()
+    async def view_raw(self, ctx):
+        a = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+        a = a.clean_content.replace("`","\\`")
+        await ctx.send(f"```\n{a}\n```")
         
     @commands.command()
     async def learn(self, ctx):

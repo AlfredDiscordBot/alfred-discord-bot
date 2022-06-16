@@ -1,12 +1,15 @@
 import nextcord
 import assets
 import time
+import os
 import helping_hand
 import External_functions as ef
 from nextcord.ext import commands, tasks
 from io import BytesIO
 from nextcord import Interaction, SlashOption, ChannelType
 from nextcord.abc import GuildChannel
+from wordcloud import WordCloud
+from collections import Counter
 
 #Use nextcord.slash_command()
 
@@ -39,9 +42,9 @@ class Image(commands.Cog):
         await ctx.send(embed=embed)
 
     @nextcord.slash_command(name="blend",description="Blend your pfp with another picture")
-    async def blend(self, inter, url_of_picture:str, member:nextcord.Member="None", ratio=0.5):
+    async def blend(self, inter, url_of_picture:str, member:nextcord.Member=None, ratio=0.5):
         await inter.response.defer()
-        if member == "None":
+        if not member:
             url = ef.safe_pfp(inter.user)
         else:
             url = ef.safe_pfp(member)
@@ -98,6 +101,34 @@ class Image(commands.Cog):
             byte = await ef.post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/cv", json=json)    
             
         await ctx.send(file=nextcord.File(BytesIO(byte), 'effect.png'))
+
+    @commands.command(name="wordcloud")
+    @commands.check(ef.check_command)
+    @commands.cooldown(1,10,commands.BucketType.guild)
+    async def word(self, ctx, user: nextcord.Member = None):
+        if not user: user = ctx.author
+        a = await ctx.channel.history(limit=3000).flatten()        
+        text = " ".join([i.clean_content for i in a if i.author.id == user.id])
+        WordCloud(height=1080, width=1920).generate(text).to_file("test.png")
+        description="**Most common words**```\n"
+        count = Counter(text.lower().split())
+        equalised = ef.equalise([i[:14] for i in count])
+        for i in sorted(count.items(), key=lambda h: h[1],reverse=True)[:10]:
+            description+=f"\n{equalised[i[0][:14]]} -> {i[1]}"
+        embed=ef.cembed(
+            title="Word Cloud",
+            image="attachment://test.png",
+            color=self.client.re[8],
+            footer="For reasons, we're only collecting last 3000 messages",
+            description=f"{description}\n```",
+            thumbnail=ef.safe_pfp(ctx.guild)
+        )
+        embed.set_author(name=user.name, icon_url=ef.safe_pfp(user))
+        await ctx.reply(
+            file=nextcord.File("test.png"),
+            embed=embed
+        )
+        os.remove("test.png")
 
 def setup(client,**i):
     client.add_cog(Image(client,**i))

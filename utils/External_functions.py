@@ -630,11 +630,11 @@ def safe_pfp(user):
         return user.avatar.url
     return pfp
 
-def defa(*types, default = None, choices=[]):
+def defa(*types, default = None, choices=[], required = False):
     if types == []: return SlashOption(default = default, required = False)
     if choices != []:
-        return SlashOption(choices=choices, default = None)   
-    return SlashOption(channel_types = types)
+        return SlashOption(choices=choices, default = None, required = required)   
+    return SlashOption(channel_types = types, required = required)
 
 async def ly(song, re):
     j = await get_async(f"https://api.popcat.xyz/lyrics?song={convert_to_url(song)}",kind="json")
@@ -877,15 +877,43 @@ class Pokemon:
     def search(self, name: str):
         return [i for i in self.pokemons if name.lower() in i.lower()][:25]
 
-    async def get_stats(self, pokemon: str, embed: bool = False, color = 28656):
-        d = await get_async(self.pokemons[pokemon], kind="json")
-        if not embed:
-            return d
+    async def get_stats(
+        self, 
+        pokemon: str, 
+        embed: bool = False, 
+        color = 28656
+    ):
+        try:
+            d = await get_async(
+                self.pokemons[pokemon],
+                kind="json"
+            )
+        except:
+            if embed:
+                return(cembed(description="Not found", color=color))
+            return{"message": "Not Found"}
+        
+        if not embed: return d            
         embed=cembed(
             title="Pokemon",
             color=color,
-            thumbnail=a['sprites']['front_default']
+            thumbnail=d['sprites']['front_default']
         )
+        for i in d['stats']:
+            embed.add_field(
+                name=i['stat']['name'],
+                value=i['base_stat']
+            )
+        embed.add_field(
+            name="Weight",
+            value=d['weight']
+        )
+        
+        embed.add_field(
+            name="Abilities",
+            value="\n".join([i['ability']['name'] for i in d['abilities']])
+        )
+        return embed
         
         
         

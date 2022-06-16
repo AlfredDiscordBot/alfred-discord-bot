@@ -86,7 +86,7 @@ class Ticket(commands.Cog):
             return
         if description == "None":
             description = "Open your tickets here"
-        await inter.send("Done",ephemeral=True)
+        await inter.response.send("Done", ephemeral=True)
         message = await inter.channel.send(
             embed=ef.cembed(
                 title="Ticket",
