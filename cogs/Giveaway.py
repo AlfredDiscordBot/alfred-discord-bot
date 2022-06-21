@@ -119,7 +119,7 @@ class Giveaway(commands.Cog):
                 users.remove(i)
                 await reaction.remove(i)    
         if len(users) == 0: 
-            await ctx.send("No one participated in the giveaway :frown:")
+            await inter.send("No one participated in the giveaway :frown:")
             return
         l = ""
         for i in range(int(1)):

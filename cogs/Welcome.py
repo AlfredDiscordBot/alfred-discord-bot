@@ -48,7 +48,7 @@ class Welcome(commands.Cog):
         self.client = client
 
     def cleanup_data(self):
-        if not client.is_ready(): return
+        if not self.client.is_ready(): return
         for i in self.client.config['welcome']:
             if not self.client.get_guild(i):
                 self.client.config['welcome'].remove(i)
