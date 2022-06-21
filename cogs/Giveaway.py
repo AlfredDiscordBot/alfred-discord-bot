@@ -39,7 +39,7 @@ class Giveaway(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description="You need admin permission to access this function",
+                    description="You need manage channel permission to access this function",
                     color=self.client.re[8]
                 )
             )
@@ -96,8 +96,39 @@ class Giveaway(commands.Cog):
                 ephemeral = True                
             )
             return
-        await inter.response.defer()
-        await inter.response.send_message("Coming soon", ephemeral = True)
-
+        if message.author.id != self.client.user.id:
+            await inter.response.send_message(
+                "That's not my message",
+                ephemeral=True
+            )
+            return
+        if not message.content.startswith("Giveaway"):
+            await inter.response.send_message(
+                "Ok that's my messsage, but is that a giveaway message?????",
+                ephemeral = True
+            )
+            return
+        reaction = message.reactions[0]
+        users = await reaction.users().flatten()
+        users.remove(self.client.user)
+        roles = message.raw_role_mentions
+        if len(roles) > 0: roles = roles[0]
+        if type(roles) == int: roles = inter.guild.get_role(roles)
+        for i in users.copy():
+            if roles != [] and roles not in i.roles: 
+                users.remove(i)
+                await reaction.remove(i)    
+        if len(users) == 0: 
+            await ctx.send("No one participated in the giveaway :frown:")
+            return
+        l = ""
+        for i in range(int(1)):
+            lu = choice(users)
+            await reaction.remove(lu)
+            lu = lu.mention
+            l = l+lu
+        await inter.channel.send(f"Congratulations, {l} has won the giveaway")
+        
+        
 def setup(client,**i):
     client.add_cog(Giveaway(client,**i))

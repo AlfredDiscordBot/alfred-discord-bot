@@ -107,8 +107,9 @@ class Image(commands.Cog):
     @commands.cooldown(1,10,commands.BucketType.guild)
     async def word(self, ctx, user: nextcord.Member = None):
         if not user: user = ctx.author
-        a = await ctx.channel.history(limit=3000).flatten()        
-        text = " ".join([i.clean_content for i in a if i.author.id == user.id])
+        a = await ctx.channel.history(limit=3000).flatten()  
+        messages = [i.clean_content for i in a if i.author.id == user.id]
+        text = " ".join(messages)
         WordCloud(height=1080, width=1920).generate(text).to_file("test.png")
         description="**Most common words**```\n"
         count = Counter(text.lower().split())
@@ -119,7 +120,7 @@ class Image(commands.Cog):
             title="Word Cloud",
             image="attachment://test.png",
             color=self.client.re[8],
-            footer="For reasons, we're only collecting last 3000 messages",
+            footer=f"{len(messages)} Messages | {len(text)} Words",
             description=f"{description}\n```",
             thumbnail=ef.safe_pfp(ctx.guild)
         )

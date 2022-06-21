@@ -893,7 +893,7 @@ class Music(commands.Cog):
                 voice.stop()
                 voice.play(
                     nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS),
-                    after=lambda e: repeat(ctx, voice),
+                    after=lambda e: self.repeat(ctx, voice),
                 )
             else:
                 embed=nextcord.Embed(

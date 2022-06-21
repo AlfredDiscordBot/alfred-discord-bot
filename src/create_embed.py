@@ -1,8 +1,9 @@
-import nextcord as discord
+import nextcord
 from nextcord.ext import commands
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 from compile import filter_graves
+from typing import Union
 from yaml import safe_load, safe_dump
 import traceback
 import asyncio
@@ -39,7 +40,7 @@ def preset_change(di, ctx, client, re = {8: 6619080}):
         '<author-icon>' : ef.safe_pfp(user),
         '<author-color>': str(user.color.to_rgb()),
         '<bot-icon>' : client.user.avatar.url,
-        '<bot-color>' : str(discord.Color(re[8]).to_rgb())
+        '<bot-color>' : str(nextcord.Color(re[8]).to_rgb())
     }
     if type(di) == str:
         di ={
@@ -55,6 +56,12 @@ def preset_change(di, ctx, client, re = {8: 6619080}):
         if i in ['color','thumbnail','image','picture']:
             if di[i] in presets:
                 di[i] = presets[di[i]]
+        if i == "footer":
+            if isinstance(di[i], dict):
+                if di[i].get("icon_url") and di[i].get("icon_url") in presets:
+                    di[i]['icon_url'] = presets[di[i]['icon_url']]
+                    
+                
     if  type(di.get('author')) == dict:
         for i in di['author']:
             if i == 'icon_url':
@@ -84,7 +91,7 @@ class EmbedInfo:
         self.set_thumbnail(thumbnail)
         self.set_image(image)
 
-        self.color = discord.Color.from_rgb(*color)
+        self.color = nextcord.Color.from_rgb(*color)
 
     def set_thumbnail(self, url: str) -> None:
         """
@@ -104,7 +111,7 @@ class EmbedInfo:
         """
         Set's the color of the embed.
         """
-        self.color = discord.Color.from_rgb(*color)
+        self.color = nextcord.Color.from_rgb(*color)
 
     def __repr__(self):
         return f"<EmbedInfo {self.title or False}>"
@@ -169,16 +176,16 @@ def validate_url(url: str) -> bool:
 
 def get_color(color):
     """
-    returns the value of color as discord.color or int
+    returns the value of color as nextcord.color or int
     """
-    default_color = discord.Color.from_rgb(48, 213, 200)
+    default_color = nextcord.Color.from_rgb(48, 213, 200)
 
     if color is None:
         return default_color
     elif type(color) is int:
         return color
     elif (type(color) is str) and (type(col := tuple([int(i) for i in color.replace("(","").replace(")","").split(",")])) is tuple):
-        return discord.Color.from_rgb(*col)
+        return nextcord.Color.from_rgb(*col)
 
     return default_color
 
@@ -197,7 +204,7 @@ def set_url(set_func, url) -> None:
     return
 
 
-def embed_from_dict(info: dict, ctx, client, re) -> discord.Embed:
+def embed_from_dict(info: dict, ctx, client, re) -> nextcord.Embed:
     """
     Generates an embed from given dict
     """
@@ -212,8 +219,6 @@ def embed_from_dict(info: dict, ctx, client, re) -> discord.Embed:
         set_url(embed.set_image, image)
     if thumbnail := info.get("thumbnail", None):
         set_url(embed.set_thumbnail, thumbnail)
-    if footer := info.get("footer", None):
-        embed.set_footer(text=footer)
     if author := info.get("author", None):
       if isinstance(author, bool):
         if author == True:
@@ -254,12 +259,12 @@ def requirements() -> str:
     return ["re","mspace","dev_channel"]
 
 
-def embed_from_info(info: EmbedInfo) -> discord.Embed:
+def embed_from_info(info: EmbedInfo) -> nextcord.Embed:
     """
     returns a complete embed using the given EmbedInfo object
     """
     properties = info.attributes
-    embed = discord.Embed(**properties)
+    embed = nextcord.Embed(**properties)
 
     if "thumbnail" in properties:
         embed.set_thumbnail(url=info.thumbnail)
@@ -274,24 +279,24 @@ def embed_from_info(info: EmbedInfo) -> discord.Embed:
 def main(client, re, mspace, dev_channel):
     embeds = {}
 
-    def quick_embed(description: str) -> discord.Embed:
-        return discord.Embed(
+    def quick_embed(description: str) -> nextcord.Embed:
+        return nextcord.Embed(
             description=description,
-            color=discord.Color(value=re[8]),
+            color=nextcord.Color(value=re[8]),
         )
 
     @client.command(aliases=["yml_embed"])
     @commands.check(ef.check_command)
     async def embed_using_yaml(
-        ctx, channel: discord.TextChannel = None, *, yaml: str = None
+        ctx, channel: Union[nextcord.TextChannel, str] = None, *, yaml: str = None
     ):
         """
         Create an embed from given yaml string and send it in the provided channel.
         """        
         try:
             if (
-                channel.permissions_for(ctx.author).send_messages
-                or ctx.author.id == SUPER_AUTHOR_ID
+                isinstance(channel, nextcord.TextChannel) and (channel.permissions_for(ctx.author).send_messages
+                or ctx.author.id == SUPER_AUTHOR_ID)
             ):
                 if not channel:
                     channel = ctx.channel  # set default channel to current
@@ -305,12 +310,30 @@ def main(client, re, mspace, dev_channel):
                     await send_channel.send(embed=embed)
                 else:
                     await ctx.send(
-                        embed=discord.Embed(
+                        embed=nextcord.Embed(
                             title="Oops",
                             description="This channel does not exist. Please check again",
-                            color=discord.Color(value=re[8]),
+                            color=nextcord.Color(value=re[8]),
                         )
                     )
+            elif validate_url(channel):
+                embed = embed_from_yaml(filter_graves(yaml), ctx, client, re) if yaml else quick_embed("Nothing to Embed")
+                embed=embed.to_dict()
+                data = {
+                    'embeds':[embed]
+                }
+                a = await ef.post_async(channel, json = data)
+                await ctx.send(
+                    embed=ef.cembed(
+                        title="Reply from Webhook",
+                        description=str(a),
+                        color=re[8]
+                    )
+                )
+            else:
+                await ctx.send("Invalid URL form or Channel")
+
+                
         except Exception as e:
             embed=ef.cembed(
                 title="Error in yml embed",
@@ -333,7 +356,7 @@ def main(client, re, mspace, dev_channel):
 
     @client.command(aliases=['mehspace','mspace'])
     @commands.check(ef.check_command)
-    async def myspace(ctx, member :discord.Member = None):
+    async def myspace(ctx, member :nextcord.Member = None):
         if not member:
             if ctx.author.id in client.mspace: 
                 await embed_using_yaml(ctx, channel = ctx.channel, yaml = client.mspace[ctx.author.id])
@@ -372,7 +395,7 @@ def main(client, re, mspace, dev_channel):
         if a.get('image'):
             a['image']=a['image']['url']
         if a.get('color'):
-            a['color']=str(discord.Color(a['color']).to_rgb())
+            a['color']=str(nextcord.Color(a['color']).to_rgb())
         return a 
 
     @client.command(aliases = ['info'])
@@ -430,25 +453,25 @@ def main(client, re, mspace, dev_channel):
         )
 
     @client.slash_command(name="embed",description="Create your embed using this")
-    async def em(inter, description, title = "None", color = "(1,1,1)", thumbnail = "None", image = "None", footer = "None", author:discord.Member = "None"):
+    async def em(inter, description, title = None, color = "(1,1,1)", thumbnail = None, image = None, footer = None, author:nextcord.Member = None):
         await inter.response.defer()       
         try:
             d = {
                 'description' : description,
                 'color': color,
             }
-            if author != 'None':
+            if author:
                 d['author'] = {
                     'name' : author.name,
                     'icon_url' : ef.safe_pfp(author)
                 }
-            if image != 'None':
+            if image:
                 d['image'] = image
-            if thumbnail != 'None':
+            if thumbnail:
                 d['thumbnail'] = thumbnail
-            if footer != 'None':
+            if footer:
                 d['footer'] = footer
-            if title != 'None':
+            if title:
                 d['title'] = title
     
             embed = embed_from_dict(d,inter,client,re)
@@ -488,7 +511,7 @@ def main(client, re, mspace, dev_channel):
             setup_value = None
             mai = await ctx.send(
                 embed=ef.cembed(
-                    description=f"Settings up MehSpace. You can choose from:\n"+'\n'.join(ef.m_options)+"\n\nType done or cancel to finish this\nsend #channel will send it to the channel\n\nType `-` to remove the setup value",
+                    description=f"Settings up MehSpace. You can choose from:\n```diff\n+"+'\n+'.join(ef.m_options)+"\n```\n\nType done or cancel to finish this\nsend #channel will send it to the channel\n\nType `-` to remove the setup value \nSeperate footer text and footer icon using |>",
                     color=re[8],
                     footer=f"Follow this message along to setup | {ctx.author.name}"
                 )
@@ -500,6 +523,15 @@ def main(client, re, mspace, dev_channel):
                     message = await client.wait_for("message", check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=720)                
                     msg = message.content
                     if msg.startswith("send"):
+                        if validate_url(message.content.split()[1]):
+                            d = embed_from_dict(di,ctx,client,re).to_dict()
+                            await ef.post_async(
+                                message.content.split()[1],
+                                json = {
+                                    'embeds': [d]
+                                }
+                            )
+                            continue
                         channel_id = int(message.content.split()[1][2:-1])
                         channel = client.get_channel(channel_id)
                         if channel in ctx.guild.channels:     
@@ -508,7 +540,7 @@ def main(client, re, mspace, dev_channel):
                                     embed=ef.cembed(
                                         title="Permissions Denied",
                                         description="You need to be able to send messages in that channel to send this embed",
-                                        color=discord.Color.red(),
+                                        color=nextcord.Color.red(),
                                         thumbnail=client.user.avatar.url
                                     )
                                 )
@@ -518,7 +550,18 @@ def main(client, re, mspace, dev_channel):
                             )
                         continue
                     if msg.lower() == "import":
-                        if client.mspace.get(message.author.id):
+                        if message.reference:
+                            temp = await message.channel.fetch_message(message.reference.message_id)
+                            temp = converter(temp.embeds[0].to_dict()) if temp.embeds else None
+                            if not temp:
+                                await ctx.send("That message has no Embed. If you wanted your mehspace, then don't reply to a message",delete_after=5)
+                                continue
+                            di = temp
+                            await emb.edit(
+                                embed=embed_from_dict(di,ctx,client,re)
+                            )
+                            
+                        elif client.mspace.get(message.author.id):
                             di = safe_load('\n'.join([i for i in client.mspace[ctx.author.id].split("\n") if not i.startswith("```")]))
                             await emb.edit(
                                 embed=embed_from_dict(di,ctx,client,re)
@@ -576,6 +619,12 @@ def main(client, re, mspace, dev_channel):
                                 'name' : ctx.author.name,
                                 'icon_url': ef.safe_pfp(ctx.author)
                             }
+                        elif setup_value == 'footer':
+                            footer_split = msg.split("|>")
+                            di[setup_value] = footer_split[0]
+                            if len(footer_split)>1:
+                                di[setup_value] = {'text':di[setup_value]}
+                                di[setup_value]['icon_url']=footer_split[1]
                         else:
                             di[setup_value] = msg
 

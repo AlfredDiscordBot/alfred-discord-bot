@@ -206,14 +206,6 @@ class BotInfo(commands.Cog):
                 description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""",
                 color=nextcord.Color(value=self.client.re[8]),
             )
-            embed.set_image(
-                url=random.choice(
-                    [                        
-                        "https://giffiles.alphacoders.com/205/205331.gif",
-                        "https://c.tenor.com/PQu-tE-5HxwAAAAd/michael-caine-the-dark-knight.gif",
-                    ]
-                )
-            )
             await msg.channel.send(embed=embed)
 
     @nextcord.message_command()

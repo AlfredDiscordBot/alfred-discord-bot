@@ -1,11 +1,3 @@
-"""
-Set your env like the example below:
-token=
-mysql=
-default=
-dev=
-"""
-
 def temporary_fix():
     from shutil import copyfile
     copyfile("./utils/post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
@@ -135,11 +127,17 @@ client = nextcord.ext.commands.Bot(
     case_insensitive=True,
 )
 
+try:
+    store = Variables("storage")
+except:
+    os.remove("storage.dat")
+    store = Variables("storage")
+
 def save_to_file():
     global dev_users
     print("save")
-    v = Variables("storage")
-    v.pass_all(
+    store = Variables("storage")
+    store.pass_all(
         da = client.da,
         mspace = client.mspace,
         da1 = client.da1,
@@ -154,7 +152,7 @@ def save_to_file():
         autor = autor,
         time = str(datetime.datetime.now().time())
     )
-    v.save()
+    store.save()
 
 
 def load_from_file():
@@ -170,7 +168,7 @@ def load_from_file():
     global mspace
     global autor
 
-    v = Variables("storage").show_data()
+    v = store.show_data()    
     da = v.get("da",{})
     da1 = v.get("da1", {})
     queue_song = v.get("queue_song",{})
@@ -748,19 +746,6 @@ async def on_message_delete(message):
 
 @client.event
 async def on_member_join(member):
-    if member.guild.id in config['welcome']:
-        channel = client.get_channel(config['welcome'][member.guild.id])
-    else: return    
-    description = f"Welcome to the server {member.mention}"
-    embed = nextcord.Embed(
-        title="Welcome!!!",
-        description=description,
-        color=nextcord.Color(value=re[8]),
-    )
-    embed.set_thumbnail(
-        url="https://image.shutterstock.com/image-vector/welcome-poster-spectrum-brush-strokes-260nw-1146069941.jpg"
-    )
-    await channel.send(member.mention + " is here",embed=embed)
     if member.guild.id in config['security']:
         audit_log = await member.guild.audit_logs(limit=10).flatten()
         latest=audit_log[0]
@@ -851,77 +836,6 @@ async def remove(ctx, n):
             )
         )
 
-def repeat(ctx, voice):
-    req()
-    songs = queue_song.get(str(ctx.guild.id),[])
-    if len(songs) == 0: return
-    index = re[3].get(str(ctx.guild.id),0)
-    if len(songs)<index:
-        index = 0
-        re[3][str(ctx.guild.id)]=index
-    song = songs[index]
-    if not song in da1.keys():
-        aa = str(urllib.request.urlopen(song).read().decode())
-        starting = aa.find("<title>") + len("<title>")
-        ending = aa.find("</title>")
-        da1[song] = (
-            aa[starting:ending]
-            .replace("&#39;", "'")
-            .replace(" - YouTube", "")
-            .replace("&amp;", "&")
-        )
-    time.sleep(1)
-    if re[7].get(ctx.guild.id,-1) == 1 and not voice.is_playing():
-        re[3][str(ctx.guild.id)] += 1
-        if re[3][str(ctx.guild.id)] >= len(queue_song[str(ctx.guild.id)]):
-            re[3][str(ctx.guild.id)] = 0
-    if re[2].get(ctx.guild.id,-1) == 1 or re[7].get(ctx.guild.id,-1) == 1:
-        if not voice.is_playing():
-            URL = youtube_download(ctx, song)
-            voice.play(
-                nextcord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),
-                after=lambda e: repeat(ctx, voice),
-            )
-
-async def player_pages(mess):
-    await player_reaction(mess)    
-    emojis = emoji.emojize(":upwards_button:"),emoji.emojize(":downwards_button:")
-    def check(reaction, user):
-        return (
-            user.id != client.user.id
-            and str(reaction.emoji) in emojis
-            and reaction.message.id == mess.id
-        )
-    page=re[3][str(mess.guild.id)]//10
-    while True:
-        songs = queue_song[str(mess.guild.id)]
-        try:
-            reaction, user = await client.wait_for("reaction_add",check=check, timeout=None)
-            if reaction.emoji == emojis[0] and page>0:
-                page-=1
-            elif reaction.emoji == emojis[1] and page<=len(songs):
-                page+=1
-            cu = page * 10
-            st = ""
-            for i in range(cu,cu+10):
-                if len(songs)>i:
-                    if not da1.get(songs[i]):
-                        da1[songs[i]] = await ef.get_name(songs[i])
-                    st+=f"{i}. {da1.get(songs[i],'Unavailable')}\n"
-                    
-            await mess.edit(
-                embed=cembed(
-                    title="Queue",
-                    description=st,
-                    color=re[8],
-                    footer='Amazing songs btw, keep going' if len(songs)!=0 else 'Use queue to add some songs'
-                )
-            )
-            await reaction.remove(user)
-        except asyncio.TimeoutError:
-            await mess.clear_reactions()       
-                
-
 @client.slash_command(name="dictionary", description="Use the dictionary for meaning")
 async def dic(ctx, word):
     await ctx.response.defer()
@@ -981,8 +895,11 @@ async def rollback(ctx):
     if not attachment.endswith("storage.dat"):
         await ctx.send("Not a storage file")
         return
+    os.remove("storage.dat")
     await get_async(attachment, kind="file>storage.dat")
+    store=Variables("storage")
     load_from_file()
+    save_to_file()
     await m.reply("Reverted to this")
     
 
@@ -1445,4 +1362,6 @@ keep_alive()
 try: 
     client.run(os.getenv("token"))
 except: 
-    print(traceback.format_exc());time.sleep(20);os.system("busybox reboot")
+    print(traceback.format_exc())
+    time.sleep(20)
+    os.system("busybox reboot")

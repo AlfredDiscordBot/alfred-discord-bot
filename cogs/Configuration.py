@@ -217,39 +217,15 @@ class Configuration(commands.Cog):
         await inter.response.send_autocomplete(autocomp_command)
 
     @nextcord.slash_command(name = "welcome", description = "set welcome channel")
-    async def wel(self, inter, channel: GuildChannel = "-", text = "Welcome to the server <user>"):
+    async def wel(
+        self,
+        inter,
+        channel: GuildChannel = None,
+        text = "Welcome to the server <user>"
+    ):
         await inter.response.defer()
-        if inter.user.guild_permissions.administrator:
-            if channel != "-":                
-                self.client.config['welcome'][inter.guild.id] = channel.id
-                await inter.send(
-                    embed=ef.cembed(
-                        title="Done",
-                        description=f"Set {channel.mention} for welcome and exit messages.",
-                        color=self.client.re[8],
-                        thumbnail=self.client.user.avatar.url
-                    )
-                )
-            else:
-                if self.client.config['welcome'].get(inter.guild.id):
-                    del self.client.config['welcome'][inter.guild.id]
-                await inter.send(
-                    embed=ef.cembed(
-                        title="Done",
-                        description="Removed welcome channel from config",
-                        color=self.client.re[8],
-                        thumbnail=self.client.user.avatar.url
-                    )
-                )
-        else:
-            await inter.send(
-                embed=ef.cembed(
-                    title="Permissions Denied",
-                    description="You need to be an admin to do this",
-                    thumbnail = self.client.user.avatar.url,
-                    color=nextcord.Color.red()
-                )
-            )
+        await inter.response.send_message("Under maintenance")
+        
 
     @nextcord.slash_command(name = "subscribe", description = "Subscribe to a youtube channel")
     async def sub_slash(self, inter, channel: GuildChannel = None, url = None, message = ""):
@@ -441,6 +417,7 @@ class Configuration(commands.Cog):
                 color=self.client.re[8]
             )
         )         
+
 
 def setup(client,**i):
     client.add_cog(Configuration(client,**i))

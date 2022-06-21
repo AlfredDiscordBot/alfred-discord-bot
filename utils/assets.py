@@ -2,6 +2,8 @@ import nextcord
 from nextcord import Interaction, SlashOption
 import External_functions as ef
 
+color = nextcord.ButtonStyle.blurple
+
 class Confirm(nextcord.ui.View):
     def __init__(self, re = {8: 5160}):
         super().__init__()
@@ -21,7 +23,7 @@ class Confirm(nextcord.ui.View):
         self.stop()
         return self.value
         
-    @nextcord.ui.button(label="Cancel",style=nextcord.ButtonStyle.blurple)
+    @nextcord.ui.button(label="Cancel",style=color)
     async def cancel(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
         await interaction.response.edit_message(
             embed=ef.cembed(
@@ -46,7 +48,8 @@ async def confirm_button(ctx, message, client, re={8: 5160}):
     )
     a = await view.wait()
     return a
-    
+
+
 
 class Pages(nextcord.ui.View):
     def __init__(self, ctx, embeds, restricted = False, start_from = 0):
@@ -58,7 +61,7 @@ class Pages(nextcord.ui.View):
         self.page = start_from
         self.user = getattr(ctx, 'user', getattr(ctx,'author',None))
         
-    @nextcord.ui.button(label="<",style=nextcord.ButtonStyle.blurple)
+    @nextcord.ui.button(label="<",style=color)
     async def previous(self, button, inter):
         if self.restricted:
             if not self.user == inter.user:
@@ -67,7 +70,7 @@ class Pages(nextcord.ui.View):
             self.page-=1
         await inter.response.edit_message(embed=self.embeds[self.page])
 
-    @nextcord.ui.button(label=">",style=nextcord.ButtonStyle.blurple)
+    @nextcord.ui.button(label=">",style=color)
     async def next(self, button, inter):
         if self.restricted:
             if not self.user == inter.user:
@@ -98,4 +101,50 @@ class Emotes:
         self.upvote = client.get_emoji(945509681256865845)
         self.boost = client.get_emoji(975323250546597888)
         self.yikes = client.get_emoji(852810342991527946)
+
+
+class DictionaryViewer(nextcord.ui.View):
+    def __init__(self, di, col):
+        self.di = di
+        self.path = "/"
+        self.currently_selected = 0
+        self.col = col
+        self.cr = []
+
+    def embed_maker(self):
+        path = self.path.split("/")[1:]
+        if not path:
+            return ef.cembed(
+                description="This attribute is empty"
+            )
+        self.cr = list(self.current_data_locator(path, self.di.copy()))
+        title = path[-1] if path[-1] else "Home"
+        cc = self.currently_selected-10
+        description = "" if cc < 10 else " |->...\n"
+        for i in range(cc-10 if cc-10>=0 else 0, cc+10):
+            if i<len(self.cr) and i>0:
+                if cc == i:
+                    description+=f"\n |-> *{self.cr[i]}*"
+                    continue
+                description+=f"\n |-> {self.cr[i]}"
+        description+="\n |-> ..." if len(self.cr)-cc>10 else ""
+        return ef.cembed(
+            title=title,
+            description=description,
+            color=self.col,
+            footer="This feature is still in it's beta stage"
+        )      
+        
+
+    def current_data_locator(self, path, di):        
+        if len(path) !=0:
+            a = path.pop(0)
+            if isinstance(di, list):                
+                return self.current_data_locator(path,di[int(a)])
+            elif isinstance(di, dict):
+                if a in di:
+                    return self.current_data_locator(path,di[a])
+                else:
+                    return self.current_data_locator(path,di[int(a)])
+        return di
         

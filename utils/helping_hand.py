@@ -93,7 +93,8 @@ Alfred gets updates a lot quicker, and compatibility
 **Added a new feature called wordcloud**
 Wordcloud basically collects the messages specified *we do not store it anywhere*, and creates a picture with the words in it. Larger font means more you say that word.
 
-
+**New PopCat Model**
+Added a new free model from PopCat Community, PopCat is an amazing community with multiple **free** APIs squeezed into one and has been helpful in Alfred's development
 """
 
 def help_him(client, re):

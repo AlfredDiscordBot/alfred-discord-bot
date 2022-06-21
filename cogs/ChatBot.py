@@ -15,7 +15,7 @@ from nextcord.ext import commands, tasks
 def requirements():
     return ['wolfram']
 
-models = ['BlenderBot','DialoGPT','Wolfram Scientific']
+models = ['BlenderBot','DialoGPT','Wolfram Scientific','PopCat']
 
 
 class ChatBot(commands.Cog):        
@@ -31,6 +31,7 @@ class ChatBot(commands.Cog):
 
     def moderate_variables(self, id, input_text, output):
         if len(self.past_response[id])>=50:
+            
             self.past_response[id].pop(0)
             self.generated[id].pop(0)            
         self.past_response[id].append(input_text)
@@ -44,6 +45,8 @@ class ChatBot(commands.Cog):
             not message.author.bot
         ]
         if all(conditions):
+            if not self.client.is_ready():
+                return
             print(message.content, message.guild)
             if message.guild.id not in self.generated:
                 self.generated[message.guild.id] = []
@@ -76,6 +79,9 @@ class ChatBot(commands.Cog):
                 print(output)
                 a = output['generated_text']
                 self.moderate_variables(message.guild.id, input_text, a)
+            if self.client.re[10].get(message.guild.id, 1) == 4:
+                a = await ef.get_async(f"https://api.popcat.xyz/chatbot?msg={ef.convert_to_url(input_text)}&owner=Batman&botname=Alfred",kind="json")
+                a = a['response']
 
             await message.reply(a)
                 
@@ -88,7 +94,8 @@ class ChatBot(commands.Cog):
             mod = models[self.client.re[10].get(inter.guild.id, 1)-1]
             await inter.send(
                 embed=ef.cembed(
-                    description=f"Current model is {mod}"
+                    description=f"Current model is {mod}",
+                    color=self.client.re[8]
                 )
             )
             return

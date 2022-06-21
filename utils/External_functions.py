@@ -296,21 +296,31 @@ def cembed(
             embed = discord.Embed(color=discord.Color(value=color))
         else:
             embed = discord.Embed(color=color)
-    if title != "":
+    if title:
         embed.title = title
-    if description != "":
+    if description:
         embed.description = description
-    if thumbnail != "":
+    if thumbnail:
         embed.set_thumbnail(url=thumbnail)
-    if picture != "":
+    if picture:
         embed.set_image(url=picture)
-    if image != "":
+    if image:
         embed.set_image(url=image)
-    if url != "":
+    if url:
         embed.url = url
-    if footer != "":
-        embed.set_footer(text=footer)
-    if author == True:
+    if footer:
+        if isinstance(footer, str):
+            embed.set_footer(text=footer)
+        else:
+            embed.set_footer(
+                text=footer.get("text", "Footer Error"),
+                icon_url=footer.get("icon_url", "https://colourlex.com/wp-content/uploads/2021/02/vine-black-painted-swatch.jpg")
+            )
+    if author:
+        if isinstance(author, str):
+            embed.set_author(name=author)
+        elif isinstance(author, dict):
+            embed.set_author(**author)
         #embed.set_author(name=, icon_url=ctx_author.avatar.url) 
         pass
         
@@ -638,7 +648,13 @@ def defa(*types, default = None, choices=[], required = False):
 
 async def ly(song, re):
     j = await get_async(f"https://api.popcat.xyz/lyrics?song={convert_to_url(song)}",kind="json")
-    return cembed(title=j['title'],description=j['lyrics'],color=re[8],thumbnail=j['image'],footer=j['artist'])
+    return cembed(
+        title=j.get('title',"Couldnt get title"),
+        description=j.get('lyrics',"Unavailable"),
+        color=re[8],
+        thumbnail=j['image'],
+        footer=j['artist']
+    )
 
 async def isReaction(ctx, embed, clear = False):
     if type(ctx) == discord.message.Message:
