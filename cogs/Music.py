@@ -891,7 +891,7 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Permission denied",
                     description="Join the voice channel to move to the next song",
-                    color=nextcord.Color(value=re[8]),
+                    color=nextcord.Color(value=self.client.re[8]),
                 )
                 await ef.isReaction(ctx,embed)
         except Exception as e:

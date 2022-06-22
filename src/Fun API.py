@@ -134,7 +134,7 @@ def main(client, re):
     @commands.check(ef.check_command)
     async def cat_fact(ctx):
         re[0] + re[0] + 1
-        a = await get_async("https://catfact.ninja/fact", kind="json")
+        a = await ef.get_async("https://catfact.ninja/fact", kind="json")
         embed = nextcord.Embed(
             title="Cat Fact", description=a["fact"], color=nextcord.Color(value=re[8])
         )
