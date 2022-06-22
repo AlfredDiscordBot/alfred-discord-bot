@@ -71,7 +71,6 @@ def main(client, re):
             await assets.pa(ctx, embeds)
         else:
             li = await DB.search_game(text)
-            length = len(li)
             st = ""
             for i in li[:10]:
                 st += f"{i[0]}. {i[1]}\n"

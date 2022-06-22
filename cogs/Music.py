@@ -1,7 +1,6 @@
 import nextcord
 import assets
 import time
-import helping_hand
 import External_functions as ef
 import emoji
 import asyncio
@@ -13,7 +12,7 @@ from nextcord.abc import GuildChannel
 from nextcord import Interaction, SlashOption, ChannelType
 from nextcord.ext import commands, tasks
 from random import choice
-from spotify_client import *
+from spotify_client import fetch_spotify_playlist
 from nextcord import SlashOption
 
 #Use nextcord.slash_command() and commands.command()
@@ -396,7 +395,7 @@ class Music(commands.Cog):
                     st = ""
                     num = 0
                     if url not in self.client.da1:
-                        name_of_the_song = await get_name(url)
+                        name_of_the_song = await ef.get_name(url)
                         print(name_of_the_song, ":", url)
                         self.client.da1[url] = name_of_the_song
                     self.client.queue_song[str(ctx.guild.id)].append(url)
@@ -418,7 +417,7 @@ class Music(commands.Cog):
             for i in self.client.queue_song[str(ctx.guild.id)]:
                 if num >= len(self.client.queue_song[str(ctx.guild.id)]) - 10:
                     if not i in self.client.da1.keys():
-                        self.client.da1[i] = await get_name(i)
+                        self.client.da1[i] = await ef.get_name(i)
                     st = st + str(num) + ". " + self.client.da1[i].replace("&quot", "'") + "\n"
                 num += 1
             # st=st+str(num)+". "+da1[i]+"\n"
@@ -448,7 +447,7 @@ class Music(commands.Cog):
                 for i in self.client.queue_song[str(ctx.guild.id)]:
                     if not i in self.client.da1:
                         self.client.da1[i] = ef.youtube_info(i)["title"]
-                    st = st + str(num) + ". " + self.client.da1[i] + "\n"
+                    st += f"`{num}.` {self.client.da1[i]}\n"
                     num += 1
             else:            
                 num = self.client.re[3].get(str(ctx.guild.id),10)
@@ -456,7 +455,8 @@ class Music(commands.Cog):
                 for i in range(num-10, num+10):
                     try:
                         st += f"{i}. {self.client.da1.get(self.client.queue_song[str(ctx.guild.id)][i],'Unavailable')}\n"
-                    except: pass
+                    except: 
+                        pass
             embed = ef.cembed(
                 title="Queue", 
                 description=st if st != "" else "Empty", 
@@ -520,7 +520,7 @@ class Music(commands.Cog):
                         thumbnail=self.client.user.avatar.url,
                     )
                     print(type(ctx))
-                    if type(ctx) != nextcord.Message: 
+                    if isinstance(ctx, nextcord.Message): 
                         mess = await ctx.channel.send(embed=embed)
                         await self.player_pages(mess)
                     else:
@@ -687,25 +687,17 @@ class Music(commands.Cog):
         if len(songs)<index:
             index = 0
             self.client.re[3][str(ctx.guild.id)]=index
-        song = songs[index]
-        if not song in self.client.da1.keys():
-            aa = str(urllib.request.urlopen(song).read().decode())
-            starting = aa.find("<title>") + len("<title>")
-            ending = aa.find("</title>")
-            self.client.da1[song] = (
-                aa[starting:ending]
-                .replace("&#39;", "'")
-                .replace(" - YouTube", "")
-                .replace("&amp;", "&")
-            )
         time.sleep(1)
         if self.client.re[7].get(ctx.guild.id,-1) == 1 and not voice.is_playing():
             self.client.re[3][str(ctx.guild.id)] += 1
+            index = self.client.re[3].get(str(ctx.guild.id),0)
             if self.client.re[3][str(ctx.guild.id)] >= len(self.client.queue_song[str(ctx.guild.id)]):
                 self.client.re[3][str(ctx.guild.id)] = 0
         if self.client.re[2].get(ctx.guild.id,-1) == 1 or self.client.re[7].get(ctx.guild.id,-1) == 1:
             if not voice.is_playing():
-                URL = ef.youtube_download(ctx, song)
+                URL, name = ef.youtube_download1(ctx, songs[index])
+                if not songs[index] in self.client.da1:
+                    self.client.da1[songs[index]] = name
                 voice.play(
                     nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS),
                     after=lambda e: self.repeat(ctx, voice),

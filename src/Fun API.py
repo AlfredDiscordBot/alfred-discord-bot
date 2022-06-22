@@ -1,13 +1,9 @@
 from functools import lru_cache
-import nextcord as discord
+import nextcord
 import os
-import aiohttp
-import asyncio
-from bs4 import BeautifulSoup
 import datetime
 import requests
 import assets
-import traceback
 import urllib.parse
 import External_functions as ef
 from nextcord.ext import commands
@@ -51,8 +47,8 @@ def main(client, re):
     async def kanye(ctx):
         re[0] += 1
         text = await ef.get_async("https://api.kanye.rest", kind="json");text=text["quote"]
-        embed = discord.Embed(
-            title="Kanye Rest", description=text, color=discord.Color(value=re[8])
+        embed = nextcord.Embed(
+            title="Kanye Rest", description=text, color=nextcord.Color(value=re[8])
         )
         embed.set_thumbnail(
             url="https://i.pinimg.com/originals/3b/84/e1/3b84e1b85fb0a8068044df8b6cd8869f.jpg"
@@ -73,16 +69,16 @@ def main(client, re):
             for i in text:
                 st += i + ":" + str(text[i]) + "\n"
             await ctx.send(
-                embed=discord.Embed(
-                    title="Agify", description=st, color=discord.Color(value=re[8])
+                embed=nextcord.Embed(
+                    title="Agify", description=st, color=nextcord.Color(value=re[8])
                 )
             )
         except:
             await ctx.send(
-                embed=discord.Embed(
+                embed=nextcord.Embed(
                     title="Oops",
                     description="Something went wrong",
-                    color=discord.Color(value=re[8]),
+                    color=nextcord.Color(value=re[8]),
                 )
             )
             
@@ -119,16 +115,16 @@ def main(client, re):
         if "status" not in list(a.keys()):
             for i in list(a.keys()):
                 st += f"**{i}**:\n{a[i]}\n\n"
-            embed = discord.Embed(
-                title=ip, description=st, color=discord.Color(value=re[8])
+            embed = nextcord.Embed(
+                title=ip, description=st, color=nextcord.Color(value=re[8])
             )
             embed.set_thumbnail(url=client.user.avatar.url)
             await ctx.send(embed=embed)
         else:
-            embed = discord.Embed(
+            embed = nextcord.Embed(
                 title="Oops",
                 description="Oops, couldnt find it :confused:",
-                color=discord.Color(value=re[8]),
+                color=nextcord.Color(value=re[8]),
             )
             embed.set_thumbnail(url=client.user.avatar.url)
             await ctx.send(embed=embed)
@@ -138,9 +134,9 @@ def main(client, re):
     @commands.check(ef.check_command)
     async def cat_fact(ctx):
         re[0] + re[0] + 1
-        a = eval(requests.get("https://catfact.ninja/fact").content.decode())
-        embed = discord.Embed(
-            title="Cat Fact", description=a["fact"], color=discord.Color(value=re[8])
+        a = await get_async("https://catfact.ninja/fact", kind="json")
+        embed = nextcord.Embed(
+            title="Cat Fact", description=a["fact"], color=nextcord.Color(value=re[8])
         )
         embed.set_thumbnail(url="https://i.imgur.com/u1TPbIp.png?1")
         await ctx.send(embed=embed)
@@ -196,7 +192,7 @@ def main(client, re):
                 embed=ef.cembed(
                     title="Something is wrong",
                     description="Oops something went wrong, I gotta check this out real quick, sorry for the inconvenience",
-                    color=discord.Color.red(),
+                    color=nextcord.Color.red(),
                     thumbnail=client.user.avatar.url
                 )
             ) 

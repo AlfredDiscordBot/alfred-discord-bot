@@ -5,6 +5,7 @@ def temporary_fix():
 import os
 import sys
 import subprocess
+os.system("pip3 install git+https://github.com/MaskDuck/nextcord@MaskDuck/feat/automod")
 sys.path.insert(1,f"{os.getcwd()}/utils/")
 sys.path.insert(1,f"{os.getcwd()}/src")
 sys.path.insert(1,f"{os.getcwd()}/cogs")
@@ -96,7 +97,7 @@ prefix_dict = {}
 
 
 # replace your id with this
-dev_users = ["432801163126243328"]
+dev_users = {"432801163126243328"}
 ydl_op = {
     "format": "bestaudio/best",
     "postprocessors": [
@@ -285,7 +286,8 @@ async def send_file_loop():
     
 @tasks.loop(minutes=30)
 async def youtube_loop():
-    await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=str(len(client.guilds))+" servers"))
+    #await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=str(len(client.guilds))+" servers"))
+    await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name="Beta AutoMod"))
     print("Youtube_loop")    
     for i,l in config['youtube'].items():
         await asyncio.sleep(2)
@@ -763,18 +765,9 @@ async def on_member_join(member):
 
 @client.event
 async def on_member_remove(member):
-    if member.guild.id in config.get('welcome',[]):
-        channel = client.get_channel(config['welcome'][member.guild.id])
-    else: return
-    embed = cembed(
-        title="Bye!!!",
-        description="Hope you enjoyed your stay " + member.name,
-        color=nextcord.Color(value=re[8]),
-        thumbnail="https://thumbs.dreamstime.com/b/bye-bye-man-says-45256525.jpg"
-    )
-    await channel.send(member.mention + " is no longer here", embed=embed)    
     if member.guild.id in config['security']:
-        a = client.get_guild(member.guild.id)
+        print(member.guild)
+        a = member.guild
         audit_log = await a.audit_logs(limit=10).flatten()
         latest = audit_log[0]
         if latest.target == member:

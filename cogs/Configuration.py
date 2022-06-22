@@ -228,7 +228,7 @@ class Configuration(commands.Cog):
         
 
     @nextcord.slash_command(name = "subscribe", description = "Subscribe to a youtube channel")
-    async def sub_slash(self, inter, channel: GuildChannel = None, url = None, message = ""):
+    async def sub_slash(self, inter, channel: GuildChannel = ef.defa(ChannelType.text, required = True), url = None, message = ""):
         await inter.response.defer()
         await self.subscribe(inter, channel = channel, url = url, message = message)
     

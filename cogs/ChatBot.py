@@ -41,7 +41,7 @@ class ChatBot(commands.Cog):
     async def on_message(self, message):
         conditions = [            
             message.clean_content.lower().startswith("alfred "),
-            message.guild.id not in self.client.config['respond'],
+            message.guild and message.guild.id not in self.client.config['respond'],
             not message.author.bot
         ]
         if all(conditions):

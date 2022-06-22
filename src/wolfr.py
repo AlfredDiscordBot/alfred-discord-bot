@@ -12,7 +12,6 @@ def requirements():
 def main(client, re, AiD, dev_channel):
     import nextcord
     import io
-    import requests
     import urllib.parse
     from nextcord.ext import commands
     
@@ -34,7 +33,7 @@ def main(client, re, AiD, dev_channel):
             return (embed, None)
         else:
             question = urllib.parse.quote(question)
-            a = await ef.get_async(
+            await ef.get_async(
                 f"http://api.wolframalpha.com/v1/simple?appid={AiD}&i={question}&layout=labelbar&width=1500",kind="file>output.png"
             )
             embed = ef.cembed(

@@ -13,17 +13,17 @@ def main(client, re):
     @commands.cooldown(1,10,commands.BucketType.guild)
     async def ban_member(ctx, member: discord.Member, *, reason=None):
         if ctx.author.guild_permissions.ban_members:
-            await member.ban(reason=reason)
+            await member.ban(reason = reason)
             await ctx.send(
-                embed=discord.Embed(
+                embed = discord.Embed(
                     title="That dude's gone forever",
-                    description=member.name + " was banned by " + ctx.author.name,
+                    description=f"{member.name} was banned by {ctx.author.name}",
                     color=discord.Color(value=re[8]),
                 )
             )
         else:
             await ctx.send(
-                embed=discord.Embed(
+                embed = discord.Embed(
                     title="Permissions Denied",
                     description="You cant ban members, you dont have the permission to do it",
                     color=discord.Color(value=re[8]),

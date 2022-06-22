@@ -511,7 +511,7 @@ def main(client, re, mspace, dev_channel):
             setup_value = None
             mai = await ctx.send(
                 embed=ef.cembed(
-                    description=f"Settings up MehSpace. You can choose from:\n```diff\n+"+'\n+'.join(ef.m_options)+"\n```\n\nType done or cancel to finish this\nsend #channel will send it to the channel\n\nType `-` to remove the setup value \nSeperate footer text and footer icon using |>",
+                    description=f"Settings up MehSpace. You can choose from:\n```diff\n+ "+'\n+ '.join(ef.m_options)+"\n```\n\nType done or cancel to finish this\nsend #channel will send it to the channel\n\nType `-` to remove the setup value \n\nSeperate footer text and footer icon using `|>`\nSeperate between field heading and value by `>`\n\nLeave two lines for taking input for next field",
                     color=re[8],
                     footer=f"Follow this message along to setup | {ctx.author.name}"
                 )
@@ -625,6 +625,23 @@ def main(client, re, mspace, dev_channel):
                             if len(footer_split)>1:
                                 di[setup_value] = {'text':di[setup_value]}
                                 di[setup_value]['icon_url']=footer_split[1]
+
+                        elif setup_value == 'fields':
+                            field_split = msg.split("\n\n")
+                            name_value = [i.split(">")[:2] for i in field_split]
+                            field = []
+                            for i in name_value:
+                                if len(i)!=2: 
+                                    await ctx.send(
+                                        f"Use proper syntax for ```\n{i}\n```\nRequires atleast one line"
+                                    )
+                                field.append(
+                                    {
+                                        'name': i[0],
+                                        'value': i[1]
+                                    }
+                                )
+                            di[setup_value] = field                            
                         else:
                             di[setup_value] = msg
 

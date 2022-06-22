@@ -6,7 +6,6 @@ import helping_hand
 import External_functions as ef
 from nextcord.ext import commands, tasks
 from io import BytesIO
-from nextcord import Interaction, SlashOption, ChannelType
 from nextcord.abc import GuildChannel
 from wordcloud import WordCloud
 from collections import Counter
@@ -62,14 +61,14 @@ class Image(commands.Cog):
     @commands.check(ef.check_command)
     async def effects(self, ctx, effect:str = None, member:nextcord.Member=None):
         self.client.re[0]+=1
-        if member == None:
+        if not member:
             url = ef.safe_pfp(getattr(ctx, 'author', getattr(ctx, 'user', None)))
         else:
             print(member)
             url = ef.safe_pfp(member)
         url = str(url)
     
-        if effect == None:
+        if not effect:
             await ctx.send(
                 embed=ef.cembed(
                     title="OOPS",
