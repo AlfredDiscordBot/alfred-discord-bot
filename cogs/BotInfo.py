@@ -216,8 +216,8 @@ class BotInfo(commands.Cog):
             ephemeral = True
         )
 
-    @commands.command()
-    async def view_raw(self, ctx):
+    @commands.command(name="view_raw", aliases = ['vr'])
+    async def raw(self, ctx):
         a = await ctx.channel.fetch_message(ctx.message.reference.message_id)
         a = a.clean_content.replace("`","\\`")
         await ctx.send(f"```\n{a}\n```")

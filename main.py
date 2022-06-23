@@ -5,7 +5,6 @@ def temporary_fix():
 import os
 import sys
 import subprocess
-os.system("pip3 install git+https://github.com/MaskDuck/nextcord@MaskDuck/feat/automod")
 sys.path.insert(1,f"{os.getcwd()}/utils/")
 sys.path.insert(1,f"{os.getcwd()}/src")
 sys.path.insert(1,f"{os.getcwd()}/cogs")
@@ -14,6 +13,7 @@ temporary_fix()
 from keep_alive import keep_alive
 import string
 import nextcord
+
 from utils import helping_hand
 from random import choice
 from nextcord import Interaction, SlashOption, ChannelType

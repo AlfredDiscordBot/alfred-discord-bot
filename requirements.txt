@@ -29,7 +29,7 @@ Jinja2==3.0.3
 MarkupSafe==2.0.1
 more-itertools==8.12.0
 multidict==5.1.0
-git+https://github.com/MaskDuck/nextcord@1a710d9690edf798eef8f8439ae883b41c08d001
+git+https://github.com/maskduck/nextcord@MaskDuck/feat/automod
 orjson==3.6.3
 packaging==21.3
 pluggy==0.13.1
