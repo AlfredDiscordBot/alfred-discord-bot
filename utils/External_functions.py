@@ -26,6 +26,8 @@ from io import BytesIO
 from functools import lru_cache
 from datetime import datetime
 from collections import Counter
+from requests.models import PreparedRequest
+from requests.exceptions import MissingSchema
 
 ydl_op = {
     "format": "bestaudio/best",
@@ -950,5 +952,14 @@ class Pokemon:
         
         
         
-        
+def validate_url(url: str) -> bool:
+    """
+    Checks if the url is valid or not
+    """
+    prepared_request = PreparedRequest()
+    try:
+        prepared_request.prepare_url(url, None)
+        return True
+    except MissingSchema as e:
+        return False
 

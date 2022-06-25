@@ -347,16 +347,8 @@ async def svg(ctx, *, url):
     img = svg2png(url)
     await ctx.send(file=nextcord.File(BytesIO(img), "svg.png"))
 
-
 @dev_loop.before_loop
-async def wait_for_ready():
-    await client.wait_until_ready()
-
 @send_file_loop.before_loop
-async def wait_for_ready():
-    await client.wait_until_ready()
-
-
 @youtube_loop.before_loop
 async def wait_for_ready():
     await client.wait_until_ready()

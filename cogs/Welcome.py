@@ -1,4 +1,3 @@
-
 import nextcord
 import assets
 import time
@@ -10,6 +9,7 @@ import time
 import External_functions as ef
 import helping_hand
 from nextcord.ext import commands, tasks
+
 
 #Use nextcord.slash_command()
 
@@ -58,7 +58,8 @@ class Welcome(commands.Cog):
         presets = {
             '<mention>': member.mention,
             '<name>': member.name[:10],
-            '<server>': member.guild.name
+            '<server>': member.guild.name,
+            '<count>': f"{len(member.guild.humans)}"
         }
         for i in presets:
             text.replace(i, presets[i])
@@ -71,16 +72,16 @@ class Welcome(commands.Cog):
             return
         c = self.client.config['welcome'][member.guild.id]
         image = Card(member.guild, background=c.get('background'))
-        image.set_text1(self.preset(member, c.get('text1')))
-        image.set_text2(self.preset(member, c.get('text2')))
-        image.set_text3(self.preset(member, c.get('text3')))
+        image.set_text1(self.preset(member, c.get('text1') or "<name>"))
+        image.set_text2(self.preset(member, c.get('text2') or 'Welcome To <server>'))
+        image.set_text3(self.preset(member, c.get('text3') or "<count> members"))
         image.set_avatar(ef.safe_pfp(member))
         pic = await ef.get_async(image.query, kind="fp")
         file = nextcord.File(pic, "welcome.png")
         self.cleanup_data()
         embed = ef.cembed(
-            title=self.preset(member, c.get("title","Welcome to <server>")),
-            description=self.preset(member, c.get("description", "Hello <name>, welcome to <server>")),
+            title=self.preset(member, c.get("title") or "Welcome to <server>"),
+            description=self.preset(member, c.get("description") or "Hello <name>, welcome to <server>"),
             color=self.client.re[8],
             thumbnail=ef.safe_pfp(member.guild),
             image="attachment://welcome.png"
@@ -101,7 +102,7 @@ class Welcome(commands.Cog):
             content=f"{member.name} left the server",
             embed=ef.cembed(
                 title="GoodBye",
-                description=f"{member.name} left {member.guild.name} at <t:{int(time.time())}\nHope you enjoyed your stay {member.name}",
+                description=f"{member.name} left {member.guild.name} at <t:{int(time.time())}>\nHope you enjoyed your stay {member.name}",
                 color=self.client.re[8],
                 thumbnail=ef.safe_pfp(member)
             )
