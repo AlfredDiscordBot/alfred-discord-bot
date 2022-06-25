@@ -147,5 +147,21 @@ class DictionaryViewer(nextcord.ui.View):
                 else:
                     return self.current_data_locator(path,di[int(a)])
         return di
+
+    @nextcord.ui.button(emoji="➡️", style=color)
+    async def look_inside(self, button, inter):
+        pass
+
+    @nextcord.ui.button(emoji="⬅️", style=color)
+    async def go_back(self, button, inter):
+        pass
+
+    @nextcord.ui.button(emoji="🔽", style=color)
+    async def down(self, button, inter):
+        pass
+
+    @nextcord.ui.button(emoji="🔼", style=color)
+    async def up(self, button, inter):
+        pass
         
         

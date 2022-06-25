@@ -3,8 +3,8 @@ import hashlib
 import psutil
 import os
 import time
-import nextcord as discord
-from discord import SlashOption
+import nextcord 
+from nextcord import SlashOption
 import random
 import imdb
 import emoji
@@ -20,6 +20,7 @@ import traceback
 import aiofiles
 import assets
 import asyncio
+import random
 
 from io import BytesIO
 from functools import lru_cache
@@ -53,7 +54,21 @@ m_options = [
 ]
 
 Emoji_alphabets = [chr(i) for i in range(127462,127488)]
+FORCED_ACTIVITY = None
 
+def activities(client):
+    if FORCED_ACTIVITY:
+        return nextcord.Activity(type=nextcord.ActivityType.watching, name=FORCED_ACTIVITY)
+    all_activities = [
+        nextcord.Activity(type=nextcord.ActivityType.watching, name="Dark Knight Rises"),
+        nextcord.Activity(type=nextcord.ActivityType.listening, name="Something in the way"),
+        nextcord.Activity(type=nextcord.ActivityType.listening, name=f"{len(client.guilds)} servers"),
+        nextcord.Activity(type=nextcord.ActivityType.watching, name="Nextcord People do their magic"),
+        nextcord.Activity(type=nextcord.ActivityType.listening, name="Wayne Enterprises"),
+        nextcord.Activity(type=nextcord.ActivityType.watching, name="Raimi Trilogy with Thwipper")
+    ]
+    return random.choice(all_activities)
+    
 @lru_cache(maxsize = 512)
 def youtube_info(url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
@@ -289,14 +304,14 @@ def get_if_process_exists(name):
 
 
 def cembed(
-    title="", description="", thumbnail="", picture="", url="", color=discord.Color.dark_theme(), footer="", author = False, fields = {}, image = ""
+    title="", description="", thumbnail="", picture="", url="", color=nextcord.Color.dark_theme(), footer="", author = False, fields = {}, image = ""
 ):
-    embed = discord.Embed()
-    if color != discord.Color.dark_theme():
+    embed = nextcord.Embed()
+    if color != nextcord.Color.dark_theme():
         if type(color) == int:
-            embed = discord.Embed(color=discord.Color(value=color))
+            embed = nextcord.Embed(color=nextcord.Color(value=color))
         else:
-            embed = discord.Embed(color=color)
+            embed = nextcord.Embed(color=color)
     if title:
         embed.title = title
     if description:
@@ -322,7 +337,8 @@ def cembed(
             embed.set_author(name=author)
         elif isinstance(author, dict):
             embed.set_author(**author)
-        #embed.set_author(name=, icon_url=ctx_author.avatar.url) 
+        elif isinstance(author, nextcord.member.Member):
+            embed.set_author(name=author.name, icon_url = safe_pfp(author)) 
         pass
         
     return embed
@@ -336,7 +352,7 @@ def imdb_embed(movie="",re={8:5160}):
         return cembed(
             title="Oops",
             description="You must enter a movie name",
-            color=discord.Color.red(),
+            color=nextcord.Color.red(),
         )
     try:
         ia = imdb.IMDb()
@@ -459,8 +475,8 @@ async def devop_mtext(client, channel, color):
 
 async def wait_for_confirm(ctx, client, message, color=61620,usr=None):
     mess = await ctx.channel.send(
-        embed=discord.Embed(
-            title="Confirmation", description=message, color=discord.Color(color)
+        embed=nextcord.Embed(
+            title="Confirmation", description=message, color=nextcord.Color(color)
         )
     )
     await mess.add_reaction(emoji.emojize(":check_mark_button:"))
@@ -484,8 +500,8 @@ async def wait_for_confirm(ctx, client, message, color=61620,usr=None):
     if reaction.emoji == emoji.emojize(":cross_mark_button:"):
         await mess.delete()
         await ctx.channel.send(
-            embed=discord.Embed(
-                title="Ok cool", description="Aborted", color=discord.Color(color)
+            embed=nextcord.Embed(
+                title="Ok cool", description="Aborted", color=nextcord.Color(color)
             )
         )
         return False
@@ -570,7 +586,7 @@ async def get_async(url, headers = {}, kind = "content"):
                 await f.close()
                 return
             elif kind == "fp":
-                output = BytesIO(await resp.read()).getvalue()
+                output = BytesIO(await resp.read())
             else:
                 output = await resp.text()
                 
@@ -634,7 +650,7 @@ def remove_all(original,s):
 
 def safe_pfp(user):
     if user is None: return
-    if type(user) == discord.guild.Guild:
+    if type(user) == nextcord.guild.Guild:
         return user.icon.url if user.icon else None
     pfp = user.default_avatar.url
     if user.avatar:
@@ -658,7 +674,7 @@ async def ly(song, re):
     )
 
 async def isReaction(ctx, embed, clear = False):
-    if type(ctx) == discord.message.Message:
+    if type(ctx) == nextcord.message.Message:
         message = await ctx.edit(embed=embed)
     else:
         message = await ctx.send(embed=embed)
@@ -815,9 +831,9 @@ def audit_check(log):
     for i in initiators:
         tim = time.time()-120
         offensive = [
-            discord.AuditLogAction.kick,
-            discord.AuditLogAction.ban,
-            discord.AuditLogAction.channel_delete,
+            nextcord.AuditLogAction.kick,
+            nextcord.AuditLogAction.ban,
+            nextcord.AuditLogAction.channel_delete,
         ]
         actions = [j.action for j in che if j.user == i and j.action in offensive and j.created_at.timestamp()>tim]
         if len(actions)>5:

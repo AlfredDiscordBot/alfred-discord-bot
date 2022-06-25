@@ -220,11 +220,26 @@ class Configuration(commands.Cog):
     async def wel(
         self,
         inter,
-        channel: GuildChannel = None,
-        text = "Welcome to the server <user>"
+        channel: GuildChannel,
+        background_url = None,
+        description = None,
+        title = None,
+        text1 = None,
+        text2 = None,
+        text3 = None
+        
     ):
         await inter.response.defer()
-        await inter.response.send_message("Under maintenance")
+        self.client.config['welcome'][inter.guild.id] = {
+            'channel' : channel.id,
+            'description': description,
+            'title': title,
+            'background': background_url,
+            'text1': text1,
+            'text2': text2,
+            'text3': text3
+        }
+        await inter.send("Done")
         
 
     @nextcord.slash_command(name = "subscribe", description = "Subscribe to a youtube channel")

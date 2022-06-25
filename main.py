@@ -1,7 +1,8 @@
 def temporary_fix():
     from shutil import copyfile
-    copyfile("./utils/post.py","/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
-    
+    copyfile("./utils/post.py", "/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
+
+
 import os
 import sys
 import subprocess
@@ -286,8 +287,7 @@ async def send_file_loop():
     
 @tasks.loop(minutes=30)
 async def youtube_loop():
-    #await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name=str(len(client.guilds))+" servers"))
-    await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.listening, name="Beta AutoMod"))
+    await client.change_presence()
     print("Youtube_loop")    
     for i,l in config['youtube'].items():
         await asyncio.sleep(2)
@@ -329,6 +329,7 @@ async def dev_loop():
                 )
             )
         await get_async("https://Ellisa-Bot.arghyathegod.repl.co")
+        await get_async("https://viennabot.declan1529.repl.co")
     except:
         await client.get_channel(dev_channel).send(
             embed=ef.cembed(
@@ -338,6 +339,7 @@ async def dev_loop():
                 thumbnail=client.user.avatar.url
             )
         )
+    await client.change_presence(activity=activities(client))
 
 @client.command()
 @commands.check(check_command)
@@ -849,7 +851,7 @@ async def dic(ctx, word):
 
 @client.command()
 async def feedback(ctx, *, text):
-    embed=cembed(
+    embed = cembed(
         title=f"Message from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}: {ctx.guild.name}",
         description=text,
         color=re[8],
@@ -939,9 +941,12 @@ async def polling_slash(inter, question, options="yes|no",image=None):
     if not image: image = safe_pfp(inter.guild)
     await poll(inter, Options = options, Question = question if question else "", image = image)
 
-@client.slash_command(name="eval",description="This is only for developers",guild_ids= [822445271019421746])
-async def eval_slash(ctx,text):
-    await python_shell(ctx, text = text)
+@client.slash_command(name="eval", description = "This is only for developers", guild_ids = [822445271019421746])
+async def eval_slash(inter, text, ty = defa(choices=['python','bash'])):
+    if ty == 'bash':
+        await shell(inter, text)
+    else:
+        await python_shell(inter, text = text)
 
 @client.command(aliases=["!"])
 async def restart_program(ctx, text):
@@ -1247,6 +1252,47 @@ async def python_shell(ctx, *, text):
             )
         )
 
+@client.command(aliases=['sh'])
+async def shell(ctx, *, text):
+    if isinstance(ctx, nextcord.Interaction):
+        await ctx.response.defer()
+    user = getattr(ctx, 'author', getattr(ctx, 'user', None))
+    if not str(user.id) in dev_users:
+        await ctx.send(
+            embed=cembed(
+                title="Permissions Denied",
+                description="This is an `only developer command`, please refrain from using this",
+                color=re[8],
+                thumbnail=client.user.avatar.url
+            )
+        )
+        return
+    print("Shell", user.name, text)
+    await client.get_channel(946381704958988348).send(
+        embed=ef.cembed(
+            author=user,
+            title=f"Shell Executed by {user}",
+            description=text,
+            color=re[8],
+            thumbnail=client.user.avatar.url,
+            footer=f"This happened in {ctx.guild}"
+        )
+    )
+    await ctx.send(
+        embed=cembed(
+            title="Shell Execution",
+            description="```bash\n"+subprocess.getoutput(text)[:4000]+"\n```",
+            color=re[8],
+            author=user,
+            thumbnail=client.user.avatar.url,
+            footer={
+                'text': 'A copy of the query is send to Wayne Enterprises for security reasons',
+                'icon_url': safe_pfp(client.get_guild(822445271019421746))
+            }
+            
+        )
+    )
+
 @client.command()
 @commands.check(check_command)
 async def exe(ctx, *, text):
@@ -1263,6 +1309,14 @@ async def exe(ctx, *, text):
                 )
             )
             return
+        await client.get_channel(946381704958988348).send(
+            embed=ef.cembed(
+                title="Execute command used",
+                description=text,
+                color=re[8],
+                author = ctx.author                
+            )
+        )
         text = text.replace("```py", "```")
         text = text[3:-3].strip()
         f = StringIO()
@@ -1274,7 +1328,7 @@ async def exe(ctx, *, text):
                 error_mssg = "Following Error Occured:\n\n"+traceback.format_exc()
                 await ctx.send(embed = ror.error(error_mssg))
         output = f.getvalue()
-        embeds=[]
+        embeds = []
         if output == "":
             output = "_"
         for i in range(len(output)//2000+1):
@@ -1296,13 +1350,17 @@ async def exe(ctx, *, text):
 @client.command()
 async def cute_cat(ctx, res="1920x1080"):
     query = "kitten"
-    await get_async(f"https://source.unsplash.com/{res}?{query}",kind="file>cat.png")
-    with open("cat.png","rb") as f:
-        file = nextcord.File(f)
-        em = nextcord.Embed(title=ctx.author, color=re[8])
-        em.set_image(url="attachment://cat.png")
-        await ctx.send(file=file, embed=em)
-    os.remove("cat.png")
+    f = await get_async(f"https://source.unsplash.com/{res}?{query}",kind="fp")
+    file = nextcord.File(f, "cat.png")
+    em = ef.cembed(
+        title="Here's a picture of a Cute Cat",
+        description="The Image you see here is collected from source.unsplash.com",
+        color=re[8],
+        author=ctx.author,
+        thumbnail=client.user.avatar.url,
+        image="attachment://cat.png"
+    )
+    await ctx.send(file=file, embed=em)
 
 def addt(p1, p2):
     da[p1] = p2

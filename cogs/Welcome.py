@@ -41,7 +41,7 @@ class Card:
     def set_avatar(self, avatar):
         if avatar:
             self.query+"&avatar="+avatar
-        return self.query
+        
 
 class Welcome(commands.Cog):
     def __init__(self, client):
@@ -71,21 +71,24 @@ class Welcome(commands.Cog):
             return
         c = self.client.config['welcome'][member.guild.id]
         image = Card(member.guild, background=c.get('background'))
-        image.set_text1(self.preset(c.get('text1')))
-        image.set_text2(self.preset(c.get('text2')))
-        image.set_text3(self.preset(c.get('text3')))
+        image.set_text1(self.preset(member, c.get('text1')))
+        image.set_text2(self.preset(member, c.get('text2')))
+        image.set_text3(self.preset(member, c.get('text3')))
         image.set_avatar(ef.safe_pfp(member))
+        pic = await ef.get_async(image.query, kind="fp")
+        file = nextcord.File(pic, "welcome.png")
         self.cleanup_data()
         embed = ef.cembed(
             title=self.preset(member, c.get("title","Welcome to <server>")),
             description=self.preset(member, c.get("description", "Hello <name>, welcome to <server>")),
             color=self.client.re[8],
             thumbnail=ef.safe_pfp(member.guild),
-            image=image.query
+            image="attachment://welcome.png"
         )
         await self.client.get_channel(c['channel']).send(
             content=f"{member.mention} is here",
-            embed=embed
+            embed=embed,
+            file=file
         )
 
     @commands.Cog.listener()
@@ -104,7 +107,13 @@ class Welcome(commands.Cog):
             )
         )
 
-        
+    @commands.command()
+    async def test_welcome(self, ctx):
+        if ctx.guild.id not in self.client.config['welcome']:
+            await ctx.send("You have not set welcome channel")
+            return
+        await self.on_member_join(ctx.author)
+        await ctx.send("Done")
 
     
         

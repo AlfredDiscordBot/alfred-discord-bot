@@ -17,7 +17,7 @@ class Intercom(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.calls = {}
-        self.old_message = {}
+        self.old_messages = {}
 
     @nextcord.slash_command(name="intercom", description="Set a channel for intercom, if not given removes the existing channel")
     async def intercom(self, inter, channel:GuildChannel = "-"):
@@ -194,7 +194,12 @@ class Intercom(commands.Cog):
                 if msg.attachments != []:
                     if msg.attachments[0].url[-4:] in (".gif", ".jpg", ".png"):
                         embed.set_image(msg.attachments[0].url)
-                await c.send(embed=embed)
+                embeds = [embed]
+                if msg.reference and msg.reference.message_id in self.old_messages:
+                    embeds.append(self.old_messages[msg.reference.message_id])                
+                s_message = await c.send(embeds=embeds)
+                embed.set_footer(text=f"{msg.author.name} replied to this message")
+                self.old_messages[s_message.id] = embed
                 await msg.add_reaction("✅")
             
             

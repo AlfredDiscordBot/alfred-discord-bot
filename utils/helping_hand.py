@@ -54,6 +54,10 @@ Change the nickname of the person, <alias: '*'>
 `'clear OK <number defaults to 10>`
 Clear <number> messages from a channel or thread
 Will ask permission if it's more than 15
+`/config                          `
+Will toggle certain features like 
+`/commands                        `
+Will toggle prefix commands
 """
 
 effec = f"""

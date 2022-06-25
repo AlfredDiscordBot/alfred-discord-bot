@@ -391,11 +391,15 @@ def main(client, re, mspace, dev_channel):
             a['thumbnail'] = a['thumbnail']['url']
         del a['type']
         if a.get('footer'):
-            a['footer']=a['footer']['text']
+            if a['footer'].get('proxy_icon_url'):
+                del a['footer']['proxy_icon_url']
         if a.get('image'):
             a['image']=a['image']['url']
         if a.get('color'):
             a['color']=str(nextcord.Color(a['color']).to_rgb())
+        if a.get('author'):
+            if a['author'].get('proxy_icon_url'):
+                del a['author']['proxy_icon_url']
         return a 
 
     @client.command(aliases = ['info'])
@@ -628,20 +632,25 @@ def main(client, re, mspace, dev_channel):
 
                         elif setup_value == 'fields':
                             field_split = msg.split("\n\n")
-                            name_value = [i.split(">")[:2] for i in field_split]
+                            name_value = [list(i.split(">")[:2]) for i in field_split]
                             field = []
                             for i in name_value:
                                 if len(i)!=2: 
                                     await ctx.send(
                                         f"Use proper syntax for ```\n{i}\n```\nRequires atleast one line"
                                     )
-                                field.append(
-                                    {
-                                        'name': i[0],
-                                        'value': i[1]
-                                    }
-                                )
-                            di[setup_value] = field                            
+                                    break
+                                fi = {
+                                    'name': i[0].strip(),
+                                    'value': i[1].strip(),
+                                    'inline': True
+                                }
+                                if i[0].endswith("^"):
+                                    fi['name'] = fi['name'][:-1]
+                                    fi['inline'] = False
+                                field.append(fi)
+                            else:
+                                di[setup_value] = field                            
                         else:
                             di[setup_value] = msg
 
