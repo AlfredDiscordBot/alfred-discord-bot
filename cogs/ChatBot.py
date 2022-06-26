@@ -84,6 +84,28 @@ class ChatBot(commands.Cog):
                 a = a['response']
 
             await message.reply(a)
+
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def gen(self, ctx, *, text):
+        self.client.re[0]+=1
+        API_URL2 = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B"
+        header2 = {"Authorization": f"Bearer {os.environ['transformers_auth']}"}
+        payload2 = {
+            "inputs": text,
+            "parameters": {"max_new_tokens": 100, "return_full_text": True},
+        }
+
+        output = await ef.post_async(API_URL2, header2, payload2)
+        print(output)
+        o = output[0]["generated_text"]
+        
+        await ctx.reply(
+            embed=ef.cembed(
+                title="Generated text", description=o, color=self.client.re[8],thumbnail=self.client.user.avatar.url
+            )
+        )
+        
                 
                 
                 
