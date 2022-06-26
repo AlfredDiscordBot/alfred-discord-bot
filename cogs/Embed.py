@@ -127,7 +127,7 @@ class Embed(commands.Cog):
             await ef.post_async(channel, json={'embeds':[data]})
         elif channel.lower() == "mehspace":
             await ctx.send(embed=embed)
-            confirm = await ef.wait_for_confirm(ctx,client,"Do you want to use this as your profile?",color=re[8],usr=ctx.author)
+            confirm = await ef.wait_for_confirm(ctx, self.client, "Do you want to use this as your profile?", color=self.client.re[8], usr=ctx.author)
             if confirm:
                 self.client.mspace[ctx.author.id]  = yaml
         else:
