@@ -525,7 +525,7 @@ async def clear_webhooks(ctx):
 
 @client.slash_command(name="color",description="Change color theme", guild_ids= [822445271019421746])
 async def color_slash(ctx, rgb_color=defa(default="")):    
-    rgb_color = rgb_color.replace("(","").replace(")","").split(",")
+    rgb_color = __import__("create_embed").get_color(rgb_color)
     if str(ctx.user.id) not in dev_users:
         await ctx.send(
             embed=cembed(

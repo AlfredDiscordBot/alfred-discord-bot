@@ -128,6 +128,9 @@ class Giveaway(commands.Cog):
             lu = lu.mention
             l = l+lu
         await inter.channel.send(f"Congratulations, {l} has won the giveaway")
+        await inter.response.send_message(
+            content="Done", ephemeral = True
+        )
         
         
 def setup(client,**i):

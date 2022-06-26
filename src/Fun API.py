@@ -19,69 +19,7 @@ def main(client, re):
         name = urllib.parse.quote(name)
         return name
 
-    @client.command()
-    @commands.check(ef.check_command)
-    async def gen(ctx, *, text):
-        print(ctx.guild.name)
-        re[0]+=1
-        API_URL2 = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B"
-        header2 = {"Authorization": f"Bearer {os.environ['transformers_auth']}"}
-        payload2 = {
-            "inputs": text,
-            "parameters": {"max_new_tokens": 100, "return_full_text": True},
-        }
-
-        output = await ef.post_async(API_URL2, header2, payload2)
-        print(output)
-        o = output[0]["generated_text"]
-        
-        await ctx.reply(
-            embed=ef.cembed(
-                title="Generated text", description=o, color=re[8],thumbnail=client.user.avatar.url
-            )
-        )
-      
-      
-    @client.command()
-    @commands.check(ef.check_command)
-    async def kanye(ctx):
-        re[0] += 1
-        text = await ef.get_async("https://api.kanye.rest", kind="json");text=text["quote"]
-        embed = nextcord.Embed(
-            title="Kanye Rest", description=text, color=nextcord.Color(value=re[8])
-        )
-        embed.set_thumbnail(
-            url="https://i.pinimg.com/originals/3b/84/e1/3b84e1b85fb0a8068044df8b6cd8869f.jpg"
-        )
-        await ctx.send(embed=embed)
-        
-        
-    @client.command()
-    @commands.check(ef.check_command)
-    async def age(ctx, name):
-        try:
-            re[0] += 1
-            text = eval(
-                 requests.get(
-                    f"https://api.agify.io/?name={name}").content.decode()
-            )
-            st = ""
-            for i in text:
-                st += i + ":" + str(text[i]) + "\n"
-            await ctx.send(
-                embed=nextcord.Embed(
-                    title="Agify", description=st, color=nextcord.Color(value=re[8])
-                )
-            )
-        except:
-            await ctx.send(
-                embed=nextcord.Embed(
-                    title="Oops",
-                    description="Something went wrong",
-                    color=nextcord.Color(value=re[8]),
-                )
-            )
-            
+    
     @client.command()
     @commands.check(ef.check_command)
     async def apis(ctx, page: int = 0):
