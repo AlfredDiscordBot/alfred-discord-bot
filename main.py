@@ -157,7 +157,7 @@ def save_to_file():
     store.save()
 
 
-def load_from_file():
+def load_from_file(store):
     global da
     global da1
     global queue_song
@@ -199,7 +199,7 @@ def load_from_file():
 
 
 try:
-    load_from_file()
+    load_from_file(store)
 except:
     print("Failed to load\n\n\n")
     
@@ -245,7 +245,7 @@ async def on_ready():
         report+="[ OK ] Devop found, let's go\n"
     try:
         print("Starting Load from file")
-        load_from_file()
+        load_from_file(store)
         print("Finished loading\n")
         print("\nStarting devop display")
         await devop_mtext(client, channel, re[8])
@@ -885,7 +885,7 @@ async def rollback(ctx):
     os.remove("storage.dat")
     await get_async(attachment, kind="file>storage.dat")
     store=Variables("storage")
-    load_from_file()
+    load_from_file(store)
     save_to_file()
     await m.reply("Reverted to this")
     
