@@ -824,14 +824,14 @@ async def remove(ctx, n):
         )
 
 @client.slash_command(name="dictionary", description="Use the dictionary for meaning")
-async def dic(ctx, word):
-    await ctx.response.defer()
+async def dic(inter, word):
+    await inter.response.defer()
     try:
         mean = Meaning(word = word, color = re[8])
         await mean.setup()
-        await assets.pa(ctx, mean.create_texts(), start_from=0, restricted=False)
+        await assets.pa(inter, mean.create_texts(), start_from=0, restricted=False)
     except Exception as e:
-        await ctx.send(
+        await inter.send(
             embed=ef.cembed(
                 title="Something is wrong",
                 description="Oops something went wrong, I gotta check this out real quick, sorry for the inconvenience",

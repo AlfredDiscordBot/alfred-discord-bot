@@ -48,6 +48,10 @@ class Configuration(commands.Cog):
                     thumbnail=self.client.user.avatar.url
                 )
             )
+
+    @nextcord.slash_command(name="prefix", description="Set Prefix here")
+    async def prefix_setting(self, inter, prefix:str = None):
+        await self.set_prefix(inter, pref=prefix)
             
     @commands.command(aliases=["prefix","setprefix"])
     @commands.check(ef.check_command)
@@ -68,6 +72,8 @@ class Configuration(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(title="Done", description=f"Prefix set as {pref}", color=self.client.re[8])
             )
+            if pref == default_prefix:
+                del self.client.prefix_dict[ctx.guild.id]
         else:
             await ctx.send(
                 embed=ef.cembed(

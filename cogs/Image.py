@@ -101,12 +101,10 @@ class Image(commands.Cog):
             
         await ctx.send(file=nextcord.File(BytesIO(byte), 'effect.png'))
 
-    @commands.command(name="wordcloud")
-    @commands.check(ef.check_command)
-    @commands.cooldown(1,10,commands.BucketType.guild)
-    async def word(self, ctx, user: nextcord.Member = None):
-        if not user: user = ctx.author
-        a = await ctx.channel.history(limit=3000).flatten()  
+    @nextcord.slash_command(name="wordcloud", description="Creates a wordcloud picture")
+    async def word(self, inter, user: nextcord.Member = None):
+        if not user: user = inter.user
+        a = await inter.channel.history(limit=3000).flatten()  
         messages = [i.clean_content for i in a if i.author.id == user.id]
         text = " ".join(messages)
         WordCloud(height=1080, width=1920).generate(text).to_file("test.png")
@@ -121,10 +119,10 @@ class Image(commands.Cog):
             color=self.client.re[8],
             footer=f"{len(messages)} Messages | {len(text)} Words",
             description=f"{description}\n```",
-            thumbnail=ef.safe_pfp(ctx.guild)
+            thumbnail=ef.safe_pfp(inter.guild)
         )
         embed.set_author(name=user.name, icon_url=ef.safe_pfp(user))
-        await ctx.reply(
+        await inter.send(
             file=nextcord.File("test.png"),
             embed=embed
         )

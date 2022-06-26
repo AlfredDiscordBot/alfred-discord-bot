@@ -36,12 +36,6 @@ class Games(commands.Cog):
     @nextcord.slash_command(name="rps", description="play some rock paper scissors against me")
     async def rp(self, inter):
         await inter.response.defer()
-        await self.rockpaperscissor(inter)
-
-        
-    @commands.command(aliases = ['rps','stonepaperscissor'])
-    @commands.check(ef.check_command)
-    async def rockpaperscissor(self, ctx):
         s = {}
         embed = ef.cembed(
             title="Rock Paper Scissor",
@@ -50,13 +44,13 @@ class Games(commands.Cog):
             thumbnail=self.client.user.avatar.url,
             footer="You can press X when you wanna stop or else it'll timeout after 10 minutes"
         )
-        user = getattr(ctx,'user', getattr(ctx,'author', None))
+        user = inter
         s[user] = 0
         s[self.client.user] = 0
         embed.set_author(name=user.name, icon_url=ef.safe_pfp(user))
         embed.add_field(name="You",value=s[user],inline=True)
         embed.add_field(name="Alfred",value=s[self.client.user],inline=True)
-        message = await ctx.send(embed=embed)
+        message = await inter.send(embed=embed)
         for i in self.choices: await message.add_reaction(i)
         await message.add_reaction(self.exit)
         def check(reaction,r_user):

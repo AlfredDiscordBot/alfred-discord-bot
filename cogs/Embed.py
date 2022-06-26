@@ -51,7 +51,7 @@ def preset_change(di, ctx, client, re = {8: 6619080}):
         '<bot-icon>' : client.user.avatar.url,
         '<bot-color>' : str(nextcord.Color(re[8]).to_rgb())
     }
-    if type(di) == str:
+    if isinstance(di, str):
         di ={
             'description': di,
             'color': '<bot-color>'
@@ -97,27 +97,25 @@ def embed_from_dict(info: dict, ctx, client) -> nextcord.Embed:
     ctx_author = getattr(ctx, 'author', getattr(ctx,'user',None))
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
     info["color"] = get_color(info.get("color", None))
-    if info['color']: info['color']=info['color'].value     
-    embed = ef.cembed(**info)
-    return embed
+    if info['color']: info['color']=info['color'].value         
+    return ef.cembed(**info)
 
 def yaml_to_dict(yaml):
     try:
-        return safe_load(yaml)
+        a = safe_load(yaml)
+        return a
     except:
-        return {
-            'title': 'Embed',
-            'description':yaml,
-            'color':'<bot-color>'
-        }
+        return yaml
 
 
 class Embed(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.old_messages = {}
 
     @commands.command()
-    async def yml_embed1(self, ctx, channel: Union[nextcord.TextChannel, str, nextcord.threads.Thread], *, yaml):
+    @commands.check(ef.check_command)
+    async def yml_embed(self, ctx, channel: Union[nextcord.TextChannel, str, nextcord.threads.Thread], *, yaml):
         embed = embed_from_dict(
             yaml_to_dict(filter_graves(yaml)),
             ctx, self.client
@@ -126,10 +124,51 @@ class Embed(commands.Cog):
             await channel.send(embed=embed)
         elif validate_url(channel):
             data = embed.to_dict()
-            await post_async(channel, json={'embeds':[data]})
+            await ef.post_async(channel, json={'embeds':[data]})
+        elif channel.lower() == "mehspace":
+            await ctx.send(embed=embed)
+            confirm = await ef.wait_for_confirm(ctx,client,"Do you want to use this as your profile?",color=re[8],usr=ctx.author)
+            if confirm:
+                self.client.mspace[ctx.author.id]  = yaml
+        else:
+            await ctx.send("Invalid channel or URL form")
+
+    @nextcord.user_command(name="mehspace")
+    async def meh(self, inter, member):
+        if member.id not in self.client.mspace:
+            await inter.send("The user has not set mehspace", ephemeral = True)
+            return
+        yaml = filter_graves(self.client.mspace[member.id])
+        di = yaml_to_dict(yaml)
+        embed=embed_from_dict(
+            di,
+            inter, self.client
+        )
+        await inter.send(embed=embed)
+
+    @nextcord.slash_command(name="mehspace",description="Show Mehspace of someone")
+    async def mehspace(self, inter, user: nextcord.User = None):
+        if not user: user = inter.user
+        if user.id not in self.client.mspace:
+            await inter.response.send_message(
+                embed=ef.cembed(
+                    title="Unavailable",
+                    description="This user has not set mehspace",
+                    color=self.client.re[8],
+                    thumbnail="https://www.cambridge.org/elt/blog/wp-content/uploads/2019/07/Sad-Face-Emoji-480x480.png.webp"
+                )
+            )
+            return
+        await inter.response.send_message(
+            embed=embed_from_dict(
+                yaml_to_dict(
+                    filter_graves(self.client.mspace[user.id])
+                ),
+                inter, self.client
+            )
+        )
 
     
-            
     
 
 
