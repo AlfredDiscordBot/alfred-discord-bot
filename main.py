@@ -157,7 +157,7 @@ def save_to_file():
     store.save()
 
 
-def load_from_file():
+def load_from_file(store):
     global da
     global da1
     global queue_song
@@ -199,7 +199,7 @@ def load_from_file():
 
 
 try:
-    load_from_file()
+    load_from_file(store)
 except:
     print("Failed to load\n\n\n")
     
@@ -245,7 +245,7 @@ async def on_ready():
         report+="[ OK ] Devop found, let's go\n"
     try:
         print("Starting Load from file")
-        load_from_file()
+        load_from_file(store)
         print("Finished loading\n")
         print("\nStarting devop display")
         await devop_mtext(client, channel, re[8])
@@ -347,16 +347,8 @@ async def svg(ctx, *, url):
     img = svg2png(url)
     await ctx.send(file=nextcord.File(BytesIO(img), "svg.png"))
 
-
 @dev_loop.before_loop
-async def wait_for_ready():
-    await client.wait_until_ready()
-
 @send_file_loop.before_loop
-async def wait_for_ready():
-    await client.wait_until_ready()
-
-
 @youtube_loop.before_loop
 async def wait_for_ready():
     await client.wait_until_ready()
@@ -832,14 +824,14 @@ async def remove(ctx, n):
         )
 
 @client.slash_command(name="dictionary", description="Use the dictionary for meaning")
-async def dic(ctx, word):
-    await ctx.response.defer()
+async def dic(inter, word):
+    await inter.response.defer()
     try:
         mean = Meaning(word = word, color = re[8])
         await mean.setup()
-        await assets.pa(ctx, mean.create_texts(), start_from=0, restricted=False)
+        await assets.pa(inter, mean.create_texts(), start_from=0, restricted=False)
     except Exception as e:
-        await ctx.send(
+        await inter.send(
             embed=ef.cembed(
                 title="Something is wrong",
                 description="Oops something went wrong, I gotta check this out real quick, sorry for the inconvenience",
@@ -893,7 +885,7 @@ async def rollback(ctx):
     os.remove("storage.dat")
     await get_async(attachment, kind="file>storage.dat")
     store=Variables("storage")
-    load_from_file()
+    load_from_file(store)
     save_to_file()
     await m.reply("Reverted to this")
     

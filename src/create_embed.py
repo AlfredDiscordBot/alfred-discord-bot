@@ -284,9 +284,6 @@ def main(client, re, mspace, dev_channel):
             description=description,
             color=nextcord.Color(value=re[8]),
         )
-
-    @client.command(aliases=["yml_embed"])
-    @commands.check(ef.check_command)
     async def embed_using_yaml(
         ctx, channel: Union[nextcord.TextChannel, str] = None, *, yaml: str = None
     ):
