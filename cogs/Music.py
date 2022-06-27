@@ -738,7 +738,7 @@ class Music(commands.Cog):
                     embed=ef.cembed(
                         title="Couldn't remove",
                         description=f"The list has only {len(self.client.queue_song[ctx.guild.id])-1}",
-                        color=selfclient.re[8]
+                        color=self.client.re[8]
                     )
                 )
         else:
