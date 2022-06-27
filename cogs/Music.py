@@ -709,6 +709,47 @@ class Music(commands.Cog):
         embed=await ef.ly(song,self.re)
         await inter.send(embed=embed)
 
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def remove(self, index):
+        if not ef.check_voice(ctx):
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description=f"Join the voice channel to modify queue{assets.Emotes(self.client).animated_wrong}",
+                    color=self.client.re[8],
+                    thumbnail=self.client.user.avatar.url                    
+                )
+            )
+            return
+        if self.client.queue_song.get(ctx.guild.id):
+            if len(self.client.queue_song[ctx.guild.id])<index:
+                a = self.client.queue_song[ctx.guild.id].pop(index)
+                await ctx.send(
+                    embed=ef.cembed(
+                        title="Removed",
+                        description=f"Removed {self.client.da1.get(a, 'Unavailable')}",
+                        color=self.client.re[8],
+                        thumbnail=self.client.user.avatar.url
+                    )
+                )
+            else:
+                await ctx.send(
+                    embed=ef.cembed(
+                        title="Couldn't remove",
+                        description=f"The list has only {len(self.client.queue_song[ctx.guild.id])-1}",
+                        color=selfclient.re[8]
+                    )
+                )
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Empty",
+                    description="Your Queue is Empty",
+                    color=self.client.re[8]
+                )
+            )
+
     @commands.command(aliases=["p"])
     @commands.check(ef.check_command)
     @commands.cooldown(1,10,commands.BucketType.guild)

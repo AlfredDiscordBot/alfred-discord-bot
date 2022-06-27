@@ -113,9 +113,12 @@ class Embed(commands.Cog):
         self.client = client
         self.old_messages = {}
 
+    async def mset(ctx):
+        pass
+
     @commands.command()
     @commands.check(ef.check_command)
-    async def yml_embed(self, ctx, channel: Union[nextcord.TextChannel, str, nextcord.threads.Thread], *, yaml):
+    async def yml_embed(self, ctx, channel: Union[nextcord.TextChannel, str, nextcord.threads.Thread], *, yaml = None):
         embed = embed_from_dict(
             yaml_to_dict(filter_graves(yaml)),
             ctx, self.client
@@ -126,10 +129,18 @@ class Embed(commands.Cog):
             data = embed.to_dict()
             await ef.post_async(channel, json={'embeds':[data]})
         elif channel.lower() == "mehspace":
-            await ctx.send(embed=embed)
-            confirm = await ef.wait_for_confirm(ctx, self.client, "Do you want to use this as your profile?", color=self.client.re[8], usr=ctx.author)
-            if confirm:
-                self.client.mspace[ctx.author.id]  = yaml
+            if yaml:
+                await ctx.send(embed=embed)
+                confirm = await ef.wait_for_confirm(ctx, self.client, "Do you want to use this as your profile?", color=self.client.re[8], usr=ctx.author)
+                if confirm:
+                    self.client.mspace[ctx.author.id]  = yaml
+            else:
+                await ctx.send(
+                    embed = embed_from_dict(
+                        yaml_to_dict(filter_graves(yaml)),
+                        ctx, self.client
+                    )
+                )
         else:
             await ctx.send("Invalid channel or URL form")
 
@@ -167,7 +178,6 @@ class Embed(commands.Cog):
                 inter, self.client
             )
         )
-
     
     
 

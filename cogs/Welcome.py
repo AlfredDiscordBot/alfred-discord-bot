@@ -24,7 +24,7 @@ class Card:
     ):
         self.BASE_URL = "https://api.popcat.xyz/welcomecard?"
         self.background = background if background else "https://wallpaperaccess.com/full/358800.jpg"
-        self.query = self.BASE_URL+"background="+background
+        self.query = self.BASE_URL+"background="+(background or "https://wallpaper.dog/large/973634.jpg")
 
     def set_text1(self, text):
         if text:
@@ -41,6 +41,7 @@ class Card:
     def set_avatar(self, avatar):
         if avatar:
             self.query+="&avatar="+avatar
+        return self.query
         
 
 class Welcome(commands.Cog):
@@ -57,13 +58,12 @@ class Welcome(commands.Cog):
     def preset(self, member, text):
         presets = {
             '<mention>': member.mention,
-            '<name>': member.name[:10],
+            '<name>': member.name[:20],
             '<server>': member.guild.name,
             '<count>': f"{len(member.guild.humans)}"
         }
         for i in presets:
-            text.replace(i, presets[i])
-        print(text)
+            text = text.replace(i, presets[i])
         return text
 
     @commands.Cog.listener()
@@ -72,7 +72,6 @@ class Welcome(commands.Cog):
         if member.guild.id not in self.client.config['welcome']:
             return
         c = self.client.config['welcome'][member.guild.id]
-        print(c)
         image = Card(member.guild, background=c.get('background'))
         image.set_text1(self.preset(member, c.get('text1') or "<name>"))
         image.set_text2(self.preset(member, c.get('text2') or 'Welcome To <server>'))
@@ -81,7 +80,6 @@ class Welcome(commands.Cog):
         pic = await ef.get_async(image.query, kind="fp")
         file = nextcord.File(pic, "welcome.png")
         self.cleanup_data()
-        print(image.query)
         embed = ef.cembed(
             title=self.preset(member, c.get("title") or "Welcome to <server>"),
             description=self.preset(member, c.get("description") or "Hello <name>, welcome to <server>"),

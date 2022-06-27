@@ -134,6 +134,7 @@ try:
 except:
     os.remove("storage.dat")
     store = Variables("storage")
+    print("Failed to load")
 
 def save_to_file():
     global dev_users
@@ -786,42 +787,6 @@ async def on_member_remove(member):
                         thumbnail=member.guild.icon.url
                     )
                 )
-
-@client.command()
-@commands.check(check_command)
-async def remove(ctx, n):
-    req()
-    mem = [names.id for names in ctx.guild.voice_client.channel.members] if ctx.guild.voice_client else []
-    if mem.count(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) > 0:
-        if int(n) < len(queue_song[str(ctx.guild.id)]):
-            if re[3][str(ctx.guild.id)]>int(n):re[3][str(ctx.guild.id)]-=1
-            del da1[queue_song[str(ctx.guild.id)][int(n)]]
-            queue_song[str(ctx.guild.id)].pop(int(n))
-            await ctx.send(
-                embed=nextcord.Embed(
-                    title="Removed",
-                    description=da1[queue_song[str(ctx.guild.id)][int(n)]],
-                    color=nextcord.Color(value=re[8]),
-                )
-            )            
-        else:
-            await ctx.send(
-                embed=nextcord.Embed(
-                    title="Not removed",
-                    description="Only "
-                    + len(queue_song[str(ctx.guild.id)])
-                    + " song(s) in your queue",
-                    color=nextcord.Color(value=re[8]),
-                )
-            )
-    else:
-        await ctx.send(
-            embed=nextcord.Embed(
-                title="Permission denied",
-                description="Join the voice channel to modify queue",
-                color=nextcord.Color(value=re[8]),
-            )
-        )
 
 @client.slash_command(name="dictionary", description="Use the dictionary for meaning")
 async def dic(inter, word):

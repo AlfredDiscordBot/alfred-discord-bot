@@ -72,7 +72,6 @@ class CodeExecutor:
 
             if resp.status_code == 200:
                 data = json.loads(resp.text)
-
                 run_data = data["run"]
 
                 return f"""
