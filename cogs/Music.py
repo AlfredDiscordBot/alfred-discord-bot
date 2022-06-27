@@ -711,7 +711,7 @@ class Music(commands.Cog):
 
     @commands.command()
     @commands.check(ef.check_command)
-    async def remove(self, index):
+    async def remove(self, ctx, index):
         if not ef.check_voice(ctx):
             await ctx.send(
                 embed=ef.cembed(
