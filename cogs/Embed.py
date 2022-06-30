@@ -366,7 +366,7 @@ class Embed(commands.Cog):
                     if text.lower().startswith("send"):
                         if validate_url(text[5:]):
                             print("URL detected")
-                            await post_async(text[5:], json={'embeds':[embed.to_dict()]})
+                            await ef.post_async(text[5:], json={'embeds':[embed.to_dict()]})
                             await ctx.send("Done")
                             continue
                         elif self.client.get_channel(int(text[7:-1])):
