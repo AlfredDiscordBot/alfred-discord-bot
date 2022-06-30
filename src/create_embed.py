@@ -215,30 +215,6 @@ def embed_from_dict(info: dict, ctx, client, re) -> nextcord.Embed:
     if info['color']: info['color']=info['color'].value     
     embed = ef.cembed(**info)
 
-    if image := info.get("image", None):
-        set_url(embed.set_image, image)
-    if thumbnail := info.get("thumbnail", None):
-        set_url(embed.set_thumbnail, thumbnail)
-    if author := info.get("author", None):
-      if isinstance(author, bool):
-        if author == True:
-            embed.set_author(name=ctx_author.name, icon_url=ctx_author.avatar.url)
-        elif type(author) == str and validate_url(author):
-            embed.set_author(icon_url=author)
-        elif type(author) == str:
-            embed.set_author(name=author)
-        else:
-            embed.set_author(**author)
-      else:
-          print(author)
-          embed.set_author(name=author.get("name", ""), url=author.get("url", ""), icon_url=author.get("icon_url", ""))
-
-    if fields := info.get("fields", None):
-        print(fields)
-        for field in fields:
-            field = {k.lower(): v for k, v in field.items()}  # make it case insensitive
-            embed.add_field(**field)
-
     return embed
 
 
@@ -354,33 +330,7 @@ def main(client, re, mspace, dev_channel):
     @client.command(aliases=['mehspace','mspace'])
     @commands.check(ef.check_command)
     async def myspace(ctx, member :nextcord.Member = None):
-        if not member:
-            if ctx.author.id in client.mspace: 
-                await embed_using_yaml(ctx, channel = ctx.channel, yaml = client.mspace[ctx.author.id])
-                return            
-            else:
-                await ctx.send(
-                    embed = ef.cembed(
-                        title="Oops",
-                        description="You haven't set MehSpace yet"+str(assets.Emotes(client).yikes)+", use the command m_setup to set up your Mehspace. It follows a similar pattern to yml_embed, Instructions for yml_embed is in help\n\n"+help_for_m_setup,
-                        color=re[8],
-                        thumbnail=client.user.avatar.url
-                    
-                    )
-                )
-            return
-        if member.id in client.mspace:
-            await embed_using_yaml(ctx,channel=ctx.channel,yaml=client.mspace[member.id])
-            return       
-
-        await ctx.send(
-            embed=ef.cembed(
-                title="Oops",
-                description="This user has not set their MehSpace yet",
-                color=re[8],
-                thumbnail=client.user.avatar.url
-            )
-        )
+        await ctx.send("We've decided to switch this command to slash command, if you have not invited with slash command, invite the bot again with slash command, the bot doesnt have to leave the server, all you have to do is click the `Add To Server` button again")
 
     def converter(a):
         if a.get('thumbnail'):
@@ -396,96 +346,7 @@ def main(client, re, mspace, dev_channel):
         if a.get('author'):
             if a['author'].get('proxy_icon_url'):
                 del a['author']['proxy_icon_url']
-        return a 
-
-    @client.command(aliases = ['info'])
-    @commands.check(ef.check_command)
-    async def embedinfo(ctx):
-        d = ctx.message.reference
-        if not d:
-            await ctx.send(
-                embed=ef.cembed(
-                    title="Hmm",
-                    description="Reply to an embed message to continue",
-                    color=re[8]
-                )
-            )
-            return
-        me = await client.get_channel(d.channel_id).fetch_message(d.message_id)
-        if me.embeds == [] or not me.author.bot:
-            await ctx.send(
-                embed=ef.cembed(
-                    title="Oops",
-                    description="We found no embed in that message, check again and try",
-                    color=re[8]
-                )
-            )
-            return
-        a = me.embeds[0].to_dict()
-        a = converter(a)
-        await ctx.send(
-            embed=ef.cembed(
-                title="Extracting Embed Information",
-                description="```yml\n"+safe_dump(a)+"\n```",
-                color=re[8],
-                thumbnail=me.author.avatar.url
-            )
-        )
-
-    @client.message_command()
-    async def embedinfo(inter, message):
-        if len(message.embeds) == 0:
-            await inter.response.send_message(
-                "I dont see any embed in that message",
-                ephemeral=True                
-            )
-            return
-        a = message.embeds[0].to_dict()
-        a = converter(a)
-        await inter.response.send_message(
-            embed=ef.cembed(
-                title="Extracting Embed Information",
-                description="```yml\n"+safe_dump(a)+"\n```",
-                color=re[8],
-                thumbnail=ef.safe_pfp(message.author)
-            ),
-            ephemeral = True
-        )
-
-    @client.slash_command(name="embed",description="Create your embed using this")
-    async def em(inter, description, title = None, color = "(1,1,1)", thumbnail = None, image = None, footer = None, author:nextcord.Member = None):
-        await inter.response.defer()       
-        try:
-            d = {
-                'description' : description,
-                'color': color,
-            }
-            if author:
-                d['author'] = {
-                    'name' : author.name,
-                    'icon_url' : ef.safe_pfp(author)
-                }
-            if image:
-                d['image'] = image
-            if thumbnail:
-                d['thumbnail'] = thumbnail
-            if footer:
-                d['footer'] = footer
-            if title:
-                d['title'] = title
-    
-            embed = embed_from_dict(d,inter,client,re)
-            await inter.send(embed=embed)
-        except:
-            await inter.send(
-                embed=ef.cembed(
-                    title="Oops",
-                    description="Something is wrong",
-                    color=re[8]
-                )
-            )
-        
-        
+        return a     
 
             
     @client.command(aliases = ['mehsetup','msetup'])

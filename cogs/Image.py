@@ -103,6 +103,7 @@ class Image(commands.Cog):
 
     @nextcord.slash_command(name="wordcloud", description="Creates a wordcloud picture")
     async def word(self, inter, user: nextcord.Member = None):
+        await inter.response.defer()
         if not user: user = inter.user
         a = await inter.channel.history(limit=3000).flatten()  
         messages = [i.clean_content for i in a if i.author.id == user.id]

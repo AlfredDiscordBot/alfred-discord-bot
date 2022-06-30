@@ -132,67 +132,6 @@ def quad(eq):
         root2 = (-b - determinant) / (2 * a)
         return "This equation has two roots: " + str(root1) + "," + str(root2)
 
-
-async def memes2():
-    st = await get_async("https://cheezburger.com/14858757/40-dumb-memes-for-distractible-scrollers")
-    stop = 0
-    link = []
-    for i in range(0, 40):
-        a = st.find("<img class='resp-media' src='", stop) + len(
-            "<img class='resp-media' src='"
-        )
-        b = st.find("' id", a)
-        stop = b
-        link = link + [st[a:b]]
-    return link
-
-
-async def memes1():
-    st = await get_async("http://www.quickmeme.com/")
-    stop = 0
-    link = []
-    for i in range(10):
-        a = st.find('"post-image" src="', stop) + len('post-image" src="') + 1
-        b = st.find('" alt', a)
-        stop = b
-        link = link + [st[a:b]]
-    return link
-
-
-async def memes3():
-    st = await get_async(
-        "https://www.paulbarrs.com/business/funny-memes-website-design"
-    )
-    stop = 0
-    link = []
-    for i in range(20):
-        a = st.find('srcset="', stop) + len('srcset="')
-        b = st.find(".jpg", a) + len(".jpg")
-        stop = b
-        link += [st[a:b]]
-    return link
-
-async def memes4():
-    safe_stop = 0
-    link = []
-    r = await get_async("https://bestlifeonline.com/funniest-cat-memes-ever/")
-    string = str(r)
-    for i in range(0, 94):
-        # https://bestlifeonline.com/funniest-cat-memes-ever/
-        n1 = string.find("<h2", safe_stop + len("<h2"))
-        n3 = string.find('<div class="number">', n1) + len(
-            '<div class="number">'
-        )
-        n4 = string.find("</div>", n3)
-        n2 = string.find("data-src=", n1) + len("data-src=") + 1
-        n1 = string.find('" ', n2)
-        safe_stop = n1
-        number = int(string[n3:n4])
-        if number >= 97:
-            safe_stop = 0
-        link += [string[n2:n1]]
-    return link
-
 load_dotenv()
 
 
@@ -326,6 +265,9 @@ def cembed(
         embed.set_image(url=image)
     if url:
         embed.url = url
+    if fields:
+        for i in fields:
+            embed.add_field(**i)
     if footer:
         if isinstance(footer, str):
             embed.set_footer(text=footer)
@@ -662,7 +604,7 @@ def safe_pfp(user):
 def defa(*types, default = None, choices=[], required = False):
     if types == []: return SlashOption(default = default, required = False)
     if choices != []:
-        return SlashOption(choices=choices, default = None, required = required)   
+        return SlashOption(choices=choices, default = default, required = required)   
     return SlashOption(channel_types = types, required = required)
 
 async def ly(song, re):
@@ -671,8 +613,8 @@ async def ly(song, re):
         title=j.get('title',"Couldnt get title"),
         description=j.get('lyrics',"Unavailable"),
         color=re[8],
-        thumbnail=j['image'],
-        footer=j['artist']
+        thumbnail=j.get('image'),
+        footer=j.get('artist',"Unavailable")
     )
 
 async def isReaction(ctx, embed, clear = False):

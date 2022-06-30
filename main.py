@@ -14,6 +14,7 @@ temporary_fix()
 from keep_alive import keep_alive
 import string
 import nextcord
+print(nextcord.__version__)
 
 from utils import helping_hand
 from random import choice
@@ -329,7 +330,6 @@ async def dev_loop():
                     thumbnail=client.user.avatar.url
                 )
             )
-        await get_async("https://Ellisa-Bot.arghyathegod.repl.co")
         await get_async("https://viennabot.declan1529.repl.co")
     except:
         await client.get_channel(dev_channel).send(

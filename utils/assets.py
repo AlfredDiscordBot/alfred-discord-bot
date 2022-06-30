@@ -92,7 +92,7 @@ async def pa(ctx, embeds, restricted = False, start_from = 0):
 class Emotes:
     def __init__(self, client):
         self.client = client
-        self.animated_wrong = client.get_emoji(958424684540612688)
+        self.animated_wrong = client.get_emoji(990173312774701136)
         self.red_arrow = client.get_emoji(945741947220402176)
         self.animated_correct = client.get_emoji(958424323415212102)
         self.join_vc = client.get_emoji(852810663603994624)

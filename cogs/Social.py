@@ -15,6 +15,9 @@ from nextcord.ext import commands, tasks
 from random import choice
 from wikipedia import search, summary
 
+NEWS_CATEGORIES = inshort.get_categories()
+
+
 def requirements():
     return ["dev_channel"]
 
@@ -109,36 +112,24 @@ class Social(commands.Cog):
     @commands.command(aliases=["::"])
     @commands.check(ef.check_command)
     async def memes(self, ctx):
-        if len(self.link_for_cats) == 0:
-            try:            
-                print("Finished meme")
-                self.link_for_cats += await ef.memes1()
-                print("Finished meme1")
-                self.link_for_cats += await ef.memes2()
-                print("Finished meme2")
-                self.link_for_cats += await ef.memes3()
-                print("Finished meme3")
-                self.link_for_cats += await ef.memes4()
-                print("Finished meme4")
-            except Exception as e:
-                await ctx.channel.send(
-                    embed=ef.cembed(
-                        title="Meme issues",
-                        description="Something went wrong during importing memes\n"
-                        + str(e),
-                        color=self.client.re[8],
-                        thumbnail=self.client.user.avatar.url,
-                    )
-                )
-        await ctx.send(choice(self.link_for_cats))
+        j = await ef.get_async("https://api.popcat.xyz/meme", kind="json")
+        await ctx.send(
+            embed=ef.cembed(
+                title=j.get('title','Unavaiable'),
+                image=j.get('image'),
+                color=self.client.re[8],
+                thumbnail=self.client.user.avatar.url,
+                footer=f"{j.get('upvotes')} Upvotes | {j.get('comments')} Comments"
+            )
+        )
 
     @nextcord.slash_command(name="memes", description="Memes from Alfred yey")
     async def memes_slash(self, inter):
         await inter.response.defer()
         await self.memes(inter)
 
-    @nextcord.slash_command(name="news", description="Latest news from a given subject")
-    async def news_slash(self, inter, subject="all"):
+    @nextcord.slash_command(name="news", description="Latest news from a given subject from inshorts")
+    async def news_slash(self, inter, subject = ef.defa(choices=NEWS_CATEGORIES)):
         self.client.re[0]+=1  
         await inter.response.defer()
         await self.news(inter, subject)

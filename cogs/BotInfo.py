@@ -160,7 +160,6 @@ class BotInfo(commands.Cog):
             self.embe.insert(1, new_embed)
             self.index = [i.title for i in self.embe]
         autocomp_help = [str(i) for i in list(self.index)+list(self.client.commands) if text.lower() in str(i).lower()][:25]
-        print(autocomp_help)
         await inter.response.send_autocomplete(autocomp_help)
 
     @nextcord.slash_command(name="serverinfo",description="Get your server information")

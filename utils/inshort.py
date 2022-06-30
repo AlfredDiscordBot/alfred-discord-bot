@@ -2,6 +2,8 @@
 
 from External_functions import get_async, convert_to_url
 from bs4 import BeautifulSoup
+import re as regex
+import requests
 
 async def getNews(category):
     category = convert_to_url(category)
@@ -87,3 +89,8 @@ async def getNews(category):
         newsDictionary['data'].append(newsObject)
 
     return newsDictionary
+
+def get_categories():
+    a = requests.get("https://www.inshorts.com/en/read/").content.decode()
+    return [i.split("/")[-1] for i in regex.findall(r'en/read/\w+',a)]
+    

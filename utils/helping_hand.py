@@ -88,17 +88,26 @@ def effects_helper():
     )
 
 message_from = r"""
-**Increased stability and improvement**
-Alfred is much faster than ever before, even with more command and slash commands. Effects and Blend(image commands) is much better to interact with using slash command. Text in voice channel works more or less, you cant delete messages, you cant create webhooks like `'e <emoji>` command
+**BRAND NEW MSETUP** -> Beta
+We've added a new msetup, which kinda accepts literally everything and processes it, better error handling. More Options for Your Embed choices. We've decided to remove prefix command `'mehspace` as we're in a minor transition to application commands only. The Instructions embed move as you move. Fields exist finally
 
-**Running latest Nextcord version**
-Alfred gets updates a lot quicker, and compatibility
+**AUTOREACTION**
+If you assign a channel and emojis, Alfred will add the emojis specified  to every message in that channel
 
-**Added a new feature called wordcloud**
-Wordcloud basically collects the messages specified *we do not store it anywhere*, and creates a picture with the words in it. Larger font means more you say that word.
+Use `'autoreaction #channel ✅|❎`
+and to clear autoreact `'remove_autoreact #channel`
 
-**New PopCat Model**
-Added a new free model from PopCat Community, PopCat is an amazing community with multiple **free** APIs squeezed into one and has been helpful in Alfred's development
+**BETTER SUPPORT FOR YAML EMBEDS**
+Yaml Embed Supports JSON formatting as well. Give it a try, I want you to find the bugs
+
+**REMOVED RPS PREFIX COMMAND**
+As the transition to slash commands, we've decided to pull out the prefix commands for RockPaperScissor command.
+
+**NEW MEMES**
+Decided to remove memes prefix commands and added PopCat memes, one of our most loved free open API of all times. Instagram has been in a state of `not here nor there`, as alfred has it's limitations to get data from instagram
+
+**PROTONDB SLASH COMMAND**
+New ProtonDB slash command added, decided to remove the old on, I think this is a good move as new slash command supports autocomplete
 """
 
 def help_him(client, re):
@@ -209,7 +218,7 @@ def help_him(client, re):
     )
     games_help = cembed(
         title="Games",
-        description="This is a new feature in Alfred.\nAlfred currently has two new games\n```diff\n+ RockPaperScissor\n+ Guess\n```\n\nNote that `Guess` is not written in the regular prefix command anymore as we're shifting to slash commands",
+        description="This is a new feature in Alfred.\nAlfred currently has two new games\n```diff\n+ RockPaperScissor\n+ Guess\n```\n\n**Only in Slash commands**",
         color=re[8],
         footer="More games coming soon",
         image="https://c.tenor.com/_yS6EXe8Tc0AAAAC/gotham-knights-dc.gif"
