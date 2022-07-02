@@ -88,9 +88,9 @@ class FunAPI(commands.Cog):
         em = ef.cembed(
             title="Here's a picture of a Cute Cat",
             description="The Image you see here is collected from source.unsplash.com",
-            color=re[8],
+            color=self.client.re[8],
             author=ctx.author,
-            thumbnail=client.user.avatar.url,
+            thumbnail=self.client.user.avatar.url,
             image="attachment://cat.png"
         )
         await ctx.send(file=file, embed=em)
