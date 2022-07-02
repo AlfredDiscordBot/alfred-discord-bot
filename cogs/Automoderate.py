@@ -1,14 +1,9 @@
 
 import nextcord
 import assets
-import time
-import traceback
 import helping_hand
-import assets
-import random
 import External_functions as ef
-import helping_hand
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 
 #Use nextcord.slash_command()
 

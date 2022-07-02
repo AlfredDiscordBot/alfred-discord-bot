@@ -1,14 +1,8 @@
 import nextcord
-import assets
-import time
 import traceback
-import helping_hand
-import assets
-import random
 import asyncio
 import External_functions as ef
-import helping_hand
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 from yaml import safe_load, safe_dump
 from typing import Union
 
@@ -37,7 +31,7 @@ def get_color(color):
         return default_color
     elif type(color) is int:
         return color
-    elif (type(color) is str) and (type(col := tuple([int(i) for i in color.replace("(","").replace(")","").split(",")])) is tuple):
+    elif col := map(int, ef.delete_all(color,"()").split(",")):
         return nextcord.Color.from_rgb(*col)
 
     return default_color
@@ -104,7 +98,7 @@ def validate_url(url: str) -> bool:
     try:
         prepared_request.prepare_url(url, None)
         return True
-    except MissingSchema as e:
+    except MissingSchema:
         return False
 
 def embed_from_dict(info: dict, ctx, client) -> nextcord.Embed:
@@ -265,14 +259,14 @@ class MSetup:
                     title=f"Editing {text}",
                     description=f"Currently editing {text}, please follow the syntax from the instruction page",
                     color=self.client.re[8],
-                    thumbnail=self.client.user.avatar.url
-                    
+                    thumbnail=self.client.user.avatar.url                    
                 )
             )
+            
             self.set_preset()
             return self.to_yaml()
 
-        elif text.lower() == "import":
+        if text.lower() == "import":
             if msg.reference:
                 impor = await self.ctx.channel.fetch_message(
                     msg.reference.message_id
@@ -293,6 +287,7 @@ class MSetup:
         elif self.SETUP_VALUE:   
             if text == "-" and self.di.get(self.SETUP_VALUE):
                 del self.di[self.SETUP_VALUE]
+                await self.send_instructions()
                 return
             output = text
             print(self.SETUP_VALUE)
@@ -340,7 +335,7 @@ class Embed(commands.Cog):
                         m.channel == ctx.channel
                     ])
                 )
-                d = await session.process_message(message)
+                await session.process_message(message)
                 
                 if any(map(message.content.lower().startswith, scd)):
                     embed = embed_from_dict(session.di, ctx, self.client)
@@ -350,13 +345,12 @@ class Embed(commands.Cog):
                         confirm = await ef.wait_for_confirm(ctx, self.client, "Do you want to set this as your mehspace?", color=self.client.re[8])
                         
                         if confirm:
-                            self.client.mspace[ctx.author.id] == session.to_yaml()
+                            self.client.mspace[ctx.author.id] = session.to_yaml()
                             await ctx.send("Done")
                             break
                             
-                        else:
-                            await ctx.send("Continue, mehspace is not set")
-                            continue
+                        await ctx.send("Continue, mehspace is not set")
+                        continue
 
                             
                     if text.lower() == "cancel":
@@ -369,7 +363,7 @@ class Embed(commands.Cog):
                             await ef.post_async(text[5:], json={'embeds':[embed.to_dict()]})
                             await ctx.send("Done")
                             continue
-                        elif self.client.get_channel(int(text[7:-1])):
+                        if self.client.get_channel(int(text[7:-1])):
                             channel = self.client.get_channel(int(text[7:-1]))
                             print(channel)
                             if channel.permissions_for(ctx.author).send_messages:
@@ -501,11 +495,17 @@ class Embed(commands.Cog):
             return
 
         e = message.embeds[0].to_dict()
-        
-        await inter.send(
-            content = f"```yml\n{safe_dump(converter(e))}\n```",
-            ephemeral = True
-        )
+        all_embeds = ['']
+        for i in enumerate(safe_dump(converter(e)).split("\n")):
+            if i[0]%30:
+                all_embeds.append('')
+            all_embeds[-1]+=i[1]+"\n"            
+
+        for i in all_embeds:
+            await inter.send(
+                content = f"```yml\n{i}\n```",
+                ephemeral = True
+            )
 
     @commands.command(name="embedinfo")
     async def embedi(self, ctx):

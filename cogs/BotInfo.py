@@ -219,7 +219,16 @@ class BotInfo(commands.Cog):
     async def raw(self, ctx):
         a = await ctx.channel.fetch_message(ctx.message.reference.message_id)
         a = a.clean_content.replace("`","\\`")
-        await ctx.send(f"```\n{a}\n```")
+
+        
+        all_embeds = ['']
+        for i in a.split("\n"):
+            if i[0]%30:
+                all_embeds.append('')
+            all_embeds[-1]+=i[1]+"\n"
+            
+        for i in all_embeds:
+            await ctx.send(f"```\n{a}\n```")
         
     @commands.command()
     async def learn(self, ctx):

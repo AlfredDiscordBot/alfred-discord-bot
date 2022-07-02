@@ -1,7 +1,4 @@
-
 import nextcord
-import time
-import random
 import External_functions as ef
 from nextcord.ext import commands
 

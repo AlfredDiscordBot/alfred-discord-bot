@@ -132,7 +132,7 @@ class Games(commands.Cog):
         voice = inter.guild.voice_client
         voice.stop()
         song = choice(songs)
-        URL = ef.youtube_download(inter, song)
+        URL = ef.youtube_download(song)
         voice.play(nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS))
         await inter.send("Guess this Song, you have 30 seconds to tell")
         try:

@@ -19,7 +19,6 @@ import aiohttp
 import traceback
 import aiofiles
 import assets
-import asyncio
 import random
 
 from io import BytesIO
@@ -28,6 +27,7 @@ from datetime import datetime
 from collections import Counter
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
+from typing import List, Union
 
 ydl_op = {
     "format": "bestaudio/best",
@@ -49,7 +49,6 @@ m_options = [
     'footer',
     'thumbnail',
     'image',
-    'picture',
     'author',
     'url',
     'fields'
@@ -211,7 +210,7 @@ def instagram_get1(account, color, SESSIONID):
         return list_of_posts
     except instagramy.core.exceptions.UsernameNotFound:
         return "User Not Found, please check the spelling"
-    except Exception as e:
+    except Exception:
         print(traceback.print_exc())
         #SESSIONID = get_it()
         return SESSIONID
@@ -245,7 +244,7 @@ def get_if_process_exists(name):
 
 
 def cembed(
-    title="", description="", thumbnail="", picture="", url="", color=nextcord.Color.dark_theme(), footer="", author = False, fields = {}, image = ""
+    title=None, description=None, thumbnail=None, picture=None, url=None, color=nextcord.Color.dark_theme(), footer=None, author = False, fields = None, image = None
 ):
     embed = nextcord.Embed()
     if color != nextcord.Color.dark_theme():
@@ -461,13 +460,13 @@ def reset_emo():
     emo = assets.Emotes(client)
     return emo
     
-def youtube_download(ctx, url):
+def youtube_download(url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
         info=ydl.extract_info(url, download=False) 
         URL = info["formats"][0]["url"]
     return URL
 
-def youtube_download1(ctx, url):
+def youtube_download1(url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
         info=ydl.extract_info(url, download=False)
         name=info['title']
@@ -810,8 +809,6 @@ import assets
 import time
 import traceback
 import helping_hand
-import assets
-import random
 import External_functions as ef
 import helping_hand
 from nextcord.ext import commands, tasks
@@ -905,3 +902,91 @@ def validate_url(url: str) -> bool:
     except MissingSchema as e:
         return False
 
+class TechTerms:
+    def __init__(self):
+        pass
+        
+    async def search(self, query):
+        '''
+        async search a query from techterms.com
+        '''
+        content = await get_async("https://techterms.com/ac?query=")
+        print(content)
+        if not query: 
+            l = await get_async("https://techterms.com/ac?query=a", kind = "json")
+        else: 
+            l = await get_async(f"https://techterms.com/ac?query={query}", kind="json")
+        return [i['value'] for i in l]
+        
+    async def get_page_as_embeds(self, query):
+        url = f"https://techterms.com/definition/{convert_to_url(query.lower())}"
+        content = await get_async(url)
+        if "Term not found" in content:
+            return [{
+                'title': "Not found",
+                'description': "The definition that you're looking for is not available in TechTerms"
+            }]
+        soup = BeautifulSoup(content, 'html.parser')
+        l = soup.find_all('div', class_ = "card hasheader")[0]
+        line = chr(9600)*30
+        title = l.h1.get_text()
+        embeds = []
+        ps = l.find_all('p')
+        n = 0
+        for i in ps:
+            n+=1
+            description = f"```\n{line}\n{i.get_text()}\n{line}\n```"
+            embed = {
+                'title': title,
+                'description': description,
+                'url': url,
+                'footer': {
+                    'text': f'Source: TechTerms.com | {n} of {len(ps)}',
+                    'icon_url': 'https://play-lh.googleusercontent.com/heAUDFlRj040etj32Pve296Az4r_sgsUECjZNqSJOQAWA96qeqWdfE0pxtx-JNbIbG4'
+                },
+                'image': "https://play-lh.googleusercontent.com/MDWegEXmQwrcDJBbgjO_83EHp4-PIBdb_IXfYcUQLO5JmQ9w7Td-ZOZ7mKx12Rvctpz4=w600-h300-pc0xffffff-pd"
+            }
+            embeds.append(embed)
+        return embeds
+
+class Proton:
+    def __init__(self):
+        m = requests.get("https://protondb.max-p.me/games").json()
+        self.games = []
+        for i in m:
+            t = list(i.items())
+            self.games.append((t[0][1],t[1][1]))
+
+    def search_game(self, name):
+        search_results = []
+        name = name.lower()
+        for i in self.games:
+            if name in i[1].lower():
+                search_results.append(i)
+        return search_results
+
+    async def report(self, name):
+        if self.search_game(name) == []:
+            return []
+        id = self.search_game(name)[0][0]
+        
+        report = await get_async(f'https://protondb.max-p.me/games/{id}/reports', kind ="json")        
+        reports = []
+        for i in report:            
+            details  = f"```\n{i['notes'] if i['notes'] else '-'}\n```\n\n```yml\nCompatibility: {i['rating']}\nOperating System: {i['os']}\nGPU Driver: {i['gpuDriver']}\nProton: {i['protonVersion']}\nSpecs: {i['specs']}\n```"    
+            
+            reports.append({
+                'title': str([j[1] for j in self.games if j[0]==id][0]),
+                'description': details,
+                'footer': timestamp(int(i['timestamp'])),
+                'thumbnail': "https://live.mrf.io/statics/i/ps/www.muylinux.com/wp-content/uploads/2019/01/ProtonDB.png?width=1200&enable=upscale",
+                'image': "https://pcgw-community.sfo2.digitaloceanspaces.com/monthly_2020_04/chrome_a3Txoxr2j5.jpg.4679e68e37701c9fbd6a0ecaa116b8e5.jpg"
+            })
+        return reports
+
+
+
+def delete_all(s: str, ch: Union[List, str]):
+    for i in ch:
+        s = s.replace(i,"")
+    return s

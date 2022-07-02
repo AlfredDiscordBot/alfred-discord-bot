@@ -507,7 +507,7 @@ class Music(commands.Cog):
                     song = self.client.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
                     if song not in self.client.da1:
                         self.client.da1[song] = ef.youtube_info(song)["title"]                
-                    URL = ef.youtube_download(ctx, song)
+                    URL = ef.youtube_download(song)
                     voice.stop()
                     voice.play(
                         nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS),
@@ -562,7 +562,7 @@ class Music(commands.Cog):
                     self.client.re[3][str(ctx.guild.id)] = len(self.client.queue_song.get(str(ctx.guild.id),[]))-1          
                 song = self.client.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
                 voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
-                URL, name = ef.youtube_download1(ctx, song)
+                URL, name = ef.youtube_download1(song)
                 self.client.da1[song] = name
                 embed=nextcord.Embed(
                     title="Playing",
@@ -778,7 +778,7 @@ class Music(commands.Cog):
                         index = self.client.re[3][str(ctx.guild.id)]
                         songs = self.client.queue_song[str(ctx.guild.id)]
                         song = songs[index]
-                        URL, name_of_the_song = ef.youtube_download1(ctx, song)
+                        URL, name_of_the_song = ef.youtube_download1(song)
                         self.client.da1[song] = name_of_the_song
                         mess = await ctx.send(
                             embed=nextcord.Embed(
@@ -916,7 +916,7 @@ class Music(commands.Cog):
                     )
                 song = self.client.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
                 voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
-                URL = ef.youtube_download(ctx, song)            
+                URL = ef.youtube_download(song)            
                 embed=ef.cembed(
                     title="Playing",
                     description=self.client.da1.get(song,"Unavailable"),

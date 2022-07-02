@@ -1,65 +1,38 @@
 import nextcord
 import assets
-import time
-import traceback
-import helping_hand
-import asyncio
-import assets
 import requests
 import External_functions as ef
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 
 #Use nextcord.slash_command()
 
 def requirements():
     return []
 
-class Proton:
-    def __init__(self):
-        loop = asyncio.get_event_loop()
-        m = requests.get("https://protondb.max-p.me/games").json()
-        self.games = []
-        for i in m:
-            t = list(i.items())
-            self.games.append((t[0][1],t[1][1]))
-
-    def search_game(self, name):
-        search_results = []
-        name = name.lower()
-        for i in self.games:
-            if name in i[1].lower():
-                search_results.append(i)
-        return search_results
-
-    async def report(self, name):
-        print(self.search_game(name))
-        id = self.search_game(name)[0][0]
-        
-        report = await ef.get_async(f'https://protondb.max-p.me/games/{id}/reports', kind ="json")        
-        reports = []
-        for i in report:            
-            details  = f"```\n{i['notes'] if i['notes'] else '-'}\n```\n\n```yml\nCompatibility: {i['rating']}\nOperating System: {i['os']}\nGPU Driver: {i['gpuDriver']}\n Proton: {i['protonVersion']}\nSpecs: {i['specs']}\n```"    
-            
-            reports.append({
-                'title': str([j[1] for j in self.games if j[0]==id][0]),
-                'description': details,
-                'footer': ef.timestamp(int(i['timestamp'])),
-                'thumbnail': "https://live.mrf.io/statics/i/ps/www.muylinux.com/wp-content/uploads/2019/01/ProtonDB.png?width=1200&enable=upscale",
-                'image': "https://pcgw-community.sfo2.digitaloceanspaces.com/monthly_2020_04/chrome_a3Txoxr2j5.jpg.4679e68e37701c9fbd6a0ecaa116b8e5.jpg"
-            })
-        return reports
-
 class FunAPI(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.space = ef.SpaceX(self.client.re[8])
-        self.proton = Proton()
+        self.proton = ef.Proton()
+        self.tt = ef.TechTerms()
+
+    @nextcord.slash_command(name="tech", description="Get TechTerms from TechTerms.com")
+    async def tech(self, inter, query = "Python"):
+        await inter.response.defer()
+        e = await self.tt.get_page_as_embeds(query)
+        embeds = [ef.cembed(**i, color=self.client.re[8], author = inter.user) for i in e]
+        await assets.pa(inter, embeds)
+
+    @tech.on_autocomplete("query")
+    async def auto_tech(self, inter, query):
+        comp = await self.tt.search(query)
+        await inter.response.send_autocomplete(comp)
 
     @nextcord.slash_command(name="protondb", description="Check a game for linux compatibility in proton")
     async def protondb(self, inter, game):
         await inter.response.defer()
         reports = await self.proton.report(game)
-        embeds = [ef.cembed(**i, color=self.client.re[8]) for i in reports]
+        embeds = [ef.cembed(**i, color=self.client.re[8], author = inter.user) for i in reports]
         if len(embeds) == 0: embeds = [
             ef.cembed(
                 description="Not Found, please try again", 
@@ -69,7 +42,7 @@ class FunAPI(commands.Cog):
         await assets.pa(inter, embeds)
 
     @protondb.on_autocomplete("game")
-    async def auto(self, inter, game):
+    async def auto_proton(self, inter, game):
         autocom = [i[1] for i in self.proton.search_game(game)][:25]
         await inter.response.send_autocomplete(autocom)
         
@@ -106,6 +79,21 @@ class FunAPI(commands.Cog):
         embed.add_field(name="Youtube",value=f"[Link]({self.space.youtube})", inline=True)
         embed.add_field(name="Wikipedia", value=f"[Link]({self.space.wikipedia})", inline=True)
         await ctx.send(embed=embed)
+
+    @commands.command()
+    async def cute_cat(ctx, res="1920x1080"):
+        query = "kitten"
+        f = await ef.get_async(f"https://source.unsplash.com/{res}?{query}",kind="fp")
+        file = nextcord.File(f, "cat.png")
+        em = ef.cembed(
+            title="Here's a picture of a Cute Cat",
+            description="The Image you see here is collected from source.unsplash.com",
+            color=re[8],
+            author=ctx.author,
+            thumbnail=client.user.avatar.url,
+            image="attachment://cat.png"
+        )
+        await ctx.send(file=file, embed=em)
 
 
 def setup(client,**i):

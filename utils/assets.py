@@ -1,12 +1,12 @@
 import nextcord
-from nextcord import Interaction, SlashOption
 import External_functions as ef
 
 color = nextcord.ButtonStyle.blurple
 
 class Confirm(nextcord.ui.View):
-    def __init__(self, re = {8: 5160}):
+    def __init__(self, client, re = {8: 5160}):
         super().__init__()
+        self.client = client
         self.value = None
         self.color = re[8]
         
@@ -37,7 +37,7 @@ class Confirm(nextcord.ui.View):
         return self.value
 
 async def confirm_button(ctx, message, client, re={8: 5160}):
-    view = Confirm(re)
+    view = Confirm(client, re)
     await ctx.send(
         embed=ef.cembed(
             title="Confirmation",
@@ -101,67 +101,9 @@ class Emotes:
         self.upvote = client.get_emoji(945509681256865845)
         self.boost = client.get_emoji(975323250546597888)
         self.yikes = client.get_emoji(852810342991527946)
-
-
-class DictionaryViewer(nextcord.ui.View):
-    def __init__(self, di, col):
-        self.di = di
-        self.path = "/"
-        self.currently_selected = 0
-        self.col = col
-        self.cr = []
-
-    def embed_maker(self):
-        path = self.path.split("/")[1:]
-        if not path:
-            return ef.cembed(
-                description="This attribute is empty"
-            )
-        self.cr = list(self.current_data_locator(path, self.di.copy()))
-        title = path[-1] if path[-1] else "Home"
-        cc = self.currently_selected-10
-        description = "" if cc < 10 else " |->...\n"
-        for i in range(cc-10 if cc-10>=0 else 0, cc+10):
-            if i<len(self.cr) and i>0:
-                if cc == i:
-                    description+=f"\n |-> *{self.cr[i]}*"
-                    continue
-                description+=f"\n |-> {self.cr[i]}"
-        description+="\n |-> ..." if len(self.cr)-cc>10 else ""
-        return ef.cembed(
-            title=title,
-            description=description,
-            color=self.col,
-            footer="This feature is still in it's beta stage"
-        )      
         
+    def get_emoji(self, e):
+        return getattr(self, e)
 
-    def current_data_locator(self, path, di):        
-        if len(path) !=0:
-            a = path.pop(0)
-            if isinstance(di, list):                
-                return self.current_data_locator(path,di[int(a)])
-            elif isinstance(di, dict):
-                if a in di:
-                    return self.current_data_locator(path,di[a])
-                else:
-                    return self.current_data_locator(path,di[int(a)])
-        return di
-
-    @nextcord.ui.button(emoji="➡️", style=color)
-    async def look_inside(self, button, inter):
-        pass
-
-    @nextcord.ui.button(emoji="⬅️", style=color)
-    async def go_back(self, button, inter):
-        pass
-
-    @nextcord.ui.button(emoji="🔽", style=color)
-    async def down(self, button, inter):
-        pass
-
-    @nextcord.ui.button(emoji="🔼", style=color)
-    async def up(self, button, inter):
-        pass
         
         

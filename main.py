@@ -12,44 +12,28 @@ sys.path.insert(1,f"{os.getcwd()}/cogs")
 print("Booting up")
 temporary_fix()
 from keep_alive import keep_alive
-import string
 import nextcord
 print(nextcord.__version__)
 
 from utils import helping_hand
-from random import choice
-from nextcord import Interaction, SlashOption, ChannelType
+from emoji import emojize, demojize
 from nextcord.ext import commands, tasks
-from nextcord.abc import GuildChannel
 from dotenv import load_dotenv
-from math import *
-from statistics import *
 from utils.Storage_facility import Variables
 from io import StringIO
 from contextlib import redirect_stdout
-from utils.External_functions import *
+from utils.External_functions import cembed, timestamp, check_command, defa, devop_mtext, datetime, wait_for_confirm, check_end, safe_pfp, get_async, Emoji_alphabets, Meaning, activities, cog_creator, get_youtube_url, svg2png
 import traceback
-import youtube_dl
-import re as regex
-import urllib.request
-import ffmpeg
 import time
-import emoji
 import psutil
 import asyncio 
-import requests
-import aiohttp
 from io import BytesIO
 import src.error as ror
-from utils.spotify_client import *
 import assets
 
 location_of_file = os.getcwd()
 start_time = time.time()
-try:
-    load_dotenv()
-except:
-    pass
+load_dotenv()
 import speedtest
 
 try:
@@ -146,7 +130,6 @@ def save_to_file():
         mspace = client.mspace,
         da1 = client.da1,
         queue_song = client.queue_song,
-        a_channels = a_channels,
         re = re,
         dev_users = dev_users,
         prefix_dict = prefix_dict,
@@ -154,7 +137,7 @@ def save_to_file():
         old_youtube_vid = old_youtube_vid,
         config = config,        
         autor = autor,
-        time = str(datetime.datetime.now().time())
+        time = str(datetime.now().time())
     )
     store.save()
 
@@ -176,7 +159,6 @@ def load_from_file(store):
     da = v.get("da",{})
     da1 = v.get("da1", {})
     queue_song = v.get("queue_song",{})
-    a_channels = v.get("a_channels",[])
     re = v.get("re",re)
     dev_users = v.get("dev_users",dev_users)
     prefix_dict = v.get("prefix_dict",{})
@@ -307,11 +289,28 @@ async def youtube_loop():
                 old_youtube_vid[i][j[0]] = a[0]
                 try:
                     message=j[1]
-                    await client.get_channel(i).send(embed=cembed(title="New Video out", description=f"New Video from {j[0]}",url=a[0],color=re[8],thumbnail=client.get_channel(i).guild.icon.url))
-                    await client.get_channel(i).send(a[0]+"\n"+message)
-                except Exception as e:
-                    await client.get_channel(dev_channel).send(embed=cembed(title="Error in youtube_loop",description=f"{str(e)}\nSomething is wrong with channel no. {i}",color=re[8]))       
-            except: pass
+                    send_channel = client.get_channel(i)
+                    if not send_channel:
+                        del config['youtube'][i]
+                    await send_channel.send(
+                        embed=cembed(
+                            title="New Video out", 
+                            description=f"New Video from {j[0]}",
+                            url=a[0],
+                            color=re[8],
+                            thumbnail=send_channel.guild.icon.url
+                        )
+                    )
+                    await send_channel.send(a[0]+"\n"+message)
+                except Exception:
+                    await client.get_channel(dev_channel).send(
+                        embed=cembed(
+                            title="Error in youtube_loop",
+                            description=f"{str(traceback.format_exc())}\nSomething is wrong with channel no. {i}",
+                            color=re[8]
+                        )
+                    )       
+            except: print(traceback.format_exc())
     print("Done")
 
 @tasks.loop(seconds = 30)
@@ -333,7 +332,7 @@ async def dev_loop():
         await get_async("https://viennabot.declan1529.repl.co")
     except:
         await client.get_channel(dev_channel).send(
-            embed=ef.cembed(
+            embed=cembed(
                 description=str(traceback.format_exc()),
                 color=re[8],
                 footer="Error in keep alive dev_loop",
@@ -370,7 +369,7 @@ async def autoreact(ctx, channel: nextcord.TextChannel = None,*, Emojis: str = "
         await ctx.send(
             embed=cembed(
                 title="Hmm",
-                description=emoji.emojize("You need to mention a channel\n'autoreact #channel :one:|:two:|:three:"),
+                description=emojize("You need to mention a channel\n'autoreact #channel :one:|:two:|:three:"),
                 color=re[8]
             )
         )
@@ -385,9 +384,9 @@ async def autoreact(ctx, channel: nextcord.TextChannel = None,*, Emojis: str = "
         )
         return
     if channel.id not in autor:
-        autor[channel.id]=[i.strip() for i in emoji.demojize(Emojis).split("|")]
+        autor[channel.id]=[i.strip() for i in demojize(Emojis).split("|")]
     else:
-        autor[channel.id]+=[i.strip() for i in emoji.demojize(Emojis).split("|")]
+        autor[channel.id]+=[i.strip() for i in demojize(Emojis).split("|")]
     await ctx.send(
         embed=cembed(
             title="Done",
@@ -797,7 +796,7 @@ async def dic(inter, word):
         await assets.pa(inter, mean.create_texts(), start_from=0, restricted=False)
     except Exception as e:
         await inter.send(
-            embed=ef.cembed(
+            embed=cembed(
                 title="Something is wrong",
                 description="Oops something went wrong, I gotta check this out real quick, sorry for the inconvenience",
                 color=nextcord.Color.red(),
@@ -858,16 +857,21 @@ async def rollback(ctx):
 @client.slash_command(name = "feedback",description="Send a feedback to the developers")
 async def f_slash(inter, text):
     await feedback(inter, text=text)
-    
-async def poll(ctx, Options = "", Question = "", image="https://i.imgur.com/chLCmUl.jpg"):
-    channel = ctx.channel
+
+@client.slash_command(name="polling", description="Seperate options with |")
+async def polling_slash(inter, question, options="yes|no",image=None):
+    await inter.response.defer()
+    if not image: image = safe_pfp(inter.guild)
+    await poll(inter, Options = options, Question = question if question else "", image = image)
+
+async def poll(inter, Options = "", Question = "", image="https://i.imgur.com/chLCmUl.jpg"):
     text = Question+"\n\n"
     Options = Options.split("|")
     if len(Options)>=20:
         reply = "Use this if you want to redo\n\n"
         reply+= f"Question: `{Question}` \n"
         reply+= f"Options: `{'|'.join(Options)}`"
-        await ctx.send(
+        await inter.send(
             embed=cembed(
                 title="Sorry you can only give 20 options",
                 description=reply,
@@ -876,32 +880,26 @@ async def poll(ctx, Options = "", Question = "", image="https://i.imgur.com/chLC
             )
         )
     for i in range(len(Options)):
-        text+=f"{emoji.emojize(f':keycap_{i+1}:') if i<10 else Emoji_alphabets[i-10]} | {Options[i].strip()}\n"
+        text+=f"{emojize(f':keycap_{i+1}:') if i<10 else Emoji_alphabets[i-10]} | {Options[i].strip()}\n"
 
     embed=cembed(
         title="Poll",
         description=text,
         color=re[8],
-        footer=f"from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name} | {ctx.guild.name}",
-        picture = image
+        footer=f"from {inter.user.name} | {inter.guild.name}",
+        picture = image,
+        author = inter.user
     )
-    embed.set_author(name = getattr(ctx, 'author', getattr(ctx, 'user', None)).name, icon_url = getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar.url if getattr(ctx, 'author', getattr(ctx, 'user', None)).avatar else client.user.avatar.url)
-    message = await ctx.send(
+    message = await inter.send(
         embed = embed
     )
     
-    for i in range(len(Options)): await message.add_reaction(emoji.emojize(f":keycap_{i+1}:") if i<10 else Emoji_alphabets[i-10])
-
-@client.slash_command(name="polling", description="Seperate options with |")
-async def polling_slash(inter, question, options="yes|no",image=None):
-    await inter.response.defer()
-    if not image: image = safe_pfp(inter.guild)
-    await poll(inter, Options = options, Question = question if question else "", image = image)
+    for i in range(len(Options)): await message.add_reaction(emojize(f":keycap_{i+1}:") if i<10 else Emoji_alphabets[i-10])
 
 @client.slash_command(name="eval", description = "This is only for developers", guild_ids = [822445271019421746])
 async def eval_slash(inter, text, ty = defa(choices=['python','bash'])):
     if ty == 'bash':
-        await shell(inter, text)
+        await shell(inter, text = text)
     else:
         await python_shell(inter, text = text)
 
@@ -1017,102 +1015,98 @@ async def on_reaction_add(reaction, user):
     req()
     ctx = reaction.message
     try:
-        if not user.bot:
-            global Emoji_list 
-            if str(user.id) in list(dev_users):
-                global dev_channel
-                channel = client.get_channel(dev_channel)
-                if (
-                    reaction.emoji == emoji.emojize(":laptop:")
-                    and str(reaction.message.channel.id) == str(channel.id)
-                    and reaction.message.author == client.user
-                ):
-                    string = ""
-                    await reaction.remove(user)
-                    for i in list(dev_users):
-                        string = string + str(client.get_user(int(i)).name) + "\n"
-                    await channel.send(
-                        embed=nextcord.Embed(
-                            title="Developers",
-                            description=string + "\n\nThank you for supporting",
-                            color=nextcord.Color(value=re[8]),
-                        )
+        if (not user.bot) and str(user.id) in list(dev_users):
+            global dev_channel
+            channel = client.get_channel(dev_channel)
+            if (
+                reaction.emoji == emojize(":laptop:")
+                and str(reaction.message.channel.id) == str(channel.id)
+                and reaction.message.author == client.user
+            ):
+                st = "\n".join([client.get_user(i).name for i in dev_users])
+                await reaction.remove(user)
+                await channel.send(
+                    embed=cembed(
+                        title="Developers",
+                        description=st,
+                        author=user,
+                        footer="Thank you for supporting",
+                        color=nextcord.Color(value=re[8]),
                     )
-                if reaction.emoji == emoji.emojize(":bar_chart:") and str(
-                    reaction.message.channel.id
-                ) == str(channel.id):
-                    await reaction.remove(user)
-                    reaction.message.author == user
-                    await load(reaction.message)              
-                if reaction.emoji == "⭕" and ctx.channel.id == channel.id:
-                    await reaction.remove(user)
-                    await channel.send(
-                        embed=nextcord.Embed(
-                            title="Servers",
-                            description='\n'.join([i.name+"" for i in client.guilds]),
-                            color=nextcord.Color(value=re[8]),
-                        )
+                )
+            if reaction.emoji == emojize(":bar_chart:") and str(
+                reaction.message.channel.id
+            ) == str(channel.id):
+                await reaction.remove(user)
+                reaction.message.author == user
+                await load(reaction.message)              
+            if reaction.emoji == "⭕" and ctx.channel.id == channel.id:
+                await reaction.remove(user)
+                await channel.send(
+                    embed=nextcord.Embed(
+                        title="Servers",
+                        description='\n'.join([i.name+"" for i in client.guilds]),
+                        color=nextcord.Color(value=re[8]),
                     )
-                if reaction.emoji == emoji.emojize(":fire:") and str(
-                    reaction.message.channel.id
-                ) == str(channel.id):
-                    reaction.message.author = user
-                    await restart_program(reaction.message,re[1])
-                if reaction.emoji == '💾' and reaction.message.channel.id == channel.id:
-                    save_to_file()                    
-                    await reaction.remove(user)
-                if reaction.emoji == emoji.emojize(":cross_mark:") and str(
-                    reaction.message.channel.id
-                ) == str(channel.id):
-                    await reaction.remove(user)
-                    if len(client.voice_clients)>0:
-                        confirmation = await wait_for_confirm(
-                            reaction.message, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8], usr=user                        
-                        )
-                        if not confirmation:
-                            return
-                    try:
-                        for voice in client.voice_clients:
-                            voice.stop()
-                            await voice.disconnect()
-                    except:
-                        pass
-                    await channel.purge(limit=10000000000)
-                    await channel.send(
-                        embed=nextcord.Embed(
-                            title="Exit",
-                            description=("Requested by " + str(user)),
-                            color=nextcord.Color(value=re[8]),
-                        )
+                )
+            if reaction.emoji == emojize(":fire:") and str(
+                reaction.message.channel.id
+            ) == str(channel.id):
+                reaction.message.author = user
+                await restart_program(reaction.message,re[1])
+            if reaction.emoji == '💾' and reaction.message.channel.id == channel.id:
+                save_to_file()                    
+                await reaction.remove(user)
+            if reaction.emoji == emojize(":cross_mark:") and str(
+                reaction.message.channel.id
+            ) == str(channel.id):
+                await reaction.remove(user)
+                if len(client.voice_clients)>0:
+                    confirmation = await wait_for_confirm(
+                        reaction.message, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8], usr=user                        
                     )
-                    os.system("pkill python3")
-                if reaction.emoji == emoji.emojize(":satellite:") and str(
-                    reaction.message.channel.id
-                ) == str(channel.id):
-                    string = ""
-                    await reaction.remove(user)
-                    await channel.send("Starting speedtest")
-                    download_speed = int(st_speed.download()) // 1024 // 1024
-                    upload_speed = int(st_speed.upload()) // 1024 // 1024
-                    servers = st_speed.get_servers([])
-                    ping = st_speed.results.ping
-                    await channel.send(
-                        embed=nextcord.Embed(
-                            title="Speedtest Results:",
-                            description=str(download_speed)
-                            + "Mbps\n"
-                            + str(upload_speed)
-                            + "Mbps\n"
-                            + str(ping)
-                            + "ms",
-                            color=nextcord.Color(value=re[8]),
-                        )
+                    if not confirmation:
+                        return
+                try:
+                    for voice in client.voice_clients:
+                        voice.stop()
+                        await voice.disconnect()
+                except:
+                    pass
+                await channel.purge(limit=10000000000)
+                await channel.send(
+                    embed=nextcord.Embed(
+                        title="Exit",
+                        description=("Requested by " + str(user)),
+                        color=nextcord.Color(value=re[8]),
                     )
-                
-                if reaction.emoji == emoji.emojize(":black_circle:") and str(
-                    reaction.message.channel.id
-                ) == str(channel.id):
-                    await devop_mtext(client, channel, re[8])
+                )
+                os.system("pkill python3")
+            if reaction.emoji == emojize(":satellite:") and str(
+                reaction.message.channel.id
+            ) == str(channel.id):
+                await reaction.remove(user)
+                await channel.send("Starting speedtest")
+                download_speed = int(st_speed.download()) // 1024 // 1024
+                upload_speed = int(st_speed.upload()) // 1024 // 1024
+                ping = st_speed.results.ping
+                await channel.send(
+                    embed=nextcord.Embed(
+                        title="Speedtest Results:",
+                        description=str(download_speed)
+                        + "Mbps\n"
+                        + str(upload_speed)
+                        + "Mbps\n"
+                        + str(ping)
+                        + "ms",
+                        color=nextcord.Color(value=re[8]),
+                    )
+                )
+            
+            if reaction.emoji == emojize(":black_circle:") and str(
+                reaction.message.channel.id
+            ) == str(channel.id):
+                await devop_mtext(client, channel, re[8])
     except PermissionError:
         await reaction.message.channel.send(embed=cembed(
             title="Missing Permissions",
@@ -1158,7 +1152,7 @@ async def on_message(msg):
     try:
         if msg.channel.id in autor:
             for emo in autor[msg.channel.id]:                
-                await msg.add_reaction(emoji.emojize(emo.strip()))  
+                await msg.add_reaction(emojize(emo.strip()))  
                 await asyncio.sleep(1)       
         
     except Exception as e:
@@ -1226,7 +1220,7 @@ async def shell(ctx, *, text):
         return
     print("Shell", user.name, text)
     await client.get_channel(946381704958988348).send(
-        embed=ef.cembed(
+        embed=cembed(
             author=user,
             title=f"Shell Executed by {user}",
             description=text,
@@ -1267,7 +1261,7 @@ async def exe(ctx, *, text):
             )
             return
         await client.get_channel(946381704958988348).send(
-            embed=ef.cembed(
+            embed=cembed(
                 title="Execute command used",
                 description=text,
                 color=re[8],
@@ -1288,12 +1282,21 @@ async def exe(ctx, *, text):
         embeds = []
         if output == "":
             output = "_"
-        for i in range(len(output)//2000+1):
-            em = cembed(title="Python",description=output[i*2000:i*2000+2000],color=re[8])
-            em.set_thumbnail(
-                url="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png"
-            )
-            embeds.append(em)
+        all_outputs = ['']
+        for ch in output:
+            all_outputs[-1]+=ch
+            if len(all_outputs[-1]) == 2000:
+                all_outputs.append('')
+        embeds = []
+        for description in all_outputs:
+            embeds.append(
+                cembed(
+                    title="Output",
+                    description=description,
+                    color=re[8],
+                    thumbnail=client.user.avatar.url
+                )
+            )            
         await assets.pa(ctx, embeds, start_from=0, restricted=False)
     else:
         await ctx.send(
@@ -1303,21 +1306,6 @@ async def exe(ctx, *, text):
                 color=nextcord.Color(value=re[8]),
             )
         )
-        
-@client.command()
-async def cute_cat(ctx, res="1920x1080"):
-    query = "kitten"
-    f = await get_async(f"https://source.unsplash.com/{res}?{query}",kind="fp")
-    file = nextcord.File(f, "cat.png")
-    em = ef.cembed(
-        title="Here's a picture of a Cute Cat",
-        description="The Image you see here is collected from source.unsplash.com",
-        color=re[8],
-        author=ctx.author,
-        thumbnail=client.user.avatar.url,
-        image="attachment://cat.png"
-    )
-    await ctx.send(file=file, embed=em)
 
 def addt(p1, p2):
     da[p1] = p2
