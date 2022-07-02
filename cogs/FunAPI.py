@@ -81,9 +81,9 @@ class FunAPI(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def cute_cat(ctx, res="1920x1080"):
+    async def cute_cat(self, ctx, res="1920x1080"):
         query = "kitten"
-        f = await ef.get_async(f"https://source.unsplash.com/{res}?{query}",kind="fp")
+        f = await ef.get_async(f"https://source.unsplash.com/{res}?{query}", kind="fp")
         file = nextcord.File(f, "cat.png")
         em = ef.cembed(
             title="Here's a picture of a Cute Cat",
