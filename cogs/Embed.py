@@ -495,18 +495,17 @@ class Embed(commands.Cog):
             return
 
         e = message.embeds[0].to_dict()
-        all_embeds = ['']
-        for i in enumerate(safe_dump(converter(e)).split("\n")):
-            if i[0]%30:
-                all_embeds.append('')
-            all_embeds[-1]+=i[1]+"\n"            
-
-        for i in all_embeds:
-            await inter.send(
-                content = f"```yml\n{i}\n```",
-                ephemeral = True
-            )
-
+        
+        await inter.send(
+            embed=ef.cembed(
+                title="EmbedInfo",
+                description=f"```yml\n{safe_dump(converter(e))}\n```",
+                color=self.client.re[8],
+                thumbnail=self.client.user.avatar.url
+            ),
+            ephemeral = True
+        )
+        
     @commands.command(name="embedinfo")
     async def embedi(self, ctx):
         if not ctx.message.reference:
@@ -522,7 +521,12 @@ class Embed(commands.Cog):
         e = message.embeds[0].to_dict()
 
         await ctx.send(
-            content = f"```yml\n{safe_dump(converter(e))}\n```"
+            embed=ef.cembed(
+                title="EmbedInfo",
+                description=f"```yml\n{safe_dump(converter(e))}\n```",
+                color=self.client.re[8],
+                thumbnail = self.client.user.avatar.url
+            )
         )
     
 

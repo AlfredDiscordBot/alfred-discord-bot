@@ -5,7 +5,6 @@ import External_functions as ef
 import emoji
 import asyncio
 import traceback
-import urllib
 import re as regex
 
 from nextcord.abc import GuildChannel
@@ -243,10 +242,6 @@ class Music(commands.Cog):
     @nextcord.slash_command(name="connect", description="Connect to a voice channel")
     async def connect_slash(self, inter, channel: GuildChannel = ef.defa(ChannelType.voice)):
         await self.connect_music(inter, channel)
-
-    @nextcord.slash_command(name="testing1", guild_ids=[822445271019421746])
-    async def testing(self, inter, op = SlashOption(name="foo_bar2")):
-        await inter.send("Done")
     
     
     @commands.command(aliases=["cm",'join','cn','connect'])
@@ -266,13 +261,11 @@ class Music(commands.Cog):
                 if user.voice and user.voice.channel:
                     voiceChannel = user.voice.channel               
                     await voiceChannel.connect()
-                    voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
                     await ctx.send(
-                        embed=nextcord.Embed(
-                            title="",
+                        embed=cembed(
                             description="Connected\nBitrate of the channel: "
                             + str(ctx.guild.voice_client.channel.bitrate // 1000),
-                            color=nextcord.Color(value=self.client.re[8]),
+                            color=self.client.re[8],
                         )
                     )
                 else:
@@ -454,7 +447,7 @@ class Music(commands.Cog):
                 if num<10: num = 10
                 for i in range(num-10, num+10):
                     try:
-                        st += f"{i}. {self.client.da1.get(self.client.queue_song[str(ctx.guild.id)][i],'Unavailable')}\n"
+                        st += f"`{i}.` {self.client.da1.get(self.client.queue_song[str(ctx.guild.id)][i],'Unavailable')}\n"
                     except: 
                         pass
             embed = ef.cembed(
@@ -695,7 +688,7 @@ class Music(commands.Cog):
                 self.client.re[3][str(ctx.guild.id)] = 0
         if self.client.re[2].get(ctx.guild.id,-1) == 1 or self.client.re[7].get(ctx.guild.id,-1) == 1:
             if not voice.is_playing():
-                URL, name = ef.youtube_download1(ctx, songs[index])
+                URL, name = ef.youtube_download1(songs[index])
                 if not songs[index] in self.client.da1:
                     self.client.da1[songs[index]] = name
                 voice.play(
@@ -815,7 +808,7 @@ class Music(commands.Cog):
                         )
                         return
                     url = "https://www.youtube.com/watch?v=" + video[0]
-                    URL, name_of_the_song = ef.youtube_download1(ctx, url)
+                    URL, name_of_the_song = ef.youtube_download1(url)
                     self.client.re[3][str(ctx.guild.id)] = len(self.client.queue_song[str(ctx.guild.id)])       
                     songs = self.client.queue_song[str(ctx.guild.id)]
                     if len(songs) == 0 or songs[-1] != url:
@@ -889,7 +882,7 @@ class Music(commands.Cog):
                 color=self.client.re[8],
                 footer="check 'q if you have any song"
             )
-            await ef.isReaction(embed)
+            await ef.isReaction(ctx, embed)
 
     @nextcord.slash_command(name = "play", description = "play a song, you can also put a song name in that")
     async def play_slash(self, inter, index):

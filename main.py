@@ -59,7 +59,8 @@ config = {
     'ticket' : {},
     'security':{},
     'commands':{},
-    'reactions':{}
+    'reactions':{},
+    'connect':{}
     }
 da = {}
 errors = ["```arm"]
@@ -104,8 +105,8 @@ print("Starting")
 async def search_vid(name):
     pass
 
-def prefix_check(client, message):
-    return prefix_dict.get(message.guild.id if message.guild is not None else None, "'"),f"<@{client.user.id}> "
+def prefix_check(client_variable, message):
+    return prefix_dict.get(message.guild.id if message.guild is not None else None, "'"),f"<@{client_variable.user.id}> "
 
 
 client = nextcord.ext.commands.Bot(
@@ -199,24 +200,22 @@ Color: {nextcord.Color(re[8]).to_rgb()}
 [ OK ] Switching Root ...
 """
 
-for i in os.listdir(location_of_file + "/src"):
-    if i.endswith(".py"):
-        a = ""
+for extension in os.listdir(location_of_file + "/src"):
+    if extension.endswith(".py"):
         try:
-            print(i, end="")
-            requi = __import__(i[0 : len(i) - 3]).requirements()
-            if type(requi) is str:
-                a = f"__import__('{i[0:len(i)-3]}').main(client,{requi})"
-                eval(a)
-            if type(requi) is list:
-                a = f"__import__('{i[0:len(i)-3]}').main(client,{','.join(requi)})"
-                eval(a)
+            print(extension, end="")
+            requi = __import__(extension[0 : -3]).requirements()
+            if isinstance(requi, str):
+                cmd = f"__import__('{extension[0: -3]}').main(client,{requi})"
+            else:
+                cmd = f"__import__('{extension[0:-3]}').main(client,{','.join(requi)})"
+            eval(cmd)
             print(": Done")
-            report+=f"[ OK ] Imported {i} successfully\n"
+            report+=f"[ OK ] Imported {extension} successfully\n"
         except Exception as e:
             print(": Error")
-            report+=f"[ {int(time.time()-start_time)} ] Error in {i}: {e}\n{a} \n"
-            errors.append(f"[ {int(time.time()-start_time)} ] Error in {i}: {str(e)[:10]}...\n")
+            report+=f"[ {int(time.time()-start_time)} ] Error in {extension}: {e}\n"
+            errors.append(f"[ {int(time.time()-start_time)} ] Error in {extension}: {str(e)[:10]}...\n")
 
 @client.event
 async def on_ready():

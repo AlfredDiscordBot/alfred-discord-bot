@@ -20,7 +20,7 @@ class Intercom(commands.Cog):
         self.old_messages = {}
 
     @nextcord.slash_command(name="intercom", description="Set a channel for intercom, if not given removes the existing channel")
-    async def intercom(self, inter, channel:GuildChannel = "-"):
+    async def intercom(self, inter, channel:GuildChannel = ef.defa(ChannelType.text, default = None)):
         await inter.response.defer()
         if not inter.user.guild_permissions.manage_guild:
             await inter.send(
@@ -31,7 +31,7 @@ class Intercom(commands.Cog):
                 )
             )
             return
-        if channel == "-":
+        if not channel:
             if inter.guild.id in self.client.config['connect']:
                 del self.client.config['connect'][inter.guild.id]
             await inter.send("Removing existing intercom connection channel")
@@ -68,6 +68,32 @@ class Intercom(commands.Cog):
             return
         await ctx.send("No call in progress")
 
+    @nextcord.slash_command()
+    async def call(self, inter, server):
+        await inter.response.defer()
+        guild = nextcord.utils.get(self.client.guilds, name = server)
+        if not guild:
+            await inter.send("That server has no intercom", ephemeral = True)
+            return
+        await self.start_call(inter, number = guild.id)        
+
+    @call.on_autocomplete("server")
+    async def call_complete(self, inter, server):
+        if self.client.is_ready():
+            call_available = []
+            for i in list(self.client.config['connect']):
+                if (not self.client.get_guild(i)) and self.client.is_ready():
+                    del self.client.config['connect'][i]
+                    continue
+                call_available.append(self.client.get_guild(i).name)
+            await inter.response.send_autocomplete(call_available)
+        else:
+            await inter.response.send_autocomplete(
+                [
+                    "Sorry for the inconvenience, the bot is not fully ready"
+                ]
+            )
+
     @commands.command(aliases=['call'])
     @commands.check(ef.check_command)
     async def start_call(self, ctx, number = None):
@@ -93,7 +119,7 @@ class Intercom(commands.Cog):
             )
             return
 
-        if not ctx.author.guild_permissions.manage_guild:
+        if not getattr(ctx, 'author', ctx.user).guild_permissions.manage_guild:
             await ctx.send("Permissions Denied")
             return
             
@@ -101,23 +127,23 @@ class Intercom(commands.Cog):
         guild = self.client.get_guild(number)
         
         if not guild:
-            await ctx.reply("Not a server ID, try again")
+            await ctx.send("Not a server ID, try again")
             return
 
         if number in self.calls:
-            await ctx.reply("Busy at the moment, call again later")
+            await ctx.send("Busy at the moment, call again later")
             return
 
         if ctx.guild.id in self.calls:
-            await ctx.reply("You're already in a call")
+            await ctx.send("You're already in a call")
             return
 
         if number not in self.client.config['connect']:
-            await ctx.reply("This Server has not set Intercom yet")
+            await ctx.send("This Server has not set Intercom yet")
             return        
 
         if ctx.guild.id not in self.client.config['connect']:
-            await ctx.reply("Your Server has not set Intercom yet\nUse `/intercom`")
+            await ctx.send("Your Server has not set Intercom yet\nUse `/intercom`")
             return
 
         ch = self.client.get_channel(self.client.config['connect'][number])
@@ -144,14 +170,14 @@ class Intercom(commands.Cog):
                     return
             except asyncio.TimeoutError:
                 await ctx.send("Timed out, no one answered")
-                await ay.reply("Ending call")
+                await ay.send("Ending call")
                 return
                 
 
         self.calls[ctx.guild.id] = number
         self.calls[number] = ctx.guild.id
 
-        await ctx.reply(
+        await ctx.send(
             embed=ef.cembed(
                 title="Done",
                 description=f'Connected to {guild.name}',

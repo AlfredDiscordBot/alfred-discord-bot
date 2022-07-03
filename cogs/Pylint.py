@@ -14,6 +14,7 @@ def requirements():
 class Pylint(commands.Cog):
     def __init__(self, client):
         self.client = client  
+        self.sample_lint = LintAction(self.client.re[8])
         self.lint_in_session = False
         
     @nextcord.slash_command(name="pylint", description="Check Pylint of a py file", guild_ids = [822445271019421746])
@@ -38,7 +39,12 @@ class Pylint(commands.Cog):
         embeds = session.split_output()
         self.lint_in_session = False
         await assets.pa(inter, embeds)
-        
+
+    @lin.on_autocomplete("file")
+    async def autocomplete_lin(self, inter, file):        
+        await inter.response.send_autocomplete(
+            [i for i in self.sample_lint.locations if file in i][:25]
+        )
         
         
 
@@ -65,7 +71,7 @@ class LintAction:
             return self.output
 
         def start_process(file):
-            self.output = getoutput(f"pylint {file}")
+            self.output = getoutput(f"pylint {file}").strip()
             print("Lint Completed for", file)
             return self.output
 
@@ -85,6 +91,12 @@ class LintAction:
         count = 0
         for description in descriptions:
             count+=1
+            field_text = "\n".join([
+                i for i in descriptions[-1].split("\n") if i.startswith("Your")
+            ])
+            if not field_text:
+                field_text = "Should mostly be an error"
+                
             embeds.append(
                 ef.cembed(
                     title = "PyLint Completed",
@@ -94,7 +106,7 @@ class LintAction:
                     fields = [
                         {
                             'name': 'Rating',
-                            'value': descriptions[-1].split("\n"[-1])
+                            'value': field_text
                         }
                     ]
                 )

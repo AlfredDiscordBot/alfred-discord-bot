@@ -20,6 +20,7 @@ import traceback
 import aiofiles
 import assets
 import random
+import json
 
 from io import BytesIO
 from functools import lru_cache
@@ -522,7 +523,11 @@ async def get_async(url, headers = {}, kind = "content"):
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(url) as resp:
             if kind == "json":                
-                output = await resp.json()
+                try:
+                    output = await resp.json()
+                except Exception as e:
+                    print(e)
+                    output = await resp.text()
             elif kind.startswith("file>"):
                 f = await aiofiles.open(kind[5:], mode = "wb")
                 await f.write(await resp.read())
@@ -910,13 +915,11 @@ class TechTerms:
         '''
         async search a query from techterms.com
         '''
-        content = await get_async("https://techterms.com/ac?query=")
-        print(content)
         if not query: 
-            l = await get_async("https://techterms.com/ac?query=a", kind = "json")
+            l = await get_async("https://techterms.com/ac?query=a")
         else: 
-            l = await get_async(f"https://techterms.com/ac?query={query}", kind="json")
-        return [i['value'] for i in l]
+            l = await get_async(f"https://techterms.com/ac?query={query}")
+        return [i['value'] for i in json.loads(l)]
         
     async def get_page_as_embeds(self, query):
         url = f"https://techterms.com/definition/{convert_to_url(query.lower())}"
