@@ -262,7 +262,7 @@ class Music(commands.Cog):
                     voiceChannel = user.voice.channel               
                     await voiceChannel.connect()
                     await ctx.send(
-                        embed=cembed(
+                        embed=ef.cembed(
                             description="Connected\nBitrate of the channel: "
                             + str(ctx.guild.voice_client.channel.bitrate // 1000),
                             color=self.client.re[8],
