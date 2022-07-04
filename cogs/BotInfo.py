@@ -243,7 +243,7 @@ class BotInfo(commands.Cog):
                     title="Learn", 
                     color=self.client.re[8], 
                     description=i, 
-                    footer=f"{a} of {len(j)"
+                    footer=f"{a} of {len(j)}"
                 )
                 embeds.append(embed)
         await assets.pa(ctx, embeds)
