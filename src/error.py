@@ -12,8 +12,8 @@ def error(message):
 
 
 def requirements():
-    return "re"
+    return ""
 
 
-def main(client, re):
+def main(client):
     pass

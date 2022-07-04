@@ -17,7 +17,9 @@ class Configuration(commands.Cog):
     def __init__(self, client, dev_channel):
         self.client = client
         self.dev_channel = dev_channel
-        self.command_list = open("commands.txt","r").read().split("\n")[:-1]
+        self.command_list = []
+        with open("commands.txt","r") as f:
+            self.command_list = f.read().split("\n")[:-1]
 
     @commands.command()
     @commands.check(ef.check_command)
@@ -268,6 +270,15 @@ class Configuration(commands.Cog):
                 self.client.config['youtube'][channel.id]=set()
             if url is not None:
                 url = ef.check_end(url)
+                if not ef.validate_url(url):
+                    await ctx.send(
+                        embed=ef.cembed(
+                            title="Huh",
+                            description="That's an invalid url form id",
+                            color=self.client.re[8],
+                            thumbnail=self.client.user.avatar.url
+                        )
+                    )
                 self.client.config['youtube'][channel.id].add((url,message))
                 await ctx.send(embed=ef.cembed(title="Done",description=f"Added {url} to the list and it'll be displayed in {channel.mention}",color=self.client.re[8],thumbnail=self.client.user.avatar.url))
             else:

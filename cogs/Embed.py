@@ -316,8 +316,8 @@ class Embed(commands.Cog):
         self.client = client
         self.old_messages = {}
 
-    @commands.command()
-    async def msetup1(self, ctx):
+    @commands.command(aliases=["msetup1"])
+    async def msetup(self, ctx):
         session = MSetup(ctx, self.client)
         await session.send_instructions()
         scd = [

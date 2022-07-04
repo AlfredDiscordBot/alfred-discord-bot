@@ -276,8 +276,8 @@ async def youtube_loop():
         await asyncio.sleep(2)
         for j in l:
             try:
-                a = get_youtube_url(j[0])
-                if a[0]=="https://www.youtube.com/" or a[0]=="https://www.youtube.com":
+                a = await get_youtube_url(j[0])
+                if a[0] in ["https://www.youtube.com/","https://www.youtube.com"]:
                     return
                 if not old_youtube_vid.get(i, None):
                     old_youtube_vid[i] = {}
@@ -309,7 +309,9 @@ async def youtube_loop():
                             color=re[8]
                         )
                     )       
-            except: print(traceback.format_exc())
+            except Exception: 
+                print(i)
+                print(traceback.format_exc())
     print("Done")
 
 @tasks.loop(seconds = 30)
@@ -786,24 +788,6 @@ async def on_member_remove(member):
                     )
                 )
 
-@client.slash_command(name="dictionary", description="Use the dictionary for meaning")
-async def dic(inter, word):
-    await inter.response.defer()
-    try:
-        mean = Meaning(word = word, color = re[8])
-        await mean.setup()
-        await assets.pa(inter, mean.create_texts(), start_from=0, restricted=False)
-    except Exception as e:
-        await inter.send(
-            embed=cembed(
-                title="Something is wrong",
-                description="Oops something went wrong, I gotta check this out real quick, sorry for the inconvenience",
-                color=nextcord.Color.red(),
-                thumbnail=client.user.avatar.url
-            )
-        )
-        print(traceback.format_exc())
-
 @client.command()
 async def feedback(ctx, *, text):
     embed = cembed(
@@ -906,12 +890,15 @@ async def eval_slash(inter, text, ty = defa(choices=['python','bash'])):
 async def restart_program(ctx, text):
     if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in list(dev_users):
         save_to_file()        
-        if len(client.voice_clients)>0:
-            confirmation = await wait_for_confirm(
-                ctx, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8]                        
-            )
-            if not confirmation:
-                return
+        try:
+            if len(client.voice_clients)>0:
+                confirmation = await wait_for_confirm(
+                    ctx, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8]                        
+                )
+                if not confirmation:
+                    return
+        except:
+            print("Restarting without confirmation")
         try:
             for voice in client.voice_clients:
                 voice.stop()
@@ -920,23 +907,26 @@ async def restart_program(ctx, text):
             pass
         await client.change_presence(activity = nextcord.Activity(type = nextcord.ActivityType.listening, name= "Restart"))        
         print("Restart")
-        await ctx.channel.send(
-            embed=cembed(
-                title="Restarted",
-                description="The program is beginning it's restarting process",
-                color=re[8],
-                thumbnail=client.user.avatar.url
+        try:
+            await ctx.channel.send(
+                embed=cembed(
+                    title="Restarted",
+                    description="The program is beginning it's restarting process",
+                    color=re[8],
+                    thumbnail=client.user.avatar.url
+                )
             )
-        )
-        await client.get_channel(dev_channel).send(
-            embed=cembed(
-                title="Restart",
-                description=f"Requested by {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}",
-                thumbnail=client.user.avatar.url,
-                color=re[8]
-                
+            await client.get_channel(dev_channel).send(
+                embed=cembed(
+                    title="Restart",
+                    description=f"Requested by {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}",
+                    thumbnail=client.user.avatar.url,
+                    color=re[8]
+                    
+                )
             )
-        )
+        except:
+            print("Restarting without sending messages")
         os.system("busybox reboot")
     else:
         await ctx.channel.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar.url))
@@ -1127,8 +1117,9 @@ async def on_reaction_add(reaction, user):
 @client.event
 async def on_command_error(ctx, error):    
     print(type(error))
-    if type(error) == nextcord.errors.HTTPException:
-        os.system("busybox reboot")
+    if nextcord.ext.commands.errors.CommandInvokeError:
+        if type(error.original) == nextcord.errors.HTTPException:
+            os.system("busybox reboot")
     if type(error) == nextcord.ext.commands.errors.CheckFailure:
         await ctx.send(
             embed=cembed(

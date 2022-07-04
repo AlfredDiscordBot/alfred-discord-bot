@@ -12,13 +12,23 @@ def requirements():
     return []
 
 class Pylint(commands.Cog):
-    def __init__(self, client):
+    TRUSTED_SERVERS = [
+        822445271019421746, 
+        942303350182006815,
+        869237028028579860
+    ]
+    PROCESS_SELECTION = ef.defa(
+        choices = ["lint","flake8"],
+        required = False,
+        default = "lint"
+    )
+    def __init__(self, client):        
         self.client = client  
         self.sample_lint = LintAction(self.client.re[8])
         self.lint_in_session = False
         
-    @nextcord.slash_command(name="pylint", description="Check Pylint of a py file", guild_ids = [822445271019421746])
-    async def lin(self, inter, file):
+    @nextcord.slash_command(name="pylint", description="Check Pylint of a py file", guild_ids = TRUSTED_SERVERS)
+    async def lin(self, inter, file, type = PROCESS_SELECTION):
         if self.lint_in_session:
             await inter.send(
                 embed=ef.cembed(
@@ -31,7 +41,7 @@ class Pylint(commands.Cog):
         self.lint_in_session = True
         await inter.response.defer()
         session = LintAction(self.client.re[8])
-        session.lint(file)
+        session.lint(file, type)
         while True:
             await asyncio.sleep(3)
             if session.output:
@@ -58,24 +68,36 @@ class LintAction:
         ).split("\n") + ['*']
         self.output = None
         self.color = color
+        self.type = "lint"
         
 
-    def lint(self, file):
+    def lint(self, file, type = "lint"):
         '''
-        Process Lint
+        Process Lint and Flake8
         '''
+        self.type = type
         if file == "*":
             file = "cogs/*.py src/*.py *.py utils/*.py"
         elif not file in self.locations:
             self.output = "Not in Range of files"
             return self.output
 
-        def start_process(file):
+        def linting(file):
             self.output = getoutput(f"pylint {file}").strip()
             print("Lint Completed for", file)
             return self.output
 
-        t = Thread(target=start_process, args = (file,))
+        def flake(file):
+            self.output = getoutput(f"flake8 {file}").strip()
+            print("Flake8 complete for", file)
+            return self.output
+
+        if type == "flake8":
+            func = flake
+        else:
+            func = linting
+
+        t = Thread(target=func, args = (file,))
         t.start()
 
     def split_output(self):
@@ -95,7 +117,10 @@ class LintAction:
                 i for i in descriptions[-1].split("\n") if i.startswith("Your")
             ])
             if not field_text:
-                field_text = "Should mostly be an error"
+                if self.type == "flake":
+                    field_text = "Flake8 Process running, cannot display rating"
+                else:
+                    field_text = "Should mostly be an error"
                 
             embeds.append(
                 ef.cembed(

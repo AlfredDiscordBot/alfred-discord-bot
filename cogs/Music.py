@@ -661,7 +661,7 @@ class Music(commands.Cog):
             embed=nextcord.Embed(
                 title="Playing",
                 description=f"[{song_name}]({url})",
-                color=nextcord.Color(value=self.re[8]),
+                color=nextcord.Color(value=self.client.re[8]),
             )
     
         else:
@@ -699,8 +699,13 @@ class Music(commands.Cog):
     @nextcord.slash_command(name = "lyrics", description = "Gets lyrics of a song")
     async def lyrics_slash(self, inter, song):
         await inter.response.defer()
-        embed=await ef.ly(song,self.re)
-        await inter.send(embed=embed)
+        await self.lyrics(inter, song = song)
+
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def lyrics(ctx, *, song):
+        embed=await ef.ly(song, self.client.re)
+        await ctx.send(embed=embed)
 
     @commands.command()
     @commands.check(ef.check_command)

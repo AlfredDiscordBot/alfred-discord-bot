@@ -1,16 +1,13 @@
 import nextcord
-import assets
-import time
 import os
 import helping_hand
 import External_functions as ef
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 from io import BytesIO
-from nextcord.abc import GuildChannel
 from wordcloud import WordCloud
 from collections import Counter
 
-#Use nextcord.slash_command()
+# Use nextcord.slash_command()
 
 def requirements():
     return []
@@ -29,7 +26,7 @@ class Image(commands.Cog):
     @commands.check(ef.check_command)
     async def get_pfp(self, ctx, member:nextcord.Member=None):    
         self.client.re[0]+=1
-        user = getattr(ctx,'author',getattr(ctx,'user',None))
+        user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if not member: member = user
         picture = member.guild_avatar or ef.safe_pfp(member)
         embed=ef.cembed(
@@ -47,8 +44,15 @@ class Image(commands.Cog):
             url = ef.safe_pfp(inter.user)
         else:
             url = ef.safe_pfp(member)
-        json = {"url":url, "url2":url_of_picture, "ratio":ratio}
-        byte = await ef.post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/style_predict", json=json)
+        json = {
+            "url": url,
+            "url2": url_of_picture,
+            "ratio": ratio
+        }
+        byte = await ef.post_async(
+            "https://suicide-detector-api-1.yashvardhan13.repl.co/style_predict", 
+            json=json
+        )
         await inter.send(file=nextcord.File(BytesIO(byte), 'blend.png'))
 
     @nextcord.slash_command(name="effects",description="effects with your profile picture")
@@ -92,12 +96,19 @@ class Image(commands.Cog):
             )
             return
         elif effect in styles:
-            json = {"url":url, "effect":effect}    
-            byte = await ef.post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/style", json=json, output="content")
+            json = {"url": url, "effect": effect}    
+            byte = await ef.post_async(
+                "https://suicide-detector-api-1.yashvardhan13.repl.co/style",
+                json=json, 
+                output="content"
+            )
     
         elif effect in effects:
-            json = {"url":url, "effect":effect}    
-            byte = await ef.post_async("https://suicide-detector-api-1.yashvardhan13.repl.co/cv", json=json)    
+            json = {"url": url, "effect": effect}    
+            byte = await ef.post_async(
+                "https://suicide-detector-api-1.yashvardhan13.repl.co/cv", 
+                json=json
+            )    
             
         await ctx.send(file=nextcord.File(BytesIO(byte), 'effect.png'))
 

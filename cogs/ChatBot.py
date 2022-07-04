@@ -1,14 +1,9 @@
 import nextcord
 import assets
-import time
 import os
-import traceback
-import helping_hand
 import assets
-import random
 import External_functions as ef
-import helping_hand
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 
 #Use nextcord.slash_command()
 
@@ -27,15 +22,14 @@ class ChatBot(commands.Cog):
         self.generated = {}
         self.auth = os.getenv("transformers_auth")
         self.headers = {"Authorization": f"Bearer {self.auth}"}
-        self.BASE_URL = "https://api-inference.huggingface.co/models"
 
-    def moderate_variables(self, id, input_text, output):
-        if len(self.past_response[id])>=50:
+    def moderate_variables(self, guild_id, input_text, output):
+        if len(self.past_response[guild_id])>=50:
             
-            self.past_response[id].pop(0)
-            self.generated[id].pop(0)            
-        self.past_response[id].append(input_text)
-        self.generated[id].append(output)
+            self.past_response[guild_id].pop(0)
+            self.generated[guild_id].pop(0)            
+        self.past_response[guild_id].append(input_text)
+        self.generated[guild_id].append(output)
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -60,7 +54,8 @@ class ChatBot(commands.Cog):
                 a = await ef.wolf_spoken(self.wolfram, input_text)
 
             if self.client.re[10].get(message.guild.id, 1) in (1,2):
-                API_URL = f"{self.BASE_URL}/facebook/blenderbot-400M-distill"
+                BASE_URL = "https://api-inference.huggingface.co/models"
+                API_URL = f"{BASE_URL}/facebook/blenderbot-400M-distill"
                 payload = {
                     "inputs": {
                         "past_user_inputs": self.past_response[message.guild.id],
@@ -71,7 +66,7 @@ class ChatBot(commands.Cog):
                 }
                 
                 if self.client.re[10].get(message.guild.id, 1) == 2:
-                    API_URL = f"{self.BASE_URL}/microsoft/DialoGPT-large"
+                    API_URL = f"{BASE_URL}/microsoft/DialoGPT-large"
                     payload = {
                         "inputs": input_text
                     }
@@ -80,7 +75,7 @@ class ChatBot(commands.Cog):
                 a = output['generated_text']
                 self.moderate_variables(message.guild.id, input_text, a)
             if self.client.re[10].get(message.guild.id, 1) == 4:
-                a = await ef.get_async(f"https://api.popcat.xyz/chatbot?msg={ef.convert_to_url(input_text)}&owner=Batman&botname=Alfred",kind="json")
+                a = await ef.get_async(f"https://api.popcat.xyz/chatbot?msg={ef.convert_to_url(input_text)}&owner=Batman&botname=Alfred", kind="json")
                 a = a['response']
 
             await message.reply(a)
@@ -105,9 +100,13 @@ class ChatBot(commands.Cog):
                 title="Generated text", description=o, color=self.client.re[8],thumbnail=self.client.user.avatar.url
             )
         )
-        
-                
-                
+
+    @nextcord.slash_command(
+        name = "talktomyhand",
+        description = "Bots Talking to themselves"
+    )   
+    async def talk(self, inter, start: str = "Hello there"):
+        await inter.send("Coming soon")
                 
 
     @nextcord.slash_command("model")

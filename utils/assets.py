@@ -105,5 +105,37 @@ class Emotes:
     def get_emoji(self, e):
         return getattr(self, e)
 
-        
-        
+
+
+# https://top.gg/bot/811591623242154046/vote
+# https://discordbotlist.com/bots/811591623242154046/upvote
+# https://botsfordiscord.com/bot/811591623242154046/vote
+# https://bots.discordlabs.org/bot/811591623242154046
+
+# https://top.gg/servers/822445271019421746/vote
+VOTE_MESSAGE = """
+Thank you for voting and supporting us for the past year, We've listened to your suggestions, your needs and this helped us tune Alfred into a perfect bot ||Although I've seen some bugs around, fixing that <:Builder:991565723476447262>||. 
+We've uploaded Alfred's source code to [github](https://github.com/alvinbengeorge/alfred-discord-bot) for openness.
+You can find our bot in some of the Discord Bot Listing Sites
+"""
+VOTE_FIELD_HOLDER = {
+    'Top.gg Alfred': "You can click this [link](https://top.gg/bot/811591623242154046/vote) to go to Alfred's Top.gg Page",
+    'Discord Bot List': "You can click this [link](https://discordbotlist.com/bots/811591623242154046/upvote) to go to Alfred's Discord Bot List Page",
+    'Bots For Discord': "Click this [link](https://botsfordiscord.com/bot/811591623242154046/vote) to go to Alfred's Bots For Discord Page",
+    'DiscordBotLabs Page': "Go to this [link](https://bots.discordlabs.org/bot/811591623242154046) to vote for Alfred in DBL",
+    'Wayne Enterprise Top.gg': "Vote for Alfred's Support Server in Top.gg using this [link](https://top.gg/servers/822445271019421746/vote)"
+}
+VOTE_FIELDS =[{'name': i, 'value': VOTE_FIELD_HOLDER[i], 'inline': False} for i in VOTE_FIELD_HOLDER]
+vote_embed = lambda client: ef.cembed(
+    title = "Thanks for all your support 💖",
+    description = VOTE_MESSAGE,
+    color = client.re[8],
+    author = client.user,
+    fields = VOTE_FIELDS,
+    thumbnail = client.user.avatar.url,
+    image = "https://previews.123rf.com/images/enterline/enterline1806/enterline180601886/103633300-the-word-vote-concept-written-in-colorful-abstract-typography-vector-eps-10-available-.jpg",
+    footer = {
+        'text': 'Have a great day',
+        'icon_url': 'https://st.depositphotos.com/1048238/2045/i/600/depositphotos_20457989-stock-photo-have-fun-concept.jpg'
+    }
+)

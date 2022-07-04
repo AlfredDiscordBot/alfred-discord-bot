@@ -4,12 +4,10 @@ import psutil
 import os
 import time
 import nextcord 
-from nextcord import SlashOption
 import random
 import imdb
 import emoji
 import youtube_dl
-from dotenv import load_dotenv
 import instagramy
 from instagramy import *
 from instascrape import *
@@ -21,8 +19,11 @@ import aiofiles
 import assets
 import random
 import json
+import re as regex
 
 from io import BytesIO
+from nextcord import SlashOption
+from dotenv import load_dotenv
 from functools import lru_cache
 from datetime import datetime
 from collections import Counter
@@ -58,6 +59,8 @@ m_options = [
 Emoji_alphabets = [chr(i) for i in range(127462,127488)]
 FORCED_ACTIVITY = None
 
+load_dotenv()
+
 def activities(client):
     if FORCED_ACTIVITY:
         return nextcord.Activity(type=nextcord.ActivityType.watching, name=FORCED_ACTIVITY)
@@ -67,7 +70,8 @@ def activities(client):
         nextcord.Activity(type=nextcord.ActivityType.listening, name=f"{len(client.guilds)} servers"),
         nextcord.Activity(type=nextcord.ActivityType.watching, name="Nextcord People do their magic"),
         nextcord.Activity(type=nextcord.ActivityType.listening, name="Wayne Enterprises"),
-        nextcord.Activity(type=nextcord.ActivityType.watching, name="Raimi Trilogy with Thwipper")
+        nextcord.Activity(type=nextcord.ActivityType.watching, name="Raimi Trilogy with Thwipper"),
+        nextcord.Activity(type=nextcord.ActivityType.watching, name="New Updates")
     ]
     return random.choice(all_activities)
     
@@ -132,12 +136,6 @@ def quad(eq):
         root2 = (-b - determinant) / (2 * a)
         return "This equation has two roots: " + str(root1) + "," + str(root2)
 
-load_dotenv()
-
-
-username = str(os.getenv("username"))
-password = str(os.getenv("password"))
-
 
 def get_sessionid(username, password):
     url = "https://i.instagram.com/api/v1/accounts/login/"
@@ -181,6 +179,8 @@ async def wolf_spoken(wolfram, question):
     return await get_async(url)
 
 def get_it():
+    username = str(os.getenv("username"))
+    password = str(os.getenv("password"))
     return get_sessionid(username, password)
 
 
@@ -217,18 +217,12 @@ def instagram_get1(account, color, SESSIONID):
         return SESSIONID
 
 @lru_cache(maxsize=512)
-def get_youtube_url(url):
+async def get_youtube_url(url):
     """
     gets the list of url from a channel url
     """
-    st = requests.get(url).content.decode()
-    stop = 0
-    li = []
-    for i in range(10):
-        a = st.find("/watch?v", stop)
-        b = st.find('"', a)
-        li = li + ["https://www.youtube.com" + st[a:b]]
-        stop = b+1
+    st = await get_async(url)
+    li = regex.findall(r"watch?v\s{11}", st)
     return li
 
 
@@ -986,6 +980,54 @@ class Proton:
                 'image': "https://pcgw-community.sfo2.digitaloceanspaces.com/monthly_2020_04/chrome_a3Txoxr2j5.jpg.4679e68e37701c9fbd6a0ecaa116b8e5.jpg"
             })
         return reports
+
+class PublicAPI:
+    def __init__(self, client):
+        self.BASE_URL = "https://api.publicapis.org/entries"
+        self.data = {}
+        self.all_names = []
+        self.client = client
+        self.author = None
+        
+
+    async def update(self, author):
+        if self.data == {}:
+            self.data = await get_async(self.BASE_URL, kind = "json")
+            self.all_names = [i['API'] for i in self.data['entries']]
+        self.author = author
+
+    def search_result(self, name):
+        if not self.data:
+            return []
+        
+        return [i for i in self.all_names if name.lower() in i.lower()]
+
+    def find(self, name):
+        return self.all_names.index(name)
+
+    def flush(self):
+        self.data.clear()
+        self.all_names.clear()
+
+    def return_embed(self, index, color):
+        if index == -1:
+            return cembed(
+                title = "Not Found",
+                description = "The API you're looking for is not found",
+                color = color,
+                
+            )
+        info = self.data['entries'][index]
+        return cembed(
+            title = info['API'],
+            description = info['Description'],
+            color = color,
+            url = info.get('Link'),
+            fields = info,
+            footer = f"{self.data['count']} Entries",
+            author = self.author,
+            thumbnail = "https://www.elemental.co.za/cms/resources/uploads/blog/86/926f6aaba773.png"
+        )
 
 
 

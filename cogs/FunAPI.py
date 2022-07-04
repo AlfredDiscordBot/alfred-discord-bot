@@ -1,6 +1,6 @@
 import nextcord
 import assets
-import requests
+import traceback
 import External_functions as ef
 from nextcord.ext import commands
 
@@ -15,6 +15,7 @@ class FunAPI(commands.Cog):
         self.space = ef.SpaceX(self.client.re[8])
         self.proton = ef.Proton()
         self.tt = ef.TechTerms()
+        self.APIs = ef.PublicAPI(self.client)
 
     @nextcord.slash_command(name="tech", description="Get TechTerms from TechTerms.com")
     async def tech(self, inter, query = "Python"):
@@ -94,6 +95,48 @@ class FunAPI(commands.Cog):
             image="attachment://cat.png"
         )
         await ctx.send(file=file, embed=em)
+
+    @nextcord.slash_command(name="dictionary", description="Use the dictionary for meaning")
+    async def dic(self, inter, word):
+        await inter.response.defer()
+        try:
+            mean = ef.Meaning(word = word, color = self.client.re[8])
+            await mean.setup()
+            await assets.pa(inter, mean.create_texts(), start_from=0, restricted=False)
+        except Exception as e:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Something is wrong",
+                    description="Oops something went wrong, I gotta check this out real quick, sorry for the inconvenience",
+                    color=nextcord.Color.red(),
+                    thumbnail=self.client.user.avatar.url,
+                    footer = str(e)
+                )
+            )
+            print(traceback.format_exc())
+
+    @commands.command(aliases=["cat"])
+    @commands.check(ef.check_command)
+    async def cat_fact(self, ctx):
+        self.client.re[0]+=1
+        a = await ef.get_async("https://catfact.ninja/fact", kind="json")
+        embed = ef.cembed(
+            title="Cat Fact", 
+            description=a["fact"], 
+            color=self.client.re[8],
+            thumbnail="https://i.imgur.com/u1TPbIp.png?1"
+        )
+        await ctx.send(embed=embed)  
+
+    @nextcord.slash_command(name="publicapi", description="Get info about a public API")
+    async def APis(self, inter, name):
+        await inter.response.defer()
+        await self.APIs.update(inter.user)
+        embed = self.APIs.return_embed(
+            self.APIs.find(name),
+            self.client.re[8]
+        )
+        await inter.send(embed=embed)
 
 
 def setup(client,**i):

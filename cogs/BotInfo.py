@@ -1,18 +1,17 @@
 import nextcord
-import assets
 import time
 import traceback
-import helping_hand
 import assets
-import random
 import External_functions as ef
 import helping_hand
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 
-#Use nextcord.slash_command()
+# Use nextcord.slash_command()
+
 
 def requirements():
     return ['dev_channel', 'start_time']
+
 
 class BotInfo(commands.Cog):
     def __init__(self, client, dev_channel, start_time):
@@ -42,7 +41,7 @@ class BotInfo(commands.Cog):
         await channel.send(
             embed=ef.cembed(
                 title=guild.name,
-                description=f"I left this guild",
+                description="I left this guild",
                 footer=f"Currently in {len(self.client.guilds)} servers | {len(self.client.users)} Users",
                 color=self.client.re[8],
                 thumbnail=self.client.user.avatar.url
@@ -61,10 +60,17 @@ class BotInfo(commands.Cog):
             description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(self.client.latency*1000)}ms\nRequests: \t{r:,}\nUptime: {int(time.time()-self.start_time):,}s\nReady: {self.client.is_ready()}",
             color=self.client.re[8],
             footer="Have fun, bot has many features, check out /help",
-            thumbnail = self.client.user.avatar.url
+            thumbnail=self.client.user.avatar.url,
+            author=self.client.user
         )
-        permissions1 = "`"*3+"diff\n+ "+'\n+ '.join([i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if i[1]])+"\n"+"`"*3+"\n\n"
-        permissions2 = "`"*3+"diff\n- "+'\n- '.join([i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if not i[1]])+"\n"+"`"*3+"\n\n"
+        permissions1 = "`"*3+"diff\n+ "+'\n+ '.join(
+            [i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if i[1]]
+        )+"\n"+"`"*3+"\n\n"
+        
+        permissions2 = "`"*3+"diff\n- "+'\n- '.join(
+            [i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if not i[1]]
+        )+"\n"+"`"*3+"\n\n"
+        
         em.add_field(name="Allowed",value=permissions1,inline=False)
         em.add_field(name="Denied",value=permissions2,inline=False)
         await ctx.send(embed=em)
@@ -95,14 +101,7 @@ class BotInfo(commands.Cog):
     async def vote_alfred(self, ctx):
         upvote = assets.Emotes(self.client).upvote    
         await ctx.send(
-            embed=ef.cembed(
-                title="Vote for Alfred",
-                description=f"`Top.gg:         `>>[{upvote}](https://top.gg/bot/811591623242154046/vote)<<\n`DiscordBotList: `>>[{upvote}](https://discordbotlist.com/bots/811591623242154046/upvote)<<\n`Botsfordiscord: `>>[{upvote}](https://botsfordiscord.com/bot/811591623242154046/vote)<<\n`Wayne Enterprises Top.gg: `>>[{upvote}](https://top.gg/servers/822445271019421746/vote)<<",
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url,
-                image = "https://previews.123rf.com/images/aquir/aquir1311/aquir131100570/24053063-voz-del-sello-del-grunge-rojo.jpg",
-                footer="Stay Safe and be happy | Gotham Knights"
-            )
+            embed=assets.vote_embed(self.client)
         )
     
     @nextcord.slash_command("vote",description="Vote for Alfred in Bot Listing servers")
