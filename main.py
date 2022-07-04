@@ -887,7 +887,7 @@ async def eval_slash(inter, text, ty = defa(choices=['python','bash'])):
         await python_shell(inter, text = text)
 
 @client.command(aliases=["!"])
-async def restart_program(ctx, text):
+async def restart_program(ctx):
     if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in list(dev_users):
         save_to_file()        
         try:

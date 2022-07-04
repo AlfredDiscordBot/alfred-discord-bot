@@ -703,7 +703,7 @@ class Music(commands.Cog):
 
     @commands.command()
     @commands.check(ef.check_command)
-    async def lyrics(ctx, *, song):
+    async def lyrics(self, ctx, *, song):
         embed=await ef.ly(song, self.client.re)
         await ctx.send(embed=embed)
 

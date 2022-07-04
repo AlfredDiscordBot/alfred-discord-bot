@@ -1,12 +1,8 @@
 import nextcord
-import assets
 import asyncio
-import time
-import helping_hand
 import External_functions as ef
-from nextcord.ext import commands, tasks
-from io import BytesIO
-from nextcord import Interaction, SlashOption, ChannelType
+from nextcord.ext import commands
+from nextcord import ChannelType
 from nextcord.abc import GuildChannel
 
 
@@ -85,13 +81,14 @@ class Intercom(commands.Cog):
                 if (not self.client.get_guild(i)) and self.client.is_ready():
                     del self.client.config['connect'][i]
                     continue
-                call_available.append(self.client.get_guild(i).name)
-            await inter.response.send_autocomplete(call_available)
+                name = self.client.get_guild(i).name
+                if not server.lower() in name.lower():
+                    continue
+                call_available.append(name)
+            await inter.response.send_autocomplete(call_available[:25])
         else:
             await inter.response.send_autocomplete(
-                [
-                    "Sorry for the inconvenience, the bot is not fully ready"
-                ]
+                ["Sorry for the inconvenience, the bot is not fully ready"]
             )
 
     @commands.command(aliases=['call'])
@@ -128,63 +125,58 @@ class Intercom(commands.Cog):
         
         if not guild:
             await ctx.send("Not a server ID, try again")
-            return
 
-        if number in self.calls:
+        elif number in self.calls:
             await ctx.send("Busy at the moment, call again later")
-            return
 
-        if ctx.guild.id in self.calls:
+        elif ctx.guild.id in self.calls:
             await ctx.send("You're already in a call")
-            return
 
-        if number not in self.client.config['connect']:
+        elif number not in self.client.config['connect']:
             await ctx.send("This Server has not set Intercom yet")
-            return        
 
-        if ctx.guild.id not in self.client.config['connect']:
+        elif ctx.guild.id not in self.client.config['connect']:
             await ctx.send("Your Server has not set Intercom yet\nUse `/intercom`")
-            return
 
-        ch = self.client.get_channel(self.client.config['connect'][number])
-        if not ch:
-            await ctx.send("Sorry, something seems wrong")
-            return
-        ay = await ch.send(
-            embed=ef.cembed(
-                title="Intercom",
-                description=f"Call from {ctx.guild.name}\nType `accept` or `decline`",
-                color=self.client.re[8]
+        else:    
+            ch = self.client.get_channel(self.client.config['connect'][number])
+            if not ch:
+                await ctx.send("Sorry, something seems wrong")
+                return
+            ay = await ch.send(
+                embed=ef.cembed(
+                    title="Intercom",
+                    description=f"Call from {ctx.guild.name}\nType `accept` or `decline`",
+                    color=self.client.re[8]
+                )
             )
-        )
-        await ctx.send("Call sent")
-        while True:
-            try:
-                def check(m):
-                    return m.content.lower() in ["accept","decline"] and m.channel.id == ch.id
-                message = await self.client.wait_for("message", check=check, timeout=720)
-                if message.content.lower() == "accept":
-                    break
-                else:
+            await ctx.send("Call sent")
+            while True:
+                try:
+                    def check(m):
+                        return m.content.lower() in ["accept","decline"] and m.channel.id == ch.id
+                    message = await self.client.wait_for("message", check=check, timeout=720)
+                    if message.content.lower() == "accept":
+                        break
                     await ctx.send("They declined the call")
                     return
-            except asyncio.TimeoutError:
-                await ctx.send("Timed out, no one answered")
-                await ay.send("Ending call")
-                return
-                
-
-        self.calls[ctx.guild.id] = number
-        self.calls[number] = ctx.guild.id
-
-        await ctx.send(
-            embed=ef.cembed(
-                title="Done",
-                description=f'Connected to {guild.name}',
-                color=self.client.re[8],
-                footer="'end to end the call"
-            )
-        )       
+                except asyncio.TimeoutError:
+                    await ctx.send("Timed out, no one answered")
+                    await ay.send("Ending call")
+                    return
+                    
+    
+            self.calls[ctx.guild.id] = number
+            self.calls[number] = ctx.guild.id
+    
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Done",
+                    description=f'Connected to {guild.name}',
+                    color=self.client.re[8],
+                    footer="'end to end the call"
+                )
+            )       
         
 
     @commands.Cog.listener()

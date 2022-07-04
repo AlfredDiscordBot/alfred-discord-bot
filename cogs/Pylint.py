@@ -117,10 +117,7 @@ class LintAction:
                 i for i in descriptions[-1].split("\n") if i.startswith("Your")
             ])
             if not field_text:
-                if self.type == "flake":
-                    field_text = "Flake8 Process running, cannot display rating"
-                else:
-                    field_text = "Should mostly be an error"
+                field_text = f"{len(splits)} Lines"
                 
             embeds.append(
                 ef.cembed(

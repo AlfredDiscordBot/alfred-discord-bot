@@ -807,12 +807,10 @@ import nextcord
 import assets
 import time
 import traceback
-import helping_hand
 import External_functions as ef
-import helping_hand
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 
-#Use nextcord.slash_command()
+# Use nextcord.slash_command()
 
 def requirements():
     return []
@@ -824,7 +822,7 @@ class <name>(commands.Cog):
 
 def setup(client,**i):
     client.add_cog(<name>(client,**i))
-"""
+""".strip()
 
 def cog_creator(name: str):
     if f"{name}.py" in os.listdir("cogs/"):

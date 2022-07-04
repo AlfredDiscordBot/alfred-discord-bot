@@ -110,7 +110,6 @@ def embed_from_dict(info: dict, ctx, client) -> nextcord.Embed:
         'color': str(nextcord.Color(client.re[8]).to_rgb())
     }
     info = preset_change(info, ctx, client)
-    ctx_author = getattr(ctx, 'author', getattr(ctx,'user',None))
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
     info["color"] = get_color(info.get("color", None))
     if info['color']: info['color']=info['color'].value         

@@ -138,6 +138,13 @@ class FunAPI(commands.Cog):
         )
         await inter.send(embed=embed)
 
+    @APis.on_autocomplete("name")
+    async def autocomplete_api(self, inter, name):
+        await self.APIs.update(inter.user)
+        await inter.response.send_autocomplete(
+            self.APIs.search_result(name)[:25]
+        )
+
 
 def setup(client,**i):
     client.add_cog(FunAPI(client,**i))

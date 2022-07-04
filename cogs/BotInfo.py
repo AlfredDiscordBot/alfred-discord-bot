@@ -98,8 +98,7 @@ class BotInfo(commands.Cog):
         await ctx.send("```yml\n"+text+"\n```")
 
     @commands.command(aliases=["vote","top.gg",'v'])
-    async def vote_alfred(self, ctx):
-        upvote = assets.Emotes(self.client).upvote    
+    async def vote_alfred(self, ctx):   
         await ctx.send(
             embed=assets.vote_embed(self.client)
         )
@@ -121,7 +120,6 @@ class BotInfo(commands.Cog):
                 )
                 self.embe.insert(1, new_embed)
                 self.index = [i.title for i in self.embe]
-            index = self.index + self.index+[i.name for i in self.client.commands]
             if text in self.index:                
                 n  = self.index.index(text)
                 await assets.pa(ctx,[self.embe[n]],restricted=True)
@@ -138,7 +136,7 @@ class BotInfo(commands.Cog):
             else:
                 n = 0
                 await assets.pa(ctx, self.embe, start_from=n, restricted=True)
-        except:
+        except Exception:
             print(traceback.format_exc())
     
     @nextcord.slash_command(name="help", description="Help from Alfred")
@@ -218,7 +216,6 @@ class BotInfo(commands.Cog):
     async def raw(self, ctx):
         a = await ctx.channel.fetch_message(ctx.message.reference.message_id)
         a = a.clean_content.replace("`","\\`")
-
         
         all_embeds = ['']
         for i in a.split("\n"):
@@ -232,28 +229,43 @@ class BotInfo(commands.Cog):
     @commands.command()
     async def learn(self, ctx):
         embeds = []
-        with open("Learn.md") as f:
-            l = f.read().replace("- ",":diamond_shape_with_a_dot_inside: ").split("\n\n")
+        with open("Learn.md", "r") as f:
+            l = f.read().replace(
+                "- ",
+                "⋅ "
+            ).split("\n\n")
             j = l[:8]
             j.append("\n\n".join(l[8:]))
             a=0
             for i in j:
                 a+=1
-                embed = ef.cembed(title="Learn", color=self.client.re[8], description=i, footer=str(a)+" of "+str(len(j)))
+                embed = ef.cembed(
+                    title="Learn", 
+                    color=self.client.re[8], 
+                    description=i, 
+                    footer=f"{a} of {len(j)"
+                )
                 embeds.append(embed)
-        await assets.pa(ctx,embeds)
+        await assets.pa(ctx, embeds)
 
-    @nextcord.slash_command(name="license", description="View Alfred's Open Source License")
-    async def license(self,inter):
-        await inter.response.send_message(
-            ephemeral = True,
-            embed=ef.cembed(
-                title="LICENSE",
-                description="```\n"+open('LICENSE').read()+"\n```",
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url,
-                url="https://www.github.com/alvinbengeorge/alfred-discord-bot"
+    @nextcord.slash_command(
+        name="license", 
+        description="View Alfred's Open Source License"
+    )
+    async def license(self, inter):
+        with open("LICENSE", "r") as f:
+            await inter.response.send_message(
+                ephemeral=True,
+                embed=ef.cembed(
+                    title="LICENSE",
+                    description=f"```\n{f.read()}\n```",
+                    color=self.client.re[8],
+                    thumbnail=self.client.user.avatar.url,
+                    url="https://www.github.com/alvinbengeorge/alfred-discord-bot"
+                )
             )
-        )
-def setup(client,**i):
-    client.add_cog(BotInfo(client,**i))
+
+            
+def setup(client, **i):
+    client.add_cog(BotInfo(client, **i))
+    
