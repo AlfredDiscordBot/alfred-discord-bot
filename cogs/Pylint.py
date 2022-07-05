@@ -89,7 +89,7 @@ class LintAction:
             return self.output
 
         def flake(file):
-            self.output = getoutput(f"flake8 {file}").strip()
+            self.output = getoutput(f"flake8 {file} --exit-zero").strip()
             print("Flake8 complete for", file)
             return self.output
 

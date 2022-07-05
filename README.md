@@ -17,10 +17,12 @@ If you want to contribute to this project, please read through [Contribution pag
 ## Features: 
 
 \
-<img src="https://img.shields.io/badge/python-00aa55?style=for-the-badge&logo=python&logoColor=white">
-<img src="https://img.shields.io/badge/music-1b77dd?style=for-the-badge&logo=youtube&logoColor=white">
-<img src="https://img.shields.io/badge/Entrar_announcements_for_grade_12th-009944?style=for-the-badge&logo=entrar&logoColor=white">
-<img src="https://img.shields.io/badge/Fun_apis-1b77dd?style=for-the-badge&logo=api&logoColor=white">
-<img src="https://img.shields.io/badge/Plugins-00aa55?style=for-the-badge&logo=python&logoColor=white">
-<img src="https://img.shields.io/badge/Also_includes_dev_control_which_can_be_useful_for_recovering_data_and_restarting_the_program-000077?style=for-the-badge&logo=hey&logoColor=white"><br>
+<img src="https://img.shields.io/badge/python-0257be?style=for-the-badge&logo=python&logoColor=white">
+<img src="https://img.shields.io/badge/music-0257be?style=for-the-badge&logo=youtube&logoColor=white">
+<img src="https://img.shields.io/badge/Entrar_announcements_for_grade_12th-0257be?style=for-the-badge&logo=entrar&logoColor=white">
+<img src="https://img.shields.io/badge/Fun_apis-0257be?style=for-the-badge&logo=api&logoColor=white">
+<img src="https://img.shields.io/badge/Plugins-0257be?style=for-the-badge&logo=python&logoColor=white">
+<img src="https://img.shields.io/badge/Cogs-Powerful_developer_friendly_cogs-0257be?style=for-the-badge&logo=discord&logoColor=white">
+<img src="https://shields.io/github/forks/alvinbengeorge/alfred-discord-bot?label=Fork&style=for-the-badge&logo=github">
+<img src="https://shields.io/github/stars/alvinbengeorge/alfred-discord-bot?label=Stars&style=for-the-badge&logo=github">
 

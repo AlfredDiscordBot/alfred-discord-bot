@@ -8,7 +8,7 @@ import asyncio
 from nextcord.ext import commands, tasks
 from random import choice
 
-#Use nextcord.slash_command()
+# Use nextcord.slash_command()
 
 def requirements():
     return ["FFMPEG_OPTIONS"]
@@ -42,23 +42,24 @@ class Games(commands.Cog):
             description="Hi, You will be playing rock paper scissor against me, please try not to delay it as discord hates me for waiting",
             color=self.client.re[8],
             thumbnail=self.client.user.avatar.url,
-            footer="You can press X when you wanna stop or else it'll timeout after 10 minutes"
+            footer="You can press X when you wanna stop or else it'll timeout after 10 minutes",
+            author = inter.user
         )
-        user = inter
+        user = inter.user
         s[user] = 0
         s[self.client.user] = 0
-        embed.set_author(name=user.name, icon_url=ef.safe_pfp(user))
         embed.add_field(name="You",value=s[user],inline=True)
         embed.add_field(name="Alfred",value=s[self.client.user],inline=True)
         message = await inter.send(embed=embed)
         for i in self.choices: await message.add_reaction(i)
         await message.add_reaction(self.exit)
-        def check(reaction,r_user):
+        def check(reaction, r_user):
             return r_user == user and reaction.emoji in self.choices+[self.exit]
         while True:
+            print("Reaction Checking")
             try:
                 r,u = await self.client.wait_for("reaction_add", timeout=600, check = check)
-                
+                print("Done reaction checking")
                 try:
                     await r.remove(u)
                 except:
