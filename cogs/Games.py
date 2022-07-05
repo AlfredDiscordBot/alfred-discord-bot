@@ -8,7 +8,7 @@ import asyncio
 from nextcord.ext import commands, tasks
 from random import choice
 
-#Use nextcord.slash_command()
+# Use nextcord.slash_command()
 
 def requirements():
     return ["FFMPEG_OPTIONS"]
