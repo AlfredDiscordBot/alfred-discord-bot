@@ -16,7 +16,8 @@ class Pylint(commands.Cog):
         822445271019421746, 
         942303350182006815,
         869237028028579860,
-        912569937116147772
+        912569937116147772,
+        930002874522562580
     ]
     PROCESS_SELECTION = ef.defa(
         choices = ["lint","flake8"],
@@ -102,6 +103,9 @@ class LintAction:
         t.start()
 
     def split_output(self):
+        '''
+        Divide the output into embeds
+        '''
         splits = self.output.split("\n")
         descriptions = ['']
         
