@@ -125,7 +125,9 @@ VOTE_FIELD_HOLDER = {
     'DiscordBotLabs Page': "Go to this [link](https://bots.discordlabs.org/bot/811591623242154046) to vote for Alfred in DBL",
     'Wayne Enterprise Top.gg': "Vote for Alfred's Support Server in Top.gg using this [link](https://top.gg/servers/822445271019421746/vote)"
 }
-VOTE_FIELDS =[{'name': i, 'value': VOTE_FIELD_HOLDER[i], 'inline': False} for i in VOTE_FIELD_HOLDER]
+VOTE_FIELDS =[
+    {'name': i, 'value': VOTE_FIELD_HOLDER[i], 'inline': False} for i in VOTE_FIELD_HOLDER
+]
 vote_embed = lambda client: ef.cembed(
     title = "Thanks for all your support 💖",
     description = VOTE_MESSAGE,

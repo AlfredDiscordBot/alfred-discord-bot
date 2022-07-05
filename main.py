@@ -60,7 +60,8 @@ config = {
     'security':{},
     'commands':{},
     'reactions':{},
-    'connect':{}
+    'connect':{},
+    'slash': {}
     }
 da = {}
 errors = ["```arm"]
@@ -112,7 +113,7 @@ def prefix_check(client_variable, message):
 client = nextcord.ext.commands.Bot(
     command_prefix=prefix_check,
     intents=intents,
-    case_insensitive=True,
+    case_insensitive=True
 )
 
 try:
@@ -517,10 +518,13 @@ async def clear_webhooks(ctx):
     )
 
 @client.slash_command(name="color",description="Change color theme", guild_ids= [822445271019421746])
-async def color_slash(ctx, rgb_color=defa(default="")):    
+async def color_slash(
+    inter, 
+    rgb_color=str(nextcord.Color(re[8]).to_rgb())
+):    
     rgb_color = __import__("create_embed").get_color(rgb_color)
-    if str(ctx.user.id) not in dev_users:
-        await ctx.send(
+    if str(inter.user.id) not in dev_users:
+        await inter.send(
             embed=cembed(
                 title="Woopsies",
                 description="This is a `developer-only` function",
@@ -529,28 +533,17 @@ async def color_slash(ctx, rgb_color=defa(default="")):
             )
         )
         return
-    if len(rgb_color)!=3:
-        await ctx.send(
-            embed=cembed(
-                title="Error",
-                description="You need RGB values, 3 values seperated with commas\nExample: `(128,128,128)`",
-                color=re[8],
-                footer="Give it another try",
-                thumbnail=client.user.avatar.url
-            )
-        )
-        return
 
-    re[8] = nextcord.Color.from_rgb(*[int(i) for i in rgb_color]).value
+    re[8] = rgb_color.value
     if re[8]>16777215: re[8] = 16777215
     embed=cembed(
         title="Done",
         description=f"Color set as {nextcord.Color(re[8]).to_rgb()}\n`{re[8]}`",
         color=re[8],
         thumbnail = client.user.avatar.url,
-        footer=f"Executed by {ctx.user.name} in {ctx.channel.name}"
+        footer=f"Executed by {inter.user.name} in {inter.channel.name}"
     )
-    await ctx.send(embed=embed)
+    await inter.send(embed=embed)
     await client.get_channel(dev_channel).send(embed=embed)
 
     
@@ -728,6 +721,8 @@ async def on_bulk_message_delete(messages):
 
 @client.event
 async def on_message_delete(message):
+    if message.guild.id in config['commands'].get('snipe',[]):
+        return
     if not message.channel.id in list(deleted_message.keys()):
         deleted_message[message.channel.id] = []
     if len(message.embeds) <= 0:
@@ -1340,7 +1335,6 @@ def load_all():
         if i.endswith(".py"):
             global report
             report+=load_extension(i[:-3])
-            
 client.remove_command("help")
 load_all()
 keep_alive()

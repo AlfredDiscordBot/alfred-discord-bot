@@ -1,11 +1,10 @@
 import nextcord
 import assets
 import os
-import assets
 import External_functions as ef
 from nextcord.ext import commands
 
-#Use nextcord.slash_command()
+# Use nextcord.slash_command()
 
 def requirements():
     return ['wolfram']

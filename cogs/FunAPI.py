@@ -48,8 +48,8 @@ class FunAPI(commands.Cog):
         await inter.response.send_autocomplete(autocom)
         
 
-    @commands.group()
-    @commands.check(ef.check_command)
+    # @commands.group()
+    # @commands.check(ef.check_command)
     async def spacex(self, ctx):        
         if not ctx.invoked_subcommand:
             await ctx.send(
@@ -62,12 +62,12 @@ class FunAPI(commands.Cog):
             )
             return
 
-    @spacex.command()
+    # @spacex.command()
     async def history(self, ctx):
         embeds = await self.space.history()
         await assets.pa(ctx, embeds, start_from=0, restricted=False)
 
-    @spacex.command()
+    # @spacex.command()
     async def latest(self, ctx):
         await self.space.setup()
         embed=ef.cembed(
@@ -128,7 +128,7 @@ class FunAPI(commands.Cog):
         )
         await ctx.send(embed=embed)  
 
-    @nextcord.slash_command(name="publicapi", description="Get info about a public API")
+    @nextcord.slash_command(name="api", description="Get info about a public API")
     async def APis(self, inter, name):
         await inter.response.defer()
         await self.APIs.update(inter.user)

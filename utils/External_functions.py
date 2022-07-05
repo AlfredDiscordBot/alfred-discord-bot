@@ -1021,7 +1021,9 @@ class PublicAPI:
             description = info['Description'],
             color = color,
             url = info.get('Link'),
-            fields = info,
+            fields = [
+                {'name': k, 'value': v if v else "-", 'inline': False} for k, v in info.items()
+            ],
             footer = f"{self.data['count']} Entries",
             author = self.author,
             thumbnail = "https://www.elemental.co.za/cms/resources/uploads/blog/86/926f6aaba773.png"

@@ -15,7 +15,8 @@ class Pylint(commands.Cog):
     TRUSTED_SERVERS = [
         822445271019421746, 
         942303350182006815,
-        869237028028579860
+        869237028028579860,
+        912569937116147772
     ]
     PROCESS_SELECTION = ef.defa(
         choices = ["lint","flake8"],

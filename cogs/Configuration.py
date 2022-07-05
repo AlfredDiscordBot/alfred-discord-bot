@@ -4,11 +4,11 @@ import time
 import helping_hand
 import traceback
 import External_functions as ef
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 from nextcord import Interaction, SlashOption, ChannelType
 from nextcord.abc import GuildChannel
 
-#Use nextcord.slash_command()
+# Use nextcord.slash_command()
 
 def requirements():
     return ["dev_channel"]
@@ -279,6 +279,7 @@ class Configuration(commands.Cog):
                             thumbnail=self.client.user.avatar.url
                         )
                     )
+                    return
                 self.client.config['youtube'][channel.id].add((url,message))
                 await ctx.send(embed=ef.cembed(title="Done",description=f"Added {url} to the list and it'll be displayed in {channel.mention}",color=self.client.re[8],thumbnail=self.client.user.avatar.url))
             else:

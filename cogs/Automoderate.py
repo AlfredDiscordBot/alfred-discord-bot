@@ -20,8 +20,7 @@ class Automoderate(commands.Cog):
                 title=i.name, 
                 description=f"Enabled: {i.enabled}", 
                 color=self.client.re[8],
-                author = ctx.author,
-                fields = {k: str(v) for k, v in i.__dict__}
+                author = i.creator
             )
             embeds.append(embed)
         if not embeds:
