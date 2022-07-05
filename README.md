@@ -24,4 +24,5 @@ If you want to contribute to this project, please read through [Contribution pag
 <img src="https://img.shields.io/badge/Plugins-0257be?style=for-the-badge&logo=python&logoColor=white">
 <img src="https://img.shields.io/badge/Cogs-Powerful_developer_friendly_cogs-0257be?style=for-the-badge&logo=discord&logoColor=white">
 <img src="https://shields.io/github/forks/alvinbengeorge/alfred-discord-bot?label=Fork&style=for-the-badge&logo=github">
+<img src="https://shields.io/github/stars/alvinbengeorge/alfred-discord-bot?label=Stars&style=for-the-badge&logo=github">
 
