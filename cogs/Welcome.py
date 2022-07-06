@@ -1,14 +1,8 @@
 import nextcord
-import assets
 import time
 import traceback
-import helping_hand
-import assets
-import random
-import time
 import External_functions as ef
-import helping_hand
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 
 
 #Use nextcord.slash_command()
@@ -19,7 +13,6 @@ def requirements():
 class Card:
     def __init__(
         self,
-        guild,
         background=None
     ):
         self.BASE_URL = "https://api.popcat.xyz/welcomecard?"
@@ -72,7 +65,7 @@ class Welcome(commands.Cog):
         if member.guild.id not in self.client.config['welcome']:
             return
         c = self.client.config['welcome'][member.guild.id]
-        image = Card(member.guild, background=c.get('background'))
+        image = Card(background=c.get('background'))
         image.set_text1(self.preset(member, c.get('text1') or "<name>"))
         image.set_text2(self.preset(member, c.get('text2') or 'Welcome To <server>'))
         image.set_text3(self.preset(member, c.get('text3') or "<count> members"))

@@ -1,12 +1,9 @@
 import nextcord
 import assets
-import time
-import helping_hand
 import emoji
 import asyncio
-import assets
 import External_functions as ef
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 
 
 

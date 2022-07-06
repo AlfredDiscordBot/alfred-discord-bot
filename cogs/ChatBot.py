@@ -8,8 +8,10 @@ from nextcord.ext import commands
 
 def requirements():
     return ['wolfram']
+    
 
 models = ['BlenderBot','DialoGPT','Wolfram Scientific','PopCat']
+
 
 
 class ChatBot(commands.Cog):        

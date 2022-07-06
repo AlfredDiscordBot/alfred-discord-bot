@@ -48,9 +48,9 @@ class BotInfo(commands.Cog):
             )
         )
 
-    @commands.command(aliases=["hi","ping"])
+    @commands.command(aliases=["hi", "ping"])
     @commands.check(ef.check_command)
-    async def check(self,ctx):
+    async def check(self, ctx):
         self.client.re[0]+=1
         print("check")
         emo = assets.Emotes(self.client)
@@ -65,19 +65,18 @@ class BotInfo(commands.Cog):
         )
         permissions1 = "`"*3+"diff\n+ "+'\n+ '.join(
             [i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if i[1]]
-        )+"\n"+"`"*3+"\n\n"
-        
+        )+"\n"+"`"*3+"\n\n"        
         permissions2 = "`"*3+"diff\n- "+'\n- '.join(
             [i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if not i[1]]
         )+"\n"+"`"*3+"\n\n"
         
-        em.add_field(name="Allowed",value=permissions1,inline=False)
-        em.add_field(name="Denied",value=permissions2,inline=False)
+        em.add_field(name="Allowed", value=permissions1, inline=False)
+        em.add_field(name="Denied", value=permissions2, inline=False)
         await ctx.send(embed=em)
     
     
     @nextcord.slash_command(name="check", description="Check if the bot is online")
-    async def check_slash(self,inter):
+    async def check_slash(self, inter):
         await self.check(inter)
 
     @nextcord.slash_command(name="neofetch", description="Get Status of the bot")

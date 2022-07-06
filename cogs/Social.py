@@ -3,15 +3,9 @@ import assets
 import time
 import helping_hand
 import External_functions as ef
-import emoji
-import asyncio
-import traceback
-import urllib
 import inshort
 
-from nextcord.abc import GuildChannel
-from nextcord import Interaction, SlashOption, ChannelType
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 from random import choice
 from wikipedia import search, summary
 
@@ -182,7 +176,7 @@ class Social(commands.Cog):
                 )
             )
             return
-        elif pop_in.get('private'):
+        if pop_in.get('private'):
             embed=ef.cembed(
                 title=pop_in.get("full_name"),
                 description=pop_in.get("biography"),

@@ -6,9 +6,9 @@ def temporary_fix():
 import os
 import sys
 import subprocess
-sys.path.insert(1,f"{os.getcwd()}/utils/")
-sys.path.insert(1,f"{os.getcwd()}/src")
-sys.path.insert(1,f"{os.getcwd()}/cogs")
+sys.path.insert(1, f"{os.getcwd()}/utils/")
+sys.path.insert(1, f"{os.getcwd()}/src")
+sys.path.insert(1, f"{os.getcwd()}/cogs")
 print("Booting up")
 temporary_fix()
 from keep_alive import keep_alive
@@ -442,9 +442,7 @@ async def emoji_slash(ctx, emoji_name, number=1):
         if le >= 2:
             if number > le - 1:
                 number = le - 1
-        emoji = [names for names in client.emojis if names.name == emoji_name][
-            number
-        ].id
+        emoji = [names for names in client.emojis if names.name == emoji_name][number].id
         await ctx.send(str(nextcord.utils.get(client.emojis, id=emoji)))
     else:
         await ctx.send(
@@ -837,7 +835,12 @@ async def f_slash(inter, text):
     await feedback(inter, text=text)
 
 @client.slash_command(name="polling", description="Seperate options with |")
-async def polling_slash(inter, question, options="yes|no",image=None):
+async def polling_slash(
+    inter, 
+    question, 
+    options="yes|no",
+    image=None
+):
     await inter.response.defer()
     if not image: image = safe_pfp(inter.guild)
     await poll(inter, Options = options, Question = question if question else "", image = image)
