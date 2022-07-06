@@ -105,6 +105,12 @@ class ApplicationCreate(ui.Modal):
         self.log_channel = log_channel
 
     async def callback(self, inter):
+        if len(self.question.value.split("\n"))>5:
+            await inter.response.send_message(
+                "Cannot have more than 5 questions",
+                ephemeral=True
+            )
+            return
         await self.channel.send(
             embed=ef.cembed(
                 title="Application",
@@ -142,7 +148,17 @@ class Application(commands.Cog):
         channel: GuildChannel = ef.defa(ChannelType.text), 
         log_channel: GuildChannel = ef.defa(ChannelType.text)
     ):
-        
+        if not inter.user.guild_permissions.manage_guild:        
+            await inter.response.send_message(
+                ephemeral=True,
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description="You do not have manage server permission",
+                    color=self.client.re[8],
+                    thumbnail=self.client.user.avatar.url
+                )
+            )
+            return
         await inter.response.send_modal(
             ApplicationCreate(channel, log_channel)
         )

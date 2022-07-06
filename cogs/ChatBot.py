@@ -3,6 +3,7 @@ import assets
 import os
 import External_functions as ef
 from nextcord.ext import commands
+from asyncio import sleep
 
 # Use nextcord.slash_command()
 
@@ -11,7 +12,6 @@ def requirements():
     
 
 models = ['BlenderBot','DialoGPT','Wolfram Scientific','PopCat']
-
 
 
 class ChatBot(commands.Cog):        
@@ -51,10 +51,10 @@ class ChatBot(commands.Cog):
                 
             input_text = message.clean_content[6:]
             
-            if self.client.re[10].get(message.guild.id, 1) == 3:
+            if self.client.re[10].get(message.guild.id, 4) == 3:
                 a = await ef.wolf_spoken(self.wolfram, input_text)
 
-            if self.client.re[10].get(message.guild.id, 1) in (1,2):
+            if self.client.re[10].get(message.guild.id, 4) in (1,2):
                 BASE_URL = "https://api-inference.huggingface.co/models"
                 API_URL = f"{BASE_URL}/facebook/blenderbot-400M-distill"
                 payload = {
@@ -66,7 +66,7 @@ class ChatBot(commands.Cog):
                     "parameters": {"repetition_penalty": 1.33},
                 }
                 
-                if self.client.re[10].get(message.guild.id, 1) == 2:
+                if self.client.re[10].get(message.guild.id, 4) == 2:
                     API_URL = f"{BASE_URL}/microsoft/DialoGPT-large"
                     payload = {
                         "inputs": input_text
@@ -75,8 +75,11 @@ class ChatBot(commands.Cog):
                 print(output)
                 a = output['generated_text']
                 self.moderate_variables(message.guild.id, input_text, a)
-            if self.client.re[10].get(message.guild.id, 1) == 4:
-                a = await ef.get_async(f"https://api.popcat.xyz/chatbot?msg={ef.convert_to_url(input_text)}&owner=Batman&botname=Alfred", kind="json")
+            if self.client.re[10].get(message.guild.id, 4) == 4:
+                a = await ef.get_async(
+                    f"https://api.popcat.xyz/chatbot?msg={ef.convert_to_url(input_text)}&owner=Batman&botname=Alfred",
+                    kind="json"
+                )
                 a = a['response']
 
             await message.reply(a)
@@ -101,13 +104,6 @@ class ChatBot(commands.Cog):
                 title="Generated text", description=o, color=self.client.re[8],thumbnail=self.client.user.avatar.url
             )
         )
-
-    @nextcord.slash_command(
-        name = "talktomyhand",
-        description = "Bots Talking to themselves"
-    )   
-    async def talk(self, inter, start: str = "Hello there"):
-        await inter.send("Coming soon")
                 
 
     @nextcord.slash_command("model")
