@@ -6,6 +6,7 @@ def temporary_fix():
 import os
 import sys
 import subprocess
+import aiohttp
 sys.path.insert(1, f"{os.getcwd()}/utils/")
 sys.path.insert(1, f"{os.getcwd()}/src")
 sys.path.insert(1, f"{os.getcwd()}/cogs")
@@ -310,7 +311,9 @@ async def youtube_loop():
                             color=re[8]
                         )
                     )       
-            except Exception: 
+            except Exception as e: 
+                if isinstance(e, aiohttp.client_exceptions.InvalidURL):
+                    del config['youtube'][i]
                 print(i)
                 print(traceback.format_exc())
     print("Done")

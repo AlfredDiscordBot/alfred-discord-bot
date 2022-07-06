@@ -222,8 +222,8 @@ async def get_youtube_url(url):
     gets the list of url from a channel url
     """
     st = await get_async(url)
-    li = regex.findall(r"watch?v\s{11}", st)
-    return li
+    li = regex.findall(r"watch\?v=(\S{11})", st)
+    return [f"https://youtube.com/watch?v={w}" for w in li]
 
 
 def get_if_process_exists(name):
