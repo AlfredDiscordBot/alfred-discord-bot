@@ -136,7 +136,7 @@ class Intercom(commands.Cog):
             await ctx.send("This Server has not set Intercom yet")
 
         elif ctx.guild.id not in self.client.config['connect']:
-            await ctx.send("Your Server has not set Intercom yet\nUse `/intercom`")
+            await ctx.send("Your Server has not set Intercom yet\nUse `/intercom #channel` to create intercom")
 
         else:    
             ch = self.client.get_channel(self.client.config['connect'][number])
@@ -162,7 +162,7 @@ class Intercom(commands.Cog):
                     return
                 except asyncio.TimeoutError:
                     await ctx.send("Timed out, no one answered")
-                    await ay.send("Ending call")
+                    await ay.channel.send("Ending call")
                     return
                     
     

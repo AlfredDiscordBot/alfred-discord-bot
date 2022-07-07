@@ -104,7 +104,39 @@ class ChatBot(commands.Cog):
                 title="Generated text", description=o, color=self.client.re[8],thumbnail=self.client.user.avatar.url
             )
         )
-                
+
+    @nextcord.slash_command(
+        name = "talktomyhand",
+        description = "Bots Talking to themselves"
+    )   
+    async def talk(self, inter, start: str = "Hello there"):
+        texts=[f'User-> {start}']
+        embed=ef.cembed(
+            title="Talk To My hand",
+            author=inter.user,
+            description="\n".join(texts),
+            color=inter.client.re[8],
+            thumbnail=inter.client.user.avatar.url
+        )
+        await inter.send(
+            embed=embed
+        )
+        past_response = [start]
+        message = await inter.original_message()
+        for _ in range(10):
+            await sleep(2)
+            a = await ef.get_async(
+                f"https://api.popcat.xyz/chatbot?msg={ef.convert_to_url(past_response[-1])}&owner=Batman&botname=Alfred",
+                kind="json"
+            )
+            texts.append(f'Bot -> {a["response"]}')
+            past_response.append(a['response'])
+            embed.description="\n".join(texts)
+            await message.edit(
+                embed=embed
+            )
+            
+            
 
     @nextcord.slash_command("model")
     async def changeM(self, inter, model = ef.defa(choices=models)):

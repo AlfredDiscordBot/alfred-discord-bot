@@ -50,7 +50,7 @@ class ApplicationModel(ui.Modal):
         for q in questions:
             n+=1
             Input=ui.TextInput(
-                label=q,
+                label=q[:40],
                 min_length=1,
                 style=TextInputStyle.paragraph
             )

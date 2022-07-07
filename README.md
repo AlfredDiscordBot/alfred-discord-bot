@@ -26,7 +26,7 @@ If you want to contribute to this project, please read through [Contribution pag
 <img src="https://img.shields.io/badge/Fun_apis-0257be?style=for-the-badge&logo=alfred&logoColor=white"> 
 <img src="https://img.shields.io/badge/Plugins-0257be?style=for-the-badge&logo=python&logoColor=white"> \
 <img src="https://img.shields.io/badge/learn-Learning_tool_provided_with_LEARN.md-0257be?style=for-the-badge&logo=markdown&logoColor=white"> \
-<img src="https://img.shields.io/badge/Cogs-Divided_the_program_for_better_understanding-0257be?style=for-the-badge&logo=discord&logoColor=white&color=0257be"> \
+<img src="https://img.shields.io/badge/Cogs-Divided_the_program_into_parts-0257be?style=for-the-badge&logo=discord&logoColor=white&color=0257be"> \
 <img src="https://shields.io/github/forks/alvinbengeorge/alfred-discord-bot?label=Fork&style=for-the-badge&logo=github&color=0257be"> 
 <img src="https://shields.io/github/stars/alvinbengeorge/alfred-discord-bot?label=Stars&style=for-the-badge&logo=github&color=0257be"> 
 <img src="https://img.shields.io/github/languages/code-size/alvinbengeorge/alfred-discord-bot?style=for-the-badge&logo=github&color=0257be">
