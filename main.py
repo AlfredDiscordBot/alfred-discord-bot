@@ -11,7 +11,7 @@ sys.path.insert(1, f"{os.getcwd()}/utils/")
 sys.path.insert(1, f"{os.getcwd()}/src")
 sys.path.insert(1, f"{os.getcwd()}/cogs")
 print("Booting up")
-temporary_fix()
+#temporary_fix()
 from keep_alive import keep_alive
 import nextcord
 print(nextcord.__version__)
@@ -23,14 +23,29 @@ from dotenv import load_dotenv
 from utils.Storage_facility import Variables
 from io import StringIO
 from contextlib import redirect_stdout
-from utils.External_functions import cembed, timestamp, check_command, defa, devop_mtext, datetime, wait_for_confirm, check_end, safe_pfp, get_async, Emoji_alphabets, Meaning, activities, cog_creator, get_youtube_url, svg2png
+from utils.External_functions import (
+    cembed, 
+    timestamp, 
+    check_command, 
+    defa, 
+    devop_mtext, 
+    datetime, 
+    wait_for_confirm, 
+    safe_pfp, 
+    get_async, 
+    Emoji_alphabets, 
+    activities, 
+    cog_creator, 
+    get_youtube_url, 
+    svg2png
+)
 import traceback
 import time
 import psutil
 import asyncio 
 from io import BytesIO
 import src.error as ror
-import assets
+import utils.assets as assets
 
 location_of_file = os.getcwd()
 start_time = time.time()
@@ -518,7 +533,7 @@ async def clear_webhooks(ctx):
         )
     )
 
-@client.slash_command(name="color",description="Change color theme", guild_ids= [822445271019421746])
+@client.slash_command(name="color",description="Change color theme", guild_ids=[822445271019421746])
 async def color_slash(
     inter, 
     rgb_color=str(nextcord.Color(re[8]).to_rgb())

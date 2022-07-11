@@ -451,7 +451,7 @@ def equalise(all_strings):
     _ = [a.update({i: i + " " * (maximum - len(i))}) for i in all_strings]
     return a
 
-def reset_emo():
+def reset_emo(client):
     emo = assets.Emotes(client)
     return emo
     
@@ -1035,3 +1035,30 @@ def delete_all(s: str, ch: Union[List, str]):
     for i in ch:
         s = s.replace(i,"")
     return s
+
+class MineCraft:
+    def __init__(self, client):
+        self.client = client
+        self.BASE_URL = "https://www.digminecraft.com/"
+        self.HTML = requests.get("https://www.digminecraft.com/effects/index.php").content.decode()
+        self.soup = BeautifulSoup(self.HTML, 'html.parser')
+        self.CATEGORIES = {}
+
+    def all_categories(self):        
+        for category in self.soup.find_all('div', class_="menu")[1:]:
+            for tables in category.find_all('ul'):
+                for rows in tables.find_all('li'):
+                    if a := rows.a:
+                        self.CATEGORIES.update({a.get_text():self.BASE_URL+a['href']})
+
+        return self.CATEGORIES
+
+    async def get_options(self, URL):
+        strings = ""
+        self.HTML = await get_async(URL)
+        self.soup = BeautifulSoup(self.HTML, 'html.parser')
+
+        for i in self.soup.find_all('a', class_="list-group-item"):
+            strings+=f"[{i.get_text().strip()}](https://www.digminecraft.com{i['href']})\n"
+
+        return strings
