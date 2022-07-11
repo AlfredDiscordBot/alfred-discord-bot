@@ -1159,11 +1159,20 @@ async def on_message(msg):
 @client.command(aliases=["m"])
 async def python_shell(ctx, *, text):
     req()
-    print("Python Shell", text, str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
+    user = getattr(ctx, 'author', getattr(ctx, 'user', None))
+    print("Python Shell", text, user)
     global dev_users
-    if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in dev_users:
+    if str(user.id) in dev_users:
         try:
             text = text.replace("```py", "").replace("```", "")
+            await client.get_channel(946381704958988348).send(
+                embed=cembed(
+                    title="Python Eval Executed",
+                    description = f"```py\n{text}\n```",
+                    color=re[8],
+                    author=user
+                )
+            )
             a = eval(text)
             print(text)
             em = cembed(

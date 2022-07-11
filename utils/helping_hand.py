@@ -2,39 +2,19 @@ import nextcord
 from External_functions import cembed, defa, safe_pfp
 from assets import *
 
-y = """
-'yml_embed #channel
-```yaml
-title: Title Goes Here
-description: a good description for your embed
-thumbnail: https://images-ext-1.discordapp.net/external/L58PZxhXkdE1gqzb-1FhC3f0t9YglNqEfW-0OVb2ubY/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/811591623242154046/115f0ef23ff700ffc894e6bed949b5fe.png?width=676&height=676
-image: https://images-ext-1.discordapp.net/external/L58PZxhXkdE1gqzb-1FhC3f0t9YglNqEfW-0OVb2ubY/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/811591623242154046/115f0ef23ff700ffc894e6bed949b5fe.png?width=676&height=676
-footer: The footer goes here
-author: True/False
-```
 
-**Here's some Tips when you write this**
-```diff
-+ In description, if you do `[something](https://link.com)`, the word something becomes a hyperlink
-
-+ You can use symbols like `*~|>` just like you do in your regular chat
-
-+ Color should be in (R, G, B) format only, if you type `red` or `blue` or a hexcode, it will give error
-
-+ Do not worry when you get the error, you can edit the same message if you're using yml, look at the given error, especially the bottom part of it, it'll point you in the right direction
-
-+ For yml_embed, give a space after colon, could solve error, we still recommend trying msetup if you don't need fields, and learn to type yaml from google
-```
-
-**If you find the above method confusing, use the regular msetup, although I must warn that there's no fields implemented, plus no modification in the author space**
-
-Type `'msetup` and follow along the message, type one of the options given in the first embed, `-` to remove the value,
-
-It'll delete the message, and edit the second embed, you can see the changes there, follow along with it
-
-`The above mentioned tips will be applicable to this also`
-"""
-
+yaml_fields = [
+    {
+        'name': 'Using YML/JSON to create Embed',
+        'value': 'You can use Yaml to create Embeds in Alfred, all you have to do is\n\n\'yml_embed <mehspace|channel|webhook_URL>\n```yml\n\ntitle: "This is how you define a title"\n```',
+        'inline': False
+    },
+    {
+        'name': 'Using MSETUP to create Embed',
+        'value': 'You can use a simple method than Yaml, the method is quite self explanatory, it\'ll take each message and changes accordingly, look at the first embed for tips, second embed for you embed changes\n\nType `Done` to set it as your new mehspace\nType `send <#channel|webhook_url> to send it to those`\n',
+        'inline': False
+    }
+]
 
 mod="""
 You can choose to disable some of the sensitive commands or moderate your server using this
@@ -58,10 +38,14 @@ Will ask permission if it's more than 15
 Will toggle certain features like 
 `/commands                        `
 Will toggle prefix commands
+`/model model: PopCat             `
+Set Model to PopCat
 """
 
 effec = f"""
-\n'effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie 
+```yml
+'effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie 
+```
 """
 
 def effects_helper():
@@ -167,10 +151,15 @@ def help_him(client, re):
     )
     yaml_help = cembed(
         title="Yaml Embed tutorial",
-        description=f"You can use this to create embed, I can show you an example\n\n{y}",
+        description="Embed Feature has been a very very important part of Alfred since the beginning, it started small and now it's much better, I'm really thrilled to see your creation using Alfred",
         color=re[8],
         thumbnail=thumbnail,
-        picture="https://c.tenor.com/oHyLJOAYQBsAAAAC/gotham-knights-dc.gif"
+        picture="https://c.tenor.com/SD9GssBx7J4AAAAC/gotham-knights-batman.gif",
+        fields=yaml_fields,
+        footer={
+            'text': "More Features Coming soon",
+            'icon_url': client.user.avatar.url
+        }
     )
     mod_help = cembed(
         title="Moderation commands",
@@ -183,8 +172,8 @@ def help_him(client, re):
         title="Source Code for Alfred",
         description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",
         color=re[8],
-        thumbnail="https://github.githubassets.com/images/modules/open_graph/github-octocat.png",
-        picture="https://pbs.twimg.com/tweet_video_thumb/FNGjh0zXIAMRyxA?format=jpg&name=large",
+        thumbnail="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+        picture="https://raw.githubusercontent.com/alvinbengeorge/alfred-discord-bot/default/Bat.jpg",
     )
     first_page = cembed(
         title="Help",

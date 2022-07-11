@@ -156,7 +156,25 @@ class MSetup:
             description=description,
             color=self.client.re[8],
             thumbnail=self.client.user.avatar.url,
-            footer="Have Fun"
+            footer="Have Fun",
+            fields=[
+                {
+                    'name': "Send It",
+                    'value': '''To send it somewhere, type 
+                    `send <#channel|webhook_url>`''',
+                    'inline': False
+                },
+                {
+                    'name': 'Set As Mehspace',
+                    'value': 'To set it as your mehspace, type `done`',
+                    'inline': False
+                },
+                {
+                    'name': 'Cancel',
+                    'value': "To cancel it type `cancel`",
+                    'inline': False
+                }
+            ]
         )
         if self.INSTRUCTION:
             await self.INSTRUCTION.edit(
@@ -280,7 +298,7 @@ class MSetup:
                     delete_after = 5
                 )
                 
-        elif any(map(text.startswith, ['send','done','cancel'])):
+        elif any(map(text.lower().startswith, ['send','done','cancel'])):
             return self.to_yaml()
             
         elif self.SETUP_VALUE:   
