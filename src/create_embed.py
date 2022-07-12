@@ -12,7 +12,7 @@ import External_functions as ef
 
 
 SUPER_AUTHOR_ID = 432801163126243328  # Do Not CHange
-help_for_m_setup="""
+help_for_m_setup = """
 'm_setup
 ```yaml
 title: Title Goes Here
@@ -33,43 +33,37 @@ author: True/False
 
 """
 
-def preset_change(di, ctx, client, re = {8: 6619080}):
-    user = getattr(ctx, 'author', getattr(ctx,'user',None))
+
+def preset_change(di, ctx, client, re={8: 6619080}):
+    user = getattr(ctx, "author", getattr(ctx, "user", None))
     presets = {
-        '<server-icon>' : getattr(ctx.guild.icon, 'url', None),
-        '<author-icon>' : ef.safe_pfp(user),
-        '<author-color>': str(user.color.to_rgb()),
-        '<bot-icon>' : client.user.avatar.url,
-        '<bot-color>' : str(nextcord.Color(re[8]).to_rgb())
+        "<server-icon>": getattr(ctx.guild.icon, "url", None),
+        "<author-icon>": ef.safe_pfp(user),
+        "<author-color>": str(user.color.to_rgb()),
+        "<bot-icon>": client.user.avatar.url,
+        "<bot-color>": str(nextcord.Color(re[8]).to_rgb()),
     }
     if type(di) == str:
-        di ={
-            'description': di,
-            'color': '<bot-color>'
-        }
-    if type(di.get('author')) == str:
-        di['author'] = {
-            'name' : di['author']
-        }
-    
+        di = {"description": di, "color": "<bot-color>"}
+    if type(di.get("author")) == str:
+        di["author"] = {"name": di["author"]}
+
     for i in di:
-        if i in ['color','thumbnail','image','picture']:
+        if i in ["color", "thumbnail", "image", "picture"]:
             if di[i] in presets:
                 di[i] = presets[di[i]]
         if i == "footer":
             if isinstance(di[i], dict):
                 if di[i].get("icon_url") and di[i].get("icon_url") in presets:
-                    di[i]['icon_url'] = presets[di[i]['icon_url']]
-                    
-                
-    if  type(di.get('author')) == dict:
-        for i in di['author']:
-            if i == 'icon_url':
-                if di['author']['icon_url'] in presets:
-                    di['author']['icon_url'] = presets[di['author']['icon_url']]
+                    di[i]["icon_url"] = presets[di[i]["icon_url"]]
+
+    if type(di.get("author")) == dict:
+        for i in di["author"]:
+            if i == "icon_url":
+                if di["author"]["icon_url"] in presets:
+                    di["author"]["icon_url"] = presets[di["author"]["icon_url"]]
     return di
 
-    
 
 class EmbedInfo:
     def __init__(
@@ -184,7 +178,14 @@ def get_color(color):
         return default_color
     elif type(color) is int:
         return color
-    elif (type(color) is str) and (type(col := tuple([int(i) for i in color.replace("(","").replace(")","").split(",")])) is tuple):
+    elif (type(color) is str) and (
+        type(
+            col := tuple(
+                [int(i) for i in color.replace("(", "").replace(")", "").split(",")]
+            )
+        )
+        is tuple
+    ):
         return nextcord.Color.from_rgb(*col)
 
     return default_color
@@ -208,11 +209,12 @@ def embed_from_dict(info: dict, ctx, client, re) -> nextcord.Embed:
     """
     Generates an embed from given dict
     """
-    info = preset_change(info, ctx, client, re = re)
-    ctx_author = getattr(ctx, 'author', getattr(ctx,'user',None))
+    info = preset_change(info, ctx, client, re=re)
+    ctx_author = getattr(ctx, "author", getattr(ctx, "user", None))
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
     info["color"] = get_color(info.get("color", None))
-    if info['color']: info['color']=info['color'].value     
+    if info["color"]:
+        info["color"] = info["color"].value
     embed = ef.cembed(**info)
 
     return embed
@@ -220,7 +222,7 @@ def embed_from_dict(info: dict, ctx, client, re) -> nextcord.Embed:
 
 def embed_from_yaml(yaml: str, ctx, client, re):
     info = safe_load(yaml)
-    ctx_author = getattr(ctx, 'author', getattr(ctx,'user',None))
+    ctx_author = getattr(ctx, "author", getattr(ctx, "user", None))
     print(
         f"Creating Embed for: '{ctx_author.name}' aka '{ctx_author.nick}' in '{ctx_author.guild}'"
     )
@@ -232,7 +234,7 @@ def requirements() -> str:
     """
     Returns the requirements of the main function.
     """
-    return ["re","mspace","dev_channel"]
+    return ["re", "mspace", "dev_channel"]
 
 
 def embed_from_info(info: EmbedInfo) -> nextcord.Embed:
@@ -253,6 +255,4 @@ def embed_from_info(info: EmbedInfo) -> nextcord.Embed:
 
 
 def main(client, re, mspace, dev_channel):
-    pass      
-    
-                    
+    pass

@@ -19,6 +19,7 @@ from instascrape.core._static_scraper import _StaticHtmlScraper
 from instascrape.scrapers.scrape_tools import parse_data_from_json
 from instascrape.scrapers.comment import Comment
 
+
 class Post(_StaticHtmlScraper):
     """Scraper for an Instagram post page"""
 
@@ -26,17 +27,17 @@ class Post(_StaticHtmlScraper):
     SUPPORTED_DOWNLOAD_EXTENSIONS = [".mp3", ".mp4", ".png", ".jpg"]
 
     def scrape(
-            self,
-            mapping=None,
-            keys: List[str] = None,
-            exclude: List[str] = None,
-            headers={
-                "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36 Edg/87.0.664.57"
-            },
-            inplace=True,
-            session=None,
-            webdriver=None
-        ) -> None:
+        self,
+        mapping=None,
+        keys: List[str] = None,
+        exclude: List[str] = None,
+        headers={
+            "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36 Edg/87.0.664.57"
+        },
+        inplace=True,
+        session=None,
+        webdriver=None,
+    ) -> None:
         """
         Scrape data from the source
 
@@ -71,14 +72,14 @@ class Post(_StaticHtmlScraper):
         if hasattr(self, "shortcode"):
             self.source = self.shortcode
         return_instance = super().scrape(
-                            mapping=mapping,
-                            keys=keys,
-                            exclude=exclude,
-                            headers=headers,
-                            inplace=inplace,
-                            session=session,
-                            webdriver=webdriver
-                        )
+            mapping=mapping,
+            keys=keys,
+            exclude=exclude,
+            headers=headers,
+            inplace=inplace,
+            session=session,
+            webdriver=webdriver,
+        )
         if return_instance is None:
             return_instance = self
 
@@ -87,17 +88,27 @@ class Post(_StaticHtmlScraper):
         return self
         return_instance.timestamp = 0
         if hasattr(return_instance, "timestamp"):
-            return_instance.upload_date = datetime.datetime.fromtimestamp(return_instance.timestamp)
+            return_instance.upload_date = datetime.datetime.fromtimestamp(
+                return_instance.timestamp
+            )
             pass
         if hasattr(return_instance, "shortcode"):
             return_instance.url = self._url_from_suburl(return_instance.shortcode)
 
         if mapping is None:
-            return_instance.tagged_users = return_instance._parse_tagged_users(return_instance.json_dict)
-            return_instance.hashtags = return_instance._parse_hashtags(return_instance.caption) if isinstance(return_instance.caption, str) else float("nan")
+            return_instance.tagged_users = return_instance._parse_tagged_users(
+                return_instance.json_dict
+            )
+            return_instance.hashtags = (
+                return_instance._parse_hashtags(return_instance.caption)
+                if isinstance(return_instance.caption, str)
+                else float("nan")
+            )
             try:
                 if math.isnan(return_instance.full_name):
-                    return_instance.full_name = return_instance.flat_json_dict["full_name"]
+                    return_instance.full_name = return_instance.flat_json_dict[
+                        "full_name"
+                    ]
             except TypeError:
                 pass
         return return_instance if return_instance is not self else None
@@ -136,9 +147,9 @@ class Post(_StaticHtmlScraper):
         comments_arr : List[Comment]
             List of Comment objects
         """
-        list_of_dicts = self.json_dict["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"][
-            "edge_media_to_parent_comment"
-        ]["edges"]
+        list_of_dicts = self.json_dict["entry_data"]["PostPage"][0]["graphql"][
+            "shortcode_media"
+        ]["edge_media_to_parent_comment"]["edges"]
         comments_arr = [Comment(comment_dict) for comment_dict in list_of_dicts]
         return comments_arr
 
@@ -177,9 +188,9 @@ class Post(_StaticHtmlScraper):
             json_dict = [json_dict]
             json_dict = {"PostPage": json_dict}
             json_dict = {"entry_data": json_dict}
-        tagged_arr = json_dict["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]["edge_media_to_tagged_user"][
-            "edges"
-        ]
+        tagged_arr = json_dict["entry_data"]["PostPage"][0]["graphql"][
+            "shortcode_media"
+        ]["edge_media_to_tagged_user"]["edges"]
         return [node["node"]["user"]["username"] for node in tagged_arr]
 
     def _parse_hashtags(self, caption: str) -> List[str]:

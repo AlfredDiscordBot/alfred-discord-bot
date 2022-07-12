@@ -5,18 +5,18 @@ from assets import *
 
 yaml_fields = [
     {
-        'name': 'Using YML/JSON to create Embed',
-        'value': 'You can use Yaml to create Embeds in Alfred, all you have to do is\n\n\'yml_embed <mehspace|channel|webhook_URL>\n```yml\n\ntitle: "This is how you define a title"\n```',
-        'inline': False
+        "name": "Using YML/JSON to create Embed",
+        "value": 'You can use Yaml to create Embeds in Alfred, all you have to do is\n\n\'yml_embed <mehspace|channel|webhook_URL>\n```yml\n\ntitle: "This is how you define a title"\n```',
+        "inline": False,
     },
     {
-        'name': 'Using MSETUP to create Embed',
-        'value': 'You can use a simple method than Yaml, the method is quite self explanatory, it\'ll take each message and changes accordingly, look at the first embed for tips, second embed for you embed changes\n\nType `Done` to set it as your new mehspace\nType `send <#channel|webhook_url> to send it to those`\n',
-        'inline': False
-    }
+        "name": "Using MSETUP to create Embed",
+        "value": "You can use a simple method than Yaml, the method is quite self explanatory, it'll take each message and changes accordingly, look at the first embed for tips, second embed for you embed changes\n\nType `Done` to set it as your new mehspace\nType `send <#channel|webhook_url> to send it to those`\n",
+        "inline": False,
+    },
 ]
 
-mod="""
+mod = """
 You can choose to disable some of the sensitive commands or moderate your server using this
 
 `'ban @mention `  
@@ -48,28 +48,30 @@ effec = f"""
 ```
 """
 
+
 def effects_helper():
     return defa(
-        choices = [
-            'cartoonify',
-            'watercolor',
-            'canny',
-            'pencil',
-            'econify',
-            'negative',
-            'pen',
-            'candy',
-            'composition',
-            'feathers',
-            'muse',
-            'mosaic',
-            'night',
-            'scream',
-            'wave',
-            'udnie'
+        choices=[
+            "cartoonify",
+            "watercolor",
+            "canny",
+            "pencil",
+            "econify",
+            "negative",
+            "pen",
+            "candy",
+            "composition",
+            "feathers",
+            "muse",
+            "mosaic",
+            "night",
+            "scream",
+            "wave",
+            "udnie",
         ],
-        required = True
+        required=True,
     )
+
 
 message_from = r"""
 **BRAND NEW MSETUP** -> Beta
@@ -94,6 +96,7 @@ Decided to remove memes prefix commands and added PopCat memes, one of our most 
 New ProtonDB slash command added, decided to remove the old on, I think this is a good move as new slash command supports autocomplete
 """
 
+
 def help_him(client, re):
     thumbnail = client.user.avatar.url
 
@@ -104,7 +107,7 @@ def help_him(client, re):
         thumbnail=thumbnail,
         picture="https://copyrightalliance.org/wp-content/uploads/2017/07/emojis-cropped.png",
     )
-    
+
     wolfram_help = cembed(
         title="Wolfram",
         description="I've added a simple API of Wolfram in Alfred, you can use it through 'wolf <expression>",
@@ -120,15 +123,15 @@ def help_him(client, re):
         thumbnail=thumbnail,
         picture="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8aYSfIp22UXBEkRt6vXwy4dmfhH3Q1lr8ow&usqp=CAU",
     )
-    
+
     prefix_help = cembed(
         title="Set_Prefix",
         description="You can change the prefix of the bot for the server using set_prefix command.\nYou can also remove it using remove_prefix\n**Warning**: Only an admin can change",
         color=re[8],
         thumbnail=thumbnail,
-        picture="https://i.kym-cdn.com/entries/icons/original/000/036/173/cover2.jpg"
+        picture="https://i.kym-cdn.com/entries/icons/original/000/036/173/cover2.jpg",
     )
-    
+
     music_help = cembed(
         title="Music commands",
         description="""You can use the following commands for controlling music
@@ -140,14 +143,14 @@ def help_him(client, re):
         thumbnail=thumbnail,
         color=re[8],
         picture="https://i.pinimg.com/originals/f1/90/97/f19097b29a4b606f8a91252fab526c6f.jpg",
-        footer="Here's a little tip, when the bot says that this content is meant for only adults, search for the lyrics version of the song"
+        footer="Here's a little tip, when the bot says that this content is meant for only adults, search for the lyrics version of the song",
     )
     youtube_help = cembed(
         title="Youtube Subscribe to a channel",
         description="You can now add or make Alfred send you updates in the channel\n\nUse 'subscribe #channel https://www.youtube.com/c/LinusTechTips/videos to subscribe ",
         thumbnail=thumbnail,
         color=re[8],
-        picture="https://play-lh.googleusercontent.com/vA4tG0v4aasE7oIvRIvTkOYTwom07DfqHdUPr6k7jmrDwy_qA_SonqZkw6KX0OXKAdk"
+        picture="https://play-lh.googleusercontent.com/vA4tG0v4aasE7oIvRIvTkOYTwom07DfqHdUPr6k7jmrDwy_qA_SonqZkw6KX0OXKAdk",
     )
     yaml_help = cembed(
         title="Yaml Embed tutorial",
@@ -157,16 +160,16 @@ def help_him(client, re):
         picture="https://c.tenor.com/SD9GssBx7J4AAAAC/gotham-knights-batman.gif",
         fields=yaml_fields,
         footer={
-            'text': "More Features Coming soon",
-            'icon_url': client.user.avatar.url
-        }
+            "text": "More Features Coming soon",
+            "icon_url": client.user.avatar.url,
+        },
     )
     mod_help = cembed(
         title="Moderation commands",
         description=mod,
         color=re[8],
         thumbnail=thumbnail,
-        picture="https://i.ytimg.com/vi/aN6Ywnwsahk/maxresdefault.jpg"
+        picture="https://i.ytimg.com/vi/aN6Ywnwsahk/maxresdefault.jpg",
     )
     github_help = cembed(
         title="Source Code for Alfred",
@@ -181,48 +184,66 @@ def help_him(client, re):
         thumbnail="https://static.wikia.nocookie.net/newdcmovieuniverse/images/4/47/Pennyalf.PNG/revision/latest?cb=20190207195903",
         picture=thumbnail,
         color=re[8],
-        footer="Have a great day | Best with slash command"
+        footer="Have a great day | Best with slash command",
     )
     message_developer = cembed(
-        title = "Message from the developers",
-        description = message_from,
+        title="Message from the developers",
+        description=message_from,
         color=re[8],
         thumbnail=thumbnail,
-        picture = "https://raw.githubusercontent.com/nextcord/nextcord/master/assets/repo-banner.png",
-        footer=f"Powered by Nextcord {nextcord.__version__}"
+        picture="https://raw.githubusercontent.com/nextcord/nextcord/master/assets/repo-banner.png",
+        footer=f"Powered by Nextcord {nextcord.__version__}",
     )
     effects_help = cembed(
         title="Effects",
-        description="This command will apply effects to your Profile Picture, Use it by `'effects <effect name> @mention`"+effec,
+        description="This command will apply effects to your Profile Picture, Use it by `'effects <effect name> @mention`"
+        + effec,
         color=re[8],
         thumbnail=thumbnail,
-        image="https://raw.githubusercontent.com/alvinbengeorge/alfred-discord-bot/default/Krypton.png"
+        image="https://raw.githubusercontent.com/alvinbengeorge/alfred-discord-bot/default/Krypton.png",
     )
-    
-    social_help=cembed(
+
+    social_help = cembed(
         title="Socials",
         description="`'reddit <account>` for reddit posts\n`'instagram <account>` for 7 latest instagram postst\n`'quote` gives a random quote\n`'mehspace @mention` will give a person's mehspace\n`/subscribe` command for subscribing to a channel\n`/unsubscribe` command to unsubscribe from a channel\n\nIf you need to learn to setup mehspace, go to  the `Yaml help page`",
         color=re[8],
-        image="https://media.smallbiztrends.com/2022/01/social-audio.png"
+        image="https://media.smallbiztrends.com/2022/01/social-audio.png",
     )
     games_help = cembed(
         title="Games",
         description="This is a new feature in Alfred.\nAlfred currently has two new games\n```diff\n+ RockPaperScissor\n+ Guess\n```\n\n**Only in Slash commands**",
         color=re[8],
         footer="More games coming soon",
-        image="https://c.tenor.com/_yS6EXe8Tc0AAAAC/gotham-knights-dc.gif"
+        image="https://c.tenor.com/_yS6EXe8Tc0AAAAC/gotham-knights-dc.gif",
     )
-        
 
-    all_embeds = [first_page, github_help, message_developer, effects_help, music_help, games_help, mod_help, yaml_help, code_help, wolfram_help, Emoji_help, social_help]
-    
+    all_embeds = [
+        first_page,
+        github_help,
+        message_developer,
+        effects_help,
+        music_help,
+        games_help,
+        mod_help,
+        yaml_help,
+        code_help,
+        wolfram_help,
+        Emoji_help,
+        social_help,
+    ]
+
     new_embeds = []
     for i in all_embeds:
-        i.set_author(name = client.user.name, icon_url = client.user.avatar.url, url = "https://www.github.com/alvinbengeorge/alfred-discord-bot")
+        i.set_author(
+            name=client.user.name,
+            icon_url=client.user.avatar.url,
+            url="https://www.github.com/alvinbengeorge/alfred-discord-bot",
+        )
         new_embeds.append(i)
     return new_embeds
 
-neofetch="""
+
+neofetch = """
   *(&@&&%%##%%&%                                                .%&%###%%&&&%/, 
        ..,*/*/(%%                                              *%#(**/*,..      
           ..,*//(#%%.                /,*/,*.                /%%#(/*,..          

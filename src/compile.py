@@ -112,17 +112,17 @@ def main(client, re):
     from nextcord.ext import commands
 
     @client.command()
-    @commands.cooldown(1,5,commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.check(ef.check_command)
     async def code(ctx, lang, *, code):
         actual_code = filter_graves(code)
         output = rce.execute_code(language=lang, code=actual_code)
-        if len(output)>500:
-            output=output[:150]+"..."
+        if len(output) > 500:
+            output = output[:150] + "..."
             if not output.endswith("```"):
-                output+="```"
-        elif len(output.split("\n"))>10:
-            output='\n'.join(output.split("\n")[:10])+"\n..."
+                output += "```"
+        elif len(output.split("\n")) > 10:
+            output = "\n".join(output.split("\n")[:10]) + "\n..."
         embed = discord.Embed(
             title="Result", description=output, color=discord.Color(value=re[8])
         )

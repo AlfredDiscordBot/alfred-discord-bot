@@ -4,8 +4,10 @@ from nextcord.ext import commands
 
 # Use nextcord.slash_command()
 
+
 def requirements():
     return []
+
 
 class Automoderate(commands.Cog):
     def __init__(self, client):
@@ -17,10 +19,10 @@ class Automoderate(commands.Cog):
         embeds = []
         for i in a:
             embed = ef.cembed(
-                title=i.name, 
-                description=f"Enabled: {i.enabled}", 
+                title=i.name,
+                description=f"Enabled: {i.enabled}",
                 color=self.client.re[8],
-                author = i.creator
+                author=i.creator,
             )
             embeds.append(embed)
         if not embeds:
@@ -28,5 +30,5 @@ class Automoderate(commands.Cog):
         await assets.pa(ctx, embeds)
 
 
-def setup(client,**i):
-    client.add_cog(Automoderate(client,**i))
+def setup(client, **i):
+    client.add_cog(Automoderate(client, **i))

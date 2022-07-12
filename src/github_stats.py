@@ -170,7 +170,7 @@ def repo_stats_dict(stats: GitHubRepoStats, color: int = None):
         },
         {
             "name": "Topics",
-            "value": ", ".join(stats.topics) if len(stats.topics)>0 else "No topics",
+            "value": ", ".join(stats.topics) if len(stats.topics) > 0 else "No topics",
         },
         {
             "name": "Dates",
@@ -219,33 +219,44 @@ def main(client, re):
         stats = get_repo_stats(repo)
 
         if stats:
-            embed = embed_from_dict(repo_stats_dict(stats, discord.Color(re[8])),ctx,client,re)
+            embed = embed_from_dict(
+                repo_stats_dict(stats, discord.Color(re[8])), ctx, client, re
+            )
         else:
             embed = embed_from_dict(
                 {
                     "title": "Repo Not Found",
                     "description": f"Unable to find repo '{repo}'",
                     "color": discord.Color(re[8]),
-                }, ctx,client,re
+                },
+                ctx,
+                client,
+                re,
             )
 
         await ctx.send(embed=embed)
 
     @client.command(aliases=["ghuser", "ghu"])
     @commands.check(ef.check_command)
-    async def github_user(ctx, *, username: str = ''):
-        if username  == '': username = "octocat"
+    async def github_user(ctx, *, username: str = ""):
+        if username == "":
+            username = "octocat"
         stats = get_user_stats(username)
 
         if stats:
-            embed = embed_from_dict(user_stats_dict(stats, discord.Color(re[8]), username),ctx,client,re)
+            embed = embed_from_dict(
+                user_stats_dict(stats, discord.Color(re[8]), username), ctx, client, re
+            )
         else:
             embed = embed_from_dict(
                 {
                     "title": "User Not Found",
                     "description": f"Unable to find user '{username}'",
                     "color": discord.Color(re[8]),
-                },ctx,client,re
+                },
+                ctx,
+                client,
+                re,
             )
 
         await ctx.send(embed=embed)

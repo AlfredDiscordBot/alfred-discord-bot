@@ -10,7 +10,7 @@ from nextcord.ext import commands
 
 
 def requirements():
-    return ['dev_channel', 'start_time']
+    return ["dev_channel", "start_time"]
 
 
 class BotInfo(commands.Cog):
@@ -31,7 +31,7 @@ class BotInfo(commands.Cog):
                 description=f"{len(guild.members)-1} Lucky Member(s) Found",
                 color=self.client.re[8],
                 thumbnail=self.client.user.avatar.url,
-                footer=f"Currently in {len(self.client.guilds)} servers | {len(self.client.users)} Users"
+                footer=f"Currently in {len(self.client.guilds)} servers | {len(self.client.users)} Users",
             )
         )
 
@@ -44,14 +44,14 @@ class BotInfo(commands.Cog):
                 description="I left this guild",
                 footer=f"Currently in {len(self.client.guilds)} servers | {len(self.client.users)} Users",
                 color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url
+                thumbnail=self.client.user.avatar.url,
             )
         )
 
     @commands.command(aliases=["hi", "ping"])
     @commands.check(ef.check_command)
     async def check(self, ctx):
-        self.client.re[0]+=1
+        self.client.re[0] += 1
         print("check")
         emo = assets.Emotes(self.client)
         r = self.client.re[0]
@@ -61,29 +61,50 @@ class BotInfo(commands.Cog):
             color=self.client.re[8],
             footer="Have fun, bot has many features, check out /help",
             thumbnail=self.client.user.avatar.url,
-            author=self.client.user
+            author=self.client.user,
         )
-        permissions1 = "`"*3+"diff\n+ "+'\n+ '.join(
-            [i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if i[1]]
-        )+"\n"+"`"*3+"\n\n"        
-        permissions2 = "`"*3+"diff\n- "+'\n- '.join(
-            [i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if not i[1]]
-        )+"\n"+"`"*3+"\n\n"
-        
+        permissions1 = (
+            "`" * 3
+            + "diff\n+ "
+            + "\n+ ".join(
+                [
+                    i[0]
+                    for i in ctx.guild.get_member(self.client.user.id).guild_permissions
+                    if i[1]
+                ]
+            )
+            + "\n"
+            + "`" * 3
+            + "\n\n"
+        )
+        permissions2 = (
+            "`" * 3
+            + "diff\n- "
+            + "\n- ".join(
+                [
+                    i[0]
+                    for i in ctx.guild.get_member(self.client.user.id).guild_permissions
+                    if not i[1]
+                ]
+            )
+            + "\n"
+            + "`" * 3
+            + "\n\n"
+        )
+
         em.add_field(name="Allowed", value=permissions1, inline=False)
         em.add_field(name="Denied", value=permissions2, inline=False)
         await ctx.send(embed=em)
-    
-    
+
     @nextcord.slash_command(name="check", description="Check if the bot is online")
     async def check_slash(self, inter):
         await self.check(inter)
 
     @nextcord.slash_command(name="neofetch", description="Get Status of the bot")
     async def neo(self, inter):
-        await inter.response.defer()    
+        await inter.response.defer()
         await self.neofetch(inter)
-        
+
     @commands.command()
     @commands.check(ef.check_command)
     async def neofetch(self, ctx):
@@ -94,92 +115,107 @@ class BotInfo(commands.Cog):
         text += f"Servers : {len(self.client.guilds)}\n"
         text += f"Uptime  : {int(time.time()-self.start_time)}\n"
         text += f"Nextcord: {nextcord.__version__}"
-        await ctx.send("```yml\n"+text+"\n```")
+        await ctx.send("```yml\n" + text + "\n```")
 
-    @commands.command(aliases=["vote","top.gg",'v'])
-    async def vote_alfred(self, ctx):   
-        await ctx.send(
-            embed=assets.vote_embed(self.client)
-        )
-    
-    @nextcord.slash_command("vote",description="Vote for Alfred in Bot Listing servers")
+    @commands.command(aliases=["vote", "top.gg", "v"])
+    async def vote_alfred(self, ctx):
+        await ctx.send(embed=assets.vote_embed(self.client))
+
+    @nextcord.slash_command(
+        "vote", description="Vote for Alfred in Bot Listing servers"
+    )
     async def vo(self, inter):
         await self.vote_alfred(inter)
 
-    @commands.command(aliases=['h','alfred'])
-    async def help(self, ctx, *, text = "<Optional>"):
-        self.client.re[0]+=1
+    @commands.command(aliases=["h", "alfred"])
+    async def help(self, ctx, *, text="<Optional>"):
+        self.client.re[0] += 1
         try:
             if len(self.embe) < 30:
                 self.embe = helping_hand.help_him(self.client, self.client.re)
                 new_embed = ef.cembed(
-                    title='Index',
-                    description="Type `help <section>` to get to the help page\n```diff\n"+"\n+ ".join([i.title for i in self.embe])+"\n```",
-                    color=self.client.re[8]
+                    title="Index",
+                    description="Type `help <section>` to get to the help page\n```diff\n"
+                    + "\n+ ".join([i.title for i in self.embe])
+                    + "\n```",
+                    color=self.client.re[8],
                 )
                 self.embe.insert(1, new_embed)
                 self.index = [i.title for i in self.embe]
-            if text in self.index:                
-                n  = self.index.index(text)
-                await assets.pa(ctx,[self.embe[n]],restricted=True)
+            if text in self.index:
+                n = self.index.index(text)
+                await assets.pa(ctx, [self.embe[n]], restricted=True)
             elif text in [i.name for i in self.client.commands]:
                 prefix = self.client.prefix_dict.get(ctx.guild.id, "'")
-                i=self.client.get_command(text)
-                embed=ef.cembed(
+                i = self.client.get_command(text)
+                embed = ef.cembed(
                     title=i.name,
                     description=f"`{prefix}{i.name} {i.signature}`",
-                    color=self.client.re[8]
+                    color=self.client.re[8],
                 )
-                embed.set_author(name=self.client.user.name, icon_url = self.client.user.avatar.url)
+                embed.set_author(
+                    name=self.client.user.name, icon_url=self.client.user.avatar.url
+                )
                 await ctx.send(embed=embed)
             else:
                 n = 0
                 await assets.pa(ctx, self.embe, start_from=n, restricted=True)
         except Exception:
             print(traceback.format_exc())
-    
+
     @nextcord.slash_command(name="help", description="Help from Alfred")
-    async def help_slash(self, inter, text = None):    
-        await inter.response.defer()        
-        await self.help(inter, text = text)
+    async def help_slash(self, inter, text=None):
+        await inter.response.defer()
+        await self.help(inter, text=text)
 
     @help_slash.on_autocomplete("text")
     async def auto_com(self, inter, text):
         if len(self.embe) < 30:
             self.embe = helping_hand.help_him(self.client, self.client.re)
             new_embed = ef.cembed(
-                title='Index',
-                description="Type `help <section>` to get to the help page\n```diff\n"+"\n+ ".join([i.title for i in self.embe])+"\n```",
+                title="Index",
+                description="Type `help <section>` to get to the help page\n```diff\n"
+                + "\n+ ".join([i.title for i in self.embe])
+                + "\n```",
                 color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url
+                thumbnail=self.client.user.avatar.url,
             )
             self.embe.insert(1, new_embed)
             self.index = [i.title for i in self.embe]
-        autocomp_help = [str(i) for i in list(self.index)+list(self.client.commands) if text.lower() in str(i).lower()][:25]
+        autocomp_help = [
+            str(i)
+            for i in list(self.index) + list(self.client.commands)
+            if text.lower() in str(i).lower()
+        ][:25]
         await inter.response.send_autocomplete(autocomp_help)
 
-    @nextcord.slash_command(name="serverinfo",description="Get your server information")
+    @nextcord.slash_command(
+        name="serverinfo", description="Get your server information"
+    )
     async def serverinfo(self, inter):
         g = inter.guild
         b = f"{len(g.bots)} Bots"
         h = f"{len(g.humans)} Humans"
         m = f"{len(g.members)} Total members"
-        r = "\n\n**Roles:**\n"+', '.join([i.mention for i in g.roles])
-        emos = "\n\n**Emojis:**\n"+''.join([str(i) for i in g.emojis])
-        description=g.description if g.description else ""
-        embed=ef.cembed(
+        r = "\n\n**Roles:**\n" + ", ".join([i.mention for i in g.roles])
+        emos = "\n\n**Emojis:**\n" + "".join([str(i) for i in g.emojis])
+        description = g.description if g.description else ""
+        embed = ef.cembed(
             title=g.name,
-            description=description+emos,
+            description=description + emos,
             thumbnail=ef.safe_pfp(g),
             image=g.banner if g.banner else "",
             color=self.client.re[8],
-            footer=f"{b} | {h} | {m}"
+            footer=f"{b} | {h} | {m}",
         )
         boost = assets.Emotes(self.client).boost
-        boosts = str(boost)*inter.guild.premium_tier + f" {inter.guild.premium_subscription_count}"
+        boosts = (
+            str(boost) * inter.guild.premium_tier
+            + f" {inter.guild.premium_subscription_count}"
+        )
         embed.add_field(name="Owner", value=str(g.owner))
         embed.add_field(name="Server ID", value=str(g.id))
-        created = nextcord.utils.format_dt(g.created_at,"r").replace(":r","")
+        created = nextcord.utils.format_dt(g.created_at, "r").replace(":r", "")
         embed.add_field(name="Created at", value=created)
         embed.add_field(name="Boosts", value=boosts)
         embed1 = ef.cembed(
@@ -187,15 +223,17 @@ class BotInfo(commands.Cog):
             description=r,
             color=self.client.re[8],
             thumbnail=ef.safe_pfp(g),
-            footer=f"{len(g.roles)} Roles"
+            footer=f"{len(g.roles)} Roles",
         )
         await assets.pa(inter, [embed, embed1])
 
     @commands.Cog.listener()
-    async def on_message(self, msg):        
+    async def on_message(self, msg):
         if f"<@{self.client.user.id}>" in msg.content:
             print("Listening")
-            prefi = self.client.prefix_dict.get(msg.guild.id if msg.guild is not None else None, "'")
+            prefi = self.client.prefix_dict.get(
+                msg.guild.id if msg.guild is not None else None, "'"
+            )
             embed = nextcord.Embed(
                 title="Hi!! I am Alfred.",
                 description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""",
@@ -205,51 +243,44 @@ class BotInfo(commands.Cog):
 
     @nextcord.message_command()
     async def view_raw(self, inter, message):
-        a = message.clean_content.replace("`","\\`")
-        await inter.response.send_message(
-            f"```\n{a}\n```",
-            ephemeral = True
-        )
+        a = message.clean_content.replace("`", "\\`")
+        await inter.response.send_message(f"```\n{a}\n```", ephemeral=True)
 
-    @commands.command(name="view_raw", aliases = ['vr'])
+    @commands.command(name="view_raw", aliases=["vr"])
     async def raw(self, ctx):
         a = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-        a = a.clean_content.replace("`","\\`")
-        
-        all_embeds = ['']
+        a = a.clean_content.replace("`", "\\`")
+
+        all_embeds = [""]
         for i in a.split("\n"):
-            if i[0]%30:
-                all_embeds.append('')
-            all_embeds[-1]+=i[1]+"\n"
-            
+            if i[0] % 30:
+                all_embeds.append("")
+            all_embeds[-1] += i[1] + "\n"
+
         for i in all_embeds:
             await ctx.send(f"```\n{a}\n```")
-        
+
     @commands.command()
     async def learn(self, ctx):
         embeds = []
         with open("Learn.md", "r") as f:
-            l = f.read().replace(
-                "- ",
-                "⋅ "
-            ).split("\n\n")
+            l = f.read().replace("- ", "⋅ ").split("\n\n")
             j = l[:8]
             j.append("\n\n".join(l[8:]))
-            a=0
+            a = 0
             for i in j:
-                a+=1
+                a += 1
                 embed = ef.cembed(
-                    title="Learn", 
-                    color=self.client.re[8], 
-                    description=i, 
-                    footer=f"{a} of {len(j)}"
+                    title="Learn",
+                    color=self.client.re[8],
+                    description=i,
+                    footer=f"{a} of {len(j)}",
                 )
                 embeds.append(embed)
         await assets.pa(ctx, embeds)
 
     @nextcord.slash_command(
-        name="license", 
-        description="View Alfred's Open Source License"
+        name="license", description="View Alfred's Open Source License"
     )
     async def license(self, inter):
         with open("LICENSE", "r") as f:
@@ -260,11 +291,10 @@ class BotInfo(commands.Cog):
                     description=f"```\n{f.read()}\n```",
                     color=self.client.re[8],
                     thumbnail=self.client.user.avatar.url,
-                    url="https://www.github.com/alvinbengeorge/alfred-discord-bot"
-                )
+                    url="https://www.github.com/alvinbengeorge/alfred-discord-bot",
+                ),
             )
 
-            
+
 def setup(client, **i):
     client.add_cog(BotInfo(client, **i))
-    
