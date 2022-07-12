@@ -1,6 +1,6 @@
 import nextcord
 import asyncio
-import External_functions as ef
+import utils.External_functions as ef
 from nextcord.ext import commands
 from nextcord import ChannelType
 from nextcord.abc import GuildChannel

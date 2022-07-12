@@ -1,12 +1,9 @@
 import nextcord
-import assets
-import time
-import helping_hand
-import External_functions as ef
-import inshort
+import utils.assets as assets
+import utils.External_functions as ef
+import utils.inshort as inshort
 
 from nextcord.ext import commands
-from random import choice
 from wikipedia import search, summary
 
 NEWS_CATEGORIES = inshort.get_categories()

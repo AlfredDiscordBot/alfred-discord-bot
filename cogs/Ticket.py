@@ -1,8 +1,7 @@
 import nextcord
-import assets
+import utils.assets as assets
 import emoji
-import asyncio
-import External_functions as ef
+import utils.External_functions as ef
 from nextcord.ext import commands
 
 
@@ -63,10 +62,9 @@ class Ticket(commands.Cog):
                 embed=ef.cembed(
                     description="Deleting the ticket in 5 seconds",
                     color=self.client.re[8]
-                )
+                ),
+                delete_after=5
             )
-            await asyncio.sleep(5)
-            await ctx.channel.delete()
 
     @nextcord.slash_command(name="ticket",description="create a ticket message")
     async def tick(self, inter, description="None"):

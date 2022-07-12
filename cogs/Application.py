@@ -1,10 +1,10 @@
 import nextcord
-import assets
-import External_functions as ef
+import utils.assets as assets
+import utils.External_functions as ef
 from nextcord.ext import commands
 from nextcord import ChannelType, ui, TextInputStyle
 from nextcord.abc import GuildChannel
-from Embed import filter_graves
+from .Embed import filter_graves
 
 # Use nextcord.slash_command()
 

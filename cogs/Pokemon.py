@@ -1,5 +1,5 @@
 import nextcord
-import External_functions as ef
+import utils.External_functions as ef
 from nextcord.ext import commands
 
 #Use nextcord.slash_command()

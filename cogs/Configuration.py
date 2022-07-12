@@ -1,9 +1,7 @@
 import nextcord
-import assets
-import time
-import helping_hand
+import utils.assets as assets
 import traceback
-import External_functions as ef
+import utils.External_functions as ef
 from nextcord.ext import commands
 from nextcord import Interaction, SlashOption, ChannelType
 from nextcord.abc import GuildChannel

@@ -2,13 +2,8 @@ import nextcord
 from nextcord.ext import commands
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
-from compile import filter_graves
-from typing import Union
-from yaml import safe_load, safe_dump
-import traceback
-import asyncio
-import assets
-import External_functions as ef
+from yaml import safe_load
+import utils.External_functions as ef
 
 
 SUPER_AUTHOR_ID = 432801163126243328  # Do Not CHange

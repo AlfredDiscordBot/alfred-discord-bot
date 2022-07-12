@@ -5,7 +5,7 @@ def requirements():
 def main(client, re):
     import nextcord as discord
     from discord.ext import commands
-    import External_functions as ef
+    import utils.External_functions as ef
 
     @client.command()
     @commands.check(ef.check_command)

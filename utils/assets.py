@@ -1,5 +1,5 @@
 import nextcord
-import External_functions as ef
+from . import External_functions as ef
 
 color = nextcord.ButtonStyle.blurple
 

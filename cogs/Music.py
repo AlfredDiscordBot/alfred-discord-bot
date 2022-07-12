@@ -1,7 +1,7 @@
 import nextcord
-import assets
+import utils.assets as assets
 import time
-import External_functions as ef
+import utils.External_functions as ef
 import emoji
 import asyncio
 import traceback
@@ -11,7 +11,7 @@ from nextcord.abc import GuildChannel
 from nextcord import Interaction, SlashOption, ChannelType
 from nextcord.ext import commands, tasks
 from random import choice
-from spotify_client import fetch_spotify_playlist
+from utils.spotify_client import fetch_spotify_playlist
 from nextcord import SlashOption
 
 #Use nextcord.slash_command() and commands.command()

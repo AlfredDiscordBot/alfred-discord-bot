@@ -1,6 +1,6 @@
 import nextcord
-from External_functions import cembed, defa, safe_pfp
-from assets import *
+from .External_functions import cembed, defa
+from .assets import *
 
 
 yaml_fields = [

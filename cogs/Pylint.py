@@ -1,7 +1,7 @@
 import asyncio
-import assets
+import utils.assets as assets
 import nextcord
-import External_functions as ef
+import utils.External_functions as ef
 from threading import Thread
 from nextcord.ext import commands
 from subprocess import getoutput

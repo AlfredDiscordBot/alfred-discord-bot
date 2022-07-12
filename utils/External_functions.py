@@ -8,7 +8,6 @@ import random
 import imdb
 import emoji
 import youtube_dl
-import instagramy
 from instagramy import *
 from instascrape import *
 import urllib.parse
@@ -16,9 +15,11 @@ import urllib
 import aiohttp
 import traceback
 import aiofiles
-import assets
+import utils.assets as assets
 import random
 import json
+import importlib
+
 import re as regex
 
 from io import BytesIO
@@ -209,8 +210,6 @@ def instagram_get1(account, color, SESSIONID):
             list_of_posts.append((embed, url))
             number += 1
         return list_of_posts
-    except instagramy.core.exceptions.UsernameNotFound:
-        return "User Not Found, please check the spelling"
     except Exception:
         print(traceback.print_exc())
         #SESSIONID = get_it()
@@ -804,10 +803,10 @@ async def quo(color):
 
 co = """
 import nextcord
-import assets
+import utils.assets
 import time
 import traceback
-import External_functions as ef
+import utils.External_functions as ef
 from nextcord.ext import commands
 
 # Use nextcord.slash_command()
@@ -1044,7 +1043,7 @@ class MineCraft:
         self.soup = BeautifulSoup(self.HTML, 'html.parser')
         self.CATEGORIES = {}
 
-    def all_categories(self):        
+    def all_categories(self) -> dict:        
         for category in self.soup.find_all('div', class_="menu")[1:]:
             for tables in category.find_all('ul'):
                 for rows in tables.find_all('li'):
@@ -1053,7 +1052,7 @@ class MineCraft:
 
         return self.CATEGORIES
 
-    async def get_options(self, URL):
+    async def get_options(self, URL: str) -> str:
         strings = ""
         self.HTML = await get_async(URL)
         self.soup = BeautifulSoup(self.HTML, 'html.parser')
@@ -1062,3 +1061,15 @@ class MineCraft:
             strings+=f"[{i.get_text().strip()}](https://www.digminecraft.com{i['href']})\n"
 
         return strings
+
+
+def cog_requirements(name: str):
+    return importlib.import_module(f'cogs.{name}').requirements()
+
+def error_message(error: str):
+    return cembed(
+        title="An Error has occured",
+        description=error,
+        color=nextcord.Color.red(),
+        thumbnail="https://raw.githubusercontent.com/alvinbengeorge/alfred-discord-bot/default/error.png"        
+    )

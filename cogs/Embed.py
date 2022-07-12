@@ -1,7 +1,7 @@
 import nextcord
 import traceback
 import asyncio
-import External_functions as ef
+import utils.External_functions as ef
 from nextcord.ext import commands
 from yaml import safe_load, safe_dump
 from typing import Union

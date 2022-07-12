@@ -1,10 +1,10 @@
 import nextcord
-import assets
+import utils.assets as assets
 import traceback
-import External_functions as ef
+import utils.External_functions as ef
 from nextcord.ext import commands
 
-#Use nextcord.slash_command()
+# Use nextcord.slash_command()
 
 def requirements():
     return []

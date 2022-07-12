@@ -6,7 +6,7 @@ def main(client, re):
     import nextcord as discord
     import nextcord.ext.commands as commands
     import datetime
-    import External_functions as ef
+    import utils.External_functions as ef
 
     @client.command(aliases=["ban"])
     @commands.check(ef.check_command)

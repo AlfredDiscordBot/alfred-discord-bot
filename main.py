@@ -7,24 +7,25 @@ import os
 import sys
 import subprocess
 import aiohttp
-sys.path.insert(1, f"{os.getcwd()}/utils/")
-sys.path.insert(1, f"{os.getcwd()}/src")
-sys.path.insert(1, f"{os.getcwd()}/cogs")
-print("Booting up")
-#temporary_fix()
-from keep_alive import keep_alive
 import nextcord
+
+#temporary_fix()
+
+print("Booting up")
 print(nextcord.__version__)
 
-from utils import helping_hand
+from keep_alive import keep_alive
 from emoji import emojize, demojize
 from nextcord.ext import commands, tasks
 from dotenv import load_dotenv
 from utils.Storage_facility import Variables
 from io import StringIO
 from contextlib import redirect_stdout
+from cogs.Embed import get_color
+from importlib import import_module
 from utils.External_functions import (
-    cembed, 
+    cembed,
+    error_message, 
     timestamp, 
     check_command, 
     defa, 
@@ -37,14 +38,14 @@ from utils.External_functions import (
     activities, 
     cog_creator, 
     get_youtube_url, 
-    svg2png
+    svg2png,
+    cog_requirements
 )
 import traceback
 import time
 import psutil
 import asyncio 
 from io import BytesIO
-import src.error as ror
 import utils.assets as assets
 
 location_of_file = os.getcwd()
@@ -221,16 +222,19 @@ for extension in os.listdir(location_of_file + "/src"):
     if extension.endswith(".py"):
         try:
             print(extension, end="")
-            requi = __import__(extension[0 : -3]).requirements()
-            if isinstance(requi, str):
-                cmd = f"__import__('{extension[0: -3]}').main(client,{requi})"
-            else:
-                cmd = f"__import__('{extension[0:-3]}').main(client,{','.join(requi)})"
-            eval(cmd)
+            filename = "src."+extension[0 : -3]
+            requi = import_module(filename).requirements()
+            r = ','.join(requi)
+            if not r.startswith("(") or not r.endswith(")"):
+                r = f"({r},)"
+            joined_requirements = eval(r)    
+
+            import_module(filename).main(client, *joined_requirements)
             print(": Done")
             report+=f"[ OK ] Imported {extension} successfully\n"
         except Exception as e:
             print(": Error")
+            traceback.print_exc()
             report+=f"[ {int(time.time()-start_time)} ] Error in {extension}: {e}\n"
             errors.append(f"[ {int(time.time()-start_time)} ] Error in {extension}: {str(e)[:10]}...\n")
 
@@ -538,7 +542,7 @@ async def color_slash(
     inter, 
     rgb_color=str(nextcord.Color(re[8]).to_rgb())
 ):    
-    rgb_color = __import__("create_embed").get_color(rgb_color)
+    rgb_color = get_color(rgb_color)
     if str(inter.user.id) not in dev_users:
         await inter.send(
             embed=cembed(
@@ -1149,7 +1153,7 @@ async def on_command_error(ctx, error):
     channel = client.get_channel(dev_channel)
     if error == nextcord.HTTPException: os.system("busybox reboot")
     if type(error) != nextcord.ext.commands.errors.CommandNotFound:
-        await ctx.send(embed=ror.error(str(error)))
+        await ctx.send(embed=error_message(str(error)))
     await channel.send(embed=cembed(title="Error",description=f"\n{str(error)}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
 
 @client.event
@@ -1292,7 +1296,7 @@ async def exe(ctx, *, text):
             except Exception as e:
                 traceback.print_tb(e.__traceback__)
                 error_mssg = "Following Error Occured:\n\n"+traceback.format_exc()
-                await ctx.send(embed = ror.error(error_mssg))
+                await ctx.send(embed = error_message(error_mssg))
         output = f.getvalue()
         embeds = []
         if output == "":
@@ -1350,12 +1354,12 @@ def load_extension(name):
     '''
     This will safely add cog for alfred with all the requirements
     '''
-    try:
-        l = __import__(name).requirements()
+    try:        
+        l = cog_requirements(name)
         d = {}
         for i in l:
             d[i] = globals()[i]
-        client.load_extension(f'cogs.{name}',extras=d)
+        client.load_extension(f'cogs.{name}', extras=d)
         return f"[ OK ] Added {name}\n"
     except:
         return f"Error in cog {name}:\n"+traceback.format_exc()+"\n"

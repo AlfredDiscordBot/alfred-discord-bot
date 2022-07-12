@@ -1,6 +1,6 @@
 #Coded by Sumanjay on 29th Feb 2020
 
-from External_functions import get_async, convert_to_url
+from utils.External_functions import get_async, convert_to_url
 from bs4 import BeautifulSoup
 import re as regex
 import requests

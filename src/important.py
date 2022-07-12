@@ -6,7 +6,7 @@ def main(client, re, dev_users):
     import nextcord as discord
     from discord.ext import commands
     import random
-    import External_functions as ef
+    import utils.External_functions as ef
     import io
     # from gi.repository import Notify
     @client.command()
@@ -131,7 +131,7 @@ def main(client, re, dev_users):
     async def contribution(ctx):
         embed=ef.cembed(
             title="Contributors and Contributions",
-            description="Hey guys, if you've been Developers of Alfred, Thank you very much for your contribution in this project. Our intend for this project was openness and we've gained it, I would like to thank everyone who is seeing this message, and thank you for accepting Alfred. Alfred crossed 90 servers recently, has more than 90,000 users.\n\nIf you want to take part in this, go to our [github page](https://www.github.com), here you can check our code and fork the repository and add a function and send us a PR. If you wish to know more about Alfred, use the feedback command",
+            description="Hey guys, if you've been Developers of Alfred, Thank you very much for your contribution in this project. Our intend for this project was openness and we've gained it, I would like to thank everyone who is seeing this message, and thank you for accepting Alfred. Alfred crossed 250 servers recently, has more than 250,000 users.\n\nIf you want to take part in this, go to our [github page](https://www.github.com), here you can check our code and fork the repository and add a function and send us a PR. If you wish to know more about Alfred, use the feedback command",
             color = re[8],
             footer = "Have a great day",
             thumbnail = client.user.avatar.url,
