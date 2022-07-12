@@ -51,17 +51,9 @@ import utils.assets as assets
 location_of_file = os.getcwd()
 start_time = time.time()
 load_dotenv()
-import speedtest
-
-try:
-    st_speed = speedtest.Speedtest()
-except:
-    print("failed")
-global sent
 observer=[]
 mspace={}
 deathrate = {}
-sent = None
 intents = nextcord.Intents().default()
 intents.members = True
 intents.message_content = True
@@ -1091,26 +1083,6 @@ async def on_reaction_add(reaction, user):
                     )
                 )
                 os.system("pkill python3")
-            if reaction.emoji == emojize(":satellite:") and str(
-                reaction.message.channel.id
-            ) == str(channel.id):
-                await reaction.remove(user)
-                await channel.send("Starting speedtest")
-                download_speed = int(st_speed.download()) // 1024 // 1024
-                upload_speed = int(st_speed.upload()) // 1024 // 1024
-                ping = st_speed.results.ping
-                await channel.send(
-                    embed=nextcord.Embed(
-                        title="Speedtest Results:",
-                        description=str(download_speed)
-                        + "Mbps\n"
-                        + str(upload_speed)
-                        + "Mbps\n"
-                        + str(ping)
-                        + "ms",
-                        color=nextcord.Color(value=re[8]),
-                    )
-                )
             
             if reaction.emoji == emojize(":black_circle:") and str(
                 reaction.message.channel.id
