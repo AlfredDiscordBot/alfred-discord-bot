@@ -22,8 +22,6 @@ def main(client, re, dev_users):
         ]
         embed = discord.Embed(color=discord.Color(re[8]))
         url = random.choice(urls)
-        print(urls.index(url))
-        print(url)
         embed.set_image(url=url)
         await ctx.send(embed=embed)
 
