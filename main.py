@@ -204,7 +204,6 @@ Requests: {re[0]:,}
 Color: {nextcord.Color(re[8]).to_rgb()}
 ```yml
 [ OK ] Loaded all modules
-[ OK ] Setup SpeedTest
 [ OK ] Variables initialised 
 [ OK ] Load From File Completed
 [ OK ] Switching Root ...
