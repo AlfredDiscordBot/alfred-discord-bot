@@ -806,7 +806,7 @@ async def feedback(ctx, *, text):
     confirmation = await wait_for_confirm(ctx,client,"Do you want to send this to the developers?",color=re[8])
     if not confirmation:
         return
-    auth = getattr(ctx,'author',getattr(ctx,'user', None)).id
+    auth = getattr(ctx, 'author', getattr(ctx, 'user', None)).id
     await client.get_channel(932890298013614110).send(
         content=str(ctx.channel.id)+" "+str(auth),
         embed=embed

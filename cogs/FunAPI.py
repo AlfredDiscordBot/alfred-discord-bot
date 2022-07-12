@@ -145,6 +145,34 @@ class FunAPI(commands.Cog):
             self.APIs.search_result(name)[:25]
         )
 
+    @commands.command(aliases=['titanurl'])
+    @commands.check(ef.check_command)
+    async def titan(self, ctx, url, mode="random", preference="blah"):    
+        payload = {
+            "alias-type": str(mode),
+            "original-url": str(url),
+            "slug": str(preference),
+        }
+        header = {
+            "user-agent": "Mozilla/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.115 Safari/537.36",
+            "referer": "https://titan-url.herokuapp.com/",
+        }
+        output = await ef.post_async(
+            "https://titan-url.herokuapp.com/shorten",
+            json=payload,
+            header=header,
+        )
+        await ctx.send(
+            embed=ef.cembed(
+                title="Here's Shortened URL",
+                description=output['message'],
+                color=self.client.re[8],
+                footer="This is provided by a website called TitanURL",
+                thumbnail=self.client.user.avatar.url,
+                author=ctx.author
+            )
+        )
+
 
 def setup(client,**i):
     client.add_cog(FunAPI(client,**i))
