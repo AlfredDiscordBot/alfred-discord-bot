@@ -58,11 +58,10 @@ m_options = [
 ]
 
 Emoji_alphabets = [chr(i) for i in range(127462,127488)]
-FORCED_ACTIVITY = None
 
 load_dotenv()
 
-def activities(client):
+def activities(client, FORCED_ACTIVITY = None):
     if FORCED_ACTIVITY:
         return nextcord.Activity(type=nextcord.ActivityType.watching, name=FORCED_ACTIVITY)
     all_activities = [
@@ -1048,19 +1047,58 @@ class MineCraft:
             for tables in category.find_all('ul'):
                 for rows in tables.find_all('li'):
                     if a := rows.a:
-                        self.CATEGORIES.update({a.get_text():self.BASE_URL+a['href']})
+                        self.CATEGORIES[a.get_text()] = self.BASE_URL+a['href']
 
         return self.CATEGORIES
 
     async def get_options(self, URL: str) -> str:
-        strings = ""
+        strings = [""]
         self.HTML = await get_async(URL)
         self.soup = BeautifulSoup(self.HTML, 'html.parser')
 
         for i in self.soup.find_all('a', class_="list-group-item"):
-            strings+=f"[{i.get_text().strip()}](https://www.digminecraft.com{i['href']})\n"
+            strings[-1]+=f"[{i.get_text().strip()}](https://www.digminecraft.com{i['href']})\n"
+            if len(strings[-1])%10==0:
+                strings.append("")
 
         return strings
+
+    def create_sections(self, soup: BeautifulSoup) -> dict:
+        article = soup.find('div', class_="article").div
+        sections = [
+            {
+                'title': article.find('h1').get_text().upper(),
+                'description': 'This is created from DigMineCraft.com'
+            },     
+            {
+                'title': article.find('h1').get_text().upper(),
+                'description': ''
+            }       
+        ]
+        for i in article.find_all('p'):
+            if i.h2:
+                sections[1]['description']+=f"**{i.get_text().strip()}**\n"
+            else:
+                sections[1]['description']+=i.get_text().strip()+"\n"
+
+        return sections
+
+    async def get_article(self, URL: str) -> nextcord.Embed:
+        a = await get_async(URL)
+        soup = BeautifulSoup(a, 'html.parser')
+        all_sections = self.create_sections(soup)
+        embeds = []
+        for i in all_sections:
+            embeds.append(
+                cembed(
+                    **i,
+                    author=self.client.user,
+                    color=self.client.re[8],
+                    thumbnail="https://www.digminecraft.com/mechanism_recipes/images/completed_beacon.png"
+                )
+            )
+        return embeds
+
 
 
 def cog_requirements(name: str):

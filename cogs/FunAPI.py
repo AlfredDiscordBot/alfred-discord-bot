@@ -16,6 +16,7 @@ class FunAPI(commands.Cog):
         self.proton = ef.Proton()
         self.tt = ef.TechTerms()
         self.APIs = ef.PublicAPI(self.client)
+        self.minecraft = ef.MineCraft(client)
 
     @nextcord.slash_command(name="tech", description="Get TechTerms from TechTerms.com")
     async def tech(self, inter, query = "Python"):
@@ -171,6 +172,37 @@ class FunAPI(commands.Cog):
                 thumbnail=self.client.user.avatar.url,
                 author=ctx.author
             )
+        )
+
+    @nextcord.slash_command(name="minecraft", description="Search through DigMineCraft here")
+    async def minec(self, inter, page: str):
+        if page not in self.minecraft.all_categories():
+            await inter.send(
+                embed=ef.cembed(
+                    title="Invalid",
+                    description="Invalid page, please try again",
+                    color=self.client.re[8]                    
+                )
+            )
+            return
+        URL = self.minecraft.CATEGORIES[page]
+        descriptions=await self.minecraft.get_options(URL)
+        embeds = [
+            ef.cembed(
+                title="Result",
+                color=self.client.re[8],
+                description=i,
+                thumbnail=self.client.user.avatar.url
+            )
+            for i in descriptions
+        ]
+        await assets.pa(inter, embeds)
+
+    @minec.on_autocomplete('page')
+    async def auto_c(self, inter, page):
+        categories = self.minecraft.all_categories()
+        await inter.response.send_autocomplete(
+            [i for i in categories if page.lower() in i.lower()][:25]
         )
 
 
