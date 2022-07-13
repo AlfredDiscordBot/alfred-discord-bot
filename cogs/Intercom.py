@@ -1,3 +1,4 @@
+import traceback
 import nextcord
 import asyncio
 import utils.External_functions as ef
@@ -116,7 +117,7 @@ class Intercom(commands.Cog):
             )
             return
 
-        if not getattr(ctx, 'author', ctx.user).guild_permissions.manage_guild:
+        if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.manage_guild:
             await ctx.send("Permissions Denied")
             return
             

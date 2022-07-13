@@ -72,15 +72,6 @@ def effects_helper():
     )
 
 message_from = r"""
-**BRAND NEW MSETUP** -> Beta
-We've added a new msetup, which kinda accepts literally everything and processes it, better error handling. More Options for Your Embed choices. We've decided to remove prefix command `'mehspace` as we're in a minor transition to application commands only. The Instructions embed move as you move. Fields exist finally
-
-**AUTOREACTION**
-If you assign a channel and emojis, Alfred will add the emojis specified  to every message in that channel
-
-Use `'autoreaction #channel ✅|❎`
-and to clear autoreact `'remove_autoreact #channel`
-
 **BETTER SUPPORT FOR YAML EMBEDS**
 Yaml Embed Supports JSON formatting as well. Give it a try, I want you to find the bugs
 
@@ -92,6 +83,13 @@ Decided to remove memes prefix commands and added PopCat memes, one of our most 
 
 **PROTONDB SLASH COMMAND**
 New ProtonDB slash command added, decided to remove the old on, I think this is a good move as new slash command supports autocomplete
+
+**NEW TICKET WITH BUTTONS**
+Create a new ticket message right now using /ticket, Removing the old one which relied on reactions.
+
+**BETTER HANDLING OF FILES**
+Some of the files were not done through `BytesIO` method, we used to store the file and then process it
+Its time to change that, we've used `BytesIO` for most of it which involves file handling
 """
 
 def help_him(client, re):
