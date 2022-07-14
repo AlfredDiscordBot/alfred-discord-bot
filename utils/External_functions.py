@@ -66,7 +66,8 @@ def activities(client, FORCED_ACTIVITY = None):
         nextcord.Activity(type=nextcord.ActivityType.watching, name="Dark Knight Rises"),
         nextcord.Activity(type=nextcord.ActivityType.listening, name="Something in the way"),
         nextcord.Activity(type=nextcord.ActivityType.listening, name=f"{len(client.guilds)} servers"),
-        nextcord.Activity(type=nextcord.ActivityType.watching, name="Nextcord People do their magic"),
+        nextcord.Activity(type=nextcord.ActivityType.listening, name=f"{len(client.users)} people enjoy Alfred"),
+        nextcord.Activity(type=nextcord.ActivityType.watching, name="Nextcord People stab their people"),
         nextcord.Activity(type=nextcord.ActivityType.listening, name="Wayne Enterprises"),
         nextcord.Activity(type=nextcord.ActivityType.watching, name="Raimi Trilogy with Thwipper"),
         nextcord.Activity(type=nextcord.ActivityType.watching, name="New Updates")
