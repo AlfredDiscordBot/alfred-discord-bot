@@ -409,7 +409,7 @@ async def devop_mtext(client, channel, color):
     await mess.add_reaction(emoji.emojize(":laptop:"))
 
 
-async def wait_for_confirm(ctx, client, message, color=61620,usr=None):
+async def wait_for_confirm(ctx, client, message: str, color=61620,usr=None):
     mess = await ctx.channel.send(
         embed=nextcord.Embed(
             title="Confirmation", description=message, color=nextcord.Color(color)

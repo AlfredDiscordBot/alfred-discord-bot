@@ -1,3 +1,5 @@
+import nextcord
+import utils.assets as assets
 import utils.External_functions as ef
 from nextcord.ext import commands
 
@@ -10,6 +12,73 @@ class Mod(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.deleted_message = {}
+
+    @commands.Cog.listener()
+    async def on_bulk_message_delete(self, messages):
+        for i in messages:
+            await self.on_message_delete(i)
+
+    @commands.Cog.listener()
+    async def on_message_delete(self, message):
+        if message.guild.id in self.client.config['commands'].get('snipe',[]):
+            return
+        if not message.channel.id in list(self.deleted_message.keys()):
+            self.deleted_message[message.channel.id] = []
+        if len(message.embeds) <= 0:
+            if not message.author.bot:
+                self.deleted_message[message.channel.id].append(
+                    (str(message.author), message.content)
+                )
+        else:
+            if not message.author.bot:
+                self.deleted_message[message.channel.id].append(
+                    (str(message.author), message.embeds[0], True)
+                )
+
+    @nextcord.slash_command(name="snipe", description="Get the last few deleted messages")
+    async def snipe_slash(self, inter, number = 50):
+        await self.snipe(inter, number)
+
+
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def snipe(self, ctx, number:int=50):
+        number = int(number)
+        if (
+            getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator
+            or ctx.guild.id not in self.client.config['snipe']
+        ):
+            message = self.deleted_message.get(ctx.channel.id,[("Empty","Nothing here lol")])[::-1]
+            count=0
+            embeds = []
+            s = ""
+            for i in message[:number]:
+                count+=1            
+                if len(i) < 3:
+                    s+="**" + i[0] + ":**\n" + i[1]+"\n\n"     
+                    if count%5==0 or count == len(message) or count == number:
+                        embed=ef.cembed(
+                            title="Snipe",
+                            description=s,
+                            color=self.client.re[8],
+                            thumbnail=ef.safe_pfp(ctx.guild)
+                        )
+                        embeds.append(embed)
+                        s=""                        
+                else:
+                    await ctx.send("**" + i[0] + ":**",embed=i[1])
+            if len(embeds)>0: 
+                await assets.pa(ctx, embeds, start_from=0, restricted=True)
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description="Sorry guys, only admins can snipe now",
+                    color=self.client.re[8],
+                    thumbnail=self.client.avatar.url,
+                    author=ctx.author
+                )
+            )
 
     @commands.command(aliases=["ban"])
     @commands.check(ef.check_command)
@@ -104,6 +173,58 @@ class Mod(commands.Cog):
                 color=self.client.re[8]
             )
         )
+
+    @commands.command(aliases=["*"])
+    @commands.check(ef.check_command)
+    async def change_nickname(self, ctx, member: nextcord.Member, *, nickname=None):
+        user = getattr(ctx, 'author', getattr(ctx, 'user', None))
+        if user.guild_permissions.change_nickname and user.top_role.position > member.top_role.position:
+            await member.edit(nick=nickname)
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Nickname Changed",
+                    description=f"Nickname changed to {member.nick or member.name} by {user.mention}",
+                    color=self.client.re[8],
+                )
+            )
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description="You dont have permission to change others nickname",
+                    color=self.client.re[8],
+                )
+            )
+
+    @commands.command(aliases=['purge'])
+    @commands.check(ef.check_command)
+    async def clear(self, ctx, text, num:int=10):
+        self.client.re[0]+=1
+        await ctx.message.delete()
+        if str(text) == self.client.re[1]:
+            user = getattr(ctx, 'author', getattr(ctx, 'user', None))
+            if user.guild_permissions.manage_messages or user.id == 432801163126243328:
+                confirmation = True
+                if int(num) > 10:
+                    confirmation = await ef.wait_for_confirm(
+                        ctx, self.client, 
+                        f"Do you want to delete {num} messages",
+                        color=self.client.re[8]
+                    )
+                if confirmation:
+                    await ctx.channel.delete_messages(
+                        [i async for i in ctx.channel.history(limit=num) if not i.pinned][:100]
+                    )
+            else:
+                await ctx.send(
+                    embed=ef.cembed(
+                        title="Permission Denied",
+                        description="You cant delete messages",
+                        color=self.client.re[8],
+                    )
+                )
+        else:
+            await ctx.send("Wrong password")
 
 
 def setup(client,**i):

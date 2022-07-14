@@ -41,6 +41,18 @@ class Developer(commands.Cog):
                 )
             )
 
+           
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def dev_test(self, ctx, id:nextcord.Member=None):
+        if not id:
+            id = ctx.author
+        if str(id.id) in self.client.dev_users:
+            await ctx.send(f"{id} is a dev!")
+        else:
+            await ctx.send(f"{id} is not a dev!")
+
+
     @commands.command()
     @commands.check(ef.check_command)
     async def leave_server(self, ctx, *, server_name):

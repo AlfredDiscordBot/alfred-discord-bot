@@ -569,6 +569,7 @@ async def load(ctx):
             color=nextcord.Color(value=re[8]),
         )
         embed.set_thumbnail(url=client.user.avatar.url)
+        await channel.send(embed)
     await ctx.channel.send(embed=embed)
 
 
@@ -658,74 +659,6 @@ async def docs(ctx, name):
                 title="Error", description=str(e), color=nextcord.Color(value=re[8])
             )
         )
-
-
-@client.slash_command(name="snipe", description="Get the last few deleted messages")
-async def snipe_slash(inter, number = 50):
-    req()
-    await snipe(inter, number)
-
-
-@client.command()
-@commands.check(check_command)
-async def snipe(ctx, number=50):
-    number = int(number)
-    if (
-        getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator
-        or ctx.guild.id not in config['snipe']
-    ):
-        message = deleted_message.get(ctx.channel.id,[("Empty","Nothing here lol")])[::-1]
-        count=0
-        embeds = []
-        s = ""
-        for i in message[:number]:
-            count+=1            
-            if len(i) < 3:
-                s+="**" + i[0] + ":**\n" + i[1]+"\n\n"     
-                if count%5==0 or count == len(message) or count == number:
-                    embed=cembed(
-                        title="Snipe",
-                        description=s,
-                        color=re[8],
-                        thumbnail=safe_pfp(ctx.guild)
-                    )
-                    embeds.append(embed)
-                    s=""                        
-            else:
-                await ctx.send("**" + i[0] + ":**",embed=i[1])
-        if len(embeds)>0: 
-            await assets.pa(ctx, embeds, start_from=0, restricted=True)
-    else:
-        await ctx.send(
-            embed=cembed(
-                title="Permissions Denied",
-                description="Sorry guys, only admins can snipe now",
-                color=re[8],
-                thumbnail=getattr(client.user.avatar,'url'),
-            )
-        )
-
-@client.event
-async def on_bulk_message_delete(messages):
-    for i in messages:
-        await on_message_delete(i)
-
-@client.event
-async def on_message_delete(message):
-    if message.guild.id in config['commands'].get('snipe',[]):
-        return
-    if not message.channel.id in list(deleted_message.keys()):
-        deleted_message[message.channel.id] = []
-    if len(message.embeds) <= 0:
-        if not message.author.bot:
-            deleted_message[message.channel.id].append(
-                (str(message.author), message.content)
-            )
-    else:
-        if not message.author.bot:
-            deleted_message[message.channel.id].append(
-                (str(message.author), message.embeds[0], True)
-            )
 
 @client.event
 async def on_member_join(member):
@@ -922,74 +855,10 @@ async def restart_program(ctx):
     else:
         await ctx.channel.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar.url))
         await client.get_channel(dev_channel).send(embed=cembed(description=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name} from {ctx.guild.name} tried to use restart_program command",color=re[8]))
-
-
-@client.command(aliases=["*"])
-@commands.check(check_command)
-async def change_nickname(ctx, member: nextcord.Member, *, nickname=None):
-    user = getattr(ctx, 'author', getattr(ctx, 'user', None))
-    if user.guild_permissions.change_nickname and user.top_role.position > member.top_role.position:
-        await member.edit(nick=nickname)
-        await ctx.send(
-            embed=nextcord.Embed(
-                title="Nickname Changed",
-                description=f"Nickname changed to {member.nick or member.name} by {user.mention}",
-                color=nextcord.Color(value=re[8]),
-            )
-        )
-    else:
-        await ctx.send(
-            embed=nextcord.Embed(
-                title="Permissions Denied",
-                description="You dont have permission to change others nickname",
-                color=nextcord.Color(value=re[8]),
-            )
-        )
-        
-@client.command()
-@commands.check(check_command)
-async def dev_test(ctx, id:nextcord.Member=None):
-    if id:
-        if str(id.id) in dev_users:
-            await ctx.send(f"{id} is a dev!")
-        else:
-            await ctx.send(f"{id} is not a dev!")
-    else:
-        await ctx.send("You need to mention somebody")
-
 @client.event
 async def on_message_edit(message_before, message_after):
     await client.process_commands(message_after)
-
-@client.command()
-@commands.check(check_command)
-async def clear(ctx, text, num=10):
-    req()
-    await ctx.message.delete()
-    if str(text) == re[1]:
-        user = getattr(ctx, 'author', getattr(ctx, 'user', None))
-        if user.guild_permissions.manage_messages or user.id == 432801163126243328:
-            confirmation = True
-            if int(num) > 10:
-                confirmation = await wait_for_confirm(
-                    ctx, client, f"Do you want to delete {num} messages", color=re[8]
-                )
-            if confirmation:
-                await ctx.channel.delete_messages(
-                    [i async for i in ctx.channel.history(limit=num) if not i.pinned][:100]
-                )
-        else:
-            await ctx.send(
-                embed=nextcord.Embed(
-                    title="Permission Denied",
-                    description="You cant delete messages",
-                    color=nextcord.Color(value=re[8]),
-                )
-            )
-    else:
-        await ctx.send("Wrong password")
-   
-    
+      
 @client.event
 async def on_reaction_add(reaction, user):
     req()
@@ -1221,7 +1090,7 @@ async def exe(ctx, *, text):
     if (
         str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in dev_users
     ):
-        if False:
+        if ctx.guild.id!=822445271019421746:
             await ctx.send(
                 embed=cembed(
                     title="Permissions Denied",
