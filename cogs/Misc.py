@@ -7,10 +7,10 @@ import utils.helping_hand as h
 # Use nextcord.slash_command()
 
 def requirements():
-    return []
+    return ["dev_channel"]
 
 class Misc(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client, dev_channel):
         self.client = client
         self.urls = [
             "https://c.tenor.com/BaJDchtzSMQAAAAC/f-letter-f-burts.gif",
@@ -20,6 +20,7 @@ class Misc(commands.Cog):
             "https://c.tenor.com/H8DA2jkNgtwAAAAC/team-fortress2-pay-respects.gif",
             "https://c.tenor.com/L68DS0H7Mp8AAAAC/triggered-letter-f.gif",
         ]
+        self.dev_channel = dev_channel
 
     @commands.command()
     @commands.check(ef.check_command)
@@ -99,6 +100,31 @@ class Misc(commands.Cog):
                 title="English Again",
                 description=str(output),
                 color=self.client.re[8],
+            )
+        )
+
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def batsignal(self, ctx, *, text="I'm guessing it's just a hello"):
+        channel = self.client.get_channel(self.dev_channel)
+        await channel.send(
+            embed=ef.cembed(
+                author=ctx.author,
+                description=text,
+                title="BatSignal",
+                footer=f"This happened in {ctx.guild.name}",
+                color=self.client.re[8],
+                image="https://c.tenor.com/0GJ-XEcYLfcAAAAM/wongwingchun58.gif",
+                thumbnail=self.client.user.avatar.url
+            )
+        )
+        await ctx.send(
+            embed=ef.cembed(
+                title="BatSignal",
+                author=ctx.author,
+                color=self.client.re[8],
+                image="https://c.tenor.com/0GJ-XEcYLfcAAAAM/wongwingchun58.gif",
+                thumbnail=self.client.user.avatar.url
             )
         )
 

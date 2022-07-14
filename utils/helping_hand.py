@@ -72,15 +72,6 @@ def effects_helper():
     )
 
 message_from = r"""
-**BETTER SUPPORT FOR YAML EMBEDS**
-Yaml Embed Supports JSON formatting as well. Give it a try, I want you to find the bugs
-
-**REMOVED RPS PREFIX COMMAND**
-As the transition to slash commands, we've decided to pull out the prefix commands for RockPaperScissor command.
-
-**NEW MEMES**
-Decided to remove memes prefix commands and added PopCat memes, one of our most loved free open API of all times. Instagram has been in a state of `not here nor there`, as alfred has it's limitations to get data from instagram
-
 **PROTONDB SLASH COMMAND**
 New ProtonDB slash command added, decided to remove the old on, I think this is a good move as new slash command supports autocomplete
 
@@ -90,6 +81,10 @@ Create a new ticket message right now using /ticket, Removing the old one which 
 **BETTER HANDLING OF FILES**
 Some of the files were not done through `BytesIO` method, we used to store the file and then process it
 Its time to change that, we've used `BytesIO` for most of it which involves file handling
+
+**MINECRAFT SLASH COMMAND**
+We've added a new slash command called MineCraft, it does nothing much but browse through DigMinecraft.com
+There's also /github user and /github repo as slash command, check that out too
 """
 
 def help_him(client, re):

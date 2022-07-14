@@ -141,3 +141,4 @@ vote_embed = lambda client: ef.cembed(
         'icon_url': 'https://st.depositphotos.com/1048238/2045/i/600/depositphotos_20457989-stock-photo-have-fun-concept.jpg'
     }
 )
+
