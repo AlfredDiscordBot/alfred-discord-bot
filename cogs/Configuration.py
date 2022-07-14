@@ -525,7 +525,7 @@ class Configuration(commands.Cog):
         await ctx.send(
             embed=ef.cembed(
                 title="Done",
-                description="Removed every reaction in ",
+                description=f"Removed every reaction in {channel.mention}",
                 color=self.client.re[8]
             )
         )

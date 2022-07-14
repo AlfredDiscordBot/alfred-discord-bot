@@ -99,8 +99,7 @@ class Image(commands.Cog):
             json = {"url": url, "effect": effect}    
             byte = await ef.post_async(
                 "https://suicide-detector-api-1.yashvardhan13.repl.co/style",
-                json=json, 
-                output="content"
+                json=json
             )
     
         elif effect in effects:
