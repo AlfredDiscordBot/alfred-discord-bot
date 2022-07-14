@@ -9,6 +9,7 @@ def requirements():
 class Mod(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.deleted_message = {}
 
     @commands.command(aliases=["ban"])
     @commands.check(ef.check_command)

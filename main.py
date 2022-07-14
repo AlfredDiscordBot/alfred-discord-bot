@@ -209,26 +209,6 @@ Color: {nextcord.Color(re[8]).to_rgb()}
 [ OK ] Switching Root ...
 """
 
-for extension in os.listdir(location_of_file + "/src"):
-    if extension.endswith(".py"):
-        try:
-            print(extension, end="")
-            filename = "src."+extension[0 : -3]
-            requi = import_module(filename).requirements()
-            r = ','.join(requi)
-            if not r.startswith("(") or not r.endswith(")"):
-                r = f"({r},)"
-            joined_requirements = eval(r)    
-
-            import_module(filename).main(client, *joined_requirements)
-            print(": Done")
-            report+=f"[ OK ] Imported {extension} successfully\n"
-        except Exception as e:
-            print(": Error")
-            traceback.print_exc()
-            report+=f"[ {int(time.time()-start_time)} ] Error in {extension}: {e}\n"
-            errors.append(f"[ {int(time.time()-start_time)} ] Error in {extension}: {str(e)[:10]}...\n")
-
 @client.event
 async def on_ready():
     print(client.user)    
