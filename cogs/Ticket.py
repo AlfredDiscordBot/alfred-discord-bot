@@ -52,33 +52,6 @@ class Ticket(commands.Cog):
     async def on_ready(self):
         self.client.add_view(TicketView())
 
-    @commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload):
-        #0->channel id
-        #1->message id
-        if payload.member.bot: return    
-        if payload.emoji.name == chr(127915):
-            print("Check 1")
-            if payload.guild_id not in self.client.config['ticket']:
-                return
-            if not self.client.get_channel(self.client.config['ticket'][payload.guild_id][0]):
-                del self.client.config['ticket'][payload.guild_id]
-                return
-            if payload.channel_id != self.client.config['ticket'][payload.guild_id][0]: return
-            msg = payload.message_id
-            channel = self.client.get_channel(self.client.config['ticket'][payload.guild_id][0])
-            print(payload.emoji.name)
-            ms = await channel.fetch_message(msg)
-            if msg != self.client.config['ticket'][payload.guild_id][1]: return
-            await ms.remove_reaction(payload.emoji, payload.member)
-            mess = await channel.send(
-                embed=ef.cembed(description=f"Creating Ticket for {payload.member.name}", color=self.client.re[8])
-            )
-            
-            th = await channel.create_thread(name = f"Ticket - {payload.member.name} {payload.member.id}", reason = f"Ticket - {payload.member.name}", auto_archive_duration = 60, message = mess)
-            await mess.delete()
-            await th.send(self.client.get_user(payload.user_id).mention)
-
     @commands.command()
     async def close_ticket(self, ctx):    
         if type(ctx.channel) != nextcord.Thread: return

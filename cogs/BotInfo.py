@@ -1,5 +1,6 @@
 import nextcord
 import time
+import io
 import traceback
 import utils.assets as assets
 import utils.External_functions as ef
@@ -261,6 +262,56 @@ class BotInfo(commands.Cog):
                     color=self.client.re[8],
                     thumbnail=self.client.user.avatar.url,
                     url="https://www.github.com/alvinbengeorge/alfred-discord-bot"
+                )
+            )
+
+    @commands.command(aliases = ['developers','dev','contributors'])
+    @commands.check(ef.check_command)
+    async def contribution(self, ctx):
+        embed=ef.cembed(
+            title="Contributors and Contributions",
+            description="Hey guys, if you've been Developers of Alfred, Thank you very much for your contribution in this project. Our intend for this project was openness and we've gained it, I would like to thank everyone who is seeing this message, and thank you for accepting Alfred. Alfred crossed 250 servers recently, has more than 250,000 users.\n\nIf you want to take part in this, go to our [github page](https://www.github.com), here you can check our code and fork the repository and add a function and send us a PR. If you wish to know more about Alfred, use the feedback command",
+            color = self.client.re[8],
+            footer = "Have a great day",
+            thumbnail = self.client.user.avatar.url,
+            image="attachment://contrib.png"
+        )
+        fp = ef.svg2png("https://contrib.rocks/image?repo=alvinbengeorge/alfred-discord-bot")
+        file = nextcord.File(io.BytesIO(fp), 'contrib.png')
+        await ctx.send(file=file, embed=embed)
+
+    @commands.command()
+    async def get_invite(self, ctx, time:int=300):
+        link = await ctx.channel.create_invite(max_age=time)
+        await ctx.send(
+            embed=ef.cembed(
+                title="Invitation link",
+                description=str(link),
+                color=self.client.re[8],
+            )
+        )
+
+    @commands.command(aliases=["s_e"])
+    @commands.check(ef.check_command)
+    async def search_emoji(self, ctx, name):
+        try:
+            st = ""
+            for i in self.client.emojis:
+                if name in i.name:
+                    st += f"{i.name} -> {str(i)} -> `{i.id}`\n"
+            embed=ef.cembed(
+                title="Emojis found",
+                description=st,
+                color=self.re[8],
+                thumbnail=self.client.user.avatar.url,
+                footer=f"Search results for {name}"
+            )
+            await ctx.send(embed=embed)
+        except Exception as e:
+            await ctx.send(
+                embed=ef.cembed(
+                    description=str(e), 
+                    color=self.client.re[8]
                 )
             )
 

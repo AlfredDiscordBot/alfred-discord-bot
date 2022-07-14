@@ -66,7 +66,7 @@ class LintAction:
     '''
     def __init__(self, color):
         self.locations = getoutput(
-            "ls *.py cogs/*.py src/*py utils/*.py"
+            "ls *.py cogs/*.py utils/*.py"
         ).split("\n") + ['*']
         self.output = None
         self.color = color
@@ -79,7 +79,7 @@ class LintAction:
         '''
         self.type = type
         if file == "*":
-            file = "cogs/*.py src/*.py *.py utils/*.py"
+            file = "cogs/*.py *.py utils/*.py"
         elif not file in self.locations:
             self.output = "Not in Range of files"
             return self.output

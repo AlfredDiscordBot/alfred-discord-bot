@@ -7,16 +7,17 @@ from nextcord.ext import commands
 # Use nextcord.slash_command()
 
 def requirements():
-    return []
+    return ["wolfram"]
 
 class FunAPI(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client, wolfram):
         self.client = client
         self.space = ef.SpaceX(self.client.re[8])
         self.proton = ef.Proton()
         self.tt = ef.TechTerms()
         self.APIs = ef.PublicAPI(self.client)
         self.minecraft = ef.MineCraft(client)
+        self.AiD = wolfram
 
     @nextcord.slash_command(name="tech", description="Get TechTerms from TechTerms.com")
     async def tech(self, inter, query = "Python"):
@@ -204,6 +205,26 @@ class FunAPI(commands.Cog):
         await inter.response.send_autocomplete(
             [i for i in categories if page.lower() in i.lower()][:25]
         )
+
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def wolf(self, ctx, query):
+        fp = await ef.get_async(
+            f"http://api.wolframalpha.com/v1/simple?appid={self.AiD}&i={query}&layout=labelbar&width=1000",
+            kind="fp"
+        )
+        file = nextcord.File(fp, "output.png")
+        await ctx.send(
+            file=file,
+            embed=ef.cembed(
+                title="Wolfram",
+                author=ctx.author,
+                image="attachment://output.png",
+                color=self.client.re[8],
+                description=f"This result is taken from Wolfram Alpha\nQuery: `{query}`"
+            )
+        )
+
 
 
 def setup(client,**i):

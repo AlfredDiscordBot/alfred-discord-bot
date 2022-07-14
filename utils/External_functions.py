@@ -912,7 +912,7 @@ class TechTerms:
         return [i['value'] for i in json.loads(l)]
         
     async def get_page_as_embeds(self, query):
-        url = f"https://techterms.com/definition/{convert_to_url(query.lower())}"
+        url = f"https://techterms.com/definition/{query.lower().replace(' ', '_')}"
         content = await get_async(url)
         if "Term not found" in content:
             return [{
