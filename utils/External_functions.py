@@ -1,4 +1,15 @@
-import requests
+from io import BytesIO
+from instagramy import InstagramUser
+from instascrape import Post, BeautifulSoup
+from nextcord import SlashOption
+from dotenv import load_dotenv
+from functools import lru_cache
+from datetime import datetime
+from collections import Counter
+from requests.models import PreparedRequest
+from requests.exceptions import MissingSchema
+from typing import List, Union
+
 import hashlib
 import psutil
 import os
@@ -8,29 +19,16 @@ import random
 import imdb
 import emoji
 import youtube_dl
-from instagramy import *
-from instascrape import *
 import urllib.parse
 import urllib
 import aiohttp
 import traceback
 import aiofiles
 import utils.assets as assets
-import random
 import json
 import importlib
-
 import re as regex
-
-from io import BytesIO
-from nextcord import SlashOption
-from dotenv import load_dotenv
-from functools import lru_cache
-from datetime import datetime
-from collections import Counter
-from requests.models import PreparedRequest
-from requests.exceptions import MissingSchema
-from typing import List, Union
+import requests
 
 ydl_op = {
     "format": "bestaudio/best",
@@ -87,54 +85,6 @@ def timestamp(i):
 def convert_to_url(name):
     name = urllib.parse.quote(name)
     return name
-
-
-def quad(eq):
-    if "x^2" not in eq:
-        return "x^2 not found, try again"
-    print(eq)
-    eq = eq.replace("2+", "2 + ")
-    eq = eq.replace("2-", "2 - ")
-    eq = eq.replace("x+", "x + ")
-    eq = eq.replace("x-", "x - ")
-
-    # try to get correct equation
-    parts = [x.strip() for x in eq.split(" ")]
-    a, b, c = 0, 0, 0
-    for i in parts:
-        if i == " ":
-            parts.remove(" ")
-
-    for index, part in enumerate(parts):
-        if part in ["+", "-"]:
-            continue
-
-        symbol = -1 if index - 1 >= 0 and parts[index - 1] == "-" else 1
-
-        if part.endswith("x^2"):
-            coeff = part[:-3]
-            a = float(coeff) if coeff != "" else 1
-            a *= symbol
-        elif part.endswith("x"):
-            coeff = part[:-1]
-            b = float(coeff) if coeff != "" else 1
-            b *= symbol
-        elif part.isdigit():
-            c = symbol * float(part)
-
-    determinant = b ** 2 - (4 * a * c)
-
-    if determinant < 0:
-        return "Not Real"
-    if determinant == 0:
-        root = -b / (2 * a)
-        return "Equation has one root:" + str(root)
-
-    if determinant > 0:
-        determinant = determinant ** 0.5
-        root1 = (-b + determinant) / (2 * a)
-        root2 = (-b - determinant) / (2 * a)
-        return "This equation has two roots: " + str(root1) + "," + str(root2)
 
 
 def get_sessionid(username, password):
@@ -324,7 +274,7 @@ def imdb_embed(movie="",re={8:5160}):
             color=re[8],
         )
 
-async def redd(ctx, account="wholesomememes", number = 25, single=True):
+async def redd(ctx, account: str="wholesomememes", number: int = 25):
     a = await get_async(f"https://meme-api.herokuapp.com/gimme/{account}/{number}",kind="json")
     embeds = []
     bot = getattr(ctx, 'bot', getattr(ctx, 'client', None))
@@ -348,7 +298,7 @@ async def redd(ctx, account="wholesomememes", number = 25, single=True):
             if i['nsfw']:
                 continue
         embeds.append(embed)
-    if embeds == []:
+    if not embeds:
         embed = cembed(
             title="Something seems wrong",
             description="There are no posts in this accounts, or it may be `NSFW`",
@@ -409,7 +359,7 @@ async def devop_mtext(client, channel, color):
     await mess.add_reaction(emoji.emojize(":laptop:"))
 
 
-async def wait_for_confirm(ctx, client, message: str, color=61620,usr=None):
+async def wait_for_confirm(ctx, client, message: str, color=61620, usr=None):
     mess = await ctx.channel.send(
         embed=nextcord.Embed(
             title="Confirmation", description=message, color=nextcord.Color(color)
@@ -443,30 +393,28 @@ async def wait_for_confirm(ctx, client, message: str, color=61620,usr=None):
         return False
 
 
-def equalise(all_strings):
+def equalise(all_strings: List[str]):
     maximum = max(list(map(len, all_strings)))
-    a = {}
-    _ = [a.update({i: i + " " * (maximum - len(i))}) for i in all_strings]
-    return a
+    return {i: i + " " * (maximum - len(i)) for i in all_strings}
 
 def reset_emo(client):
     emo = assets.Emotes(client)
     return emo
     
-def youtube_download(url):
+def youtube_download(url: str):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
         info=ydl.extract_info(url, download=False) 
         URL = info["formats"][0]["url"]
     return URL
 
-def youtube_download1(url):
+def youtube_download1(url: str):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
         info=ydl.extract_info(url, download=False)
         name=info['title']
         URL = info["formats"][0]["url"]
     return (URL, name)
 
-def subtract_list(l1, l2):
+def subtract_list(l1: List, l2: List):
     a = []
     for i in l1:
         if i not in l2:
@@ -495,7 +443,7 @@ def svg2png(url: str):
 
 
 
-async def get_name(url):
+async def get_name(url: str):
     '''
     get Youtube Video Name through Async
     '''
@@ -507,7 +455,7 @@ async def get_name(url):
         .replace("&#39;", "'")
     )
 
-async def get_async(url, headers = {}, kind = "content"):
+async def get_async(url: str, headers: dict = {}, kind:str = "content"):
     '''
     Simple Async get request
     '''
@@ -533,7 +481,7 @@ async def get_async(url, headers = {}, kind = "content"):
         await session.close()
     return output
     
-async def post_async(api, header = {}, json = {}, output = "content"):
+async def post_async(api: str, header:dict  = {}, json:dict = {}):
     async with aiohttp.ClientSession() as session:
         async with session.post(api, headers=header, json=json) as resp:
             if resp.headers['Content-Type'] != 'application/json':
@@ -583,14 +531,14 @@ async def player_reaction(mess):
     await mess.add_reaction(emoji.emojize(":downwards_button:"))
     await mess.add_reaction(emoji.emojize(":musical_note:"))
 
-def remove_all(original,s):
+def remove_all(original, s):
     for i in s:
         original.replace(i,"")
     return original
 
-def safe_pfp(user):
+def safe_pfp(user: Union[nextcord.Member, nextcord.guild.Guild]):
     if user is None: return
-    if type(user) == nextcord.guild.Guild:
+    if isinstance(user, nextcord.guild.Guild):
         return user.icon.url if user.icon else None
     pfp = user.default_avatar.url
     if user.avatar:
@@ -603,7 +551,7 @@ def defa(*types, default = None, choices=[], required = False):
         return SlashOption(choices=choices, default = default, required = required)   
     return SlashOption(channel_types = types, required = required)
 
-async def ly(song, re):
+async def ly(song, re: List):
     j = await get_async(f"https://api.popcat.xyz/lyrics?song={convert_to_url(song)}",kind="json")
     return cembed(
         title=j.get('title',"Couldnt get title"),
@@ -631,7 +579,7 @@ def timestamp(i):
     return time.ctime(i)
 
 class SpaceX:
-    def __init__(self,color):
+    def __init__(self, color: Union[int, nextcord.Color]):
         self.name = None
         self.time = None
         self.fno = None
@@ -669,7 +617,7 @@ class SpaceX:
         return embeds
 
 class Meaning:
-    def __init__(self,word,color):
+    def __init__(self, word: str, color: Union[int, nextcord.Color]):
         self.word = word,
         self.url = "https://api.dictionaryapi.dev/api/v2/entries/en/"+convert_to_url(word)
         self.result = None
@@ -735,7 +683,7 @@ class Meaning:
                 self.embeds.append(embed)
         return self.embeds
 
-async def animals(client, ctx, color, number = 10):
+async def animals(client, ctx, color: Union[int, nextcord.Color], number:int = 10):
     d2 = await get_async(f"https://zoo-animal-api.herokuapp.com/animals/rand/{number}",kind="json")
     user = getattr(ctx,'author',getattr(ctx,'user',None))
     icon_url = safe_pfp(user)

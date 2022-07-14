@@ -189,6 +189,7 @@ def load_from_file(store):
     client.queue_song = queue_song
     client.mspace = mspace
     client.observer = observer
+    client.autor = autor
     
     
 
@@ -347,83 +348,6 @@ async def svg(ctx, *, url):
 @youtube_loop.before_loop
 async def wait_for_ready():
     await client.wait_until_ready()
-
-@client.command(aliases=['autoreaction'])
-@commands.check(check_command)
-async def autoreact(ctx, channel: nextcord.TextChannel = None,*, Emojis: str = ""):
-    if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
-        await ctx.send(
-            embed=cembed(
-                title="Permissions Denied",
-                description="You cannot set autoreact, you do not have admin privilege",
-                color=re[8]
-            )
-        )
-        return
-    if not channel:
-        await ctx.send(
-            embed=cembed(
-                title="Hmm",
-                description=emojize("You need to mention a channel\n'autoreact #channel :one:|:two:|:three:"),
-                color=re[8]
-            )
-        )
-        return
-    if Emojis == "":
-        await ctx.send(
-            embed = cembed(
-                title="Hmm",
-                description="You need one or more emojis separated by |",
-                color=re[8]
-            )
-        )
-        return
-    if channel.id not in autor:
-        autor[channel.id]=[i.strip() for i in demojize(Emojis).split("|")]
-    else:
-        autor[channel.id]+=[i.strip() for i in demojize(Emojis).split("|")]
-    await ctx.send(
-        embed=cembed(
-            title="Done",
-            description=f"For every message in {channel.mention} Alfred will add {Emojis} reaction",
-            color=re[8]
-        )
-    )
-
-
-@client.command()
-@commands.check(check_command)
-async def remove_autoreact(ctx, channel: nextcord.TextChannel = None):
-    if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
-        await ctx.send(
-            embed=cembed(
-                title="Permissions Denied",
-                description="You cannot remove autoreact, you do not have admin privilege",
-                color=re[8]
-            )
-        )
-        return
-    if not channel.id in autor:
-        await ctx.send(
-            embed=cembed(
-                title="Hmm",
-                description="This channel does not have any reactions",
-                color=re[8]
-            )
-        )
-        return
-    confirmation = await wait_for_confirm(ctx,client,"Do you want to remove every automatic reaction in this channel?",color=re[8],usr=getattr(ctx, 'author', getattr(ctx, 'user', None)))
-    if not confirmation:
-        return
-    autor.pop(channel.id)
-    await ctx.send(
-        embed=cembed(
-            title="Done",
-            description="Removed every reaction in ",
-            color=re[8]
-        )
-    )
-
 
 @client.slash_command(name="emoji", description="Get Emojis from other servers")
 async def emoji_slash(ctx, emoji_name, number=1):

@@ -449,6 +449,87 @@ class Configuration(commands.Cog):
             )
         )         
 
+    @commands.command(aliases=['autoreaction'])
+    @commands.check(ef.check_command)
+    async def autoreact(self, ctx, channel: nextcord.TextChannel = None, *, Emojis: str = ""):
+        if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description="You cannot set autoreact, you do not have admin privilege",
+                    color=self.client.re[8]
+                )
+            )
+            return
+        if not channel:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Hmm",
+                    description=ef.emoji.emojize("You need to mention a channel\n'autoreact #channel :one:|:two:|:three:"),
+                    color=self.client.re[8]
+                )
+            )
+            return
+        if Emojis == "":
+            await ctx.send(
+                embed = ef.cembed(
+                    title="Hmm",
+                    description="You need one or more emojis separated by |",
+                    color=self.client.re[8]
+                )
+            )
+            return
+        if channel.id not in self.client.autor:
+            self.client.autor[channel.id]=[i.strip() for i in ef.emoji.demojize(Emojis).split("|")]
+        else:
+            self.client.autor[channel.id]+=[i.strip() for i in ef.emoji.demojize(Emojis).split("|")]
+        await ctx.send(
+            embed=ef.cembed(
+                title="Done",
+                description=f"For every message in {channel.mention} Alfred will add {Emojis} reaction",
+                color=self.client.re[8]
+            )
+        )
+
+
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def remove_autoreact(self, ctx, channel: nextcord.TextChannel = None):
+        if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permissions Denied",
+                    description="You cannot remove autoreact, you do not have admin privilege",
+                    color=self.client.re[8]
+                )
+            )
+            return
+        if not channel.id in self.client.autor:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Hmm",
+                    description="This channel does not have any reactions",
+                    color=self.client.re[8]
+                )
+            )
+            return
+        confirmation = await ef.wait_for_confirm(
+            ctx, self.client,
+            "Do you want to remove every automatic reaction in this channel?",
+            color=self.client.re[8],
+            usr=getattr(ctx, 'author', getattr(ctx, 'user', None))
+        )
+        if not confirmation:
+            return
+        self.client.autor.pop(channel.id)
+        await ctx.send(
+            embed=ef.cembed(
+                title="Done",
+                description="Removed every reaction in ",
+                color=self.client.re[8]
+            )
+        )
+
 
 def setup(client,**i):
     client.add_cog(Configuration(client,**i))
