@@ -229,7 +229,7 @@ def cembed(
         
     return embed
     
-def imdb_embed(movie="",re={8:5160}):
+def imdb_embed(movie="",re: list={8:5160}):
     """
     Returns details about a movie as an embed in discord
     Parameters include movies
@@ -250,13 +250,13 @@ def imdb_embed(movie="",re={8:5160}):
             'writer': ', '.join([str(j) for j in mov['writer']]),
             'Rating': ':star:'*int(mov['rating']),
             'Genres': ', '.join(mov['genres']),
-            'Year' : mov['year']
+            'Year' : mov['year'],
+            'Director': mov.get('director')
         }
-        di['Director']: mov.get('director')
         plot = mov['plot'][0]
         image = movie[0]["full-size cover url"]
         embed = cembed(
-            title=mov['title'],
+            title=title,
             description=plot,
             color=re[8],
             image = image
