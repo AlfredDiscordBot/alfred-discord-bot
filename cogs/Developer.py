@@ -11,6 +11,11 @@ def requirements():
 class Developer(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.SUPER_USERS = [
+            "432801163126243328",
+            "803855283821871154",
+            "723539849969270894"
+        ]
 
     @commands.command()
     @commands.check(ef.check_command)
@@ -51,6 +56,42 @@ class Developer(commands.Cog):
             await ctx.send(f"{id} is a dev!")
         else:
             await ctx.send(f"{id} is not a dev!")
+
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def remove_dev(self, ctx, member: nextcord.Member):
+        print(member)
+        user = getattr(ctx, 'author', getattr(ctx, 'user', None))
+        if str(user.id) in self.SUPER_USERS:
+            self.client.dev_users.remove(str(member.id))
+            await ctx.send(member.mention + " is no longer a dev")
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="Dude! You are not Alvin",
+                    color=self.client.re[8],
+                )
+            )
+
+
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def add_dev(self, ctx, member: nextcord.Member):
+        print(member)
+        user = getattr(ctx, 'author', getattr(ctx, 'user', None))
+        print("Add dev", str(user))
+        if str(user.id) in self.client.dev_users:
+            self.client.dev_users.add(str(member.id))
+            await ctx.send(member.mention + " is a dev now")
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="Dude! you are not a dev",
+                    color=self.client.re[8],
+                )
+            )
 
 
     @commands.command()

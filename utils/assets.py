@@ -1,3 +1,4 @@
+from ctypes import Union
 import nextcord
 from . import External_functions as ef
 
@@ -103,7 +104,7 @@ class Emotes:
         self.yikes = client.get_emoji(852810342991527946)
         
     def get_emoji(self, e):
-        return getattr(self, e)
+        return getattr(self, e, None)
 
 
 
@@ -141,3 +142,153 @@ vote_embed = lambda client: ef.cembed(
         'icon_url': 'https://st.depositphotos.com/1048238/2045/i/600/depositphotos_20457989-stock-photo-have-fun-concept.jpg'
     }
 )
+
+class JSONViewer(nextcord.ui.View):
+    def __init__(self, di, client):
+        super().__init__()
+        self.di = di
+        self.current_location = []
+        self.client = client
+        self.currently_selected = list(self.di)[0] if len(self.di) else None
+
+    def smart_get(self, a, location):
+        if isinstance(a, list) and isinstance(location, int):
+            return a[location]
+        if isinstance(a, list):
+            return a[a.index(location)]
+        return a.get(location, [])
+
+    def temp_handler(self, temp):
+        temp = temp if isinstance(temp, list) else list(temp.keys())
+        s, e = temp.index(self.currently_selected)-5, temp.index(self.currently_selected)+5
+        if e>len(temp):
+            e = len(temp)
+        if s<0:
+            s = 0
+        return temp[s:e]
+            
+
+    def display(self) -> nextcord.Embed:
+        if not self.di:
+            return ef.cembed(
+                title="Empty",
+                description="This location is empty",
+                color=self.client.re[8],
+                author=self.client.user
+            )
+
+        temp = self.di.copy()
+        for i in self.current_location:
+            temp = self.smart_get(temp, i)       
+
+        if not temp:
+            return ef.cembed(
+                title="Empty",
+                description="This location is empty",
+                color=self.client.re[8],
+                author=self.client.user
+            )       
+
+        if not isinstance(temp, (list, dict)):
+            temp = [temp]
+
+        temp = self.temp_handler(temp)
+
+        description=""
+        for i in temp:
+            if i == self.currently_selected:
+                description+=f"**{str(i)[:50]}**\n"
+            else:
+                description+=str(i)[:50]+"\n"
+
+        return ef.cembed(
+            title=f"JSONViewer",
+            description=f"{description}\n\n{'/'.join([str(i) for i in self.current_location])}",
+            color=self.client.re[8],
+            author=self.client.user
+        )
+
+
+    @nextcord.ui.button(emoji="⬅️", style=color)
+    async def back(self, button, inter):
+        if self.current_location:
+            self.currently_selected = self.current_location.pop()
+        await inter.edit(
+            embed=self.display()
+        )
+
+    @nextcord.ui.button(emoji="➡️", style=color)
+    async def forward(self, button, inter):
+        if self.currently_selected:
+            self.current_location.append(self.currently_selected)
+            temp = self.di.copy()
+            for i in self.current_location:
+                temp = self.smart_get(temp, i)
+            if not isinstance(temp, (list, dict)):
+                temp = [temp]
+            if isinstance(temp, dict):
+                self.currently_selected = list(temp)[0]
+            else:
+                self.currently_selected = temp[0]
+        await inter.edit(
+            embed=self.display()
+        )
+
+    @nextcord.ui.button(emoji="⬆️", style=color)
+    async def up(self, button, inter):
+        temp = self.di.copy()
+        for i in self.current_location:
+            temp = self.smart_get(temp, i)
+
+        if not isinstance(temp, (list, dict)):
+            temp = [temp]
+
+        t = list(temp)
+        if self.currently_selected in t:
+            index = t.index(self.currently_selected)
+            if index>0:
+                self.currently_selected = t[index-1]
+
+        await inter.edit(
+            embed=self.display()
+        )
+
+    @nextcord.ui.button(emoji="⬇️", style=color)
+    async def down(self, button, inter):
+        temp = self.di.copy()
+        for i in self.current_location:
+            temp = self.smart_get(temp, i)
+
+        if not isinstance(temp, (list, dict)):
+            temp = [temp]
+
+        t = list(temp)
+        if self.currently_selected in t:
+            index = t.index(self.currently_selected)
+            if index<len(t)-1:
+                self.currently_selected = t[index+1]
+
+        await inter.edit(
+            embed=self.display()
+        )
+
+async def test_JSON(ctx, url):
+    if ef.validate_url(url):
+        json = await ef.get_async(url, kind="json")        
+        await ctx.send(
+            embed=ef.cembed(
+                title="JSONViewer",
+                description="Here's the beginning of test_JSON\nHave fun",
+                color=ctx.bot.re[8]
+            ),
+            view=JSONViewer(json, ctx.bot)
+        )
+    else:
+        await ctx.send(
+            embed=ef.cembed(
+                title="Invalid",
+                description="Invalid URL, please type in proper URL to fetch from",
+                color=ctx.bot.re[8],
+                author=ctx.author
+            )
+        )
