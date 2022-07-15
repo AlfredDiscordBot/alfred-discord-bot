@@ -499,53 +499,9 @@ async def load(ctx):
 
 
 @client.slash_command(name="pr", description="Prints what you ask it to print")
-async def pr_slash(ctx, text):
+async def pr_slash(inter, text: str):
     req()
-    await ctx.send(text)
-
-@client.command(aliases=["c"])
-@commands.check(check_command)
-async def cover_up(ctx):
-    await ctx.message.delete()
-    await asyncio.sleep(0.5)
-    mess = await ctx.send(nextcord.utils.get(client.emojis, name="enrique"))
-    await mess.delete()
-
-@client.command()
-@commands.check(check_command)
-async def remove_dev(ctx, member: nextcord.Member):
-    print(member)
-    global dev_users
-    if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in ["432801163126243328","803855283821871154","723539849969270894"]:
-        dev_users.remove(str(member.id))
-        await ctx.send(member.mention + " is no longer a dev")
-    else:
-        await ctx.send(
-            embed=nextcord.Embed(
-                title="Permission Denied",
-                description="Dude! You are not Alvin",
-                color=nextcord.Color(value=re[8]),
-            )
-        )
-
-
-@client.command()
-@commands.check(check_command)
-async def add_dev(ctx, member: nextcord.Member):
-    print(member)
-    print("Add dev", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
-    global dev_users
-    if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in dev_users:
-        dev_users.add(str(member.id))
-        await ctx.send(member.mention + " is a dev now")
-    else:
-        await ctx.send(
-            embed=nextcord.Embed(
-                title="Permission Denied",
-                description="Dude! you are not a dev",
-                color=nextcord.Color(value=re[8]),
-            )
-        )
+    await inter.send(text)
 
 @client.command()
 @commands.check(check_command)
@@ -933,7 +889,8 @@ async def python_shell(ctx, *, text):
                     title="Python Eval Executed",
                     description = f"```py\n{text}\n```",
                     color=re[8],
-                    author=user
+                    author=user,
+                    url=getattr(ctx.message, 'jump_url', None)
                 )
             )
             a = eval(text)
@@ -989,7 +946,8 @@ async def shell(ctx, *, text):
             description=text,
             color=re[8],
             thumbnail=client.user.avatar.url,
-            footer=f"This happened in {ctx.guild}"
+            footer=f"This happened in {ctx.guild}",
+            url=getattr(ctx.message, 'jump_url', None)
         )
     )
     await ctx.send(
@@ -1028,7 +986,8 @@ async def exe(ctx, *, text):
                 title="Execute command used",
                 description=text,
                 color=re[8],
-                author = ctx.author                
+                author = ctx.author,
+                url = getattr(ctx.message, 'jump_url', None)         
             )
         )
         text = text.replace("```py", "```")

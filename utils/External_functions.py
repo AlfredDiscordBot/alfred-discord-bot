@@ -188,7 +188,16 @@ def get_if_process_exists(name):
 
 
 def cembed(
-    title=None, description=None, thumbnail=None, picture=None, url=None, color=nextcord.Color.dark_theme(), footer=None, author = False, fields = None, image = None
+    title=None, 
+    description=None, 
+    thumbnail=None, 
+    picture=None, 
+    url=None, 
+    color=nextcord.Color.dark_theme(), 
+    footer=None, 
+    author = False, 
+    fields = None, 
+    image = None
 ):
     embed = nextcord.Embed()
     if color != nextcord.Color.dark_theme():
@@ -387,8 +396,11 @@ async def wait_for_confirm(ctx, client, message: str, color=61620, usr=None):
     if reaction.emoji == emoji.emojize(":cross_mark_button:"):
         await mess.delete()
         await ctx.channel.send(
-            embed=nextcord.Embed(
-                title="Ok cool", description="Aborted", color=nextcord.Color(color)
+            embed=cembed(
+                title="Ok cool", 
+                description="Aborted", 
+                color=nextcord.Color(color),
+                author = user
             )
         )
         return False

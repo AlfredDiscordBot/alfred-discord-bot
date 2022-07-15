@@ -6,7 +6,7 @@ import utils.inshort as inshort
 from nextcord.ext import commands
 from wikipedia import search, summary
 
-NEWS_CATEGORIES = inshort.get_categories()
+NEWS_CATEGORIES = inshort.get_categories() + ['all']
 
 
 def requirements():
@@ -120,7 +120,7 @@ class Social(commands.Cog):
         await self.memes(inter)
 
     @nextcord.slash_command(name="news", description="Latest news from a given subject from inshorts")
-    async def news_slash(self, inter, subject = ef.defa(choices=NEWS_CATEGORIES)):
+    async def news_slash(self, inter: nextcord.Interaction, subject: str = ef.defa(choices=NEWS_CATEGORIES, default="all")):
         self.client.re[0]+=1  
         await inter.response.defer()
         await self.news(inter, subject)

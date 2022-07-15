@@ -225,6 +225,11 @@ class FunAPI(commands.Cog):
             )
         )
 
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def json_viewer(self, ctx, url: str):
+        await assets.test_JSON(ctx, url=url)
+
 
 
 def setup(client,**i):
