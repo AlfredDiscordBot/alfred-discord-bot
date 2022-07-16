@@ -173,6 +173,11 @@ class MSetup:
                     'name': 'Cancel',
                     'value': "To cancel it type `cancel`",
                     'inline': False
+                },
+                {
+                    'name': 'Import',
+                    'value': 'To import from your old mehspace, just type `import`\nIf you want to import from an embed, reply to a message and type import',
+                    'inline': False
                 }
             ]
         )
@@ -314,6 +319,13 @@ class MSetup:
                 output = self.fields(text)
             if self.SETUP_VALUE == "author":
                 output = self.author(text)
+            if self.SETUP_VALUE == "image":
+                if not validate_url(text) or text.lower in self.presets:
+                    await self.ctx.send(
+                        "Please enter a valid URL or one of the presets",
+                        delete_after=5
+                    )
+                    return
             self.di[self.SETUP_VALUE] = output
             self.set_preset()                            
         
@@ -449,6 +461,30 @@ class Embed(commands.Cog):
         )
         await inter.send(embed=embed)
 
+    @commands.command(name="mehspace", aliases=['meh','myspace'])
+    @commands.check(ef.check_command)
+    async def mehspace_prefix_command(self, ctx, user: nextcord.Member = None):
+        if not user: user = ctx.author
+        if user.id not in self.client.mspace:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Unavailable",
+                    description="This user has not set mehspace",
+                    color=self.client.re[8],
+                    author=user,
+                    thumbnail="https://www.cambridge.org/elt/blog/wp-content/uploads/2019/07/Sad-Face-Emoji-480x480.png.webp"
+                )
+            )
+            return
+        await ctx.send(
+            embed=embed_from_dict(
+                yaml_to_dict(
+                    filter_graves(self.client.mspace[user.id])
+                ),
+                ctx, self.client
+            )
+        )
+
     @nextcord.slash_command(name="mehspace",description="Show Mehspace of someone")
     async def mehspace(self, inter, user: nextcord.User = None):
         if not user: user = inter.user
@@ -458,7 +494,8 @@ class Embed(commands.Cog):
                     title="Unavailable",
                     description="This user has not set mehspace",
                     color=self.client.re[8],
-                    thumbnail="https://www.cambridge.org/elt/blog/wp-content/uploads/2019/07/Sad-Face-Emoji-480x480.png.webp"
+                    thumbnail="https://www.cambridge.org/elt/blog/wp-content/uploads/2019/07/Sad-Face-Emoji-480x480.png.webp",
+                    author=user
                 )
             )
             return

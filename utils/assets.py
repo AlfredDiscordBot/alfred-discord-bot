@@ -203,7 +203,7 @@ class JSONViewer(nextcord.ui.View):
 
         return ef.cembed(
             title=f"JSONViewer",
-            description=f"{description}\n\n{'/'.join([str(i) for i in self.current_location])}",
+            description=f"{description}\n\n{'/'.join([str(i)[:30] for i in self.current_location])}",
             color=self.client.re[8],
             author=self.client.user
         )
@@ -274,7 +274,18 @@ class JSONViewer(nextcord.ui.View):
 
 async def test_JSON(ctx, url):
     if ef.validate_url(url):
-        json = await ef.get_async(url, kind="json")        
+        try:
+            json = await ef.get_async(url, kind="json")    
+        except:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Got an Unexpected error",
+                    description=f"```py\n{ef.traceback.format_exc()}\n```",
+                    color=ctx.bot.re[8],
+                    author=ctx.author,
+                    thumbnail=ctx.bot.user.avatar.url
+                )
+            )    
         await ctx.send(
             embed=ef.cembed(
                 title="JSONViewer",
