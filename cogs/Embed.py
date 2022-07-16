@@ -320,7 +320,7 @@ class MSetup:
             if self.SETUP_VALUE == "author":
                 output = self.author(text)
             if self.SETUP_VALUE == "image":
-                if not validate_url(text) or text.lower in self.presets:
+                if (not validate_url(text)) and (not text.lower in self.presets):
                     await self.ctx.send(
                         "Please enter a valid URL or one of the presets",
                         delete_after=5
