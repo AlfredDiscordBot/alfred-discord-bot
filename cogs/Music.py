@@ -625,7 +625,7 @@ class Music(commands.Cog):
                     if len(songs)>i:
                         if not self.client.da1.get(songs[i]):
                             self.client.da1[songs[i]] = await ef.get_name(songs[i])
-                        st+=f"{i}. {self.client.da1.get(songs[i],'Unavailable')}\n"
+                        st+=f"`{i}.` {self.client.da1.get(songs[i],'Unavailable')}\n"
                 await mess.edit(
                     embed=ef.cembed(
                         title="Queue",
@@ -647,7 +647,13 @@ class Music(commands.Cog):
             voice.stop()
             await ctx.send(embed=ef.cembed(title="Stop", color=self.client.re[8]))
         else:
-            await ctx.send(embed=nextcord.Embed(title="Permission denied",description="Join the channel to stop the song",color=nextcord.Color(value=self.client.re[8])))
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permission denied",
+                    description="Join the channel to stop the song",
+                    color=self.client.re[8]
+                )
+            )
 
     @commands.command()
     @commands.check(ef.check_command)
