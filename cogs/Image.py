@@ -2,6 +2,7 @@ import nextcord
 import os
 import utils.helping_hand as helping_hand
 import utils.External_functions as ef
+
 from nextcord.ext import commands
 from io import BytesIO
 from wordcloud import WordCloud
