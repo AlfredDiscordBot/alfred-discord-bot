@@ -530,6 +530,14 @@ class Configuration(commands.Cog):
             )
         )
 
+    @nextcord.slash_command(name="roles", description="Setup Roles", guild_ids=[822445271019421746])
+    async def setup_roles(self, inter):
+        print(inter.user)
+
+    @setup_roles.subcommand(name="button", description="Setup Roles using buttons")
+    async def buttons(self, inter):
+        await inter.send("Coming soon")
+
 
 def setup(client,**i):
     client.add_cog(Configuration(client,**i))

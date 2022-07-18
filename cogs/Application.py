@@ -76,8 +76,8 @@ class ApplicationModel(ui.Modal):
                 color=self.client.re[8],
                 description=f"This was done in the {inter.channel.mention}",
                 footer={
-                    'text': 'This is still in Beta',
-                    'icon_url': self.client.user.avatar.url
+                    'text': f'UserID: {inter.user.id}',
+                    'icon_url': ef.safe_pfp(inter.user)
                 },
                 fields=fields
             )
