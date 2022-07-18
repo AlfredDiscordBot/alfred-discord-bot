@@ -805,7 +805,7 @@ class Pokemon:
             self.pokemons.update({i['name']:i['url']})
 
     def search(self, name: str):
-        return [i for i in self.pokemons if name.lower() in i.lower()][:25]
+        return [i for i in self.pokemons if regex.findall(name.lower().replace("_",r"\S{1}"), i.lower())][:25]
 
     async def get_stats(
         self, 
@@ -825,7 +825,7 @@ class Pokemon:
         
         if not embed: return d            
         embed=cembed(
-            title="Pokemon",
+            title=pokemon,
             color=color,
             thumbnail=d['sprites']['front_default']
         )
