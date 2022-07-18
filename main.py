@@ -51,16 +51,13 @@ import utils.assets as assets
 location_of_file = os.getcwd()
 start_time = time.time()
 load_dotenv()
-observer=[]
-mspace={}
-deathrate = {}
-intents = nextcord.Intents().default()
-intents.members = True
-intents.message_content = True
-old_youtube_vid = {}
-youtube_cache = {}
-deleted_message = {}
-config = {
+observer: list=[]
+mspace: dict={}
+deathrate: dict = {}
+old_youtube_vid: dict = {}
+youtube_cache: dict = {}
+deleted_message: dict = {}
+config: dict = {
     'snipe': [841026124174983188, 822445271019421746,830050310181486672, 912569937116147772],
     'respond': [],
     'youtube': {},
@@ -70,31 +67,27 @@ config = {
     'commands':{},
     'reactions':{},
     'connect':{},
-    'slash': {}
+    'slash': {},
+    'roles': {}
     }
-da = {}
-errors = ["```arm"]
-da1 = {}
-queue_song = {}
-temporary_list = []
-dev_channel = int(os.getenv("dev"))
-re = [0, "OK", {}, {}, -1, "", "205", {}, 5360, "48515587275%3A0AvceDiA27u1vT%3A26",{}]
-a_channels = [822500785765875749, 822446957288357888]
-cat = {}
-youtube = []
-pages = {}
-autor = {}
+da: dict = {}
+errors: list = ["```arm"]
+da1: dict = {}
+queue_song: dict = {}
+temporary_list: list = []
+dev_channel: int = int(os.getenv("dev"))
+re: list = [0, "OK", {}, {}, -1, "", "205", {}, 5360, "48515587275%3A0AvceDiA27u1vT%3A26",{}]
+youtube: list = []
+autor: dict = {}
 SESSIONID = None
 color_message = None
-color_temp = ()
-vc_channel = {}
-wolfram = os.getenv("wolfram")
-prefix_dict = {}
+wolfram: str = os.getenv("wolfram")
+prefix_dict: dict = {}
 
 
 
 # replace your id with this
-dev_users = {"432801163126243328"}
+dev_users: set = {"432801163126243328"}
 ydl_op = {
     "format": "bestaudio/best",
     "postprocessors": [
@@ -118,6 +111,9 @@ async def search_vid(name):
 def prefix_check(client_variable, message):
     return prefix_dict.get(message.guild.id if message.guild is not None else None, "'"),f"<@{client_variable.user.id}> "
 
+intents = nextcord.Intents().default()
+intents.members = True
+intents.message_content = True
 
 client = nextcord.ext.commands.Bot(
     command_prefix=prefix_check,
@@ -199,7 +195,7 @@ try:
 except:
     print("Failed to load\n\n\n")
     
-report = f"""Started at: {timestamp(int(start_time))}
+report = f"""Started at: <t:{int(start_time)}>
 Current location: {location_of_file}
 Requests: {re[0]:,}
 Color: {nextcord.Color(re[8]).to_rgb()}
@@ -640,49 +636,6 @@ async def rollback(ctx):
 async def f_slash(inter, text):
     await feedback(inter, text=text)
 
-@client.slash_command(name="polling", description="Seperate options with |")
-async def polling_slash(
-    inter, 
-    question, 
-    options="yes|no",
-    image=None
-):
-    await inter.response.defer()
-    if not image: image = safe_pfp(inter.guild)
-    await poll(inter, Options = options, Question = question if question else "", image = image)
-
-async def poll(inter, Options = "", Question = "", image="https://i.imgur.com/chLCmUl.jpg"):
-    text = Question+"\n\n"
-    Options = Options.split("|")
-    if len(Options)>=20:
-        reply = "Use this if you want to redo\n\n"
-        reply+= f"Question: `{Question}` \n"
-        reply+= f"Options: `{'|'.join(Options)}`"
-        await inter.send(
-            embed=cembed(
-                title="Sorry you can only give 20 options",
-                description=reply,
-                color=nextcord.Color.red(),
-                thumbnail=client.user.avatar.url
-            )
-        )
-    for i in range(len(Options)):
-        text+=f"{emojize(f':keycap_{i+1}:') if i<10 else Emoji_alphabets[i-10]} | {Options[i].strip()}\n"
-
-    embed=cembed(
-        title="Poll",
-        description=text,
-        color=re[8],
-        footer=f"from {inter.user.name} | {inter.guild.name}",
-        picture = image,
-        author = inter.user
-    )
-    message = await inter.send(
-        embed = embed
-    )
-    
-    for i in range(len(Options)): await message.add_reaction(emojize(f":keycap_{i+1}:") if i<10 else Emoji_alphabets[i-10])
-
 @client.slash_command(name="eval", description = "This is only for developers", guild_ids = [822445271019421746])
 async def eval_slash(inter, text, ty = defa(choices=['python','bash'])):
     if ty == 'bash':
@@ -752,7 +705,7 @@ async def on_reaction_add(reaction, user):
                 and str(reaction.message.channel.id) == str(channel.id)
                 and reaction.message.author == client.user
             ):
-                st = "\n".join([client.get_user(i).name for i in dev_users])
+                st = "\n".join([str(getattr(client.get_user(i), 'name', None)) for i in dev_users])
                 await reaction.remove(user)
                 await channel.send(
                     embed=cembed(
@@ -837,10 +790,12 @@ async def on_reaction_add(reaction, user):
 @client.event
 async def on_command_error(ctx, error):    
     print(type(error))
-    if nextcord.ext.commands.errors.CommandInvokeError:
-        if type(error.original) == nextcord.errors.HTTPException:
+    if isinstance(error, commands.errors.CommandNotFound):
+        return
+    if isinstance(error, commands.errors.CommandInvokeError):
+        if isinstance(getattr(error, 'original', None), nextcord.errors.HTTPException):
             os.system("busybox reboot")
-    if type(error) == nextcord.ext.commands.errors.CheckFailure:
+    elif isinstance(error, commands.errors.CheckFailure):
         await ctx.send(
             embed=cembed(
                 title="Disabled command",
@@ -849,11 +804,30 @@ async def on_command_error(ctx, error):
                 thumbnail=safe_pfp(ctx.author)
             )
         )       
-        return
-    channel = client.get_channel(dev_channel)
-    if error == nextcord.HTTPException: os.system("busybox reboot")
-    if type(error) != nextcord.ext.commands.errors.CommandNotFound:
+    elif isinstance(error, commands.errors.MissingRequiredArgument):
+        prefix = prefix_dict.get(ctx.guild.id, "'")
+        await ctx.send(
+            embed=cembed(
+                title="Missing Required Argument",
+                author=ctx.author,
+                color=nextcord.Color.red(),
+                thumbnail=client.user.avatar.url,
+                description="You have missed out one of more of the required argument",
+                fields=[
+                    {
+                        'name': 'Correct usage',
+                        'value':f'`{prefix}{ctx.command.name} {ctx.command.signature}`'
+                    }
+                ],
+                footer={
+                    'text': 'Go through /help',
+                    'icon_url': client.user.avatar.url
+                }
+            )
+        )   
+    else:
         await ctx.send(embed=error_message(str(error)))
+    channel = client.get_channel(dev_channel)
     await channel.send(embed=cembed(title="Error",description=f"\n{str(error)}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
 
 @client.event
@@ -1057,12 +1031,14 @@ def load_extension(name):
     '''
     This will safely add cog for alfred with all the requirements
     '''
-    try:        
+    try:     
+        print("Loading", name, end="")   
         l = cog_requirements(name)
         d = {}
         for i in l:
             d[i] = globals()[i]
         client.load_extension(f'cogs.{name}', extras=d)
+        print(" :Done")
         return f"[ OK ] Added {name}\n"
     except:
         return f"Error in cog {name}:\n"+traceback.format_exc()+"\n"

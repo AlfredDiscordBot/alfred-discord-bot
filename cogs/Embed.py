@@ -112,7 +112,11 @@ def embed_from_dict(info: dict, ctx, client) -> nextcord.Embed:
     info = preset_change(info, ctx, client)
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
     info["color"] = get_color(info.get("color", None))
-    if info['color']: info['color']=info['color'].value         
+    if info['color']: 
+        if isinstance(info['color'], int):
+            info['color']=nextcord.Color(info['color'])
+        info['color']=info['color'].value       
+          
     return ef.cembed(**info)
 
 def yaml_to_dict(yaml):
@@ -320,7 +324,7 @@ class MSetup:
             if self.SETUP_VALUE == "author":
                 output = self.author(text)
             if self.SETUP_VALUE == "image":
-                if (not validate_url(text)) and (not text.lower in self.presets):
+                if (not validate_url(text)) and (not text.lower() in self.presets):
                     await self.ctx.send(
                         "Please enter a valid URL or one of the presets",
                         delete_after=5

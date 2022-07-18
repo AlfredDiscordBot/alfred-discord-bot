@@ -1,4 +1,5 @@
 #Coded by Sumanjay on 29th Feb 2020
+#Made Async by alvinbengeorge on 1st June 2022
 
 from utils.External_functions import get_async, convert_to_url
 from bs4 import BeautifulSoup

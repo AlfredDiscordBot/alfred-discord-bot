@@ -1,12 +1,15 @@
 import traceback
 import requests
 import nextcord
+import utils.assets as assets
 import utils.External_functions as ef
 
 from nextcord.ext import commands
 from functools import lru_cache
+from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from .Embed import filter_graves, embed_from_dict
+from datetime import datetime
 from typing import (
     List,
     Dict,
@@ -19,6 +22,9 @@ from typing import (
 
 def requirements():
     return []
+
+def iso2dtime(iso: str):
+    return f"<t:{int(datetime.fromisoformat(iso[:-1]).timestamp())}>"
 
 class CodeExecutor:
     """
@@ -176,6 +182,8 @@ class GitHubRepoStats:
     license: Optional[str]
     topics: List[str]
     homepage: str
+    owner_thumbnail: str
+    image: str
 
     def __repr__(self) -> str:
         result = ""
@@ -198,24 +206,31 @@ class GitHubRepoStats:
         result += f"Homepage: {self.homepage}\n"
         return result
 
+@lru_cache(maxsize=50)
+async def fetch_image(url: str) -> str:
+    html = await ef.get_async(url)
+    soup = BeautifulSoup(html, 'lxml')
+    return soup.find('meta', property="og:image")['content']
+        
 
 @lru_cache(maxsize=20)
-def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
-    r = requests.get(
+async def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
+    repo_stats = await ef.get_async(
         f"https://api.github.com/repos/{repo}",
         headers={"Accept": "application/vnd.github.mercy-preview+json"},
+        kind="json"
     )
+    image = ''
+    if html_url := repo_stats.get("html_url"):
+        image = await fetch_image(html_url)    
 
-    if r.status_code != 200:
-        return None
-
-    repo_stats: dict = r.json()
-
-    if not repo_stats:
+    if repo_stats.get("message"):
         return None
 
     if not repo_stats.get("license", None):
-        repo_stats["license"] = {}
+        repo_stats["license"] = ""
+    else:
+        repo_stats['license'] = repo_stats['license']['name']
 
     return GitHubRepoStats(
         name=repo_stats.get("name", ""),
@@ -231,17 +246,19 @@ def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
         open_issues=repo_stats.get("open_issues", ""),
         watchers=repo_stats.get("watchers", ""),
         subscribers_count=repo_stats.get("subscribers_count", ""),
-        license=repo_stats["license"].get("name", ""),
+        license=repo_stats.get('license', ''),
         topics=repo_stats.get("topics", ""),
         homepage=repo_stats.get("homepage", ""),
-        owner=repo_stats.get("owner", "").get("login", ""),
+        owner=repo_stats.get("owner", {}).get('login'),
+        owner_thumbnail=repo_stats.get("owner", {}).get("avatar_url", None),
+        image=image
     )
 
 
-def repo_stats_dict(stats: GitHubRepoStats, color: int = None):
+async def repo_stats_dict(stats: GitHubRepoStats, color: int = None):
     info = {}
     info["title"] = f"{stats.owner}/{stats.name}"
-    info["description"] = f"{stats.description} \nLicense: {stats.license} \n"
+    info["description"] = f"{stats.description if stats.description else ''}"
 
     if homepage := stats.homepage:
         info["description"] = info["description"] + "Homepage: " + homepage + "\n"
@@ -251,26 +268,35 @@ def repo_stats_dict(stats: GitHubRepoStats, color: int = None):
         info["color"] = color
 
     info["url"] = stats.html_url
+    info['author'] = {
+        'name': stats.owner,
+        'icon_url': stats.owner_thumbnail
+    }
+    if stats.image:
+        info['image'] = stats.image
     info[
         "thumbnail"
     ] = "https://www.nicepng.com/png/full/52-520535_free-files-github-github-icon-png-white.png"
     info["fields"] = [
         {
             "name": "Stats",
-            "value": f"lang: {stats.language} \nForks: {stats.forks_count} \nStars: {stats.stargazers_count}",
+            "value": f"💻` Language:` {stats.language} \n🍴` Forks:` {stats.forks_count} \n⭐` Stars:` {stats.stargazers_count} \n📰` License:` {stats.license}",
+            'inline': False
         },
         {
-            "name": "Stats",
-            "value": f"Watchers: {stats.watchers} \nIssues: {stats.open_issues} \nSubscribers: {stats.stargazers_count}",
+            "name": "People",
+            "value": f"👀` Watchers:` {stats.watchers} \n⁉️` Issues:` {stats.open_issues} \n👍` Subscribers:` {stats.stargazers_count}",
+            'inline': False
         },
         {
             "name": "Topics",
-            "value": ", ".join(stats.topics) if len(stats.topics)>0 else "No topics",
+            "value": "```\n#️⃣"+("\n#️⃣".join(stats.topics) if len(stats.topics)>0 else "No topics")+"\n```",
+            'inline': False
         },
         {
             "name": "Dates",
-            "value": f"Created: {stats.created_at} \nUpdated: {stats.created_at} \nPushed: {stats.pushed_at}",
-            "inline": False,
+            "value": f"⌚` Created:` {iso2dtime(stats.created_at)} \n⌚` Updated:` {iso2dtime(stats.created_at)} \n⌚` Pushed:` {iso2dtime(stats.pushed_at)}",
+            "inline": False
         },
     ]
     info["footer"] = f"Owner: {stats.owner}"
@@ -298,7 +324,7 @@ def user_stats_dict(stats: GitHubUserStats, color: int = None, uname: str = ""):
     info["fields"] = [
         {
             "name": "More",
-            "value": f"Followers: {stats.followers} \nFollowing: {stats.following} \nCompany: {stats.company or ' '} \nLocation: {stats.location or ' '}",
+            "value": f"```yml\nFollowers: {stats.followers} \nFollowing: {stats.following} \nCompany: {stats.company or ' '} \nLocation: {stats.location or ' '}\n```",
         }
     ]
 
@@ -307,7 +333,6 @@ def user_stats_dict(stats: GitHubUserStats, color: int = None, uname: str = ""):
 
     return info
 
-
 class Code(commands.Cog):
     def __init__(self, client):
         self.client = client
@@ -315,6 +340,44 @@ class Code(commands.Cog):
 
     def runtimes_to_str(self, runtime: dict) -> str:
         return f"+ {runtime['language']} -> {runtime['version']}"
+
+    async def get_repos(self, username: str, inter: nextcord.Interaction):
+        j = await ef.get_async(f"https://api.github.com/users/{username}/repos",kind="json")
+        repo_embeds = []
+        for repo_stats in j[:5]:
+            image=''
+            if html_url := repo_stats.get('html_url'):
+                image = await fetch_image(html_url)
+            if not repo_stats.get("license", None):
+                repo_stats["license"] = {}
+            else:
+                repo_stats['license'] = repo_stats['license']['name']
+            repo = GitHubRepoStats(
+                name=repo_stats.get("name", ""),
+                description=repo_stats.get("description", ""),
+                language=repo_stats.get("language", ""),
+                stargazers_count=repo_stats.get("stargazers_count", ""),
+                forks_count=repo_stats.get("forks_count", ""),
+                html_url=repo_stats.get("html_url", ""),
+                created_at=repo_stats.get("created_at", ""),
+                updated_at=repo_stats.get("updated_at", ""),
+                pushed_at=repo_stats.get("pushed_at", ""),
+                size=f"{int(repo_stats.get('size', 0)) / 1000:.2f} MBs",
+                open_issues=repo_stats.get("open_issues", ""),
+                watchers=repo_stats.get("watchers", ""),
+                subscribers_count=repo_stats.get("subscribers_count", ""),
+                license=repo_stats.get('license', ''),
+                topics=repo_stats.get("topics", ""),
+                homepage=repo_stats.get("homepage", ""),
+                owner=repo_stats.get("owner", "").get("login", ""),
+                owner_thumbnail=repo_stats.get('owner', {}).get('avatar_url', None),
+                image=image
+            )
+            info = await repo_stats_dict(repo, self.client.re[8])
+            repo_embeds.append(
+                embed_from_dict(info, inter, inter.client)
+            )
+        return repo_embeds
 
     @commands.command(
         name="code",
@@ -351,6 +414,7 @@ class Code(commands.Cog):
                 color=self.client.re[8],
                 thumbnail=self.client.user.avatar.url,
                 author=ctx.author,
+                url=ctx.message.jump_url,
                 footer={
                     'text': 'This result was provided by EMKC',
                     'icon_url': 'https://emkc.org/images/icon_square_64.png'
@@ -368,6 +432,7 @@ class Code(commands.Cog):
         stats = get_user_stats(user)
         if stats:
             stats_dict = user_stats_dict(stats, self.client.re[8], user)
+            repos = await self.get_repos(user, inter)
         else:
             stats_dict = {
                 'title':'UserNotFound',
@@ -377,17 +442,18 @@ class Code(commands.Cog):
                     'icon_url': ef.safe_pfp(inter.user)
                 }
             }
+            repos = []
         embed = embed_from_dict(
             stats_dict, inter, self.client
-        )
-        await inter.send(embed=embed)
+        )        
+        await assets.pa(inter, [embed]+repos)
 
     @gh.subcommand(description="Repository")
     async def repo(self, inter, repo: str):
-        stats = get_repo_stats(repo)
+        stats = await get_repo_stats(repo)
 
         if stats:
-            stats_embed = repo_stats_dict(
+            stats_embed = await repo_stats_dict(
                 stats, self.client.re[8]
             )
         else:
