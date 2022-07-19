@@ -29,16 +29,63 @@ class Music(commands.Cog):
         self.queue_song = self.client.queue_song
         self.dev_channel = dev_channel
 
-    @nextcord.slash_command(
-        name="autoplay",
-        description="Plays the next song automatically if its turned on",
-    )
+    @nextcord.slash_command(name="music", description="Loop or autoplay")
+    async def control(self, inter):
+        print(inter.user)
+
+    @control.subcommand(name="autoplay", description="Toggle Autoplay")
     async def autoplay_slash(self, inter):
         await self.autoplay(inter)
     
-    @nextcord.slash_command(name="loop", description="Loops the same song")
+    @control.subcommand(name="loop", description="Toggle Loop")
     async def loop_slash(self, inter):
-        await self.loop(inter)
+        await self.loop(inter)    
+
+    @control.subcommand(name="again", description="Repeat the song")
+    async def again_slash(self, inter):
+        await inter.response.defer()
+        await self.again(inter)
+
+    @control.subcommand(name="disconnect", description="Disconnect the bot from your voice channel")
+    async def leave_slash(self, inter):        
+        await self.leave(inter)
+
+    @control.subcommand(name = "play", description = "play a song, you can also put a song name in that")
+    async def play_slash(self, inter, index):
+        await inter.response.defer()
+        await self.play(inter, index = index)
+
+    @control.subcommand(name="connect", description="Connect to a voice channel")
+    async def connect_slash(self, inter, channel: GuildChannel = ef.defa(ChannelType.voice)):
+        await self.connect_music(inter, channel)    
+
+    @control.subcommand(name = "queue", description = "play a song")
+    async def queue_slash(self, inter, song: str = None):
+        await self.queue(inter, name = song)
+
+    @control.subcommand(
+        name="removeduplicates", 
+        description = "removes all the duplicate songs in your queue"
+    )
+    async def remove_duplicates(self, inter):    
+        await inter.response.defer()
+        self.client.re[3][str(inter.guild.id)] = 0
+        songs = self.client.queue_song[str(inter.guild.id)]
+        for i in songs:
+            if self.client.queue_song[str(inter.guild.id)].count(i)>1:
+                self.client.queue_song[str(inter.guild.id)].remove(i)
+        await inter.send(
+            embed=ef.cembed(
+                title="Done",
+                description=f"Removed songs",
+                color = self.client.re[8]
+            )
+        )
+
+    @control.subcommand(name = "lyrics", description = "Gets lyrics of a song")
+    async def lyrics_slash(self, inter, song):
+        await inter.response.defer()
+        await self.lyrics(inter, song = song)
 
     @commands.command()
     @commands.check(ef.check_command)
@@ -46,7 +93,7 @@ class Music(commands.Cog):
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if ctx.guild.voice_client and user.id in [i.id for i in ctx.guild.voice_client.channel.members]:
             st = ""
-            self.client.re[7][ctx.guild.id] = self.client.re[7].get(ctx.guild.id,-1) * -1
+            self.client.re[7][ctx.guild.id] = self.client.re[7].get(ctx.guild.id, -1) * -1
             if self.client.re[7].get(ctx.guild.id,-1) == 1:
                 self.client.re[2][ctx.guild.id] = -1
             if self.client.re[7][ctx.guild.id] < 0:
@@ -54,16 +101,20 @@ class Music(commands.Cog):
             else:
                 st = "_On_"
             await ctx.send(
-                embed=nextcord.Embed(
-                    title="Autoplay", description=st, color=nextcord.Color(value=self.client.re[8])
+                embed=ef.cembed(
+                    title="Autoplay", 
+                    description=st, 
+                    color=self.client.re[8],
+                    author=user
                 )
             )
         else:
             await ctx.send(
-                embed=nextcord.Embed(
+                embed=ef.cembed(
                     title="Permissions Denied",
                     description="You need to be in the voice channel with Alfred to toggle autoplay",
-                    color=nextcord.Color(value=self.client.re[8]),
+                    color=self.client.re[8],
+                    author=user
                 )
             )
     
@@ -133,23 +184,20 @@ class Music(commands.Cog):
             voice.pause()
             url = self.client.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
             song = self.client.da1.get(url, "Unavailable")
-            embed=nextcord.Embed(
+            embed=ef.cembed(
                 title="Paused",
                 description=f"[{song}]({url})",
-                color=nextcord.Color(value=self.client.re[8]),
+                color=self.client.re[8],
+                author=user
             )
         else:
-            embed=nextcord.Embed(
+            embed=ef.cembed(
                 title="Permission denied",
                 description="Join the channel to pause the song",
-                color=nextcord.Color(value=self.client.re[8]),
+                color=self.client.re[8],
+                author=user
             )
-        await ef.isReaction(ctx,embed)
-
-    @nextcord.slash_command(name="disconnect", description="Disconnect the bot from your voice channel")
-    async def leave_slash(self, inter):        
-        await self.leave(inter)
-    
+        await ef.isReaction(ctx, embed)     
     
     @commands.command(aliases=["dc","disconnect"])
     @commands.check(ef.check_command)
@@ -164,35 +212,46 @@ class Music(commands.Cog):
             voice = ctx.guild.voice_client
             voice.stop()
             await voice.disconnect()
-            embed=nextcord.Embed(
+            embed=ef.cembed(
                 title="Disconnected",
                 description="Bye, Thank you for using Alfred",
-                color=nextcord.Color(value=self.client.re[8]),
-            )            
+                color=self.client.re[8],
+                author=user
+            )  
+
         else:
-            embed=nextcord.Embed(
+            embed=ef.cembed(
                 title="Permission denied",
                 description="Nice try dude! Join the voice channel",
-                color=nextcord.Color(value=self.client.re[8]),
+                color=self.client.re[8],
+                author=user
             )
-        await ef.isReaction(ctx,embed,clear=True)
+        await ef.isReaction(ctx, embed, clear=True)
 
-    @nextcord.slash_command(name="addto",description="put queue or playlist and it will add the songs to your playlist to queue or queue to playlist")
-    async def addto(self, inter, mode = ef.defa(choices=['queue','playlist','show','clear']), from_user:nextcord.User = "-"):
+    @control.subcommand(
+        name="playlist",
+        description="put queue or playlist and it will add the songs to your playlist to queue or queue to playlist"
+    )
+    async def addto(
+        self, 
+        inter: Interaction, 
+        mode = ef.defa(choices=['add to queue','add to playlist','show','clear']), 
+        from_user:nextcord.User = None
+    ):
         await inter.response.defer()
-        if from_user == '-':
+        if not from_user:
             from_user = inter.user
         if not (inter.user.voice and inter.guild.voice_client): 
             await inter.send("You need to connect to a voice channel")
             return
-        if mode == "queue":        
+        if mode == "add to queue":        
             if from_user.id in list(self.client.da.keys()):
                 self.client.queue_song[str(inter.guild.id)]+=self.client.da[from_user.id]
                 await inter.send("Added your playlist to queue")
             else:
                 await inter.send("You do not have a Playlist")
                 return
-        if mode == "playlist":
+        if mode == "add to playlist":
             if inter.user.id not in list(self.client.da.keys()):
                 self.client.da[inter.user.id] = []
             for i in self.client.queue_song[str(inter.guild.id)]:
@@ -201,14 +260,21 @@ class Music(commands.Cog):
             await inter.send("Added songs in queue to playlist\n*Note: The songs are added uniquely, which means that if a song in queue is repeated in your playlist, then that song wont be added*")
         if mode == "clear":
             if self.client.da.get(inter.user.id): 
-                del self.client.da[inter.user.id]
-                await inter.send("Cleared your playlist")
+                confirmation = await ef.wait_for_confirm(
+                    inter, self.client, 
+                    "Are you sure?", self.client.re[8]
+                )
+                if confirmation:
+                    del self.client.da[inter.user.id]
+                    await inter.send("Cleared your playlist")
+                else:
+                    await inter.send("Cancelled")
             else:
                 await inter.send("You had no playlist registered")
         if mode == "show":
             l = []
             thumbnail = ef.safe_pfp(from_user)
-            songs = self.client.da.get(from_user.id,[])
+            songs = self.client.da.get(from_user.id, [])
             n=0
             for i in songs:
                 n+=1
@@ -237,11 +303,7 @@ class Music(commands.Cog):
                     thumbnail=thumbnail
                 )
                 embeds.append(embed)
-            await assets.pa(inter, embeds, start_from=0, restricted=False)
-
-    @nextcord.slash_command(name="connect", description="Connect to a voice channel")
-    async def connect_slash(self, inter, channel: GuildChannel = ef.defa(ChannelType.voice)):
-        await self.connect_music(inter, channel)
+            await assets.pa(inter, embeds, start_from=0, restricted=True)   
     
     
     @commands.command(aliases=["cm",'join','cn','connect'])
@@ -279,8 +341,7 @@ class Music(commands.Cog):
             else:
                 if channel in [i.name for i in ctx.guild.voice_channels]:
                     voiceChannel = nextcord.utils.get(ctx.guild.voice_channels, name=channel)
-                    await voiceChannel.connect()
-                    voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
+                    await voiceChannel.connect()                    
                     await ctx.send(
                         embed=ef.cembed(
                             title="Connected",
@@ -317,7 +378,7 @@ class Music(commands.Cog):
 
     @commands.command(aliases=["s_q"])
     @commands.check(ef.check_command)
-    async def search_queue(self,ctx, part):
+    async def search_queue(self, ctx, part):
         st = ""
         index = 0
         found_songs = 0
@@ -341,12 +402,7 @@ class Music(commands.Cog):
                 color=self.client.re[8],
                 thumbnail=self.client.user.avatar.url,
             )
-        )
-
-    @nextcord.slash_command(name = "queue", description = "play a song")
-    async def queue_slash(self, inter, song: str = None):
-        await self.queue(inter, name = song)
-    
+        )    
         
     @commands.command(aliases=["q"])
     @commands.check(ef.check_command)
@@ -423,7 +479,7 @@ class Music(commands.Cog):
             if type(ctx) == nextcord.Interaction:
                 mess = await ctx.original_message()
             await self.player_pages(mess)
-        elif name == "":
+        elif not name:
             num = 0
             st = ""
             if str(ctx.guild.id) not in self.client.queue_song:
@@ -457,22 +513,18 @@ class Music(commands.Cog):
                 thumbnail=self.client.user.avatar.url
             )
             mess = await ctx.send(embed=embed)
-            if type(ctx) == nextcord.Interaction:
+            if isinstance(ctx, nextcord.Interaction):
                 mess = await ctx.original_message()
             await self.player_pages(mess)
         else:
             await ctx.send(
-                embed=nextcord.Embed(
+                embed=ef.cembed(
                     title="Permission denied",
                     description="Join the voice channel to modify queue",
-                    color=nextcord.Color(value=self.client.re[8]),
+                    color=self.client.re[8],
+                    author=getattr(ctx, 'author', getattr(ctx, 'user', None))
                 )
             )
-
-    @nextcord.slash_command(name="again", description="Repeat the song")
-    async def again_slash(self, inter):
-        await inter.response.defer()
-        await self.again(inter)
         
     @commands.command()
     @commands.check(ef.check_command)
@@ -585,22 +637,6 @@ class Music(commands.Cog):
                 )
             )
 
-    @nextcord.slash_command(name="removeduplicates", description = "removes all the duplicate songs in your queue")
-    async def remove_duplicates(self, inter):    
-        await inter.response.defer()
-        self.client.re[3][str(inter.guild.id)] = 0
-        songs = self.client.queue_song[str(inter.guild.id)]
-        for i in songs:
-            if self.client.queue_song[str(inter.guild.id)].count(i)>1:
-                self.client.queue_song[str(inter.guild.id)].remove(i)
-        await inter.send(
-            embed=ef.cembed(
-                title="Done",
-                description=f"Removed songs",
-                color = self.client.re[8]
-            )
-        )
-
     async def player_pages(self, mess):
         await ef.player_reaction(mess)    
         emojis = emoji.emojize(":upwards_button:"),emoji.emojize(":downwards_button:")
@@ -701,11 +737,6 @@ class Music(commands.Cog):
                     nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS),
                     after=lambda e: self.repeat(ctx, voice),
                 )    
-
-    @nextcord.slash_command(name = "lyrics", description = "Gets lyrics of a song")
-    async def lyrics_slash(self, inter, song):
-        await inter.response.defer()
-        await self.lyrics(inter, song = song)
 
     @commands.command()
     @commands.check(ef.check_command)
@@ -894,11 +925,6 @@ class Music(commands.Cog):
                 footer="check 'q if you have any song"
             )
             await ef.isReaction(ctx, embed)
-
-    @nextcord.slash_command(name = "play", description = "play a song, you can also put a song name in that")
-    async def play_slash(self, inter, index):
-        await inter.response.defer()
-        await self.play(inter, index = index)
 
     @commands.command(aliases=[">", "skip"])
     @commands.check(ef.check_command)

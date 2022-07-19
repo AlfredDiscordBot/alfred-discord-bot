@@ -17,25 +17,16 @@ class Social(commands.Cog):
         self.client = client
         self.dev_channel = dev_channel
         self.link_for_cats = []
-        
 
-    @commands.command()
-    @commands.check(ef.check_command)
-    async def quote(self, ctx):
-        embed = await ef.quo(self.client.re[8])
-        await ctx.send(embed=embed)
-    
-    @nextcord.slash_command(name="quote",description="Get a random quote")
-    async def quo_slash(self, inter):
-        await inter.response.defer()
-        await self.quote(inter)
+    @nextcord.slash_command(name="social", description="Contains all the social cog slash commands")
+    async def social(self, inter):
+        print(inter.user)        
 
-    @nextcord.slash_command(name="reddit")
+    @social.subcommand(name="reddit", description="Get posts from reddit")
     async def reddit_slash(self, inter, account="wholesomememes", number=1):
         self.client.re[0]+=1
         await inter.response.defer()
-        await self.reddit_search(inter, account, number)
-    
+        await self.reddit_search(inter, account, number)    
     
     @commands.command(aliases=["reddit"])
     @commands.check(ef.check_command)
@@ -43,7 +34,7 @@ class Social(commands.Cog):
         a = await ef.redd(ctx, account, number)
         await assets.pa(ctx, a)
 
-    @nextcord.slash_command(name="imdb", description="Give a movie name")
+    @social.subcommand(name="imdb", description="Give a movie name")
     async def imdb_slash(self, inter, movie):
         await inter.response.defer()
         try:
@@ -54,6 +45,7 @@ class Social(commands.Cog):
                     title="Oops",
                     description=str(e),
                     color=self.client.re[8],
+                    author=self.client.user,
                     thumbnail=self.client.user.avatar.url,
                 )
             )
@@ -69,7 +61,7 @@ class Social(commands.Cog):
         embeds=await ef.animals(self.client,ctx,self.client.re[8])
         await assets.pa(ctx, embeds)
 
-    @nextcord.slash_command(name="wikipedia", description="Get a topic from wikipedia")
+    @social.subcommand(name="wikipedia", description="Get a topic from wikipedia")
     async def wiki_slash(self, inter, text):
         await inter.response.defer()
         await self.wikipedia(inter, text = text)  
@@ -114,12 +106,12 @@ class Social(commands.Cog):
             )
         )
 
-    @nextcord.slash_command(name="memes", description="Memes from Alfred yey")
+    @social.subcommand(name="memes", description="Memes from Alfred yey")
     async def memes_slash(self, inter):
         await inter.response.defer()
         await self.memes(inter)
 
-    @nextcord.slash_command(name="news", description="Latest news from a given subject from inshorts")
+    @social.subcommand(name="news", description="Latest news from a given subject from inshorts")
     async def news_slash(self, inter: nextcord.Interaction, subject: str = ef.defa(choices=NEWS_CATEGORIES, default="all")):
         self.client.re[0]+=1  
         await inter.response.defer()
@@ -152,94 +144,6 @@ class Social(commands.Cog):
             embed.add_field(name = "ReadMore", value = f"[Here]({i['readMoreUrl']})")
             embeds.append(embed)
         await assets.pa(ctx,embeds)
-            
-
-    @nextcord.slash_command(name="instagram",description="get recent instagram posts of the account")
-    async def insta_slash(self, ctx, account):
-        await ctx.response.defer()
-        await self.instagram(ctx, account = account)
-
-    @commands.command(alias=['insta'])
-    @commands.check(ef.check_command)
-    async def instagram(self, ctx, account):    
-        embeds = []
-        pop_in = await ef.get_async(f"https://api.popcat.xyz/instagram?user={ef.convert_to_url(account)}", kind="json")
-        if pop_in.get('error'):
-            await ctx.send(
-                embed=ef.cembed(
-                    title="Error",
-                    description=pop_in['error'],
-                    color=self.client.re[8]
-                )
-            )
-            return
-        if pop_in.get('private'):
-            embed=ef.cembed(
-                title=pop_in.get("full_name"),
-                description=pop_in.get("biography"),
-                color=self.client.re[8],
-                thumbnail=pop_in.get("profile_pic"),
-                footer="This user has a private account, cannot share his posts, sorry for the inconvenience"
-            )
-            for i in ("followers", "following"):
-                embed.add_field(name=i, value=pop_in.get(i))
-            await ctx.send(embed=embed)
-            return
-        embed=ef.cembed(
-            title=pop_in.get("full_name"),
-            description=pop_in.get("biography"),
-            color=self.client.re[8],
-            thumbnail=pop_in.get("profile_pic")
-        )
-        for i in ("followers", "following", "posts", "reels", "private", "verified"):
-            embed.add_field(name=i, value=str(pop_in.get(i)))
-        embeds.append(embed)
-        try:
-            links = ef.instagram_get1(
-                account,
-                self.client.re[8],
-                self.client.re[9]
-            )
-            if links == "User Not Found, please check the spelling":
-                await ctx.send(
-                    embed=ef.cembed(
-                        title="Hmm",
-                        description=links,
-                        color=self.client.re[8],
-                        thumbnail=self.client.user.avatar.url
-                    )
-                )
-                return
-            if type(links) == str:
-                self.client.re[9]=links
-                links=ef.instagram_get1(
-                    account,
-                    self.client.re[8],
-                    self.client.re[9]
-                )            
-            for a in links:
-                if a is not None and type(a) != str:
-                    embeds.append(a[0])
-                elif type(a) != str:
-                    self.client.re[9] = links
-                else:                
-                    await ctx.send(
-                        embed=nextcord.Embed(
-                            description="Oops!, something is wrong.",
-                            color=nextcord.Color(value=self.client.re[8]),
-                        )
-                    )
-                    break
-            await assets.pa(ctx, embeds, start_from=0, restricted=False)
-        except IndexError:
-            embed = ef.cembed(
-                title="Error in instagram",
-                description=f"Sorry, we couldnt find posts in {account}, please check again if it's private or if {account} has posted anything",
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url,
-            )
-            await ctx.send(embed=embed)
-            await self.client.get_channel(self.dev_channel).send(embed=embed)
     
         
 
