@@ -345,7 +345,7 @@ class Code(commands.Cog):
     async def get_repos(self, username: str, inter: nextcord.Interaction):
         j = await ef.get_async(f"https://api.github.com/users/{username}/repos",kind="json")
         repo_embeds = []
-        for repo_stats in j[:5]:
+        for repo_stats in j:
             image = fetch_image(repo_stats.get('full_name'))
             if not repo_stats.get("license", None):
                 repo_stats["license"] = {}
@@ -445,7 +445,7 @@ class Code(commands.Cog):
         embed = embed_from_dict(
             stats_dict, inter, self.client
         )        
-        await assets.pa(inter, [embed]+repos)
+        await assets.pa(inter, [embed]+repos, restricted=True)
 
     @gh.subcommand(description="Repository")
     async def repo(self, inter, repo: str):
