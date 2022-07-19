@@ -1,6 +1,5 @@
 from io import BytesIO
-from instagramy import InstagramUser
-from instascrape import Post, BeautifulSoup
+from bs4 import BeautifulSoup
 from nextcord import SlashOption
 from dotenv import load_dotenv
 from functools import lru_cache
@@ -10,7 +9,6 @@ from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 from typing import List, Union
 
-import hashlib
 import psutil
 import os
 import time
@@ -39,6 +37,7 @@ ydl_op = {
             "preferredquality": "384",
         }
     ],
+    'noplaylist':'True'
 }
 SVG2PNG_API_URI = os.getenv("svg2pnguri")
 SVG2PNG_API_TOKEN = os.getenv("svg2pngtoken")
@@ -87,83 +86,10 @@ def convert_to_url(name):
     name = urllib.parse.quote(name)
     return name
 
-
-def get_sessionid(username, password):
-    url = "https://i.instagram.com/api/v1/accounts/login/"
-
-    def generate_device_id(username, password):
-        m = hashlib.md5()
-        m.update(username.encode() + password.encode())
-
-        seed = m.hexdigest()
-        volatile_seed = "12345"
-
-        m = hashlib.md5()
-        m.update(seed.encode("utf-8") + volatile_seed.encode("utf-8"))
-        return "android-" + m.hexdigest()[:16]
-
-    device_id = generate_device_id(username, password)
-
-    payload = {
-        "username": username,
-        "device_id": device_id,
-        "password": password,
-    }
-
-    headers = {
-        "Accept": "*/*",
-        "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Accept-Language": "en-US",
-        "referer": "https://www.instagram.com/accounts/login/",
-        "User-Agent": "Instagram 10.26.0 Android",
-    }
-
-    response = requests.post(url, headers=headers, data=payload)
-    if response.status_code == 200:
-        return response.cookies.get_dict()["sessionid"]
-
-    return response.text
-
 async def wolf_spoken(wolfram, question):
     question = convert_to_url(question)
     url = f"http://api.wolframalpha.com/v1/spoken?appid={wolfram}&i={question}"
     return await get_async(url)
-
-def get_it():
-    username = str(os.getenv("username"))
-    password = str(os.getenv("password"))
-    return get_sessionid(username, password)
-
-
-def instagram_get1(account, color, SESSIONID):
-    try:
-        user = InstagramUser(account, sessionid=SESSIONID)
-        all_posts = user.posts
-        list_of_posts = []
-        number = 0
-        for i in all_posts[0:7]:
-            url = i.post_url
-            pos = Post(url)
-            headers = {
-                "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36 Edg/87.0.664.57",
-                "cookie": "sessionid=" + SESSIONID + ";",
-            }            
-            pos.scrape(headers=headers)
-            print(user.posts[number].comments)
-            thumb = user.profile_picture_url
-            embed = cembed(
-                title="Instagram", color=color,
-                footer=str(user.posts[number].comments) + " comments",
-                image=user.posts[number].post_source,
-                thumbnail=thumb
-            )
-            list_of_posts.append((embed, url))
-            number += 1
-        return list_of_posts
-    except Exception:
-        print(traceback.print_exc())
-        #SESSIONID = get_it()
-        return SESSIONID
 
 @lru_cache(maxsize=512)
 async def get_youtube_url(url):
@@ -1072,3 +998,8 @@ def error_message(error: str):
         color=nextcord.Color.red(),
         thumbnail="https://raw.githubusercontent.com/alvinbengeorge/alfred-discord-bot/default/error.png"        
     )
+
+def dict2fields(d: dict, inline: bool = True):
+    return [
+        {'name':i, 'value': d[i], 'inline': inline} for i in d
+    ]

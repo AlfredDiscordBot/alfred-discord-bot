@@ -226,6 +226,40 @@ class Mod(commands.Cog):
         else:
             await ctx.send("Wrong password")
 
+    @nextcord.slash_command(name="autoaddrole", description="Add roles to all")
+    async def autoadd(self, inter):
+        print(inter.user)
+
+    @autoadd.subcommand(name="tobots", description="Bots")
+    async def bots(self, inter, role: nextcord.Role):
+        if not inter.user.id == inter.guild.owner.id:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You cannot execute this command, only server owners can",
+                    color=nextcord.Color.red(),
+                    thumbnail=self.client.user.avatar.url,
+                    author=inter.user,
+                    footer="Please ask your owner to execute this command"
+                )
+            )
+            return
+        await inter.send(
+            embed=ef.cembed(
+                title="All right",
+                description="This may take a while to process, please be patient",
+                color=self.client.re[8],
+                author=inter.user,
+                footer=f"This will be applied to {len(inter.guild.bots)} bots"
+            )
+        )
+        for bot in inter.guild.bots:
+            await ef.asyncio.sleep(4)
+            try:
+                await bot.add_roles(role)
+            except:
+                pass
+
 
 def setup(client,**i):
     client.add_cog(Mod(client,**i))

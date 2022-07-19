@@ -19,7 +19,11 @@ class FunAPI(commands.Cog):
         self.minecraft = ef.MineCraft(client)
         self.AiD = wolfram
 
-    @nextcord.slash_command(name="tech", description="Get TechTerms from TechTerms.com")
+    @nextcord.slash_command(name="api", description="Get all the Fun APIs of Alfred from here")
+    async def funapi(self, inter):
+        print(inter.user)
+
+    @funapi.subcommand(name="tech", description="Get TechTerms from TechTerms.com")
     async def tech(self, inter, query = "Python"):
         await inter.response.defer()
         e = await self.tt.get_page_as_embeds(query)
@@ -31,7 +35,18 @@ class FunAPI(commands.Cog):
         comp = await self.tt.search(query)
         await inter.response.send_autocomplete(comp)
 
-    @nextcord.slash_command(name="protondb", description="Check a game for linux compatibility in proton")
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def quote(self, ctx):
+        embed = await ef.quo(self.client.re[8])
+        await ctx.send(embed=embed)
+    
+    @funapi.subcommand(name="quote",description="Get a random quote")
+    async def quo_slash(self, inter):
+        await inter.response.defer()
+        await self.quote(inter)
+
+    @funapi.subcommand(name="protondb", description="Check a game for linux compatibility in proton")
     async def protondb(self, inter, game):
         await inter.response.defer()
         reports = await self.proton.report(game)
@@ -98,7 +113,7 @@ class FunAPI(commands.Cog):
         )
         await ctx.send(file=file, embed=em)
 
-    @nextcord.slash_command(name="dictionary", description="Use the dictionary for meaning")
+    @funapi.subcommand(name="dictionary", description="Use the dictionary for meaning")
     async def dic(self, inter, word):
         await inter.response.defer()
         try:
@@ -130,7 +145,7 @@ class FunAPI(commands.Cog):
         )
         await ctx.send(embed=embed)  
 
-    @nextcord.slash_command(name="api", description="Get info about a public API")
+    @funapi.subcommand(name="apisearch", description="Get info about a public API")
     async def APis(self, inter, name):
         await inter.response.defer()
         await self.APIs.update(inter.user)
@@ -175,7 +190,7 @@ class FunAPI(commands.Cog):
             )
         )
 
-    @nextcord.slash_command(name="minecraft", description="Search through DigMineCraft here")
+    @funapi.subcommand(name="minecraft", description="Search through DigMineCraft here")
     async def minec(self, inter, page: str):
         if page not in self.minecraft.all_categories():
             await inter.send(

@@ -21,8 +21,6 @@ greenlet==1.1.2
 idna==3.1
 IMDbPY
 iniconfig==1.1.1
-insta-scrape
-instagramy==4.4
 itsdangerous==2.0.1
 jaraco.context==4.1.1
 Jinja2==3.0.3

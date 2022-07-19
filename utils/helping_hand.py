@@ -1,5 +1,5 @@
 import nextcord
-from .External_functions import cembed, defa
+from .External_functions import cembed, defa, dict2fields
 from .assets import *
 
 
@@ -108,18 +108,26 @@ def help_him(client, re):
 
     code_help = cembed(
         title="Code",
-        description="You can execute programs from various programming languages\n\nEx: 'code <language>\n```\n#code here\n```",
+        description="You can execute programs from various programming languages\n\nEx: 'code <language>\n```py\nprint('hello world')\n#code here\n```",
         color=re[8],
         thumbnail=thumbnail,
-        picture="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8aYSfIp22UXBEkRt6vXwy4dmfhH3Q1lr8ow&usqp=CAU",
-    )
-    
-    prefix_help = cembed(
-        title="Set_Prefix",
-        description="You can change the prefix of the bot for the server using set_prefix command.\nYou can also remove it using remove_prefix\n**Warning**: Only an admin can change",
-        color=re[8],
-        thumbnail=thumbnail,
-        picture="https://i.kym-cdn.com/entries/icons/original/000/036/173/cover2.jpg"
+        picture="https://opengraph.githubassets.com/",
+        footer={
+            'text': 'The result is taken from EMKC',
+            'icon_url': 'https://emkc.org/images/icon_square_64.png'
+        },
+        fields=[
+            {
+                'name': 'Learn command',
+                'value': 'Use `\'learn` to see how alfred works, there\'s also `/pylint` command for trusted servers',
+                'inline': False
+            },
+            {
+                'name': 'Github',
+                'value': 'Use `/github repo` for viewing information about github repository\nUse `/github user` for viewing information about a user',
+                'inline': False
+            }
+        ]
     )
     
     music_help = cembed(
@@ -129,19 +137,18 @@ def help_him(client, re):
 `Play` command to play a song in your queue through index no. or you can put a song after that to play it instantly
 `Queue` command to add a song to the queue
 `Remove` command to remove a song from the queue
+`/music playlist  ` to view your playlist or add songs to it
+`/music again     ` to repeat the song playing
+`/music disconnect` to disconnect the bot
+`/music autoplay  ` to toggle autoplay
+`/music loop      ` to toggle loop
         """,
         thumbnail=thumbnail,
         color=re[8],
         picture="https://i.pinimg.com/originals/f1/90/97/f19097b29a4b606f8a91252fab526c6f.jpg",
         footer="Here's a little tip, when the bot says that this content is meant for only adults, search for the lyrics version of the song"
     )
-    youtube_help = cembed(
-        title="Youtube Subscribe to a channel",
-        description="You can now add or make Alfred send you updates in the channel\n\nUse 'subscribe #channel https://www.youtube.com/c/LinusTechTips/videos to subscribe ",
-        thumbnail=thumbnail,
-        color=re[8],
-        picture="https://play-lh.googleusercontent.com/vA4tG0v4aasE7oIvRIvTkOYTwom07DfqHdUPr6k7jmrDwy_qA_SonqZkw6KX0OXKAdk"
-    )
+
     yaml_help = cembed(
         title="Yaml Embed tutorial",
         description="Embed Feature has been a very very important part of Alfred since the beginning, it started small and now it's much better, I'm really thrilled to see your creation using Alfred",
@@ -161,6 +168,7 @@ def help_him(client, re):
         thumbnail=thumbnail,
         picture="https://i.ytimg.com/vi/aN6Ywnwsahk/maxresdefault.jpg"
     )
+
     github_help = cembed(
         title="Source Code for Alfred",
         description="Here you go, click this link and it'll redirect you to the github page\n[Github page](https://github.com/alvinbengeorge/alfred-discord-bot)\n\nClick this link to invite the bot \n[Invite Link](https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands)",
@@ -168,6 +176,7 @@ def help_him(client, re):
         thumbnail="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
         picture="https://raw.githubusercontent.com/alvinbengeorge/alfred-discord-bot/default/Bat.jpg",
     )
+
     first_page = cembed(
         title="Help",
         description="Hi I am Alfred. I was made by [Alvin](https://github.com/alvinbengeorge/).\nPrefix for this bot is '\n\nIf you have any complaints or issues with Alfred, please give us a feedback using the command `'feedback`\nVote for me in [top.gg](https://top.gg/bot/811591623242154046/vote). Thank you\n\n||Here's a lil tip from the developers which you probably wont find in any other bots, edit a command and it'll run again||",
@@ -176,6 +185,7 @@ def help_him(client, re):
         color=re[8],
         footer="Have a great day | Best with slash command"
     )
+
     message_developer = cembed(
         title = "Message from the developers",
         description = message_from,
@@ -184,6 +194,7 @@ def help_him(client, re):
         picture = "https://raw.githubusercontent.com/nextcord/nextcord/master/assets/repo-banner.png",
         footer=f"Powered by Nextcord {nextcord.__version__}"
     )
+
     effects_help = cembed(
         title="Effects",
         description="This command will apply effects to your Profile Picture, Use it by `'effects <effect name> @mention`"+effec,
@@ -194,10 +205,12 @@ def help_him(client, re):
     
     social_help=cembed(
         title="Socials",
-        description="`'reddit <account>` for reddit posts\n`'instagram <account>` for 7 latest instagram postst\n`'quote` gives a random quote\n`'mehspace @mention` will give a person's mehspace\n`/subscribe` command for subscribing to a channel\n`/unsubscribe` command to unsubscribe from a channel\n\nIf you need to learn to setup mehspace, go to  the `Yaml help page`",
+        description="`'reddit <account>` for reddit posts\n`'quote` gives a random quote\n`'mehspace @mention` will give a person's mehspace\n`/subscribe` command for subscribing to a channel\n`/unsubscribe` command to unsubscribe from a channel\n\nIf you need to learn to setup mehspace, go to  the `Yaml help page`",
         color=re[8],
-        image="https://media.smallbiztrends.com/2022/01/social-audio.png"
+        image="https://media.smallbiztrends.com/2022/01/social-audio.png",
+        footer="We've decided to remove instagram as it's hard to keep up with their security improvements"
     )
+
     games_help = cembed(
         title="Games",
         description="This is a new feature in Alfred.\nAlfred currently has two new games\n```diff\n+ RockPaperScissor\n+ Guess\n```\n\n**Only in Slash commands**",
@@ -205,9 +218,44 @@ def help_him(client, re):
         footer="More games coming soon",
         image="https://c.tenor.com/_yS6EXe8Tc0AAAAC/gotham-knights-dc.gif"
     )
+                
+    wordcloud_link = "https://www.mentimeter.com/features/word-cloud#:~:text=What%20is%20a%20Word%20Cloud,audience%20members%20using%20their%20smartphones"
+
+    ai_help = cembed(
+        title="AI commands",
+        description="We've added some AI related content to the bot",
+        color=client.re[8],
+        thumbnail=client.user.avatar.url,
+        fields=dict2fields(
+            {
+                'AI Generator': 'We\'ve added a command to Generate text based on your input, use `\'gen <text>`',
+                'AI talking': 'Alfred talks to you when you start with the word `Alfred <text>`, can be disabled by using `/config`, or modified using `/model`',
+                'AI wolfram': 'You can use wolfram to solve simple or sometimes complex Mathematical and Scientifical problems, use `\'wolf <query>`, also comes in the form of `AI talking`',
+                'Wordcloud': f'Find out more about wordcloud from [here]({wordcloud_link}). You can use it by `/wordcloud <user>`. This process takes time and will not be as fast as expected'
+            },
+            inline=False
+        ),
+        footer="""We do really care about your privacy only data called from discord is for Wordcloud.
+We do not store any of the message data provided to alfred and the ones provided are deleted""",
+        image="https://imageio.forbes.com/specials-images/imageserve/614d55107441e2d9ba4238f6/The-7-Biggest-Artificial-Intelligence--AI--Trends-In-2022/960x0.jpg?format=jpg&width=960"
+    )
         
 
-    all_embeds = [first_page, github_help, message_developer, effects_help, music_help, games_help, mod_help, yaml_help, code_help, wolfram_help, Emoji_help, social_help]
+    all_embeds = [
+        first_page, 
+        github_help, 
+        message_developer, 
+        effects_help,
+        ai_help, 
+        music_help, 
+        games_help, 
+        mod_help, 
+        yaml_help, 
+        code_help, 
+        wolfram_help, 
+        Emoji_help, 
+        social_help
+    ]
     
     new_embeds = []
     for i in all_embeds:

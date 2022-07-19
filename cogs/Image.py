@@ -83,8 +83,7 @@ class Image(commands.Cog):
             )
             return
     
-        styles = ['candy', 'composition', 'feathers', 'muse', 'mosaic', 'night', 'scream', 'wave', 'udnie']
-    
+        styles = ['candy', 'composition', 'feathers', 'muse', 'mosaic', 'night', 'scream', 'wave', 'udnie']    
         effects = ['cartoonify', 'watercolor', 'canny', 'pencil', 'econify', 'negative', 'pen']
     
         if effect not in styles and effect not in effects and effect is not None:

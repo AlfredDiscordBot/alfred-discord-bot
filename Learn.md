@@ -58,8 +58,8 @@ Cogs is an easy way to divide the program so that it doesn't look crowded in the
 #All imports here, I would import External_functions, nextcord and nextcord.ext.commands all that
 import nextcord
 from nextcord.ext import commands, tasks
-import External_functions as ef #has cembed(), API classes
-import assets #has pa(ctx, embeds) Pagination buttons
+import utils.External_functions as ef #has cembed(), API classes
+import utils.assets as assets #has pa(ctx, embeds) Pagination buttons
 
 #This is called at first by Alfred, if you need some local variables, like dev_channel, must only be used for passing constants
 def requirements():

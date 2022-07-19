@@ -1,18 +1,9 @@
-def temporary_fix():
-    from shutil import copyfile
-    copyfile("./utils/post.py", "/opt/virtualenvs/python3/lib/python3.8/site-packages/instascrape/scrapers/post.py")
-
-
 import os
-import sys
 import subprocess
 import aiohttp
 import nextcord
 
-#temporary_fix()
-
-print("Booting up")
-print(nextcord.__version__)
+print("Booting up with", nextcord.__version__)
 
 from keep_alive import keep_alive
 from emoji import emojize, demojize
@@ -22,19 +13,16 @@ from utils.Storage_facility import Variables
 from io import StringIO
 from contextlib import redirect_stdout
 from cogs.Embed import get_color
-from importlib import import_module
 from utils.External_functions import (
     cembed,
     error_message, 
-    timestamp, 
     check_command, 
     defa, 
     devop_mtext, 
     datetime, 
     wait_for_confirm, 
     safe_pfp, 
-    get_async, 
-    Emoji_alphabets, 
+    get_async,  
     activities, 
     cog_creator, 
     get_youtube_url, 
@@ -74,7 +62,6 @@ da: dict = {}
 errors: list = ["```arm"]
 da1: dict = {}
 queue_song: dict = {}
-temporary_list: list = []
 dev_channel: int = int(os.getenv("dev"))
 re: list = [0, "OK", {}, {}, -1, "", "205", {}, 5360, "48515587275%3A0AvceDiA27u1vT%3A26",{}]
 youtube: list = []
@@ -83,8 +70,6 @@ SESSIONID = None
 color_message = None
 wolfram: str = os.getenv("wolfram")
 prefix_dict: dict = {}
-
-
 
 # replace your id with this
 dev_users: set = {"432801163126243328"}
@@ -812,7 +797,7 @@ async def on_command_error(ctx, error):
                 author=ctx.author,
                 color=nextcord.Color.red(),
                 thumbnail=client.user.avatar.url,
-                description="You have missed out one of more of the required argument",
+                description="You have missed out one or more of the required argument",
                 fields=[
                     {
                         'name': 'Correct usage',
