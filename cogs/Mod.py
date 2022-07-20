@@ -1,4 +1,4 @@
-import nextcord
+import nextcord, asyncio, traceback
 import utils.assets as assets
 import utils.External_functions as ef
 from nextcord.ext import commands
@@ -104,7 +104,7 @@ class Mod(commands.Cog):
 
     @commands.command(aliases=["kick"])
     @commands.check(ef.check_command)
-    @commands.cooldown(1,10,commands.BucketType.guild)
+    @commands.cooldown(1, 10, commands.BucketType.guild)
     async def kick_member(self, ctx, member: ef.nextcord.Member, *, reason=None):
         if ctx.author.guild_permissions.ban_members:
             await member.kick(reason=reason)
@@ -126,7 +126,7 @@ class Mod(commands.Cog):
             
     @commands.command(aliases=["mu"])
     @commands.check(ef.check_command)
-    @commands.cooldown(1,10,commands.BucketType.guild)
+    @commands.cooldown(1, 10, commands.BucketType.guild)
     async def mute(self, ctx, member: ef.nextcord.Member, time:int=10):
         self.client.re[0]+=1
         if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.mute_members:
@@ -226,12 +226,17 @@ class Mod(commands.Cog):
         else:
             await ctx.send("Wrong password")
 
+    def has_role(self, member: nextcord.Member, role: nextcord.Role):
+        if role in member.roles:
+            return True
+
     @nextcord.slash_command(name="autoaddrole", description="Add roles to all")
     async def autoadd(self, inter):
         print(inter.user)
 
     @autoadd.subcommand(name="tobots", description="Bots")
     async def bots(self, inter, role: nextcord.Role):
+        await inter.response.defer()
         if not inter.user.id == inter.guild.owner.id:
             await inter.send(
                 embed=ef.cembed(
@@ -244,21 +249,104 @@ class Mod(commands.Cog):
                 )
             )
             return
+        confirm = await ef.wait_for_confirm(
+            inter, self.client, "Are you Sure you want to do this", color=self.client.re[8]
+        )
+        if not confirm:
+            await inter.send("Aborting")
+            return 
+        to_be_added = [_ for _ in inter.guild.bots if not self.has_role(_, role)]
         await inter.send(
             embed=ef.cembed(
                 title="All right",
                 description="This may take a while to process, please be patient",
                 color=self.client.re[8],
                 author=inter.user,
-                footer=f"This will be applied to {len(inter.guild.bots)} bots"
+                footer=f"This will be applied to {len(to_be_added)} bots"
             )
         )
-        for bot in inter.guild.bots:
-            await ef.asyncio.sleep(4)
+        for bot in to_be_added: 
             try:
                 await bot.add_roles(role)
+                await asyncio.sleep(2)
             except:
-                pass
+                print(traceback.format_exc())   
+
+    @autoadd.subcommand(name="toeveryone", description="Bots")
+    async def everyone(self, inter, role: nextcord.Role):
+        await inter.response.defer()
+        if not inter.user.id == inter.guild.owner.id:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You cannot execute this command, only server owners can",
+                    color=nextcord.Color.red(),
+                    thumbnail=self.client.user.avatar.url,
+                    author=inter.user,
+                    footer="Please ask your owner to execute this command"
+                )
+            )
+            return
+        confirm = await ef.wait_for_confirm(
+            inter, self.client, "Are you Sure you want to do this", color=self.client.re[8]
+        )
+        if not confirm:
+            await inter.send("Aborting")
+            return 
+        to_be_added = [_ for _ in inter.guild.members if not self.has_role(_, role)]
+        await inter.send(
+            embed=ef.cembed(
+                title="All right",
+                description="This may take a while to process, please be patient",
+                color=self.client.re[8],
+                author=inter.user,
+                footer=f"This will be applied to {len(to_be_added)} members"
+            )
+        )
+        for member in to_be_added: 
+            try:
+                await member.add_roles(role)
+                await asyncio.sleep(2)
+            except:
+                print(traceback.format_exc())      
+
+    @autoadd.subcommand(name="tohumans", description="Bots")
+    async def humans(self, inter, role: nextcord.Role):
+        await inter.response.defer()
+        if not inter.user.id == inter.guild.owner.id:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You cannot execute this command, only server owners can",
+                    color=nextcord.Color.red(),
+                    thumbnail=self.client.user.avatar.url,
+                    author=inter.user,
+                    footer="Please ask your owner to execute this command"
+                )
+            )
+            return
+        confirm = await ef.wait_for_confirm(
+            inter, self.client, "Are you Sure you want to do this", color=self.client.re[8]
+        )
+        if not confirm:
+            await inter.send("Aborting")
+            return 
+        to_be_added = [_ for _ in inter.guild.humans if not self.has_role(_, role)]
+        await inter.send(
+            embed=ef.cembed(
+                title="All right",
+                description="This may take a while to process, please be patient",
+                color=self.client.re[8],
+                author=inter.user,
+                footer=f"This will be applied to {len(to_be_added)} humans"
+            )
+        )
+        for member in to_be_added: 
+            try:
+                await member.add_roles(role)
+                await asyncio.sleep(2)
+            except:
+                print(traceback.format_exc())        
 
 
 def setup(client,**i):

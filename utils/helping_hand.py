@@ -97,14 +97,6 @@ def help_him(client, re):
         thumbnail=thumbnail,
         picture="https://copyrightalliance.org/wp-content/uploads/2017/07/emojis-cropped.png",
     )
-    
-    wolfram_help = cembed(
-        title="Wolfram",
-        description="I've added a simple API of Wolfram in Alfred, you can use it through 'wolf <expression>",
-        thumbnail=thumbnail,
-        picture="https://venturebeat.com/wp-content/uploads/2019/09/wolfram-alpha.png?fit=400%2C200&strip=all",
-        color=re[8],
-    )
 
     code_help = cembed(
         title="Code",
@@ -251,8 +243,7 @@ We do not store any of the message data provided to alfred and the ones provided
         games_help, 
         mod_help, 
         yaml_help, 
-        code_help, 
-        wolfram_help, 
+        code_help,
         Emoji_help, 
         social_help
     ]
