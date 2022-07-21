@@ -538,7 +538,7 @@ class Configuration(commands.Cog):
             )
         )  
 
-    @nextcord.slash_command(name="roles", description="Setup Roles Selection", guild_ids=[822445271019421746])
+    @nextcord.slash_command(name="roles", description="Setup Roles Selection")
     async def setup_roles(self, inter):
         print(inter.user)
 
