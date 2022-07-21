@@ -3,8 +3,9 @@ import utils.assets as assets
 import traceback
 import utils.External_functions as ef
 from nextcord.ext import commands
-from nextcord import Interaction, SlashOption, ChannelType
+from nextcord import Interaction, ChannelType
 from nextcord.abc import GuildChannel
+from .Roles import setup_view
 
 # Use nextcord.slash_command()
 
@@ -12,7 +13,7 @@ def requirements():
     return ["dev_channel"]
 
 class Configuration(commands.Cog):    
-    def __init__(self, client, dev_channel):
+    def __init__(self, client: commands.Bot, dev_channel):
         self.client = client
         self.dev_channel = dev_channel
         self.command_list = []
@@ -48,8 +49,11 @@ class Configuration(commands.Cog):
                     thumbnail=self.client.user.avatar.url
                 )
             )
+    @nextcord.slash_command(name="config", description="Configure Alfred the way you want")
+    async def config(self, inter: Interaction):
+        print(inter.user)
 
-    @nextcord.slash_command(name="prefix", description="Set Prefix here")
+    @config.subcommand(name="prefix", description="Set Prefix here")
     async def prefix_setting(self, inter, prefix:str = None):
         await self.set_prefix(inter, pref=prefix)
             
@@ -152,7 +156,7 @@ class Configuration(commands.Cog):
             )
 
     
-    @nextcord.slash_command(name="commands", description="Enable and Disable commands, only for admins")
+    @config.subcommand(name="commands", description="Enable and Disable commands, only for admins")
     async def comm(self, inter, mode = ef.defa(choices=['enable','disable','show'], required=True), command = "-"):
         await inter.response.defer()
         command = command.lower()        
@@ -222,7 +226,7 @@ class Configuration(commands.Cog):
         autocomp_command = [i for i in self.command_list if command.lower() in i.lower()][:25]
         await inter.response.send_autocomplete(autocomp_command)
 
-    @nextcord.slash_command(name = "welcome", description = "set welcome channel")
+    @config.subcommand(name = "welcome", description = "set welcome channel")
     async def wel(
         self,
         inter,
@@ -336,7 +340,7 @@ class Configuration(commands.Cog):
                 )
             )
 
-    @nextcord.slash_command(name="config",description="Set your configuration")
+    @config.subcommand(name="message",description="Set your configuration")
     async def config_slash(self, inter, mode = ef.defa(choices = ['enable', 'disable', 'show'], required=True), feature = ef.defa(choices = ['snipe','response','suicide_detector'])):
         await inter.response.defer()        
         if mode == "show":
@@ -528,15 +532,65 @@ class Configuration(commands.Cog):
                 description=f"Removed every reaction in {channel.mention}",
                 color=self.client.re[8]
             )
-        )
+        )  
 
-    @nextcord.slash_command(name="roles", description="Setup Roles", guild_ids=[822445271019421746])
+    @nextcord.slash_command(name="roles", description="Setup Roles Selection", guild_ids=[822445271019421746])
     async def setup_roles(self, inter):
         print(inter.user)
 
-    @setup_roles.subcommand(name="button", description="Setup Roles using buttons")
-    async def buttons(self, inter):
-        await inter.send("Coming soon")
+    @setup_roles.subcommand(name="selection", description="Setup Roles using buttons")
+    async def selection(self, inter, roles_with_comma, channel: GuildChannel = ef.defa(ChannelType.text, required=True)):
+        await inter.response.defer()        
+        roles = [
+            inter.guild.get_role(int(i.strip()[3:-1])) for i in roles_with_comma.split(",")
+        ]    
+        if not channel.permissions_for(inter.user).send_messages:
+            await inter.send(
+                content="You do not have enough permission to do that"
+            )
+            return
+        if not channel.permissions_for(inter.guild.get_member(self.client.user.id)).send_messages:
+            await inter.send(
+                content="I do not have enough permissions to send message"
+            )
+        await channel.send(
+            embed=ef.cembed(
+                title="Roles",
+                description="\n".join([role.mention for role in roles]),
+                color=self.client.re[8],
+                author={
+                    'name': inter.guild.name,
+                    'icon_url': inter.guild.icon
+                },
+                footer={
+                    'text': 'This feature is still Beta',
+                    'icon_url': self.client.user.avatar.url
+                },
+                thumbnail=inter.guild.icon
+            ),
+            view=setup_view(roles)
+        )
+        if inter.guild.id not in self.client.config['roles']:
+            self.client.config['roles'][inter.guild.id] = []
+        self.client.config['roles'][inter.guild.id].append(
+            [role.id for role in roles]
+        )
+        await inter.send(
+            embed=ef.cembed(
+                title="Done",
+                description=f"Completed, the role selection can be seen in {channel.mention}",
+                color=self.client.re[8],
+                thumbnail=self.client.user.avatar.url,
+                fields=[
+                    {
+                        'name': 'Roles',
+                        'value': ''.join([i.mention for i in roles])
+                    }
+                ]
+            )
+        )
+        
+
 
 
 def setup(client,**i):

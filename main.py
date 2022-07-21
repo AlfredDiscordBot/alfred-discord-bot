@@ -1034,7 +1034,8 @@ def load_extension(name):
         client.load_extension(f'cogs.{name}', extras=d)
         print(" :Done")
         return f"[ OK ] Added {name}\n"
-    except:
+    except Exception as e:
+        print(f" :{e}")
         return f"Error in cog {name}:\n"+traceback.format_exc()+"\n"
 
 def load_all():

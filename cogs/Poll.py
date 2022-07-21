@@ -11,7 +11,7 @@ def requirements():
     return []
 
 class Poll(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client: commands.Bot):
         self.client = client
 
     @nextcord.slash_command(name="polling", description="Seperate options with |")
