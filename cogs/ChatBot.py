@@ -129,7 +129,7 @@ class ChatBot(commands.Cog):
                 f"https://api.popcat.xyz/chatbot?msg={ef.convert_to_url(past_response[-1])}&owner=Batman&botname=Alfred",
                 kind="json"
             )
-            texts.append(f'Bot -> {a["response"]}')
+            texts.append(f"Bot -> {a['response']}")
             past_response.append(a['response'])
             embed.description="\n".join(texts)
             await message.edit(

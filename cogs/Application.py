@@ -131,7 +131,7 @@ class ApplicationCreate(ui.Modal):
 
 
 class Application(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client: commands.Bot):
         self.client = client
 
     @commands.Cog.listener()

@@ -10,7 +10,7 @@ def requirements():
     return ["wolfram"]
 
 class FunAPI(commands.Cog):
-    def __init__(self, client, wolfram):
+    def __init__(self, client: commands.Bot, wolfram: str):
         self.client = client
         self.space = ef.SpaceX(self.client.re[8])
         self.proton = ef.Proton()
@@ -18,6 +18,7 @@ class FunAPI(commands.Cog):
         self.APIs = ef.PublicAPI(self.client)
         self.minecraft = ef.MineCraft(client)
         self.AiD = wolfram
+        self.p = ef.Pokemon()
 
     @nextcord.slash_command(name="api", description="Get all the Fun APIs of Alfred from here")
     async def funapi(self, inter):
@@ -244,6 +245,21 @@ class FunAPI(commands.Cog):
     @commands.check(ef.check_command)
     async def json_viewer(self, ctx, url: str):
         await assets.test_JSON(ctx, url=url)
+
+    @funapi.subcommand(
+        name="pokemon",
+        description="Get details about a pokemon -> Beta"
+    )
+    async def poke(self, inter: nextcord.Interaction, pokemon: str):
+        await inter.response.defer()
+        embed = await self.p.get_stats(pokemon, True, self.client.re[8])
+        await inter.send(
+            embed=embed
+        )
+
+    @poke.on_autocomplete("pokemon")
+    async def search_autocomplete(self, inter: nextcord.Interaction, pokemon: str):
+        await inter.response.send_autocomplete(self.p.search(pokemon))
 
 
 

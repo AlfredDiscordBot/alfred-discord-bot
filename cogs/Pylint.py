@@ -24,7 +24,7 @@ class Pylint(commands.Cog):
         required = False,
         default = "lint"
     )
-    def __init__(self, client):        
+    def __init__(self, client: commands.Bot):        
         self.client = client  
         self.sample_lint = LintAction(self.client.re[8])
         self.lint_in_session = False

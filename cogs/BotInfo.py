@@ -74,13 +74,16 @@ class BotInfo(commands.Cog):
         em.add_field(name="Allowed", value=permissions1, inline=False)
         em.add_field(name="Denied", value=permissions2, inline=False)
         await ctx.send(embed=em)
-    
+
+    @nextcord.slash_command(name="bot", description="Contains information about the bot")
+    async def botinfo(self, inter):
+        print(inter.user)    
     
     @nextcord.slash_command(name="check", description="Check if the bot is online")
     async def check_slash(self, inter):
         await self.check(inter)
 
-    @nextcord.slash_command(name="neofetch", description="Get Status of the bot")
+    @botinfo.subcommand(name="neofetch", description="Get Status of the bot")
     async def neo(self, inter):
         await inter.response.defer()    
         await self.neofetch(inter)
@@ -103,7 +106,7 @@ class BotInfo(commands.Cog):
             embed=assets.vote_embed(self.client)
         )
     
-    @nextcord.slash_command("vote",description="Vote for Alfred in Bot Listing servers")
+    @botinfo.subcommand("vote",description="Vote for Alfred in Bot Listing servers")
     async def vo(self, inter):
         await self.vote_alfred(inter)
 
@@ -159,7 +162,7 @@ class BotInfo(commands.Cog):
         autocomp_help = [str(i) for i in list(self.index)+list(self.client.commands) if text.lower() in str(i).lower()][:25]
         await inter.response.send_autocomplete(autocomp_help)
 
-    @nextcord.slash_command(name="serverinfo",description="Get your server information")
+    @botinfo.subcommand(name="serverinfo",description="Get your server information")
     async def serverinfo(self, inter):
         g = inter.guild
         b = f"{len(g.bots)} Bots"
@@ -225,6 +228,10 @@ class BotInfo(commands.Cog):
             
         for i in all_embeds:
             await ctx.send(f"```\n{a}\n```")
+
+    @botinfo.subcommand(name="learn", description="How alfred works")
+    async def learn_slash(self, inter):
+        await self.learn(inter)
         
     @commands.command()
     async def learn(self, ctx):
@@ -264,6 +271,10 @@ class BotInfo(commands.Cog):
                     url="https://www.github.com/alvinbengeorge/alfred-discord-bot"
                 )
             )
+
+    @botinfo.subcommand(name="contribution", description="Alfred contributors")
+    async def contrib_slash(self, inter):
+        await self.contribution(inter)
 
     @commands.command(aliases = ['developers','dev','contributors'])
     @commands.check(ef.check_command)

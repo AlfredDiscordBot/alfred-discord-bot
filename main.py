@@ -720,7 +720,7 @@ async def on_reaction_add(reaction, user):
                 reaction.message.channel.id
             ) == str(channel.id):
                 reaction.message.author = user
-                await restart_program(reaction.message,re[1])
+                await restart_program(reaction.message)
             if reaction.emoji == '💾' and reaction.message.channel.id == channel.id:
                 save_to_file()                    
                 await reaction.remove(user)
@@ -769,6 +769,7 @@ async def on_reaction_add(reaction, user):
                 description=f"{traceback.format_exc()}",
                 footer=f"{reaction.message.guild.name}:{reaction.message.channel.name}",
                 color=nextcord.Color(value=re[8]),
+                author=user
             )
         )
 
@@ -813,7 +814,15 @@ async def on_command_error(ctx, error):
     else:
         await ctx.send(embed=error_message(str(error)))
     channel = client.get_channel(dev_channel)
-    await channel.send(embed=cembed(title="Error",description=f"\n{str(error)}", color=re[8], thumbnail=client.user.avatar.url, footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}:{ctx.guild.name}"))
+    await channel.send(
+        embed=cembed(
+            title="Error",
+            description=f"\n{error}", 
+            color=re[8], 
+            thumbnail=client.user.avatar.url, 
+            footer = f"{ctx.author.name}:{ctx.guild.name}"),
+            author=ctx.author
+        )
 
 @client.event
 async def on_message(msg):
@@ -1025,7 +1034,8 @@ def load_extension(name):
         client.load_extension(f'cogs.{name}', extras=d)
         print(" :Done")
         return f"[ OK ] Added {name}\n"
-    except:
+    except Exception as e:
+        print(f" :{e}")
         return f"Error in cog {name}:\n"+traceback.format_exc()+"\n"
 
 def load_all():

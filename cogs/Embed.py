@@ -345,7 +345,7 @@ class MSetup:
 
 
 class Embed(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client: commands.Bot):
         self.client = client
         self.old_messages = {}
 

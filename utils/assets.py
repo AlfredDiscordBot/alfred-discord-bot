@@ -1,8 +1,9 @@
-from ctypes import Union
+from typing import List
 import nextcord
 from . import External_functions as ef
 
 color = nextcord.ButtonStyle.blurple
+BLUE_LINE = "https://www.wrberadio.com/home/attachment/blue-line-png-1"
 
 class Confirm(nextcord.ui.View):
     def __init__(self, client, re = {8: 5160}):
@@ -303,3 +304,42 @@ async def test_JSON(ctx, url):
                 author=ctx.author
             )
         )
+
+class Role(nextcord.ui.Select):
+    def __init__(self, roles: List[nextcord.Role]):
+        self.roles = roles
+        options = [
+            nextcord.SelectOption(label=i.name, emoji="▶️", value=i.id) for i in roles
+        ]
+        super().__init__(
+            placeholder="Select your Role",
+            min_values=1,
+            max_values=1,
+            options=options,
+            custom_id="alfred_role_application"
+        )
+
+    async def callback(self, interaction: nextcord.Interaction):
+        await interaction.response.defer()
+        role = interaction.guild.get_role(int(self.values[0]))
+        if role in interaction.user.roles:
+            await interaction.user.remove_roles(
+                role, 
+                reason=f"Selection Role"
+            )
+            await interaction.send(
+                content=f"Added {role.mention}",
+                ephemeral=True
+            )
+        else:
+            await interaction.user.add_roles(role)
+            await interaction.send(
+                content=f"Removed {role.mention}",
+                ephemeral=True
+            )
+
+class RoleView(nextcord.ui.View):
+    def __init__(self, roles):
+        super().__init__(timeout=None)
+        self.roles = roles
+        self.add_item(Role(self.roles))

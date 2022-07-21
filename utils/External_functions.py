@@ -297,8 +297,11 @@ async def devop_mtext(client, channel, color):
 
 async def wait_for_confirm(ctx, client, message: str, color=61620, usr=None):
     mess = await ctx.channel.send(
-        embed=nextcord.Embed(
-            title="Confirmation", description=message, color=nextcord.Color(color)
+        embed=cembed(
+            title="Confirmation", 
+            description=message, 
+            color=color,
+            author=usr or getattr(ctx, 'author', getattr(ctx, 'user', False))
         )
     )
     await mess.add_reaction(emoji.emojize(":check_mark_button:"))
@@ -307,12 +310,11 @@ async def wait_for_confirm(ctx, client, message: str, color=61620, usr=None):
     person=usr
 
     def check(reaction, user):
-        a = user == getattr(ctx, 'author', getattr(ctx,'user',None)) if person is None else person == user
         return (
             reaction.message.id == mess.id
             and reaction.emoji
             in [emoji.emojize(":check_mark_button:"), emoji.emojize(":cross_mark_button:")]
-            and a
+            and user == getattr(ctx, 'author', getattr(ctx, 'user', None)) if person is None else person == user
         )
 
     reaction, user = await client.wait_for("reaction_add", check=check)
@@ -320,8 +322,7 @@ async def wait_for_confirm(ctx, client, message: str, color=61620, usr=None):
         await mess.delete()
         return True
     if reaction.emoji == emoji.emojize(":cross_mark_button:"):
-        await mess.delete()
-        await ctx.channel.send(
+        await mess.edit(
             embed=cembed(
                 title="Ok cool", 
                 description="Aborted", 
@@ -329,6 +330,8 @@ async def wait_for_confirm(ctx, client, message: str, color=61620, usr=None):
                 author = user
             )
         )
+        try: await mess.clear_reactions()
+        except Exception: print("Failed to clear reactions", ctx.guild.id)
         return False
 
 
