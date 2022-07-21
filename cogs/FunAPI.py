@@ -246,7 +246,7 @@ class FunAPI(commands.Cog):
     async def json_viewer(self, ctx, url: str):
         await assets.test_JSON(ctx, url=url)
 
-    @nextcord.slash_command(
+    @funapi.subcommand(
         name="pokemon",
         description="Get details about a pokemon -> Beta"
     )

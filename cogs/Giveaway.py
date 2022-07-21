@@ -9,7 +9,7 @@ def requirements():
     return []
 
 class Giveaway(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client: commands.Bot):
         self.client = client
 
     @nextcord.slash_command(name = "giveaway", description = "You can use this for giveaway")

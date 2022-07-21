@@ -341,7 +341,11 @@ class Configuration(commands.Cog):
             )
 
     @config.subcommand(name="message",description="Set your configuration")
-    async def config_slash(self, inter, mode = ef.defa(choices = ['enable', 'disable', 'show'], required=True), feature = ef.defa(choices = ['snipe','response','suicide_detector'])):
+    async def config_slash(
+        self, inter: Interaction,
+        mode = ef.defa(choices = ['enable', 'disable', 'show'], required=True), 
+        feature = ef.defa(choices = ['snipe','response','suicide_detector'])
+    ):
         await inter.response.defer()        
         if mode == "show":
             embed = ef.cembed(
@@ -544,12 +548,12 @@ class Configuration(commands.Cog):
         roles = [
             inter.guild.get_role(int(i.strip()[3:-1])) for i in roles_with_comma.split(",")
         ]    
-        if not channel.permissions_for(inter.user).send_messages:
+        if not (channel.permissions_for(inter.user).send_messages and inter.user.guild_permissions.manage_server):
             await inter.send(
                 content="You do not have enough permission to do that"
             )
             return
-        if not channel.permissions_for(inter.guild.get_member(self.client.user.id)).send_messages:
+        if not channel.permissions_for(inter.guild.me).send_messages:
             await inter.send(
                 content="I do not have enough permissions to send message"
             )
