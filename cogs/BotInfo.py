@@ -164,6 +164,7 @@ class BotInfo(commands.Cog):
 
     @botinfo.subcommand(name="serverinfo",description="Get your server information")
     async def serverinfo(self, inter):
+        await inter.response.defer()
         g = inter.guild
         b = f"{len(g.bots)} Bots"
         h = f"{len(g.humans)} Humans"
@@ -274,6 +275,7 @@ class BotInfo(commands.Cog):
 
     @botinfo.subcommand(name="contribution", description="Alfred contributors")
     async def contrib_slash(self, inter):
+        await inter.response.defer()
         await self.contribution(inter)
 
     @commands.command(aliases = ['developers','dev','contributors'])
