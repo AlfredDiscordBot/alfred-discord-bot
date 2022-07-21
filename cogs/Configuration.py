@@ -13,6 +13,7 @@ def requirements():
     return ["dev_channel"]
 
 class Configuration(commands.Cog):    
+    text_slash_ = ef.defa(ChannelType.text)
     def __init__(self, client: commands.Bot, dev_channel):
         self.client = client
         self.dev_channel = dev_channel
@@ -230,7 +231,10 @@ class Configuration(commands.Cog):
     async def wel(
         self,
         inter,
-        channel: GuildChannel,
+        channel: GuildChannel = ef.defa(
+            ChannelType.text, 
+            required=True
+        ),
         background_url = None,
         description = None,
         title = None,
@@ -348,20 +352,24 @@ class Configuration(commands.Cog):
     ):
         await inter.response.defer()        
         if mode == "show":
+            su = not inter.guild.id in self.client.observer
+            rs = not inter.guild.id in self.client.config['respond']
+            sn = not inter.guild.id in self.client.config['snipe']
+            if not sn: sn = "Only Admins"
+            else: sn = "All people"
             embed = ef.cembed(
                 title="Features",
                 description="This shows all the extra features in alfred",
                 color=self.client.re[8],
-                thumbnail=ef.safe_pfp(inter.guild)
+                thumbnail=ef.safe_pfp(inter.guild),
+                fields=ef.dict2fields(
+                    {
+                        'Suicide detector': str(su),
+                        'Auto Response': str(rs),
+                        'Snipe': str(sn)
+                    }
+                )
             )
-            su = not inter.guild.id in self.client.observer
-            embed.add_field(name="Suicide detector", value=str(su))
-            rs = not inter.guild.id in self.client.config['respond']
-            embed.add_field(name="Auto Response", value=str(rs))
-            sn = not inter.guild.id in self.client.config['snipe']
-            if not sn: sn = "Only Admins"
-            else: sn = "All people"
-            embed.add_field(name="Snipe", value=sn)    
             await inter.send(embed=embed)
             return
 
@@ -548,7 +556,7 @@ class Configuration(commands.Cog):
         roles = [
             inter.guild.get_role(int(i.strip()[3:-1])) for i in roles_with_comma.split(",")
         ]    
-        if not (channel.permissions_for(inter.user).send_messages and inter.user.guild_permissions.manage_server):
+        if not (channel.permissions_for(inter.user).send_messages and inter.user.guild_permissions.manage_guild):
             await inter.send(
                 content="You do not have enough permission to do that"
             )
