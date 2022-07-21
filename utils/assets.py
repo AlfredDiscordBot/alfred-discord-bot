@@ -3,7 +3,7 @@ import nextcord
 from . import External_functions as ef
 
 color = nextcord.ButtonStyle.blurple
-BLUE_LINE = "https://media-exp1.licdn.com/dms/image/C4D1BAQFBA4cAlm7gUw/company-background_10000/0/1519799971888?e=2147483647&v=beta&t=KsVEwgb7SHQ4IWSu7huur3SznCETskrftAlK1zlb2rc"
+BLUE_LINE = "https://www.wrberadio.com/home/attachment/blue-line-png-1"
 
 class Confirm(nextcord.ui.View):
     def __init__(self, client, re = {8: 5160}):

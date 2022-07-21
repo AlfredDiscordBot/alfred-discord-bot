@@ -566,7 +566,8 @@ class Configuration(commands.Cog):
                     'text': 'This feature is still Beta',
                     'icon_url': self.client.user.avatar.url
                 },
-                thumbnail=inter.guild.icon
+                thumbnail=inter.guild.icon,
+                image=assets.BLUE_LINE
             ),
             view=setup_view(roles)
         )
