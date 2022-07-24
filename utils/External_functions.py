@@ -336,6 +336,9 @@ async def wait_for_confirm(ctx, client, message: str, color=61620, usr=None):
 
 
 def equalise(all_strings: List[str]):
+    '''
+    Makes all string same size
+    '''
     maximum = max(list(map(len, all_strings)))
     return {i: i + " " * (maximum - len(i)) for i in all_strings}
 
@@ -364,15 +367,18 @@ def subtract_list(l1: List, l2: List):
     return a
 
 def extract_color(color):
+    '''
+    Extracts RGB from Hex
+    '''
     try:
         color_temp = (
-            int("0x" + str(hex(color))[2:4], 16),
-            int("0x" + str(hex(color))[4:6], 16),
-            int("0x" + str(hex(color))[6:8], 16),
+            int("0x" + str(color)[2:4], base=16),
+            int("0x" + str(color)[4:6], base=16),
+            int("0x" + str(color)[6:8], base=16),
         )
         return color_temp
-    except:
-        pass
+    except Exception:
+        print(traceback.format_exc())
 
 
 def svg2png(url: str):
@@ -455,11 +461,14 @@ def check_end(s : str):
     return s
 
 def check_voice(ctx):
+    '''
+    Checks if the user is in the Voice Channel
+    '''
     try:
-        mem = [str(names) for names in ctx.guild.voice_client.channel.members]
+        mem = [ID for ID in ctx.guild.voice_client.channel.members]
     except:
         mem = []
-    return mem.count(str(getattr(ctx, 'author', getattr(ctx, 'user', None)))) > 0
+    return getattr(ctx, 'author', getattr(ctx, 'user', None)).id in mem
 
 async def player_reaction(mess):
     await mess.add_reaction("⏮")
@@ -494,6 +503,9 @@ def defa(*types, default = None, choices=[], required = False):
     return SlashOption(channel_types = types, required = required)
 
 async def ly(song, re: List):
+    '''
+    Returns lyrics Embed of a song
+    '''
     j = await get_async(f"https://api.popcat.xyz/lyrics?song={convert_to_url(song)}",kind="json")
     return cembed(
         title=j.get('title',"Couldnt get title"),
@@ -504,7 +516,10 @@ async def ly(song, re: List):
     )
 
 async def isReaction(ctx, embed, clear = False):
-    if type(ctx) == nextcord.message.Message:
+    '''
+    Adaptive solution for Interaction, Reaction and Prefix commands
+    '''
+    if isinstance(ctx, nextcord.message.Message):
         message = await ctx.edit(embed=embed)
     else:
         message = await ctx.send(embed=embed)
@@ -521,6 +536,9 @@ def timestamp(i):
     return time.ctime(i)
 
 class SpaceX:
+    '''
+    SpaceX Simple API -> Coded By alvinbengeorge
+    '''
     def __init__(self, color: Union[int, nextcord.Color]):
         self.name = None
         self.time = None
@@ -559,6 +577,9 @@ class SpaceX:
         return embeds
 
 class Meaning:
+    '''
+    Meaning Simple API -> Coded by alvinbengeorge
+    '''
     def __init__(self, word: str, color: Union[int, nextcord.Color]):
         self.word = word,
         self.url = "https://api.dictionaryapi.dev/api/v2/entries/en/"+convert_to_url(word)
@@ -834,11 +855,13 @@ class TechTerms:
 
 class Proton:
     def __init__(self):
-        m = requests.get("https://protondb.max-p.me/games").json()
         self.games = []
+
+    async def setup(self):
+        m = await get_async("https://protondb.max-p.me/games", kind="json")
         for i in m:
             t = list(i.items())
-            self.games.append((t[0][1],t[1][1]))
+            self.games.append((t[0][1], t[1][1]))
 
     def search_game(self, name):
         search_results = []

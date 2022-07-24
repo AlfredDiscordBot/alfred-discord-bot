@@ -205,6 +205,8 @@ class BotInfo(commands.Cog):
                 title="Hi!! I am Alfred.",
                 description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""",
                 color=nextcord.Color(value=self.client.re[8]),
+                author=self.client.user,
+                thumbnail=self.client.user.avatar
             )
             await msg.channel.send(embed=embed)
 
@@ -291,18 +293,7 @@ class BotInfo(commands.Cog):
         )
         fp = ef.svg2png("https://contrib.rocks/image?repo=alvinbengeorge/alfred-discord-bot")
         file = nextcord.File(io.BytesIO(fp), 'contrib.png')
-        await ctx.send(file=file, embed=embed)
-
-    @commands.command()
-    async def get_invite(self, ctx, time:int=300):
-        link = await ctx.channel.create_invite(max_age=time)
-        await ctx.send(
-            embed=ef.cembed(
-                title="Invitation link",
-                description=str(link),
-                color=self.client.re[8],
-            )
-        )
+        await ctx.send(file=file, embed=embed)    
 
     @commands.command(aliases=["s_e"])
     @commands.check(ef.check_command)

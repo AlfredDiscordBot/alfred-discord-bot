@@ -20,6 +20,11 @@ class FunAPI(commands.Cog):
         self.AiD = wolfram
         self.p = ef.Pokemon()
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self.proton.setup()
+        await self.space.setup()
+
     @nextcord.slash_command(name="api", description="Get all the Fun APIs of Alfred from here")
     async def funapi(self, inter):
         print(inter.user)
@@ -86,17 +91,21 @@ class FunAPI(commands.Cog):
         await assets.pa(ctx, embeds, start_from=0, restricted=False)
 
     @spacex.command()
-    async def latest(self, ctx):
-        await self.space.setup()
+    async def latest(self, ctx):        
         embed=ef.cembed(
             title=self.space.name,
             description=f"Time: {self.space.time}\nVisit the [official website](https://www.spacex.com/) for more",
             thumbnail=self.space.thumbnail, footer="This feature is still in its beta stage, sorry for inconvenience",color=self.space.color,
-            image = "https://static01.nyt.com/images/2021/01/30/business/29musk-print/29musk-1-videoSixteenByNineJumbo1600.jpg"
+            image = "https://static01.nyt.com/images/2021/01/30/business/29musk-print/29musk-1-videoSixteenByNineJumbo1600.jpg",
+            fields=ef.dict2fields(
+                {
+                    'Youtube': f"[Link]({self.space.youtube})",
+                    'Wikipedia': f"[Link]({self.space.wikipedia})"
+                },
+                inline=True
+            )      
 
         )
-        embed.add_field(name="Youtube",value=f"[Link]({self.space.youtube})", inline=True)
-        embed.add_field(name="Wikipedia", value=f"[Link]({self.space.wikipedia})", inline=True)
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -142,7 +151,8 @@ class FunAPI(commands.Cog):
             title="Cat Fact", 
             description=a["fact"], 
             color=self.client.re[8],
-            thumbnail="https://i.imgur.com/u1TPbIp.png?1"
+            thumbnail="https://i.imgur.com/u1TPbIp.png?1",
+            author=ctx.author
         )
         await ctx.send(embed=embed)  
 

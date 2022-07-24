@@ -14,9 +14,10 @@ class Card:
         self,
         background=None
     ):
+        DEFAULT_BACKGROUND = "https://static.vecteezy.com/system/resources/previews/001/557/683/original/abstract-overlapping-blue-background-free-vector.jpg"
         self.BASE_URL = "https://api.popcat.xyz/welcomecard?"
-        self.background = background if background else "https://wallpaperaccess.com/full/358800.jpg"
-        self.query = self.BASE_URL+"background="+(background or "https://wallpaper.dog/large/973634.jpg")
+        self.background = background if background else DEFAULT_BACKGROUND
+        self.query = self.BASE_URL+"background="+(background or DEFAULT_BACKGROUND)
 
     def set_text1(self, text):
         if text:
@@ -95,7 +96,7 @@ class Welcome(commands.Cog):
             content=f"{member.name} left the server",
             embed=ef.cembed(
                 title="GoodBye",
-                description=f"{member.name} left {member.guild.name} at <t:{int(time.time())}>\nHope you enjoyed your stay {member.name}",
+                description=f"{member.name} left {member.guild.name} at <t:{int(time.time())}:R>\nHope you enjoyed your stay {member.name}",
                 color=self.client.re[8],
                 thumbnail=ef.safe_pfp(member)
             )

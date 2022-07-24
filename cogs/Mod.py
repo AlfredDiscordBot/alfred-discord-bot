@@ -308,7 +308,18 @@ class Mod(commands.Cog):
                 await member.add_roles(role)
                 await asyncio.sleep(2)
             except:
-                print(traceback.format_exc())      
+                print(traceback.format_exc())  
+
+    @commands.command()
+    async def get_invite(self, ctx, time:int=600):
+        link = await ctx.channel.create_invite(max_age=time)
+        await ctx.send(
+            embed=ef.cembed(
+                title="Invitation link",
+                description=str(link),
+                color=self.client.re[8],
+            )
+        )    
 
     @autoadd.subcommand(name="tohumans", description="Bots")
     async def humans(self, inter, role: nextcord.Role):

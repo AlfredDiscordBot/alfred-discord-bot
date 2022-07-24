@@ -334,16 +334,93 @@ def user_stats_dict(stats: GitHubUserStats, color: int = None, uname: str = ""):
 
     return info
 
+class Trend:
+    def __init__(self):
+        self.repositories: list = []
+        self.users: list = []
+        self.len_repo: int = len(self.repositories)
+        self.len_user: int = len(self.users)
+        self.SETUP = False
+
+    async def setup(self):
+        self.repositories = await ef.get_async("https://gh-trending-api.herokuapp.com/repositories", kind="json")
+        self.users = await ef.get_async("https://gh-trending-api.herokuapp.com/developers", kind="json")
+        self.len_repo = len(self.repositories)
+        self.len_user = len(self.users)
+        self.SETUP = True
+
+    async def refresh(self):
+        await self.setup()
+
+    def repo_to_embed(self, repo: dict) -> nextcord.Embed:
+        '''
+        Renders an embed from the Repository Dict from gh trending API
+        '''
+        try:
+            main_developer = repo['builtBy'][0]
+            di = {
+                'title': f"{repo['username']}/{repo['repositoryName']}",
+                'url': repo['url'],
+                'description': f"```\n{repo.get('description')}\n```",
+                'color': int(repo['languageColor'].replace('#','0x'), base=16) if repo['languageColor'] else nextcord.Color.default(),
+                'fields': ef.dict2fields(
+                    {
+                        'Developers 🧑‍💻': '\n'.join(
+                            [f"[{i['username']}]({i['url']})" for i in repo['builtBy'][:5]]
+                        ),
+                        'Stats': '\n'.join(
+                            [
+                                f'`Stars: `{repo["totalStars"]} ⭐',
+                                f'`Forks: `{repo["forks"]} 🍴',
+                                f'`Language: `{repo["language"]}'
+
+                            ]
+                        )
+
+                    },
+                    inline=False
+                ),
+                'footer': {
+                    'text': f'{repo["rank"]} of {self.len_repo}',
+                    'icon_url': 'https://cdn-icons-png.flaticon.com/512/25/25231.png'
+                } ,      
+                'author': {
+                    'name': main_developer.get('username', "Unavailable"),
+                    'icon_url': main_developer.get('avatar'),
+                    'url': main_developer.get('url')
+                },
+                'image': fetch_image(f"{repo['username']}/{repo['repositoryName']}")
+            }
+            return ef.cembed(**di)
+        except Exception:
+            print(repo)
+            print(traceback.format_exc())
+            return ef.cembed(
+                title="Sorry",
+                description="An Error Occured while reading from this repository",
+                color=nextcord.Color.red()                
+            )
+
+    def trending_repositories(self):
+        return [self.repo_to_embed(i) for i in self.repositories[:50]]
+
+    
+
 class Code(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.rce = CodeExecutor()
+        self.trending = Trend()
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self.trending.setup()
 
     def runtimes_to_str(self, runtime: dict) -> str:
         return f"+ {runtime['language']} -> {runtime['version']}"
 
     async def get_repos(self, username: str, inter: nextcord.Interaction):
-        j = await ef.get_async(f"https://api.github.com/users/{username}/repos",kind="json")
+        j = await ef.get_async(f"https://api.github.com/users/{username}/repos", kind="json")
         repo_embeds = []
         for repo_stats in j:
             image = fetch_image(repo_stats.get('full_name'))
@@ -469,6 +546,17 @@ class Code(commands.Cog):
             stats_embed, inter, self.client
         )
         await inter.send(embed=embed)
+    
+    @gh.subcommand(name="trending", description="Trending Github")
+    async def trending_command(self, inter):
+        print(inter.user)
+
+    @trending_command.subcommand(name="repo", description="Gives a list of trending repositories")
+    async def trending_repo(self, inter):
+        await inter.response.defer()
+        if not self.trending.SETUP:
+            await self.trending.setup()
+        await assets.pa(inter, self.trending.trending_repositories())
 
 
 def setup(client,**i):
