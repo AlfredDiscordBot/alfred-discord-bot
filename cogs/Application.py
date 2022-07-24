@@ -13,7 +13,7 @@ def requirements():
 
 
 class ApplicationButton(ui.View):
-    def __init__(self, client):
+    def __init__(self, client: commands.Bot):
         self.client = client
         super().__init__(
             timeout=None

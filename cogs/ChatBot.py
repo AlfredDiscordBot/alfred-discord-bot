@@ -15,7 +15,7 @@ models = ['BlenderBot','DialoGPT','Wolfram Scientific','PopCat']
 
 
 class ChatBot(commands.Cog):        
-    def __init__(self, client, wolfram):
+    def __init__(self, client: commands.Bot, wolfram):
         self.client = client
         self.wolfram = wolfram
         self.models = models

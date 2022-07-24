@@ -446,26 +446,30 @@ async def color_slash(
 @client.command()
 @commands.check(check_command)
 async def load(ctx):
-    print("Load", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
+    user = getattr(ctx, 'author', getattr(ctx, 'user', None))
+    print("Load", user)
     req()
     try:
         cpu_per = str(int(psutil.cpu_percent()))
         cpu_freq = str(int(psutil.cpu_freq().current))
         ram = str(psutil.virtual_memory().percent)
         swap = str(psutil.swap_memory().percent)
-        usage = f"""
+        usage = f"""```yml
         CPU Percentage: {cpu_per}%
         CPU Frequency : {cpu_freq}Mhz
         RAM usage: {ram}%
         Swap usage: {swap}%
         Nextcord: {nextcord.__version__}
+        ```
         """
-        embed = nextcord.Embed(
+        usage = '\n'.join([i.strip() for i in usage.split("\n")])
+        embed = cembed(
             title="Current load",
             description='\n'.join([i.strip() for i in usage.split('\n')]),
             color=nextcord.Color(value=re[8]),
+            author=user,
+            thumbnail=client.user.avatar.url
         )
-        embed.set_thumbnail(url=client.user.avatar.url)        
     except Exception as e:
         channel = client.get_channel(dev_channel)
         embed = nextcord.Embed(
@@ -690,7 +694,7 @@ async def on_reaction_add(reaction, user):
                 and str(reaction.message.channel.id) == str(channel.id)
                 and reaction.message.author == client.user
             ):
-                st = "\n".join([str(getattr(client.get_user(i), 'name', None)) for i in dev_users])
+                st = "\n".join([str(getattr(client.get_user(int(i)), 'name', None)) for i in dev_users])
                 await reaction.remove(user)
                 await channel.send(
                     embed=cembed(
@@ -710,10 +714,11 @@ async def on_reaction_add(reaction, user):
             if reaction.emoji == "⭕" and ctx.channel.id == channel.id:
                 await reaction.remove(user)
                 await channel.send(
-                    embed=nextcord.Embed(
+                    embed=cembed(
                         title="Servers",
                         description='\n'.join([i.name+"" for i in client.guilds]),
                         color=nextcord.Color(value=re[8]),
+                        author=user
                     )
                 )
             if reaction.emoji == emojize(":fire:") and str(
@@ -820,9 +825,10 @@ async def on_command_error(ctx, error):
             description=f"\n{error}", 
             color=re[8], 
             thumbnail=client.user.avatar.url, 
-            footer = f"{ctx.author.name}:{ctx.guild.name}"),
+            footer = f"{ctx.author.name}:{ctx.guild.name}",
             author=ctx.author
         )
+    )
 
 @client.event
 async def on_message(msg):
