@@ -68,7 +68,7 @@ class Mod(commands.Cog):
                 else:
                     await ctx.send("**" + i[0] + ":**",embed=i[1])
             if len(embeds)>0: 
-                await assets.pa(ctx, embeds, start_from=0, restricted=True)
+                await assets.pa(ctx, embeds, start_from=0, restricted=True, delete_after=20)
         else:
             await ctx.send(
                 embed=ef.cembed(

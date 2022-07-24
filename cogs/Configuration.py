@@ -14,6 +14,7 @@ def requirements():
 
 class Configuration(commands.Cog):    
     text_slash_ = ef.defa(ChannelType.text)
+
     def __init__(self, client: commands.Bot, dev_channel):
         self.client = client
         self.dev_channel = dev_channel
@@ -222,6 +223,7 @@ class Configuration(commands.Cog):
                     footer="Everything is enabled by default"
                 )
             )
+
     @comm.on_autocomplete("command")
     async def auto(self, inter, command):
         autocomp_command = [i for i in self.command_list if command.lower() in i.lower()][:25]
@@ -255,13 +257,16 @@ class Configuration(commands.Cog):
         }
         await inter.send("Done")
         
+    @nextcord.slash_command(name="youtube", description="Controls youtube")
+    async def youtube(self, inter):
+        print(inter.user)
 
-    @nextcord.slash_command(name = "subscribe", description = "Subscribe to a youtube channel")
+    @youtube.subcommand(name = "subscribe", description = "Subscribe to a youtube channel")
     async def sub_slash(self, inter, channel: GuildChannel = ef.defa(ChannelType.text, required = True), url = None, message = ""):
         await inter.response.defer()
         await self.subscribe(inter, channel = channel, url = url, message = message)
     
-    @nextcord.slash_command(name = "unsubscribe", description = "remove a youtube channel from a textchannel")
+    @youtube.subcommand(name = "unsubscribe", description = "remove a youtube channel from a textchannel")
     async def unsub_slash(self, ctx, channel: GuildChannel = None, url = None):
         await ctx.response.defer()
         await self.unsubscribe(ctx, channel = channel, url = url)
@@ -344,7 +349,7 @@ class Configuration(commands.Cog):
                 )
             )
 
-    @config.subcommand(name="message",description="Set your configuration")
+    @config.subcommand(name="message", description="Set your configuration")
     async def config_slash(
         self, inter: Interaction,
         mode = ef.defa(choices = ['enable', 'disable', 'show'], required=True), 
@@ -379,7 +384,8 @@ class Configuration(commands.Cog):
                     title="Permissions Denied",
                     description="You need to be an admin to toggle settings",
                     color=self.client.re[8],
-                    thumbnail=ef.safe_pfp(inter.guild)
+                    thumbnail=ef.safe_pfp(inter.guild),
+                    author=inter.user
                 )
             )
             return          

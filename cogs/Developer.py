@@ -2,20 +2,22 @@
 import nextcord
 import utils.External_functions as ef
 from nextcord.ext import commands
+from subprocess import getoutput
 
 # Use nextcord.slash_command()
 
 def requirements():
-    return []
+    return ["dev_channel"]
 
 class Developer(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client, dev_channel):
         self.client = client
         self.SUPER_USERS = [
             "432801163126243328",
             "803855283821871154",
             "723539849969270894"
         ]
+        self.dev_channel = dev_channel
 
     @commands.command()
     @commands.check(ef.check_command)
@@ -49,13 +51,13 @@ class Developer(commands.Cog):
            
     @commands.command()
     @commands.check(ef.check_command)
-    async def dev_test(self, ctx, id:nextcord.Member=None):
-        if not id:
-            id = ctx.author
-        if str(id.id) in self.client.dev_users:
-            await ctx.send(f"{id} is a dev!")
+    async def dev_test(self, ctx, user:nextcord.Member=None):
+        if not user:
+            user = ctx.author
+        if str(user.id) in self.client.dev_users:
+            await ctx.send(f"{user} is a dev!")
         else:
-            await ctx.send(f"{id} is not a dev!")
+            await ctx.send(f"{user} is not a dev!")
 
     @commands.command()
     @commands.check(ef.check_command)
@@ -90,6 +92,34 @@ class Developer(commands.Cog):
                     title="Permission Denied",
                     description="Dude! you are not a dev",
                     color=self.client.re[8],
+                )
+            )
+
+    @commands.command(name="update", description="Pulls new updates from Github")
+    @commands.check(ef.check_command)
+    async def update(self, ctx):
+        if str(ctx.author.id) in self.client.dev_users:
+            embed=ef.cembed(
+                title="Update command",
+                description="```bash\n"+getoutput("git pull")+"\n```",
+                color=self.client.re[8],
+                thumbnail=self.client.user.avatar,
+                author=ctx.author,
+                footer={
+                    'text': 'A copy of this is send to Wayne Enterprise',
+                    'icon_url': self.client.get_guild(822445271019421746).icon
+                }
+            )
+            await ctx.send(embed=embed)
+            await self.client.get_channel(946381704958988348).send(embed=embed)
+        else:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="This is a developer only function, you cannot use this",
+                    color=self.client.re[8],
+                    author=ctx.author,
+                    thumbnail=self.client.user.avatar
                 )
             )
 

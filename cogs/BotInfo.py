@@ -33,7 +33,8 @@ class BotInfo(commands.Cog):
                 description=f"{len(guild.members)-1} Lucky Member(s) Found",
                 color=self.client.re[8],
                 thumbnail=self.client.user.avatar.url,
-                footer=f"Currently in {len(self.client.guilds)} servers | {len(self.client.users)} Users"
+                footer=f"Currently in {len(self.client.guilds)} servers | {len(self.client.users)} Users",
+                fields=ef.dict2fields({'Member': f'{len(guild.members)} members'})
             )
         )
 
@@ -46,7 +47,8 @@ class BotInfo(commands.Cog):
                 description="I left this guild",
                 footer=f"Currently in {len(self.client.guilds)} servers | {len(self.client.users)} Users",
                 color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url
+                thumbnail=self.client.user.avatar.url,
+                fields=ef.dict2fields({'Member': f'{len(guild.members)} members'})
             )
         )
 
@@ -57,23 +59,27 @@ class BotInfo(commands.Cog):
         print("check")
         emo = assets.Emotes(self.client)
         r = self.client.re[0]
-        em = ef.cembed(
-            title=f"Online {emo.check}",
-            description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(self.client.latency*1000)}ms\nRequests: \t{r:,}\nUptime: {int(time.time()-self.start_time):,}s\nReady: {self.client.is_ready()}",
-            color=self.client.re[8],
-            footer="Have fun, bot has many features, check out /help",
-            thumbnail=self.client.user.avatar.url,
-            author=self.client.user
-        )
         permissions1 = "`"*3+"diff\n+ "+'\n+ '.join(
             [i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if i[1]]
         )+"\n"+"`"*3+"\n\n"        
         permissions2 = "`"*3+"diff\n- "+'\n- '.join(
             [i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if not i[1]]
         )+"\n"+"`"*3+"\n\n"
-        
-        em.add_field(name="Allowed", value=permissions1, inline=False)
-        em.add_field(name="Denied", value=permissions2, inline=False)
+        em = ef.cembed(
+            title=f"Online {emo.check}",
+            description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(self.client.latency*1000)}ms\nRequests: \t{r:,}\nUpFrom: <t:{int(self.start_time)}>\nReady: {self.client.is_ready()}",
+            color=self.client.re[8],
+            footer="Have fun, bot has many features, check out /help",
+            thumbnail=self.client.user.avatar.url,
+            author=self.client.user,
+            fields=ef.dict2fields(
+                {
+                    'Allowed': permissions1,
+                    'Denied': permissions2
+                },
+                inline=False
+            )
+        )
         await ctx.send(embed=em)
 
     @nextcord.slash_command(name="bot", description="Contains information about the bot")
@@ -171,31 +177,44 @@ class BotInfo(commands.Cog):
         h = f"{len(g.humans)} Humans"
         m = f"{len(g.members)} Total members"
         r = "\n\n**Roles:**\n"+', '.join([i.mention for i in g.roles])
-        emos = "\n\n**Emojis:**\n"+''.join([str(i) for i in g.emojis])
+        emos = "\n\n**Emojis:**\n"+''.join([str(i) for i in g.emojis[:50]])
         description=g.description if g.description else ""
+        boost = assets.Emotes(self.client).boost
+        boosts = str(boost)*inter.guild.premium_tier + f" {inter.guild.premium_subscription_count}"
         embed=ef.cembed(
             title=g.name,
-            description=description+emos,
+            description=description,
             thumbnail=ef.safe_pfp(g),
             image=g.banner if g.banner else "",
             color=self.client.re[8],
-            footer=f"{b} | {h} | {m}"
+            footer=f"{b} | {h} | {m}",
+            fields=ef.dict2fields(
+                {
+                    'Owner': g.owner.mention,
+                    'Server ID': g.id,
+                    'Created_at': nextcord.utils.format_dt(g.created_at),
+                    'Boosts': boosts
+                }
+            ),
+            author=g.owner
         )
-        boost = assets.Emotes(self.client).boost
-        boosts = str(boost)*inter.guild.premium_tier + f" {inter.guild.premium_subscription_count}"
-        embed.add_field(name="Owner", value=str(g.owner))
-        embed.add_field(name="Server ID", value=str(g.id))
-        created = nextcord.utils.format_dt(g.created_at,"r").replace(":r","")
-        embed.add_field(name="Created at", value=created)
-        embed.add_field(name="Boosts", value=boosts)
         embed1 = ef.cembed(
             title=g.name,
             description=r,
             color=self.client.re[8],
             thumbnail=ef.safe_pfp(g),
-            footer=f"{len(g.roles)} Roles"
+            footer=f"{len(g.roles)} Roles",
+            author=g.owner
         )
-        await assets.pa(inter, [embed, embed1])
+        embed2 = ef.cembed(
+            title=f"Emojis of {g.name}",
+            description=emos,
+            color=self.client.re[8],
+            author=g.owner,
+            thumbnail=ef.safe_pfp(g),
+            footer=f"{len(g.emojis)} Emojis"
+        )
+        await assets.pa(inter, [embed, embed1, embed2])
 
     @commands.Cog.listener()
     async def on_message(self, msg):        
@@ -210,23 +229,6 @@ class BotInfo(commands.Cog):
                 thumbnail=self.client.user.avatar
             )
             await msg.channel.send(embed=embed)
-
-    @nextcord.message_command()
-    async def view_raw(self, inter, message):
-        a = message.clean_content.replace("`","\\`")
-        await inter.response.send_message(
-            f"```\n{a}\n```",
-            ephemeral = True
-        )
-
-    @commands.command(name="view_raw", aliases = ['vr'])
-    async def raw(self, ctx):
-        a = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-        a = a.clean_content.replace("`","\\`")
-        
-        await ctx.send(
-            f"```\n{a}```"
-        )
 
     @botinfo.subcommand(name="learn", description="How alfred works")
     async def learn_slash(self, inter):
@@ -254,7 +256,7 @@ class BotInfo(commands.Cog):
                 embeds.append(embed)
         await assets.pa(ctx, embeds)
 
-    @nextcord.slash_command(
+    @botinfo.subcommand(
         name="license", 
         description="View Alfred's Open Source License"
     )

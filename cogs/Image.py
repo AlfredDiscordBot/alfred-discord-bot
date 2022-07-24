@@ -14,7 +14,7 @@ def requirements():
     return []
 
 class Image(commands.Cog):
-    def __init__(self, client):
+    def __init__(self, client: commands.Bot):
         self.client = client
         self.re = self.client.re
 
@@ -77,8 +77,10 @@ class Image(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(
                     title="OOPS",
-                    description="""Hmm You seem to be forgetting an argument \n `effects <effect> <member>` if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie """,
+                    description=helping_hand.effec,
                     color=self.client.re[8],
+                    footer="You seem to have forgotten <effect> and <member> arguments",
+                    author=ctx.author
                 )
             )
             return
