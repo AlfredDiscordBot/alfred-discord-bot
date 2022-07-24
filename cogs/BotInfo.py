@@ -223,14 +223,9 @@ class BotInfo(commands.Cog):
         a = await ctx.channel.fetch_message(ctx.message.reference.message_id)
         a = a.clean_content.replace("`","\\`")
         
-        all_embeds = ['']
-        for i in a.split("\n"):
-            if i[0]%30:
-                all_embeds.append('')
-            all_embeds[-1]+=i[1]+"\n"
-            
-        for i in all_embeds:
-            await ctx.send(f"```\n{a}\n```")
+        await ctx.send(
+            f"```\n{a}```"
+        )
 
     @botinfo.subcommand(name="learn", description="How alfred works")
     async def learn_slash(self, inter):
