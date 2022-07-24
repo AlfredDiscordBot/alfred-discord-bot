@@ -6,7 +6,7 @@ import utils.External_functions as ef
 
 from nextcord.ext import commands
 from functools import lru_cache
-from bs4 import BeautifulSoup
+from utils.Storage_facility import Variables
 from dataclasses import dataclass
 from .Embed import filter_graves, embed_from_dict
 from datetime import datetime
@@ -343,8 +343,14 @@ class Trend:
         self.SETUP = False
 
     async def setup(self):
-        self.repositories = await ef.get_async("https://gh-trending-api.herokuapp.com/repositories", kind="json")
-        self.users = await ef.get_async("https://gh-trending-api.herokuapp.com/developers", kind="json")
+        r, u, t = self.github_cache(True)
+        if int(ef.time.time()) - t > 86400:
+            self.repositories: list = await ef.get_async("https://gh-trending-api.herokuapp.com/repositories", kind="json")
+            self.users: list = await ef.get_async("https://gh-trending-api.herokuapp.com/developers", kind="json")
+            r, u = self.repositories, self.users
+            self.github_cache(load=False, repo=r, user=u)
+        else:
+            self.repositories, self.users = r, u
         self.len_repo = len(self.repositories)
         self.len_user = len(self.users)
         self.SETUP = True
@@ -403,6 +409,22 @@ class Trend:
 
     def trending_repositories(self):
         return [self.repo_to_embed(i) for i in self.repositories[:50]]
+
+    def github_cache(self, load: bool = False, **kwargs):
+        try:
+            v = Variables("cogs/__pycache__/ghcache")
+            if load:        
+                data = v.show_data()
+                return data.get('repo', []), data.get('user', []), data.get('time', 0)
+            else:
+                v.pass_all(
+                    **kwargs,
+                    time=int(ef.time.time())
+                )
+                return None, None
+        except:
+            print("Error in cache")
+            return f"Load Error:\n{traceback.format_exc()}", "Error", 0
 
     
 
