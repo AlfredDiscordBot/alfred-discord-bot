@@ -1,7 +1,4 @@
 import nextcord
-import utils.assets
-import time
-import traceback
 import utils.External_functions as ef
 from nextcord.ext import commands
 

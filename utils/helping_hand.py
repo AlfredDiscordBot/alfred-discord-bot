@@ -13,6 +13,11 @@ yaml_fields = [
         'name': 'Using MSETUP to create Embed',
         'value': 'You can use a simple method than Yaml, the method is quite self explanatory, it\'ll take each message and changes accordingly, look at the first embed for tips, second embed for you embed changes\n\nType `Done` to set it as your new mehspace\nType `send <#channel|webhook_url> to send it to those`\n',
         'inline': False
+    },
+    {
+        'name': 'Using MarkDown features in Embed',
+        'value': 'There are some markdown Features in Discord Embeds, you can view some of the instructions [here](https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-)',
+        'inline': False
     }
 ]
 
@@ -34,17 +39,36 @@ Change the nickname of the person, <alias: '*'>
 `'clear OK <number defaults to 10>`
 Clear <number> messages from a channel or thread
 Will ask permission if it's more than 15
-`/config                          `
+`/config message                  `
 Will toggle certain features like 
-`/commands                        `
+`/config commands                 `
 Will toggle prefix commands
 `/model model: PopCat             `
 Set Model to PopCat
+`/config prefix `
+Will Set a prefix 
 """
 
 effec = f"""
 ```yml
-'effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie 
+'effects <effect> <member> if member is none the users pfp will be modified 
+The list of effects is 
+- cartoonify 
+- watercolor 
+- canny 
+- pencil 
+- econify 
+- negative 
+- pen 
+- candy 
+- composition 
+- feathers 
+- muse 
+- mosaic 
+- night 
+- scream 
+- wave 
+- udnie 
 ```
 """
 
@@ -116,7 +140,7 @@ def help_him(client, re):
             },
             {
                 'name': 'Github',
-                'value': 'Use `/github repo` for viewing information about github repository\nUse `/github user` for viewing information about a user',
+                'value': 'Use `/github repo` for viewing information about github repository\nUse `/github user` for viewing information about a user\n Use `/github trending` command for viewing trending repository or user',
                 'inline': False
             }
         ]

@@ -121,9 +121,9 @@ def cembed(
     url=None, 
     color=nextcord.Color.dark_theme(), 
     footer=None, 
-    author = False, 
-    fields = None, 
-    image = None
+    author=False, 
+    fields=None, 
+    image=None
 ):
     embed = nextcord.Embed()
     if color != nextcord.Color.dark_theme():
@@ -144,6 +144,8 @@ def cembed(
     if url:
         embed.url = url
     if fields:
+        if isinstance(fields, dict):
+            fields = dict2fields(fields, inline=False)
         for i in fields:
             embed.add_field(**i)
     if footer:

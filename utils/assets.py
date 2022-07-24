@@ -82,14 +82,15 @@ class Pages(nextcord.ui.View):
             self.page+=1
         await inter.response.edit_message(embed=self.embeds[self.page])
 
-async def pa(ctx, embeds, restricted = False, start_from = 0):
+async def pa(ctx, embeds, restricted = False, start_from = 0, delete_after: int=None):
     if len(embeds)>1:
         await ctx.send(
             embed = embeds[start_from],
-            view = Pages(ctx, embeds, restricted, start_from)
+            view = Pages(ctx, embeds, restricted, start_from),
+            delete_after=delete_after
         )
     else:
-        await ctx.send(embed=embeds[0])
+        await ctx.send(embed=embeds[0], delete_after=delete_after)
 
 class Emotes:
     def __init__(self, client):

@@ -4,7 +4,7 @@ import nextcord
 import utils.assets as assets
 import utils.External_functions as ef
 
-from nextcord.ext import commands
+from nextcord.ext import commands, tasks
 from functools import lru_cache
 from utils.Storage_facility import Variables
 from dataclasses import dataclass
@@ -343,7 +343,7 @@ class Trend:
         self.SETUP = False
 
     async def setup(self):
-        r, u, t = self.github_cache(True)
+        r, u, t = self.github_cache(load=True)
         if int(ef.time.time()) - t > 86400:
             self.repositories: list = await ef.get_async("https://gh-trending-api.herokuapp.com/repositories", kind="json")
             self.users: list = await ef.get_async("https://gh-trending-api.herokuapp.com/developers", kind="json")
@@ -410,20 +410,23 @@ class Trend:
     def trending_repositories(self):
         return [self.repo_to_embed(i) for i in self.repositories[:50]]
 
-    def github_cache(self, load: bool = False, **kwargs):
-        try:
-            v = Variables("cogs/__pycache__/ghcache")
+    def github_cache(self, load: bool = False, **kw):
+        try:            
             if load:        
+                v = Variables("cogs/__pycache__/ghcache")
                 data = v.show_data()
                 return data.get('repo', []), data.get('user', []), data.get('time', 0)
             else:
-                v.pass_all(
-                    **kwargs,
+                v = Variables("cogs/__pycache__/ghcache")
+                v.edit(
+                    **kw,
                     time=int(ef.time.time())
                 )
-                return None, None
+                v.save()
+                data = v.show_data()
+                return data.get('repo', []), data.get('user', []), data.get('time', 0)
         except:
-            print("Error in cache")
+            print("Error in ghcache")
             return f"Load Error:\n{traceback.format_exc()}", "Error", 0
 
     
@@ -437,6 +440,11 @@ class Code(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         await self.trending.setup()
+        await self.update_loop.start()
+
+    @tasks.loop(hours=4)
+    async def update_loop(self):
+        await self.trending.refresh()
 
     def runtimes_to_str(self, runtime: dict) -> str:
         return f"+ {runtime['language']} -> {runtime['version']}"
