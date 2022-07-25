@@ -9,7 +9,8 @@ from typing import Union
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 
-#Use nextcord.slash_command()
+# Use nextcord.slash_command()
+# Coded by Yash P Pawar
 
 def requirements():
     return []
@@ -54,24 +55,36 @@ def converter(a):
             del a['author']['proxy_icon_url']
     return a 
     
-def preset_change(di, ctx, client):
+def preset_change(di, ctx, CLIENT):
     user = getattr(ctx, 'author', getattr(ctx,'user',None))
     presets = {
         '<server-icon>' : getattr(ctx.guild.icon, 'url', None),
         '<author-icon>' : ef.safe_pfp(user),
         '<author-color>': str(user.color.to_rgb()),
-        '<bot-icon>' : client.user.avatar.url,
-        '<bot-color>' : str(nextcord.Color(client.re[8]).to_rgb())
+        '<bot-icon>' : CLIENT.user.avatar.url,
+        '<bot-color>' : str(nextcord.Color(CLIENT.re[8]).to_rgb())
     }
     if isinstance(di, str):
         di = {
             'description': di,
             'color': '<bot-color>'
         }
-    if type(di.get('author')) == str:
+    if isinstance(di.get('author'), str):
         di['author'] = {
             'name' : di['author']
         }
+    if isinstance(di.get('author'), dict):
+        for i in di['author']:
+            if i == 'icon_url':
+                if di['author']['icon_url'] in presets:
+                    di['author']['icon_url'] = presets[di['author']['icon_url']]
+
+    if isinstance(di.get('author'), bool):
+        if di.get('author'):
+            di['author'] = {
+                'name': user.name,
+                'icon_url': user.avatar
+            }
     
     for i in di:
         if i in ['color','thumbnail','image','picture']:
@@ -81,13 +94,6 @@ def preset_change(di, ctx, client):
             if isinstance(di[i], dict):
                 if di[i].get("icon_url") and di[i].get("icon_url") in presets:
                     di[i]['icon_url'] = presets[di[i]['icon_url']]
-                    
-                
-    if  type(di.get('author')) == dict:
-        for i in di['author']:
-            if i == 'icon_url':
-                if di['author']['icon_url'] in presets:
-                    di['author']['icon_url'] = presets[di['author']['icon_url']]
     return di
 
 def validate_url(url: str) -> bool:
@@ -101,16 +107,18 @@ def validate_url(url: str) -> bool:
     except MissingSchema:
         return False
 
-def embed_from_dict(info: dict, ctx, client) -> nextcord.Embed:
+def embed_from_dict(info: dict, ctx, CLIENT) -> nextcord.Embed:
     """
     Generates an embed from given dict
     """
     if info == {}: info = {
         'description': 'Nothing to Embed',
-        'color': str(nextcord.Color(client.re[8]).to_rgb())
+        'color': str(nextcord.Color(CLIENT.re[8]).to_rgb())
     }
-    info = preset_change(info, ctx, client)
+    info = preset_change(info, ctx, CLIENT)
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
+    if isinstance(info.get('color'), str) and (info.get('color').startswith("0x") or info.get('color').startswith("#")):
+        info['color'] = str(ef.extract_color(info['color'].replace("#", "0x")))
     info["color"] = get_color(info.get("color", None))
     if info['color']: 
         if isinstance(info['color'], int):
@@ -127,9 +135,9 @@ def yaml_to_dict(yaml):
         return yaml
 
 class MSetup:
-    def __init__(self, ctx, client):
+    def __init__(self, ctx, CLIENT):
         self.ctx = ctx
-        self.client = client
+        self.CLIENT = CLIENT
         self.di = {}
         self.EDIT_MESSAGE = None
         self.INSTRUCTION = None
@@ -144,7 +152,7 @@ class MSetup:
         ]
 
     def set_preset(self):
-        self.di = preset_change(self.di, self.ctx, self.client)
+        self.di = preset_change(self.di, self.ctx, self.CLIENT)
 
     async def send_instructions(self):
         description="Welcome to Msetup, you can select from these options down below\n```diff\nSETUP VALUES:\n"
@@ -158,14 +166,14 @@ class MSetup:
         embed=ef.cembed(
             title="MehSetup Instructions",
             description=description,
-            color=self.client.re[8],
-            thumbnail=self.client.user.avatar.url,
+            color=self.CLIENT.re[8],
+            thumbnail=self.CLIENT.user.avatar.url,
             footer="Have Fun",
             fields=[
                 {
                     'name': "Send It",
-                    'value': '''To send it somewhere, type 
-                    `send <#channel|webhook_url>`''',
+                    'value': ef.line_strip('''To send it somewhere, type 
+                    `send <#channel|webhook_url>`'''),
                     'inline': False
                 },
                 {
@@ -195,11 +203,11 @@ class MSetup:
             )
         if not self.EDIT_MESSAGE:
             self.EDIT_MESSAGE = await self.ctx.send(
-                embed=embed_from_dict(self.di, self.ctx, self.client)
+                embed=embed_from_dict(self.di, self.ctx, self.CLIENT)
             )
         else:
             await self.EDIT_MESSAGE.edit(
-                embed=embed_from_dict(self.di, self.ctx, self.client)
+                embed=embed_from_dict(self.di, self.ctx, self.CLIENT)
             )
         
     def to_yaml(self):
@@ -263,11 +271,11 @@ class MSetup:
                 all_fields.append(fi)
         return all_fields
 
-    def author(self, text):
+    def author(self, text=None):
         return {
             'name': self.ctx.author.name,
             'icon_url': ef.safe_pfp(self.ctx.author)
-        }
+        } if text.lower() == "true" else text
 
     async def process_message(self, msg):
         '''
@@ -284,8 +292,8 @@ class MSetup:
                 embed=ef.cembed(
                     title=f"Editing {text}",
                     description=f"Currently editing {text}, please follow the syntax from the instruction page",
-                    color=self.client.re[8],
-                    thumbnail=self.client.user.avatar.url                    
+                    color=self.CLIENT.re[8],
+                    thumbnail=self.CLIENT.user.avatar.url                    
                 )
             )
             
@@ -298,8 +306,8 @@ class MSetup:
                     msg.reference.message_id
                 )
                 await self.imp(impor)
-            elif msg.author.id in self.client.mspace:
-                self.di = safe_load(filter_graves(self.client.mspace[msg.author.id]))
+            elif msg.author.id in self.CLIENT.mspace:
+                self.di = safe_load(filter_graves(self.CLIENT.mspace[msg.author.id]))
                 
             else:
                 await self.ctx.send(
@@ -316,7 +324,6 @@ class MSetup:
                 await self.send_instructions()
                 return
             output = text
-            print(self.SETUP_VALUE)
             if self.SETUP_VALUE == "footer":
                 output = self.footer(text)
             if self.SETUP_VALUE == "fields":
@@ -345,13 +352,13 @@ class MSetup:
 
 
 class Embed(commands.Cog):
-    def __init__(self, client: commands.Bot):
-        self.client = client
+    def __init__(self, CLIENT: commands.Bot):
+        self.CLIENT = CLIENT
         self.old_messages = {}
 
     @commands.command(aliases=["msetup1"])
     async def msetup(self, ctx):
-        session = MSetup(ctx, self.client)
+        session = MSetup(ctx, self.CLIENT)
         await session.send_instructions()
         scd = [
             'send',
@@ -361,7 +368,7 @@ class Embed(commands.Cog):
         
         while True:
             try:
-                message = await self.client.wait_for(
+                message = await self.CLIENT.wait_for(
                     "message",
                     check = lambda m: all([
                         m.author == ctx.author,
@@ -371,14 +378,14 @@ class Embed(commands.Cog):
                 await session.process_message(message)
                 
                 if any(map(message.content.lower().startswith, scd)):
-                    embed = embed_from_dict(session.di, ctx, self.client)
+                    embed = embed_from_dict(session.di, ctx, self.CLIENT)
                     text = message.content
                     
                     if text.lower() == "done":
-                        confirm = await ef.wait_for_confirm(ctx, self.client, "Do you want to set this as your mehspace?", color=self.client.re[8])
+                        confirm = await ef.wait_for_confirm(ctx, self.CLIENT, "Do you want to set this as your mehspace?", color=self.CLIENT.re[8])
                         
                         if confirm:
-                            self.client.mspace[ctx.author.id] = session.to_yaml()
+                            self.CLIENT.mspace[ctx.author.id] = session.to_yaml()
                             await ctx.send("Done")
                             break
                             
@@ -396,8 +403,8 @@ class Embed(commands.Cog):
                             await ef.post_async(text[5:], json={'embeds':[embed.to_dict()]})
                             await ctx.send("Done")
                             continue
-                        if self.client.get_channel(int(text[7:-1])):
-                            channel = self.client.get_channel(int(text[7:-1]))
+                        if self.CLIENT.get_channel(int(text[7:-1])):
+                            channel = self.CLIENT.get_channel(int(text[7:-1]))
                             print(channel)
                             if channel.permissions_for(ctx.author).send_messages:
                                 if channel.permissions_for(ctx.guild.me).send_messages:
@@ -416,8 +423,8 @@ class Embed(commands.Cog):
                     embed=ef.cembed(
                         title="Sorry",
                         description="Timed out, Discord will kill me if i wait longer",
-                        color=self.client.re[8],
-                        thumbnail=self.client.user.avatar.url
+                        color=self.CLIENT.re[8],
+                        thumbnail=self.CLIENT.user.avatar.url
                     )
                 )    
                 break
@@ -429,7 +436,7 @@ class Embed(commands.Cog):
     async def yml_embed(self, ctx, channel: Union[nextcord.TextChannel, str, nextcord.threads.Thread], *, yaml = None):
         embed = embed_from_dict(
             yaml_to_dict(filter_graves(yaml)),
-            ctx, self.client
+            ctx, self.CLIENT
         )
         if isinstance(channel, (nextcord.TextChannel, nextcord.threads.Thread)):
             await channel.send(embed=embed)
@@ -439,14 +446,14 @@ class Embed(commands.Cog):
         elif channel.lower() == "mehspace":
             if yaml:
                 await ctx.send(embed=embed)
-                confirm = await ef.wait_for_confirm(ctx, self.client, "Do you want to use this as your profile?", color=self.client.re[8], usr=ctx.author)
+                confirm = await ef.wait_for_confirm(ctx, self.CLIENT, "Do you want to use this as your profile?", color=self.CLIENT.re[8], usr=ctx.author)
                 if confirm:
-                    self.client.mspace[ctx.author.id]  = yaml
+                    self.CLIENT.mspace[ctx.author.id]  = yaml
             else:
                 await ctx.send(
                     embed = embed_from_dict(
                         yaml_to_dict(filter_graves(yaml)),
-                        ctx, self.client
+                        ctx, self.CLIENT
                     )
                 )
         else:
@@ -454,14 +461,14 @@ class Embed(commands.Cog):
 
     @nextcord.user_command(name="mehspace")
     async def meh(self, inter, member):
-        if member.id not in self.client.mspace:
+        if member.id not in self.CLIENT.mspace:
             await inter.send("The user has not set mehspace", ephemeral = True)
             return
-        yaml = filter_graves(self.client.mspace[member.id])
+        yaml = filter_graves(self.CLIENT.mspace[member.id])
         di = yaml_to_dict(yaml)
         embed=embed_from_dict(
             di,
-            inter, self.client
+            inter, self.CLIENT
         )
         await inter.send(embed=embed)
 
@@ -469,12 +476,12 @@ class Embed(commands.Cog):
     @commands.check(ef.check_command)
     async def mehspace_prefix_command(self, ctx, user: nextcord.Member = None):
         if not user: user = ctx.author
-        if user.id not in self.client.mspace:
+        if user.id not in self.CLIENT.mspace:
             await ctx.send(
                 embed=ef.cembed(
                     title="Unavailable",
                     description="This user has not set mehspace",
-                    color=self.client.re[8],
+                    color=self.CLIENT.re[8],
                     author=user,
                     thumbnail="https://www.cambridge.org/elt/blog/wp-content/uploads/2019/07/Sad-Face-Emoji-480x480.png.webp"
                 )
@@ -483,21 +490,21 @@ class Embed(commands.Cog):
         await ctx.send(
             embed=embed_from_dict(
                 yaml_to_dict(
-                    filter_graves(self.client.mspace[user.id])
+                    filter_graves(self.CLIENT.mspace[user.id])
                 ),
-                ctx, self.client
+                ctx, self.CLIENT
             )
         )
 
     @nextcord.slash_command(name="mehspace",description="Show Mehspace of someone")
     async def mehspace(self, inter, user: nextcord.User = None):
         if not user: user = inter.user
-        if user.id not in self.client.mspace:
+        if user.id not in self.CLIENT.mspace:
             await inter.response.send_message(
                 embed=ef.cembed(
                     title="Unavailable",
                     description="This user has not set mehspace",
-                    color=self.client.re[8],
+                    color=self.CLIENT.re[8],
                     thumbnail="https://www.cambridge.org/elt/blog/wp-content/uploads/2019/07/Sad-Face-Emoji-480x480.png.webp",
                     author=user
                 )
@@ -506,9 +513,9 @@ class Embed(commands.Cog):
         await inter.response.send_message(
             embed=embed_from_dict(
                 yaml_to_dict(
-                    filter_graves(self.client.mspace[user.id])
+                    filter_graves(self.CLIENT.mspace[user.id])
                 ),
-                inter, self.client
+                inter, self.CLIENT
             )
         )
 
@@ -534,7 +541,7 @@ class Embed(commands.Cog):
             if title:
                 d['title'] = title
     
-            embed = embed_from_dict(d, inter, self.client)
+            embed = embed_from_dict(d, inter, self.CLIENT)
             await inter.send(embed=embed)
         except:
             print(traceback.format_exc())
@@ -542,7 +549,7 @@ class Embed(commands.Cog):
                 embed=ef.cembed(
                     title="Oops",
                     description="Something is wrong",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
 
@@ -558,8 +565,8 @@ class Embed(commands.Cog):
             embed=ef.cembed(
                 title="EmbedInfo",
                 description=f"```yml\n{safe_dump(converter(e))}\n```",
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url
             ),
             ephemeral = True
         )
@@ -582,8 +589,8 @@ class Embed(commands.Cog):
             embed=ef.cembed(
                 title="EmbedInfo",
                 description=f"```yml\n{safe_dump(converter(e))}\n```",
-                color=self.client.re[8],
-                thumbnail = self.client.user.avatar.url
+                color=self.CLIENT.re[8],
+                thumbnail = self.CLIENT.user.avatar.url
             )
         )
 
@@ -606,5 +613,5 @@ class Embed(commands.Cog):
     
 
 
-def setup(client,**i):
-    client.add_cog(Embed(client,**i))
+def setup(CLIENT,**i):
+    CLIENT.add_cog(Embed(CLIENT,**i))

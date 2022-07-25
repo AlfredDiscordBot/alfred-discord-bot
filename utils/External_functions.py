@@ -1,4 +1,5 @@
 from io import BytesIO
+from string import ascii_letters
 from bs4 import BeautifulSoup
 from nextcord import SlashOption
 from dotenv import load_dotenv
@@ -1031,3 +1032,38 @@ def dict2fields(d: dict, inline: bool = True):
     return [
         {'name':i, 'value': d[i], 'inline': inline} for i in d
     ]
+
+def line_strip(text: str):
+    return '\n'.join([i.strip() for i in text.split("\n")])
+
+class Detector:
+    def __init__(self, CLIENT):
+        self.deathrate = {}
+        self.CLIENT = CLIENT
+
+    async def process_message(self, message: nextcord.message.Message):
+        content = ''.join([i for i in message.clean_content if i in ascii_letters])
+        if content:
+            if message.author.id not in self.deathrate:
+                self.deathrate[message.author.id] = 0
+
+            try:
+                preds = await post_async(
+                    "https://suicide-detector-api-1.yashvardhan13.repl.co/classify",
+                    json = {
+                        'text': content
+                    }
+                )
+            except AttributeError:
+                preds = {'result': None}
+                
+            if preds.get("result") == "Sucide":
+                self.deathrate[message.author.id]+=1
+            else:
+                return None
+
+            if self.deathrate.get(message.author.id) >= 10:
+                self.deathrate[message.author.id]=0
+                return suicide_m(self.CLIENT, self.CLIENT.re[8])                
+        else:
+            return None

@@ -3,21 +3,23 @@ import utils.assets as assets
 import traceback
 import utils.External_functions as ef
 from nextcord.ext import commands
+from typing import Union
 
 # Use nextcord.slash_command()
 
 def requirements():
-    return ["wolfram"]
+    return ["WOLFRAM"]
 
 class FunAPI(commands.Cog):
-    def __init__(self, client: commands.Bot, wolfram: str):
-        self.client = client
-        self.space = ef.SpaceX(self.client.re[8])
+    def __init__(self, CLIENT: commands.Bot, WOLFRAM: str):
+        self.CLIENT = CLIENT
+        self.space = ef.SpaceX(self.CLIENT.re[8])
         self.proton = ef.Proton()
         self.tt = ef.TechTerms()
-        self.APIs = ef.PublicAPI(self.client)
-        self.minecraft = ef.MineCraft(client)
-        self.AiD = wolfram
+        self.APIs = ef.PublicAPI(self.CLIENT)
+        self.minecraft = ef.MineCraft(CLIENT)
+        self.WOLFRAM = WOLFRAM
+        self.suicide_detector = ef.Detector(self.CLIENT)
         self.p = ef.Pokemon()
 
     @commands.Cog.listener()
@@ -33,7 +35,7 @@ class FunAPI(commands.Cog):
     async def tech(self, inter, query = "Python"):
         await inter.response.defer()
         e = await self.tt.get_page_as_embeds(query)
-        embeds = [ef.cembed(**i, color=self.client.re[8], author = inter.user) for i in e]
+        embeds = [ef.cembed(**i, color=self.CLIENT.re[8], author = inter.user) for i in e]
         await assets.pa(inter, embeds)
 
     @tech.on_autocomplete("query")
@@ -44,7 +46,7 @@ class FunAPI(commands.Cog):
     @commands.command()
     @commands.check(ef.check_command)
     async def quote(self, ctx):
-        embed = await ef.quo(self.client.re[8])
+        embed = await ef.quo(self.CLIENT.re[8])
         await ctx.send(embed=embed)
     
     @funapi.subcommand(name="quote",description="Get a random quote")
@@ -56,11 +58,11 @@ class FunAPI(commands.Cog):
     async def protondb(self, inter, game):
         await inter.response.defer()
         reports = await self.proton.report(game)
-        embeds = [ef.cembed(**i, color=self.client.re[8], author = inter.user) for i in reports]
+        embeds = [ef.cembed(**i, color=self.CLIENT.re[8], author = inter.user) for i in reports]
         if len(embeds) == 0: embeds = [
             ef.cembed(
                 description="Not Found, please try again", 
-                color=self.client.re[8]
+                color=self.CLIENT.re[8]
             )
         ]
         await assets.pa(inter, embeds)
@@ -80,7 +82,7 @@ class FunAPI(commands.Cog):
                     title="Oops",
                     description="We couldnt find that sub-command, it's either history or latest",
                     image="https://thumbs.gfycat.com/CoarseAdventurousIbis-max-1mb.gif",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
             return
@@ -116,9 +118,9 @@ class FunAPI(commands.Cog):
         em = ef.cembed(
             title="Here's a picture of a Cute Cat",
             description="The Image you see here is collected from source.unsplash.com",
-            color=self.client.re[8],
+            color=self.CLIENT.re[8],
             author=ctx.author,
-            thumbnail=self.client.user.avatar.url,
+            thumbnail=self.CLIENT.user.avatar.url,
             image="attachment://cat.png"
         )
         await ctx.send(file=file, embed=em)
@@ -127,7 +129,7 @@ class FunAPI(commands.Cog):
     async def dic(self, inter, word):
         await inter.response.defer()
         try:
-            mean = ef.Meaning(word = word, color = self.client.re[8])
+            mean = ef.Meaning(word = word, color = self.CLIENT.re[8])
             await mean.setup()
             await assets.pa(inter, mean.create_texts(), start_from=0, restricted=False)
         except Exception as e:
@@ -136,7 +138,7 @@ class FunAPI(commands.Cog):
                     title="Something is wrong",
                     description="Oops something went wrong, I gotta check this out real quick, sorry for the inconvenience",
                     color=nextcord.Color.red(),
-                    thumbnail=self.client.user.avatar.url,
+                    thumbnail=self.CLIENT.user.avatar.url,
                     footer = str(e)
                 )
             )
@@ -145,12 +147,12 @@ class FunAPI(commands.Cog):
     @commands.command(aliases=["cat"])
     @commands.check(ef.check_command)
     async def cat_fact(self, ctx):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         a = await ef.get_async("https://catfact.ninja/fact", kind="json")
         embed = ef.cembed(
             title="Cat Fact", 
             description=a["fact"], 
-            color=self.client.re[8],
+            color=self.CLIENT.re[8],
             thumbnail="https://i.imgur.com/u1TPbIp.png?1",
             author=ctx.author
         )
@@ -162,7 +164,7 @@ class FunAPI(commands.Cog):
         await self.APIs.update(inter.user)
         embed = self.APIs.return_embed(
             self.APIs.find(name),
-            self.client.re[8]
+            self.CLIENT.re[8]
         )
         await inter.send(embed=embed)
 
@@ -194,9 +196,9 @@ class FunAPI(commands.Cog):
             embed=ef.cembed(
                 title="Here's Shortened URL",
                 description=output['message'],
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 footer="This is provided by a website called TitanURL",
-                thumbnail=self.client.user.avatar.url,
+                thumbnail=self.CLIENT.user.avatar.url,
                 author=ctx.author
             )
         )
@@ -208,7 +210,7 @@ class FunAPI(commands.Cog):
                 embed=ef.cembed(
                     title="Invalid",
                     description="Invalid page, please try again",
-                    color=self.client.re[8]                    
+                    color=self.CLIENT.re[8]                    
                 )
             )
             return
@@ -217,9 +219,9 @@ class FunAPI(commands.Cog):
         embeds = [
             ef.cembed(
                 title="Result",
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 description=i,
-                thumbnail=self.client.user.avatar.url
+                thumbnail=self.CLIENT.user.avatar.url
             )
             for i in descriptions
         ]
@@ -234,9 +236,9 @@ class FunAPI(commands.Cog):
 
     @commands.command()
     @commands.check(ef.check_command)
-    async def wolf(self, ctx, query):
+    async def wolf(self, ctx, *, query):
         fp = await ef.get_async(
-            f"http://api.wolframalpha.com/v1/simple?appid={self.AiD}&i={query}&layout=labelbar&width=1000",
+            f"http://api.wolframalpha.com/v1/simple?appid={self.WOLFRAM}&i={query}&layout=labelbar&width=1000",
             kind="fp"
         )
         file = nextcord.File(fp, "output.png")
@@ -246,7 +248,7 @@ class FunAPI(commands.Cog):
                 title="Wolfram",
                 author=ctx.author,
                 image="attachment://output.png",
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 description=f"This result is taken from Wolfram Alpha\nQuery: `{query}`"
             )
         )
@@ -262,7 +264,7 @@ class FunAPI(commands.Cog):
     )
     async def poke(self, inter: nextcord.Interaction, pokemon: str):
         await inter.response.defer()
-        embed = await self.p.get_stats(pokemon, True, self.client.re[8])
+        embed = await self.p.get_stats(pokemon, True, self.CLIENT.re[8])
         await inter.send(
             embed=embed
         )
@@ -271,7 +273,15 @@ class FunAPI(commands.Cog):
     async def search_autocomplete(self, inter: nextcord.Interaction, pokemon: str):
         await inter.response.send_autocomplete(self.p.search(pokemon))
 
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.guild.id in self.CLIENT.observer:
+            result: Union[nextcord.Embed, None] = await self.suicide_detector.process_message(message=message)
+            if result:
+                print(result)
+                await message.reply(embed=result)
 
 
-def setup(client,**i):
-    client.add_cog(FunAPI(client,**i))
+
+def setup(CLIENT,**i):
+    CLIENT.add_cog(FunAPI(CLIENT,**i))

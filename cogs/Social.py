@@ -10,12 +10,12 @@ NEWS_CATEGORIES = inshort.get_categories() + ['all']
 
 
 def requirements():
-    return ["dev_channel"]
+    return ["DEV_CHANNEL"]
 
 class Social(commands.Cog):
-    def __init__(self, client, dev_channel):
-        self.client = client
-        self.dev_channel = dev_channel
+    def __init__(self, CLIENT, DEV_CHANNEL):
+        self.CLIENT = CLIENT
+        self.DEV_CHANNEL = DEV_CHANNEL
         self.link_for_cats = []
 
     @nextcord.slash_command(name="social", description="Contains all the social cog slash commands")
@@ -24,7 +24,7 @@ class Social(commands.Cog):
 
     @social.subcommand(name="reddit", description="Get posts from reddit")
     async def reddit_slash(self, inter, account="wholesomememes", number=1):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         await inter.response.defer()
         await self.reddit_search(inter, account, number)    
     
@@ -38,27 +38,27 @@ class Social(commands.Cog):
     async def imdb_slash(self, inter, movie):
         await inter.response.defer()
         try:
-            await inter.send(embed = ef.imdb_embed(movie, self.client.re))
+            await inter.send(embed = ef.imdb_embed(movie, self.CLIENT.re))
         except Exception as e:
             await inter.send(
                 embed=ef.cembed(
                     title="Oops",
                     description=str(e),
-                    color=self.client.re[8],
-                    author=self.client.user,
-                    thumbnail=self.client.user.avatar.url,
+                    color=self.CLIENT.re[8],
+                    author=self.CLIENT.user,
+                    thumbnail=self.CLIENT.user.avatar.url,
                 )
             )
 
     @commands.command()
     @commands.check(ef.check_command)
     async def imdb(self, ctx, *, movie):
-        await ctx.send(embed=ef.imdb_embed(movie,self.client.re))
+        await ctx.send(embed=ef.imdb_embed(movie,self.CLIENT.re))
 
     @commands.command(aliases = ['zoo','animals'])
     @commands.check(ef.check_command)
     async def animal(self,ctx):        
-        embeds=await ef.animals(self.client,ctx,self.client.re[8])
+        embeds=await ef.animals(self.CLIENT,ctx,self.CLIENT.re[8])
         await assets.pa(ctx, embeds)
 
     @social.subcommand(name="wikipedia", description="Get a topic from wikipedia")
@@ -76,8 +76,8 @@ class Social(commands.Cog):
                     title="New update",
                     description="After an update from a Discord Bot Listing Website, I found out that NSFW content can be found in Wikipedia. Doesn't mean that we purged the entire wikipedia command, it's now only allowed in NSFW channel",
                     footer="Sorry for the inconvenience",
-                    color=self.client.re[8],
-                    thumbnail=self.client.user.avatar.url
+                    color=self.CLIENT.re[8],
+                    thumbnail=self.CLIENT.user.avatar.url
                 )
             )
             return
@@ -86,7 +86,7 @@ class Social(commands.Cog):
             em = ef.cembed(
                 title=str(t).title(),
                 description=str(summary(t, sentences=5)),
-                color=nextcord.Color(value=self.client.re[8]),
+                color=nextcord.Color(value=self.CLIENT.re[8]),
                 thumbnail="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg"
             )
             embeds.append(em)
@@ -100,8 +100,8 @@ class Social(commands.Cog):
             embed=ef.cembed(
                 title=j.get('title','Unavaiable'),
                 image=j.get('image'),
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url,
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url,
                 footer=f"{j.get('upvotes')} Upvotes | {j.get('comments')} Comments"
             )
         )
@@ -113,7 +113,7 @@ class Social(commands.Cog):
 
     @social.subcommand(name="news", description="Latest news from a given subject from inshorts")
     async def news_slash(self, inter: nextcord.Interaction, subject: str = ef.defa(choices=NEWS_CATEGORIES, default="all")):
-        self.client.re[0]+=1  
+        self.CLIENT.re[0]+=1  
         await inter.response.defer()
         await self.news(inter, subject)
     
@@ -126,7 +126,7 @@ class Social(commands.Cog):
                 embed=ef.cembed(
                     title="Error",
                     description=d['error'],
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
             return
@@ -138,7 +138,7 @@ class Social(commands.Cog):
                 description=i['content'],
                 url=i['url'],
                 footer=i['date']+ "|" +" From Inshorts",
-                color=self.client.re[8]
+                color=self.CLIENT.re[8]
             )
             embed.set_author(name = i['author'], icon_url = "https://pbs.twimg.com/profile_images/627085479268126720/k4Wwj-lS_400x400.png")
             embed.add_field(name = "ReadMore", value = f"[Here]({i['readMoreUrl']})")
@@ -147,5 +147,5 @@ class Social(commands.Cog):
     
         
 
-def setup(client, **i):
-    client.add_cog(Social(client,**i))
+def setup(CLIENT, **i):
+    CLIENT.add_cog(Social(CLIENT,**i))
