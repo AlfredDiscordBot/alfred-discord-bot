@@ -63,7 +63,7 @@ class Pages(nextcord.ui.View):
         self.page = start_from
         self.user = getattr(ctx, 'user', getattr(ctx,'author',None))
         
-    @nextcord.ui.button(label="<",style=color)
+    @nextcord.ui.button(style=color, emoji="◀️")
     async def previous(self, button, inter):
         if self.restricted:
             if not self.user == inter.user:
@@ -72,7 +72,7 @@ class Pages(nextcord.ui.View):
             self.page-=1
         await inter.response.edit_message(embed=self.embeds[self.page])
 
-    @nextcord.ui.button(label=">",style=color)
+    @nextcord.ui.button(style=color, emoji="▶️")
     async def next(self, button, inter):
         if self.restricted:
             if not self.user == inter.user:
@@ -211,7 +211,7 @@ class JSONViewer(nextcord.ui.View):
         )
 
 
-    @nextcord.ui.button(emoji="⬅️", style=color)
+    @nextcord.ui.button(emoji="◀️", style=color)
     async def back(self, button, inter):
         if self.current_location:
             self.currently_selected = self.current_location.pop()
@@ -219,7 +219,7 @@ class JSONViewer(nextcord.ui.View):
             embed=self.display()
         )
 
-    @nextcord.ui.button(emoji="➡️", style=color)
+    @nextcord.ui.button(emoji="▶️", style=color)
     async def forward(self, button, inter):
         if self.currently_selected:
             self.current_location.append(self.currently_selected)
@@ -236,7 +236,7 @@ class JSONViewer(nextcord.ui.View):
             embed=self.display()
         )
 
-    @nextcord.ui.button(emoji="⬆️", style=color)
+    @nextcord.ui.button(emoji="🔼", style=color)
     async def up(self, button, inter):
         temp = self.di.copy()
         for i in self.current_location:
@@ -255,7 +255,7 @@ class JSONViewer(nextcord.ui.View):
             embed=self.display()
         )
 
-    @nextcord.ui.button(emoji="⬇️", style=color)
+    @nextcord.ui.button(emoji="🔽", style=color)
     async def down(self, button, inter):
         temp = self.di.copy()
         for i in self.current_location:
