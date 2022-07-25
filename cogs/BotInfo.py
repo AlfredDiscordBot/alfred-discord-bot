@@ -317,6 +317,18 @@ class BotInfo(commands.Cog):
                 )
             )
 
+    @botinfo.subcommand(name="emoji", description="Get Alfred's Emoji")
+    async def emoji_slash(self, inter, emoji: str):
+        self.client.re[0]+=1
+        e = nextcord.utils.get(self.client.emojis, name=emoji)
+        await inter.send(e)
+
+    @emoji_slash.on_autocomplete("emoji")
+    async def emoji_autocomplete(self, inter: nextcord.Interaction, emoji):
+        await inter.response.send_autocomplete(
+            [e.name for e in self.client.emojis if e.name.lower().startswith(emoji.lower())][:25]
+        )
+
             
 def setup(client, **i):
     client.add_cog(BotInfo(client, **i))

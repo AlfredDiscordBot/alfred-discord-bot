@@ -68,10 +68,22 @@ def preset_change(di, ctx, client):
             'description': di,
             'color': '<bot-color>'
         }
-    if type(di.get('author')) == str:
+    if isinstance(di.get('author'), str):
         di['author'] = {
             'name' : di['author']
         }
+    if isinstance(di.get('author'), dict):
+        for i in di['author']:
+            if i == 'icon_url':
+                if di['author']['icon_url'] in presets:
+                    di['author']['icon_url'] = presets[di['author']['icon_url']]
+
+    if isinstance(di.get('author'), bool):
+        if di.get('author'):
+            di['author'] = {
+                'name': user.name,
+                'icon_url': user.avatar
+            }
     
     for i in di:
         if i in ['color','thumbnail','image','picture']:
@@ -81,13 +93,6 @@ def preset_change(di, ctx, client):
             if isinstance(di[i], dict):
                 if di[i].get("icon_url") and di[i].get("icon_url") in presets:
                     di[i]['icon_url'] = presets[di[i]['icon_url']]
-                    
-                
-    if  type(di.get('author')) == dict:
-        for i in di['author']:
-            if i == 'icon_url':
-                if di['author']['icon_url'] in presets:
-                    di['author']['icon_url'] = presets[di['author']['icon_url']]
     return di
 
 def validate_url(url: str) -> bool:
@@ -263,11 +268,11 @@ class MSetup:
                 all_fields.append(fi)
         return all_fields
 
-    def author(self, text):
+    def author(self, text=None):
         return {
             'name': self.ctx.author.name,
             'icon_url': ef.safe_pfp(self.ctx.author)
-        }
+        } if text.lower() == "true" else text
 
     async def process_message(self, msg):
         '''
@@ -316,7 +321,6 @@ class MSetup:
                 await self.send_instructions()
                 return
             output = text
-            print(self.SETUP_VALUE)
             if self.SETUP_VALUE == "footer":
                 output = self.footer(text)
             if self.SETUP_VALUE == "fields":

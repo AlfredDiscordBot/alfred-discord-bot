@@ -66,8 +66,6 @@ dev_channel: int = int(os.getenv("dev"))
 re: list = [0, "OK", {}, {}, -1, "", "205", {}, 5360, "48515587275%3A0AvceDiA27u1vT%3A26",{}]
 youtube: list = []
 autor: dict = {}
-SESSIONID = None
-color_message = None
 wolfram: str = os.getenv("wolfram")
 prefix_dict: dict = {}
 
@@ -89,9 +87,6 @@ FFMPEG_OPTIONS = {
 }
 
 print("Starting")
-
-async def search_vid(name):
-    pass
 
 def prefix_check(client_variable, message):
     return prefix_dict.get(message.guild.id if message.guild is not None else None, "'"),f"<@{client_variable.user.id}> "
@@ -329,27 +324,6 @@ async def svg(ctx, *, url):
 @youtube_loop.before_loop
 async def wait_for_ready():
     await client.wait_until_ready()
-
-@client.slash_command(name="emoji", description="Get Emojis from other servers")
-async def emoji_slash(ctx, emoji_name, number=1):
-    req()
-    number=int(number) - 1
-    if nextcord.utils.get(client.emojis, name=emoji_name) != None:
-        emoji_list = [names.name for names in client.emojis if names.name == emoji_name]
-        le = len(emoji_list)
-        if le >= 2:
-            if number > le - 1:
-                number = le - 1
-        emoji = [names for names in client.emojis if names.name == emoji_name][number].id
-        await ctx.send(str(nextcord.utils.get(client.emojis, id=emoji)))
-    else:
-        await ctx.send(
-            embed=nextcord.Embed(
-                description="The emoji is not available",
-                color=nextcord.Color(value=re[8]),
-            )
-        )
-
 
 @client.command(aliases=["e", "emoji"])
 @commands.check(check_command)
@@ -783,9 +757,6 @@ async def on_command_error(ctx, error):
     print(type(error))
     if isinstance(error, commands.errors.CommandNotFound):
         return
-    if isinstance(error, commands.errors.CommandInvokeError):
-        if isinstance(getattr(error, 'original', None), nextcord.errors.HTTPException):
-            os.system("busybox reboot")
     elif isinstance(error, commands.errors.CheckFailure):
         await ctx.send(
             embed=cembed(
