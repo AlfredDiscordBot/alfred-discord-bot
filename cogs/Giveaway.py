@@ -9,8 +9,8 @@ def requirements():
     return []
 
 class Giveaway(commands.Cog):
-    def __init__(self, client: commands.Bot):
-        self.client = client
+    def __init__(self, CLIENT: commands.Bot):
+        self.CLIENT = CLIENT
 
     @nextcord.slash_command(name = "giveaway", description = "You can use this for giveaway")
     async def giveaway(self, inter, donor:nextcord.User = None, required_role:nextcord.Role = " ", heading = "Giveaway", description = "Giveaway", emoji = emoji.emojize(":party_popper:"), image = "https://media.discordapp.net/attachments/960070023563603968/963041700996063282/standard_6.gif"):
@@ -19,8 +19,8 @@ class Giveaway(commands.Cog):
         embed=ef.cembed(
             title=heading,
             description=description,
-            color=self.client.re[8],
-            thumbnail=self.client.user.avatar.url,
+            color=self.CLIENT.re[8],
+            thumbnail=self.CLIENT.user.avatar.url,
             image=image
         )    
         embed.set_author(name=donor.name,icon_url=ef.safe_pfp(donor))
@@ -36,7 +36,7 @@ class Giveaway(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You need manage channel permission to access this function",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
             return
@@ -44,7 +44,7 @@ class Giveaway(commands.Cog):
             await ctx.send("You need to reply to a giveaway message by Alfred")
             return
         message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-        if not message.author == self.client.user:
+        if not message.author == self.CLIENT.user:
             await ctx.reply("Heyyyyy, wait a minute, that's not my giveaway mesage")
             return
         if not message.clean_content.startswith("Giveaway"): 
@@ -55,7 +55,7 @@ class Giveaway(commands.Cog):
             return
         reaction = message.reactions[0]
         users = await reaction.users().flatten()
-        users.remove(self.client.user)
+        users.remove(self.CLIENT.user)
         roles = message.raw_role_mentions
         if len(roles) > 0: roles = roles[0]
         if type(roles) == int: roles = ctx.guild.get_role(roles)
@@ -67,8 +67,8 @@ class Giveaway(commands.Cog):
                 embed=ef.cembed(
                     title="Time up",
                     description="The giveaway has ended, hope you get it the next time",
-                    color=self.client.re[8],
-                    thumbnail=self.client.user.avatar.url
+                    color=self.CLIENT.re[8],
+                    thumbnail=self.CLIENT.user.avatar.url
                 )
         )
         if len(users) == 0: 
@@ -92,7 +92,7 @@ class Giveaway(commands.Cog):
                 ephemeral = True                
             )
             return
-        if message.author.id != self.client.user.id:
+        if message.author.id != self.CLIENT.user.id:
             await inter.response.send_message(
                 "That's not my message",
                 ephemeral=True
@@ -106,7 +106,7 @@ class Giveaway(commands.Cog):
             return
         reaction = message.reactions[0]
         users = await reaction.users().flatten()
-        users.remove(self.client.user)
+        users.remove(self.CLIENT.user)
         roles = message.raw_role_mentions
         if len(roles) > 0: roles = roles[0]
         if type(roles) == int: roles = inter.guild.get_role(roles)
@@ -129,5 +129,5 @@ class Giveaway(commands.Cog):
         )
         
         
-def setup(client,**i):
-    client.add_cog(Giveaway(client,**i))
+def setup(CLIENT,**i):
+    CLIENT.add_cog(Giveaway(CLIENT,**i))

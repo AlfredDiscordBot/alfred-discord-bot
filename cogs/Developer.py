@@ -7,17 +7,17 @@ from subprocess import getoutput
 # Use nextcord.slash_command()
 
 def requirements():
-    return ["dev_channel"]
+    return ["DEV_CHANNEL"]
 
 class Developer(commands.Cog):
-    def __init__(self, client, dev_channel):
+    def __init__(self, client, DEV_CHANNEL):
         self.client = client
         self.SUPER_USERS = [
             "432801163126243328",
             "803855283821871154",
             "723539849969270894"
         ]
-        self.dev_channel = dev_channel
+        self.DEV_CHANNEL = DEV_CHANNEL
 
     @commands.command()
     @commands.check(ef.check_command)

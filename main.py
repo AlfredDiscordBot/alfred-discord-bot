@@ -6,7 +6,8 @@ import nextcord
 print("Booting up with", nextcord.__version__)
 
 from keep_alive import keep_alive
-from emoji import emojize, demojize
+from requests import post
+from emoji import emojize
 from nextcord.ext import commands, tasks
 from dotenv import load_dotenv
 from utils.Storage_facility import Variables
@@ -15,6 +16,7 @@ from contextlib import redirect_stdout
 from cogs.Embed import get_color
 from utils.External_functions import (
     cembed,
+    dict2fields,
     error_message, 
     check_command, 
     defa, 
@@ -62,11 +64,11 @@ da: dict = {}
 errors: list = ["```arm"]
 da1: dict = {}
 queue_song: dict = {}
-dev_channel: int = int(os.getenv("dev"))
+DEV_CHANNEL: int = int(os.getenv("dev"))
 re: list = [0, "OK", {}, {}, -1, "", "205", {}, 5360, "48515587275%3A0AvceDiA27u1vT%3A26",{}]
 youtube: list = []
 autor: dict = {}
-wolfram: str = os.getenv("wolfram")
+WOLFRAM: str = os.getenv("wolfram")
 prefix_dict: dict = {}
 
 # replace your id with this
@@ -91,13 +93,13 @@ print("Starting")
 def prefix_check(client_variable, message):
     return prefix_dict.get(message.guild.id if message.guild is not None else None, "'"),f"<@{client_variable.user.id}> "
 
-intents = nextcord.Intents().default()
-intents.members = True
-intents.message_content = True
+INTENTS = nextcord.Intents().default()
+INTENTS.members = True
+INTENTS.message_content = True
 
-client = nextcord.ext.commands.Bot(
+CLIENT = nextcord.ext.commands.Bot(
     command_prefix=prefix_check,
-    intents=intents,
+    intents=INTENTS,
     case_insensitive=True
 )
 
@@ -113,10 +115,10 @@ def save_to_file():
     print("save")
     store = Variables("storage")
     store.pass_all(
-        da = client.da,
-        mspace = client.mspace,
-        da1 = client.da1,
-        queue_song = client.queue_song,
+        da = CLIENT.da,
+        mspace = CLIENT.mspace,
+        da1 = CLIENT.da1,
+        queue_song = CLIENT.queue_song,
         re = re,
         dev_users = dev_users,
         prefix_dict = prefix_dict,
@@ -156,16 +158,16 @@ def load_from_file(store):
     autor = v.get("autor",{})    
 
     #using these to pass to other files like cogs
-    client.re = re
-    client.dev_users = dev_users
-    client.config = config
-    client.prefix_dict = prefix_dict
-    client.da = da
-    client.da1 = da1
-    client.queue_song = queue_song
-    client.mspace = mspace
-    client.observer = observer
-    client.autor = autor
+    CLIENT.re = re
+    CLIENT.dev_users = dev_users
+    CLIENT.config = config
+    CLIENT.prefix_dict = prefix_dict
+    CLIENT.da = da
+    CLIENT.da1 = da1
+    CLIENT.queue_song = queue_song
+    CLIENT.mspace = mspace
+    CLIENT.observer = observer
+    CLIENT.autor = autor
     
     
 
@@ -186,13 +188,13 @@ Color: {nextcord.Color(re[8]).to_rgb()}
 [ OK ] Switching Root ...
 """
 
-@client.event
+@CLIENT.event
 async def on_ready():
-    print(client.user)    
+    print(CLIENT.user)    
     global report
-    await client.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.watching, name="Booting in progress"))
-    report+=f"[ OK ] Starting On Ready\n[ OK ] Bot named as {client.user.name}\n"
-    channel = client.get_channel(dev_channel)
+    await CLIENT.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.watching, name="Booting in progress"))
+    report+=f"[ OK ] Starting On Ready\n[ OK ] Bot named as {CLIENT.user.name}\n"
+    channel = CLIENT.get_channel(DEV_CHANNEL)
     if channel:
         report+="[ OK ] Devop found, let's go\n"
     try:
@@ -200,12 +202,12 @@ async def on_ready():
         load_from_file(store)
         print("Finished loading\n")
         print("\nStarting devop display")
-        await devop_mtext(client, channel, re[8])
+        await devop_mtext(CLIENT, channel, re[8])
         report+="[ OK ] Sending Devop Message\n"
         print("Finished devop display")        
         
         with open("commands.txt","w") as f:
-          for i in client.commands:
+          for i in CLIENT.commands:
             f.write(i.name+"\n")
         report+="[ OK ] Updated commands txt file"
     except Exception as e:
@@ -227,7 +229,7 @@ async def on_ready():
             title="Report",
             description=report,
             color=re[8],
-            thumbnail=client.user.avatar.url
+            thumbnail=CLIENT.user.avatar.url
         )
     )
     
@@ -235,17 +237,21 @@ async def on_ready():
 @tasks.loop(hours=4)
 async def send_file_loop():
     save_to_file()
-    await client.get_channel(941601738815860756).send(file=nextcord.File("storage.dat",filename="storage.dat"))
+    await CLIENT.get_channel(941601738815860756).send(file=nextcord.File("storage.dat",filename="storage.dat"))
     
 @tasks.loop(minutes=30)
 async def youtube_loop():
-    await client.change_presence()
+    await CLIENT.change_presence()
     print("Youtube_loop")    
     for i,l in config['youtube'].items():
         await asyncio.sleep(2)
         for j in l:
             try:
-                a = await get_youtube_url(j[0])
+                if j[0] not in youtube_cache:
+                    a = await get_youtube_url(j[0])
+                    youtube_cache[j[0]] = a
+                else:
+                    a = youtube_cache[j[0]]
                 if a[0] in ["https://www.youtube.com/","https://www.youtube.com"]:
                     return
                 if not old_youtube_vid.get(i, None):
@@ -257,7 +263,7 @@ async def youtube_loop():
                 old_youtube_vid[i][j[0]] = a[0]
                 try:
                     message=j[1]
-                    send_channel = client.get_channel(i)
+                    send_channel = CLIENT.get_channel(i)
                     if not send_channel:
                         del config['youtube'][i]
                     await send_channel.send(
@@ -271,7 +277,7 @@ async def youtube_loop():
                     )
                     await send_channel.send(a[0]+"\n"+message)
                 except Exception:
-                    await client.get_channel(dev_channel).send(
+                    await CLIENT.get_channel(DEV_CHANNEL).send(
                         embed=cembed(
                             title="Error in youtube_loop",
                             description=f"{str(traceback.format_exc())}\nSomething is wrong with channel no. {i}",
@@ -283,6 +289,7 @@ async def youtube_loop():
                     del config['youtube'][i]
                 print(i)
                 print(traceback.format_exc())
+    youtube_cache.clear()
     print("Done")
 
 @tasks.loop(seconds = 30)
@@ -291,29 +298,29 @@ async def dev_loop():
     try:
         a = await get_async("https://suicide-detector-api-1.yashvardhan13.repl.co/")
         if a != '{"message":"API is running"}':
-            ch = client.get_channel(976470062691135529)
+            ch = CLIENT.get_channel(976470062691135529)
             await ch.send(
                 embed=cembed(
                     title="Fix her",
                     description="Your server is offline Master Bruce, Go check it out ||plssssss||",
                     color=re[8],
                     footer="Why does this server fall sir?",
-                    thumbnail=client.user.avatar.url
+                    thumbnail=CLIENT.user.avatar.url
                 )
             )
         await get_async("https://viennabot.declan1529.repl.co")
     except:
-        await client.get_channel(dev_channel).send(
+        await CLIENT.get_channel(DEV_CHANNEL).send(
             embed=cembed(
                 description=str(traceback.format_exc()),
                 color=re[8],
                 footer="Error in keep alive dev_loop",
-                thumbnail=client.user.avatar.url
+                thumbnail=CLIENT.user.avatar.url
             )
         )
-    await client.change_presence(activity=activities(client))
+    await CLIENT.change_presence(activity=activities(CLIENT))
 
-@client.command()
+@CLIENT.command()
 @commands.check(check_command)
 async def svg(ctx, *, url):
     img = svg2png(url)
@@ -323,9 +330,9 @@ async def svg(ctx, *, url):
 @send_file_loop.before_loop
 @youtube_loop.before_loop
 async def wait_for_ready():
-    await client.wait_until_ready()
+    await CLIENT.wait_until_ready()
 
-@client.command(aliases=["e", "emoji"])
+@CLIENT.command(aliases=["e", "emoji"])
 @commands.check(check_command)
 @commands.cooldown(1,5,commands.BucketType.guild)
 async def uemoji(ctx, emoji_name, number=1):
@@ -339,14 +346,14 @@ async def uemoji(ctx, emoji_name, number=1):
         emoji_name = emoji_name[1:]
     if emoji_name.endswith(":"):
         emoji_name = emoji_name[:-1]
-    if nextcord.utils.get(client.emojis, name=emoji_name) != None:
-        emoji_list = [names.name for names in client.emojis if names.name == emoji_name]
+    if nextcord.utils.get(CLIENT.emojis, name=emoji_name) != None:
+        emoji_list = [names.name for names in CLIENT.emojis if names.name == emoji_name]
         le = len(emoji_list)
         if le >= 2:
             if number > le - 1:
                 number = le - 1
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
-        emoji = [names for names in client.emojis if names.name == emoji_name][number]
+        emoji = [names for names in CLIENT.emojis if names.name == emoji_name][number]
         webhook = await ctx.channel.create_webhook(name=user.name)
         await webhook.send(emoji, username=user.name, avatar_url=safe_pfp(user))
         await webhook.delete()
@@ -360,21 +367,21 @@ async def uemoji(ctx, emoji_name, number=1):
         )
 
 
-@client.slash_command(name="svg2png", description="Convert SVG image to png format")
+@CLIENT.slash_command(name="svg2png", description="Convert SVG image to png format")
 async def svg2png_slash(ctx, url):
     req()
     await ctx.response.defer()
     img = svg2png(url)
     await ctx.send(file=nextcord.File(BytesIO(img), "svg.png"))
     
-@client.command(aliases=["cw"])
+@CLIENT.command(aliases=["cw"])
 @commands.check(check_command)
 async def clear_webhooks(ctx):
     webhooks = await ctx.channel.webhooks()
     print(webhooks)
     for webhook in webhooks:
         try:
-            if webhook.user is client.user:
+            if webhook.user is CLIENT.user:
                 await webhook.delete()            
         except Exception as e:
             print(e)
@@ -383,11 +390,11 @@ async def clear_webhooks(ctx):
             title="Done",
             description="Deleted all the webhooks by alfred",
             color=re[8],
-            thumbnail=client.user.avatar.url
+            thumbnail=CLIENT.user.avatar.url
         )
     )
 
-@client.slash_command(name="color",description="Change color theme", guild_ids=[822445271019421746])
+@CLIENT.slash_command(name="color",description="Change color theme", guild_ids=[822445271019421746])
 async def color_slash(
     inter, 
     rgb_color=str(nextcord.Color(re[8]).to_rgb())
@@ -399,7 +406,7 @@ async def color_slash(
                 title="Woopsies",
                 description="This is a `developer-only` function",
                 color=nextcord.Color.red(),
-                thumbnail=client.user.avatar.url
+                thumbnail=CLIENT.user.avatar.url
             )
         )
         return
@@ -410,14 +417,14 @@ async def color_slash(
         title="Done",
         description=f"Color set as {nextcord.Color(re[8]).to_rgb()}\n`{re[8]}`",
         color=re[8],
-        thumbnail = client.user.avatar.url,
+        thumbnail = CLIENT.user.avatar.url,
         footer=f"Executed by {inter.user.name} in {inter.channel.name}"
     )
     await inter.send(embed=embed)
-    await client.get_channel(dev_channel).send(embed=embed)
+    await CLIENT.get_channel(DEV_CHANNEL).send(embed=embed)
 
     
-@client.command()
+@CLIENT.command()
 @commands.check(check_command)
 async def load(ctx):
     user = getattr(ctx, 'author', getattr(ctx, 'user', None))
@@ -442,37 +449,37 @@ async def load(ctx):
             description='\n'.join([i.strip() for i in usage.split('\n')]),
             color=nextcord.Color(value=re[8]),
             author=user,
-            thumbnail=client.user.avatar.url
+            thumbnail=CLIENT.user.avatar.url
         )
     except Exception as e:
-        channel = client.get_channel(dev_channel)
+        channel = CLIENT.get_channel(DEV_CHANNEL)
         embed = nextcord.Embed(
             title="Load failed",
             description=str(e),
             color=nextcord.Color(value=re[8]),
         )
-        embed.set_thumbnail(url=client.user.avatar.url)
+        embed.set_thumbnail(url=CLIENT.user.avatar.url)
         await channel.send(embed)
     await ctx.channel.send(embed=embed)
 
 
 
-@client.slash_command(name="pr", description="Prints what you ask it to print")
+@CLIENT.slash_command(name="pr", description="Prints what you ask it to print")
 async def pr_slash(inter, text: str):
     req()
     await inter.send(text)
 
-@client.command()
+@CLIENT.command()
 @commands.check(check_command)
 async def dev_op(ctx):
     if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in list(dev_users):
         print("devop", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
-        channel = client.get_channel(dev_channel)
-        await devop_mtext(client, channel, re[8])
+        channel = CLIENT.get_channel(DEV_CHANNEL)
+        await devop_mtext(CLIENT, channel, re[8])
     else:
         await ctx.send(embed=cembed(title="Permission Denied",description="You cannot use the devop function, only a developer can",color=re[8]))
 
-@client.command()
+@CLIENT.command()
 @commands.check(check_command)
 async def docs(ctx, name):
     try:
@@ -499,13 +506,13 @@ async def docs(ctx, name):
             )
         )
 
-@client.event
+@CLIENT.event
 async def on_member_join(member):
     if member.guild.id in config['security']:
         audit_log = await member.guild.audit_logs(limit=10).flatten()
         latest=audit_log[0]
         if member.bot:
-            channel = client.get_channel(config['security'][member.guild.id])
+            channel = CLIENT.get_channel(config['security'][member.guild.id])
             if channel:
                 await channel.send(
                     embed=cembed(
@@ -516,7 +523,7 @@ async def on_member_join(member):
                     )
                 )
 
-@client.event
+@CLIENT.event
 async def on_member_remove(member):
     if member.guild.id in config['security']:
         print(member.guild)
@@ -524,7 +531,7 @@ async def on_member_remove(member):
         audit_log = await a.audit_logs(limit=10).flatten()
         latest = audit_log[0]
         if latest.target == member:
-            channel = client.get_channel(config['security'][member.guild.id])
+            channel = CLIENT.get_channel(config['security'][member.guild.id])
             if latest.action == nextcord.AuditLogAction.ban:
                 await channel.send(
                     embed=cembed(
@@ -546,20 +553,20 @@ async def on_member_remove(member):
                     )
                 )
 
-@client.command()
+@CLIENT.command()
 async def feedback(ctx, *, text):
     embed = cembed(
         title=f"Message from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}: {ctx.guild.name}",
         description=text,
         color=re[8],
-        thumbnail=client.user.avatar.url
+        thumbnail=CLIENT.user.avatar.url
     )
     await ctx.send(embed=embed)
-    confirmation = await wait_for_confirm(ctx,client,"Do you want to send this to the developers?",color=re[8])
+    confirmation = await wait_for_confirm(ctx,CLIENT,"Do you want to send this to the developers?",color=re[8])
     if not confirmation:
         return
     auth = getattr(ctx, 'author', getattr(ctx, 'user', None)).id
-    await client.get_channel(932890298013614110).send(
+    await CLIENT.get_channel(932890298013614110).send(
         content=str(ctx.channel.id)+" "+str(auth),
         embed=embed
         
@@ -572,7 +579,7 @@ async def feedback(ctx, *, text):
         )
     )
 
-@client.command()
+@CLIENT.command()
 async def rollback(ctx):
     if str(ctx.author.id) not in dev_users or ctx.channel.id != 941601738815860756:
         return
@@ -595,37 +602,37 @@ async def rollback(ctx):
     await m.reply("Reverted to this")
     
 
-@client.slash_command(name = "feedback",description="Send a feedback to the developers")
+@CLIENT.slash_command(name = "feedback",description="Send a feedback to the developers")
 async def f_slash(inter, text):
     await feedback(inter, text=text)
 
-@client.slash_command(name="eval", description = "This is only for developers", guild_ids = [822445271019421746])
+@CLIENT.slash_command(name="eval", description = "This is only for developers", guild_ids = [822445271019421746])
 async def eval_slash(inter, text, ty = defa(choices=['python','bash'])):
     if ty == 'bash':
         await shell(inter, text = text)
     else:
         await python_shell(inter, text = text)
 
-@client.command(aliases=["!"])
+@CLIENT.command(aliases=["!"])
 async def restart_program(ctx):
     if str(getattr(ctx, 'author', getattr(ctx, 'user', None)).id) in list(dev_users):
         save_to_file()        
         try:
-            if len(client.voice_clients)>0:
+            if len(CLIENT.voice_clients)>0:
                 confirmation = await wait_for_confirm(
-                    ctx, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8]                        
+                    ctx, CLIENT, f"There are {len(CLIENT.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8]                        
                 )
                 if not confirmation:
                     return
         except:
             print("Restarting without confirmation")
         try:
-            for voice in client.voice_clients:
+            for voice in CLIENT.voice_clients:
                 voice.stop()
                 await voice.disconnect()
         except:
             pass
-        await client.change_presence(activity = nextcord.Activity(type = nextcord.ActivityType.listening, name= "Restart"))        
+        await CLIENT.change_presence(activity = nextcord.Activity(type = nextcord.ActivityType.listening, name= "Restart"))        
         print("Restart")
         try:
             await ctx.channel.send(
@@ -633,14 +640,14 @@ async def restart_program(ctx):
                     title="Restarted",
                     description="The program is beginning it's restarting process",
                     color=re[8],
-                    thumbnail=client.user.avatar.url
+                    thumbnail=CLIENT.user.avatar.url
                 )
             )
-            await client.get_channel(dev_channel).send(
+            await CLIENT.get_channel(DEV_CHANNEL).send(
                 embed=cembed(
                     title="Restart",
                     description=f"Requested by {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}",
-                    thumbnail=client.user.avatar.url,
+                    thumbnail=CLIENT.user.avatar.url,
                     color=re[8]
                     
                 )
@@ -649,26 +656,26 @@ async def restart_program(ctx):
             print("Restarting without sending messages")
         os.system("busybox reboot")
     else:
-        await ctx.channel.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=client.user.avatar.url))
-        await client.get_channel(dev_channel).send(embed=cembed(description=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name} from {ctx.guild.name} tried to use restart_program command",color=re[8]))
-@client.event
+        await ctx.channel.send(embed=cembed(title="Permission Denied",description="Only developers can access this function",color=re[8],thumbnail=CLIENT.user.avatar.url))
+        await CLIENT.get_channel(DEV_CHANNEL).send(embed=cembed(description=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name} from {ctx.guild.name} tried to use restart_program command",color=re[8]))
+@CLIENT.event
 async def on_message_edit(message_before, message_after):
-    await client.process_commands(message_after)
+    await CLIENT.process_commands(message_after)
       
-@client.event
+@CLIENT.event
 async def on_reaction_add(reaction, user):
     req()
     ctx = reaction.message
     try:
         if (not user.bot) and str(user.id) in list(dev_users):
-            global dev_channel
-            channel = client.get_channel(dev_channel)
+            global DEV_CHANNEL
+            channel = CLIENT.get_channel(DEV_CHANNEL)
             if (
                 reaction.emoji == emojize(":laptop:")
                 and str(reaction.message.channel.id) == str(channel.id)
-                and reaction.message.author == client.user
+                and reaction.message.author == CLIENT.user
             ):
-                st = "\n".join([str(getattr(client.get_user(int(i)), 'name', None)) for i in dev_users])
+                st = "\n".join([str(getattr(CLIENT.get_user(int(i)), 'name', None)) for i in dev_users])
                 await reaction.remove(user)
                 await channel.send(
                     embed=cembed(
@@ -690,7 +697,7 @@ async def on_reaction_add(reaction, user):
                 await channel.send(
                     embed=cembed(
                         title="Servers",
-                        description='\n'.join([i.name+"" for i in client.guilds]),
+                        description='\n'.join([i.name+"" for i in CLIENT.guilds]),
                         color=nextcord.Color(value=re[8]),
                         author=user
                     )
@@ -707,14 +714,14 @@ async def on_reaction_add(reaction, user):
                 reaction.message.channel.id
             ) == str(channel.id):
                 await reaction.remove(user)
-                if len(client.voice_clients)>0:
+                if len(CLIENT.voice_clients)>0:
                     confirmation = await wait_for_confirm(
-                        reaction.message, client, f"There are {len(client.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8], usr=user                        
+                        reaction.message, CLIENT, f"There are {len(CLIENT.voice_clients)} servers listening to music through Alfred, Do you wanna exit?", color=re[8], usr=user                        
                     )
                     if not confirmation:
                         return
                 try:
-                    for voice in client.voice_clients:
+                    for voice in CLIENT.voice_clients:
                         voice.stop()
                         await voice.disconnect()
                 except:
@@ -732,16 +739,16 @@ async def on_reaction_add(reaction, user):
             if reaction.emoji == emojize(":black_circle:") and str(
                 reaction.message.channel.id
             ) == str(channel.id):
-                await devop_mtext(client, channel, re[8])
+                await devop_mtext(CLIENT, channel, re[8])
     except PermissionError:
         await reaction.message.channel.send(embed=cembed(
             title="Missing Permissions",
             description="Alfred is missing permissions, please try to fix this, best recommended is to add Admin to the bot",
             color=re[8],
-            thumbnail=client.user.avatar.url)
+            thumbnail=CLIENT.user.avatar.url)
         )
     except Exception as e:        
-        channel = client.get_channel(dev_channel)
+        channel = CLIENT.get_channel(DEV_CHANNEL)
         await channel.send(
             embed=cembed(
                 title="Error in on_reaction_add",
@@ -752,7 +759,7 @@ async def on_reaction_add(reaction, user):
             )
         )
 
-@client.event
+@CLIENT.event
 async def on_command_error(ctx, error):    
     print(type(error))
     if isinstance(error, commands.errors.CommandNotFound):
@@ -762,7 +769,7 @@ async def on_command_error(ctx, error):
             embed=cembed(
                 title="Disabled command",
                 description="This command has been disabled by your admin, please ask them to enable it to use this\n\nIf you're an admin and you want to enable this command, use `/commands <enable> <command_name>`",
-                color=client.re[8],
+                color=CLIENT.re[8],
                 thumbnail=safe_pfp(ctx.author)
             )
         )       
@@ -773,7 +780,7 @@ async def on_command_error(ctx, error):
                 title="Missing Required Argument",
                 author=ctx.author,
                 color=nextcord.Color.red(),
-                thumbnail=client.user.avatar.url,
+                thumbnail=CLIENT.user.avatar.url,
                 description="You have missed out one or more of the required argument",
                 fields=[
                     {
@@ -783,27 +790,27 @@ async def on_command_error(ctx, error):
                 ],
                 footer={
                     'text': 'Go through /help',
-                    'icon_url': client.user.avatar.url
+                    'icon_url': CLIENT.user.avatar.url
                 }
             )
         )   
     else:
         await ctx.send(embed=error_message(str(error)))
-    channel = client.get_channel(dev_channel)
+    channel = CLIENT.get_channel(DEV_CHANNEL)
     await channel.send(
         embed=cembed(
             title="Error",
             description=f"\n{error}", 
             color=re[8], 
-            thumbnail=client.user.avatar.url, 
+            thumbnail=CLIENT.user.avatar.url, 
             footer = f"{ctx.author.name}:{ctx.guild.name}",
             author=ctx.author
         )
     )
 
-@client.event
+@CLIENT.event
 async def on_message(msg):
-    await client.process_commands(msg)             
+    await CLIENT.process_commands(msg)             
     try:
         if msg.channel.id in autor:
             for emo in autor[msg.channel.id]:                
@@ -811,7 +818,7 @@ async def on_message(msg):
                 await asyncio.sleep(1)       
         
     except Exception as e:
-        channel = client.get_channel(dev_channel)
+        channel = CLIENT.get_channel(DEV_CHANNEL)
         await channel.send(
             embed=nextcord.Embed(
                 title="Error", description=str(traceback.format_exc()), color=nextcord.Color(value=re[8])
@@ -820,7 +827,7 @@ async def on_message(msg):
 
 
 
-@client.command(aliases=["m"])
+@CLIENT.command(aliases=["m"])
 async def python_shell(ctx, *, text):
     req()
     user = getattr(ctx, 'author', getattr(ctx, 'user', None))
@@ -829,7 +836,7 @@ async def python_shell(ctx, *, text):
     if str(user.id) in dev_users:
         try:
             text = text.replace("```py", "").replace("```", "")
-            await client.get_channel(946381704958988348).send(
+            await CLIENT.get_channel(946381704958988348).send(
                 embed=cembed(
                     title="Python Eval Executed",
                     description = f"```py\n{text}\n```",
@@ -868,7 +875,7 @@ async def python_shell(ctx, *, text):
             )
         )
 
-@client.command(aliases=['sh'])
+@CLIENT.command(aliases=['sh'])
 async def shell(ctx, *, text):
     if isinstance(ctx, nextcord.Interaction):
         await ctx.response.defer()
@@ -879,18 +886,18 @@ async def shell(ctx, *, text):
                 title="Permissions Denied",
                 description="This is an `only developer command`, please refrain from using this",
                 color=re[8],
-                thumbnail=client.user.avatar.url
+                thumbnail=CLIENT.user.avatar.url
             )
         )
         return
     print("Shell", user.name, text)
-    await client.get_channel(946381704958988348).send(
+    await CLIENT.get_channel(946381704958988348).send(
         embed=cembed(
             author=user,
             title=f"Shell Executed by {user}",
             description=text,
             color=re[8],
-            thumbnail=client.user.avatar.url,
+            thumbnail=CLIENT.user.avatar.url,
             footer=f"This happened in {ctx.guild}",
             url=getattr(ctx.message, 'jump_url', None)
         )
@@ -901,16 +908,16 @@ async def shell(ctx, *, text):
             description="```bash\n"+subprocess.getoutput(text)[:4000]+"\n```",
             color=re[8],
             author=user,
-            thumbnail=client.user.avatar.url,
+            thumbnail=CLIENT.user.avatar.url,
             footer={
                 'text': 'A copy of the query is send to Wayne Enterprises for security reasons',
-                'icon_url': safe_pfp(client.get_guild(822445271019421746))
+                'icon_url': safe_pfp(CLIENT.get_guild(822445271019421746))
             }
             
         )
     )
 
-@client.command()
+@CLIENT.command()
 @commands.check(check_command)
 async def exe(ctx, *, text):
     req()
@@ -926,7 +933,7 @@ async def exe(ctx, *, text):
                 )
             )
             return
-        await client.get_channel(946381704958988348).send(
+        await CLIENT.get_channel(946381704958988348).send(
             embed=cembed(
                 title="Execute command used",
                 description=text,
@@ -961,7 +968,7 @@ async def exe(ctx, *, text):
                     title="Output",
                     description=description,
                     color=re[8],
-                    thumbnail=client.user.avatar.url
+                    thumbnail=CLIENT.user.avatar.url
                 )
             )            
         await assets.pa(ctx, embeds, start_from=0, restricted=False)
@@ -995,7 +1002,7 @@ def g_req():
     return re[0]
 
 def reload_extension(name):
-    client.unload_extension(f'cogs.{name}')
+    CLIENT.unload_extension(f'cogs.{name}')
     return load_extension(name)
 
 def load_extension(name):
@@ -1008,7 +1015,7 @@ def load_extension(name):
         d = {}
         for i in l:
             d[i] = globals()[i]
-        client.load_extension(f'cogs.{name}', extras=d)
+        CLIENT.load_extension(f'cogs.{name}', extras=d)
         print(" :Done")
         return f"[ OK ] Added {name}\n"
     except Exception as e:
@@ -1020,13 +1027,30 @@ def load_all():
         if i.endswith(".py"):
             global report
             report+=load_extension(i[:-3])
-client.remove_command("help")
+CLIENT.remove_command("help")
 load_all()
 keep_alive()
 
 try: 
-    client.run(os.getenv("token"))
-except: 
+    CLIENT.run(os.getenv("token"))
+except Exception as e: 
     print(traceback.format_exc())
+    embed=cembed(
+        title="Login Error",
+        description="Alfred couldn't login, Please check replit now, this may have been a cause of rate limit",
+        color=re[8],
+        thumbnail="https://yt3.ggpht.com/HIT46TQLeSaUc47vgJXCPkzXaKiVuNXoinSq2VGTr4IgxvnG2doFCxOUq9AVHsy9JOietkukWQ=s900-c-k-c0x00ffffff-no-rj",
+        author={
+            'name': 'Alfred emergency',
+            'icon_url': 'https://raw.githubusercontent.com/alvinbengeorge/alfred-discord-bot/default/Bat.jpg'
+        },
+        fields=dict2fields({'AutoRestart':'Enabled, will start in 20 seconds', 'Error': str(e)})
+    ).to_dict()
+    post(
+        url = os.getenv('emergency'),
+        json={
+            'embeds': [embed]
+        }
+    )
     time.sleep(20)
     os.system("busybox reboot")

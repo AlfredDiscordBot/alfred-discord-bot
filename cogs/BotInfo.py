@@ -12,42 +12,41 @@ from nextcord.ext import commands
 
 
 def requirements():
-    return ['dev_channel', 'start_time']
+    return ['DEV_CHANNEL', 'start_time']
 
 
 class BotInfo(commands.Cog):
-    def __init__(self, client, dev_channel, start_time):
-        self.client = client
+    def __init__(self, CLIENT, DEV_CHANNEL, start_time):
+        self.CLIENT = CLIENT
         self.start_time = start_time
-        self.re = self.client.re
-        self.dev_channel = dev_channel
+        self.DEV_CHANNEL = DEV_CHANNEL
         self.embe = []
         self.index = []
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        channel = self.client.get_channel(self.dev_channel)
+        channel = self.CLIENT.get_channel(self.DEV_CHANNEL)
         await channel.send(
             embed=ef.cembed(
                 title=guild.name,
                 description=f"{len(guild.members)-1} Lucky Member(s) Found",
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url,
-                footer=f"Currently in {len(self.client.guilds)} servers | {len(self.client.users)} Users",
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url,
+                footer=f"Currently in {len(self.CLIENT.guilds)} servers | {len(self.CLIENT.users)} Users",
                 fields=ef.dict2fields({'Member': f'{len(guild.members)} members'})
             )
         )
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        channel = self.client.get_channel(self.dev_channel)
+        channel = self.CLIENT.get_channel(self.DEV_CHANNEL)
         await channel.send(
             embed=ef.cembed(
                 title=guild.name,
                 description="I left this guild",
-                footer=f"Currently in {len(self.client.guilds)} servers | {len(self.client.users)} Users",
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url,
+                footer=f"Currently in {len(self.CLIENT.guilds)} servers | {len(self.CLIENT.users)} Users",
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url,
                 fields=ef.dict2fields({'Member': f'{len(guild.members)} members'})
             )
         )
@@ -55,23 +54,23 @@ class BotInfo(commands.Cog):
     @commands.command(aliases=["hi", "ping"])
     @commands.check(ef.check_command)
     async def check(self, ctx):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         print("check")
-        emo = assets.Emotes(self.client)
-        r = self.client.re[0]
+        emo = assets.Emotes(self.CLIENT)
+        r = self.CLIENT.re[0]
         permissions1 = "`"*3+"diff\n+ "+'\n+ '.join(
-            [i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if i[1]]
+            [i[0] for i in ctx.guild.get_member(self.CLIENT.user.id).guild_permissions if i[1]]
         )+"\n"+"`"*3+"\n\n"        
         permissions2 = "`"*3+"diff\n- "+'\n- '.join(
-            [i[0] for i in ctx.guild.get_member(self.client.user.id).guild_permissions if not i[1]]
+            [i[0] for i in ctx.guild.get_member(self.CLIENT.user.id).guild_permissions if not i[1]]
         )+"\n"+"`"*3+"\n\n"
         em = ef.cembed(
             title=f"Online {emo.check}",
-            description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(self.client.latency*1000)}ms\nRequests: \t{r:,}\nUpFrom: <t:{int(self.start_time)}>\nReady: {self.client.is_ready()}",
-            color=self.client.re[8],
+            description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(self.CLIENT.latency*1000)}ms\nRequests: \t{r:,}\nUpFrom: <t:{int(self.start_time)}>\nReady: {self.CLIENT.is_ready()}",
+            color=self.CLIENT.re[8],
             footer="Have fun, bot has many features, check out /help",
-            thumbnail=self.client.user.avatar.url,
-            author=self.client.user,
+            thumbnail=self.CLIENT.user.avatar.url,
+            author=self.CLIENT.user,
             fields=ef.dict2fields(
                 {
                     'Allowed': permissions1,
@@ -99,10 +98,10 @@ class BotInfo(commands.Cog):
     @commands.check(ef.check_command)
     async def neofetch(self, ctx):
         text = helping_hand.neofetch
-        text += f"Name    : {self.client.user.name}\n"
-        text += f"ID      : {self.client.user.id}\n"
-        text += f"Users   : {len(self.client.users)}\n"
-        text += f"Servers : {len(self.client.guilds)}\n"
+        text += f"Name    : {self.CLIENT.user.name}\n"
+        text += f"ID      : {self.CLIENT.user.id}\n"
+        text += f"Users   : {len(self.CLIENT.users)}\n"
+        text += f"Servers : {len(self.CLIENT.guilds)}\n"
         text += f"Uptime  : {int(time.time()-self.start_time)}\n"
         text += f"Nextcord: {nextcord.__version__}"
         await ctx.send("```yml\n"+text+"\n```")
@@ -110,7 +109,7 @@ class BotInfo(commands.Cog):
     @commands.command(aliases=["vote","top.gg",'v'])
     async def vote_alfred(self, ctx):   
         await ctx.send(
-            embed=assets.vote_embed(self.client)
+            embed=assets.vote_embed(self.CLIENT)
         )
     
     @botinfo.subcommand("vote",description="Vote for Alfred in Bot Listing servers")
@@ -119,29 +118,29 @@ class BotInfo(commands.Cog):
 
     @commands.command(aliases=['h','alfred'])
     async def help(self, ctx, *, text = "<Optional>"):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         try:
             if len(self.embe) < 30:
-                self.embe = helping_hand.help_him(self.client, self.client.re)
+                self.embe = helping_hand.help_him(self.CLIENT, self.CLIENT.re)
                 new_embed = ef.cembed(
                     title='Index',
                     description="Type `help <section>` to get to the help page\n```diff\n"+"\n+ ".join([i.title for i in self.embe])+"\n```",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
                 self.embe.insert(1, new_embed)
                 self.index = [i.title for i in self.embe]
             if text in self.index:                
                 n  = self.index.index(text)
                 await assets.pa(ctx,[self.embe[n]],restricted=True)
-            elif text in [i.name for i in self.client.commands]:
-                prefix = self.client.prefix_dict.get(ctx.guild.id, "'")
-                i=self.client.get_command(text)
+            elif text in [i.name for i in self.CLIENT.commands]:
+                prefix = self.CLIENT.prefix_dict.get(ctx.guild.id, "'")
+                i=self.CLIENT.get_command(text)
                 embed=ef.cembed(
                     title=i.name,
                     description=f"`{prefix}{i.name} {i.signature}`",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
-                embed.set_author(name=self.client.user.name, icon_url = self.client.user.avatar.url)
+                embed.set_author(name=self.CLIENT.user.name, icon_url = self.CLIENT.user.avatar.url)
                 await ctx.send(embed=embed)
             else:
                 n = 0
@@ -157,16 +156,16 @@ class BotInfo(commands.Cog):
     @help_slash.on_autocomplete("text")
     async def auto_com(self, inter, text):
         if len(self.embe) < 30:
-            self.embe = helping_hand.help_him(self.client, self.client.re)
+            self.embe = helping_hand.help_him(self.CLIENT, self.CLIENT.re)
             new_embed = ef.cembed(
                 title='Index',
                 description="Type `help <section>` to get to the help page\n```diff\n"+"\n+ ".join([i.title for i in self.embe])+"\n```",
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url
             )
             self.embe.insert(1, new_embed)
             self.index = [i.title for i in self.embe]
-        autocomp_help = [str(i) for i in list(self.index)+list(self.client.commands) if text.lower() in str(i).lower()][:25]
+        autocomp_help = [str(i) for i in list(self.index)+list(self.CLIENT.commands) if text.lower() in str(i).lower()][:25]
         await inter.response.send_autocomplete(autocomp_help)
 
     @botinfo.subcommand(name="serverinfo",description="Get your server information")
@@ -179,14 +178,14 @@ class BotInfo(commands.Cog):
         r = "\n\n**Roles:**\n"+', '.join([i.mention for i in g.roles])
         emos = "\n\n**Emojis:**\n"+''.join([str(i) for i in g.emojis[:50]])
         description=g.description if g.description else ""
-        boost = assets.Emotes(self.client).boost
+        boost = assets.Emotes(self.CLIENT).boost
         boosts = str(boost)*inter.guild.premium_tier + f" {inter.guild.premium_subscription_count}"
         embed=ef.cembed(
             title=g.name,
             description=description,
             thumbnail=ef.safe_pfp(g),
             image=g.banner if g.banner else "",
-            color=self.client.re[8],
+            color=self.CLIENT.re[8],
             footer=f"{b} | {h} | {m}",
             fields=ef.dict2fields(
                 {
@@ -201,7 +200,7 @@ class BotInfo(commands.Cog):
         embed1 = ef.cembed(
             title=g.name,
             description=r,
-            color=self.client.re[8],
+            color=self.CLIENT.re[8],
             thumbnail=ef.safe_pfp(g),
             footer=f"{len(g.roles)} Roles",
             author=g.owner
@@ -209,7 +208,7 @@ class BotInfo(commands.Cog):
         embed2 = ef.cembed(
             title=f"Emojis of {g.name}",
             description=emos,
-            color=self.client.re[8],
+            color=self.CLIENT.re[8],
             author=g.owner,
             thumbnail=ef.safe_pfp(g),
             footer=f"{len(g.emojis)} Emojis"
@@ -218,15 +217,15 @@ class BotInfo(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, msg):        
-        if f"<@{self.client.user.id}>" in msg.content:
+        if f"<@{self.CLIENT.user.id}>" in msg.content:
             print("Listening")
-            prefi = self.client.prefix_dict.get(msg.guild.id if msg.guild is not None else None, "'")
+            prefi = self.CLIENT.prefix_dict.get(msg.guild.id if msg.guild is not None else None, "'")
             embed = nextcord.Embed(
                 title="Hi!! I am Alfred.",
                 description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""",
-                color=nextcord.Color(value=self.client.re[8]),
-                author=self.client.user,
-                thumbnail=self.client.user.avatar
+                color=nextcord.Color(value=self.CLIENT.re[8]),
+                author=self.CLIENT.user,
+                thumbnail=self.CLIENT.user.avatar
             )
             await msg.channel.send(embed=embed)
 
@@ -249,7 +248,7 @@ class BotInfo(commands.Cog):
                 a+=1
                 embed = ef.cembed(
                     title="Learn", 
-                    color=self.client.re[8], 
+                    color=self.CLIENT.re[8], 
                     description=i, 
                     footer=f"{a} of {len(j)}"
                 )
@@ -267,8 +266,8 @@ class BotInfo(commands.Cog):
                 embed=ef.cembed(
                     title="LICENSE",
                     description=f"```\n{f.read()}\n```",
-                    color=self.client.re[8],
-                    thumbnail=self.client.user.avatar.url,
+                    color=self.CLIENT.re[8],
+                    thumbnail=self.CLIENT.user.avatar.url,
                     url="https://www.github.com/alvinbengeorge/alfred-discord-bot"
                 )
             )
@@ -284,9 +283,9 @@ class BotInfo(commands.Cog):
         embed=ef.cembed(
             title="Contributors and Contributions",
             description="Hey guys, if you've been Developers of Alfred, Thank you very much for your contribution in this project. Our intend for this project was openness and we've gained it, I would like to thank everyone who is seeing this message, and thank you for accepting Alfred. Alfred crossed 250 servers recently, has more than 250,000 users.\n\nIf you want to take part in this, go to our [github page](https://www.github.com), here you can check our code and fork the repository and add a function and send us a PR. If you wish to know more about Alfred, use the feedback command",
-            color = self.client.re[8],
+            color = self.CLIENT.re[8],
             footer = "Have a great day",
-            thumbnail = self.client.user.avatar.url,
+            thumbnail = self.CLIENT.user.avatar.url,
             image="attachment://contrib.png"
         )
         fp = ef.svg2png("https://contrib.rocks/image?repo=alvinbengeorge/alfred-discord-bot")
@@ -298,14 +297,14 @@ class BotInfo(commands.Cog):
     async def search_emoji(self, ctx, name):
         try:
             st = ""
-            for i in self.client.emojis:
+            for i in self.CLIENT.emojis:
                 if name in i.name:
                     st += f"{i.name} -> {str(i)} -> `{i.id}`\n"
             embed=ef.cembed(
                 title="Emojis found",
                 description=st,
-                color=self.re[8],
-                thumbnail=self.client.user.avatar.url,
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url,
                 footer=f"Search results for {name}"
             )
             await ctx.send(embed=embed)
@@ -313,23 +312,23 @@ class BotInfo(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(
                     description=str(e), 
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
 
     @botinfo.subcommand(name="emoji", description="Get Alfred's Emoji")
     async def emoji_slash(self, inter, emoji: str):
-        self.client.re[0]+=1
-        e = nextcord.utils.get(self.client.emojis, name=emoji)
+        self.CLIENT.re[0]+=1
+        e = nextcord.utils.get(self.CLIENT.emojis, name=emoji)
         await inter.send(e)
 
     @emoji_slash.on_autocomplete("emoji")
     async def emoji_autocomplete(self, inter: nextcord.Interaction, emoji):
         await inter.response.send_autocomplete(
-            [e.name for e in self.client.emojis if e.name.lower().startswith(emoji.lower())][:25]
+            [e.name for e in self.CLIENT.emojis if e.name.lower().startswith(emoji.lower())][:25]
         )
 
             
-def setup(client, **i):
-    client.add_cog(BotInfo(client, **i))
+def setup(CLIENT, **i):
+    CLIENT.add_cog(BotInfo(CLIENT, **i))
     

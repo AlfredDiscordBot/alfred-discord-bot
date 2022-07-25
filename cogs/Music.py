@@ -8,26 +8,21 @@ import traceback
 import re as regex
 
 from nextcord.abc import GuildChannel
-from nextcord import Interaction, SlashOption, ChannelType
-from nextcord.ext import commands, tasks
-from random import choice
+from nextcord import Interaction, ChannelType
+from nextcord.ext import commands
 from utils.spotify_client import fetch_spotify_playlist
 from nextcord import SlashOption
 
 #Use nextcord.slash_command() and commands.command()
 
 def requirements():
-    return ['dev_channel', 'FFMPEG_OPTIONS']
+    return ['DEV_CHANNEL', 'FFMPEG_OPTIONS']
 
 class Music(commands.Cog):
-    def __init__(self, client, dev_channel, FFMPEG_OPTIONS):
-        self.client = client
+    def __init__(self, CLIENT, DEV_CHANNEL, FFMPEG_OPTIONS):
+        self.CLIENT = CLIENT
         self.FFMPEG_OPTIONS = FFMPEG_OPTIONS
-        self.re = self.client.re
-        self.da = self.client.da
-        self.da1 = self.client.da1
-        self.queue_song = self.client.queue_song
-        self.dev_channel = dev_channel
+        self.DEV_CHANNEL = DEV_CHANNEL
 
     @nextcord.slash_command(name="music", description="Loop or autoplay")
     async def control(self, inter):
@@ -69,16 +64,16 @@ class Music(commands.Cog):
     )
     async def remove_duplicates(self, inter):    
         await inter.response.defer()
-        self.client.re[3][str(inter.guild.id)] = 0
-        songs = self.client.queue_song[str(inter.guild.id)]
+        self.CLIENT.re[3][str(inter.guild.id)] = 0
+        songs = self.CLIENT.queue_song[str(inter.guild.id)]
         for i in songs:
-            if self.client.queue_song[str(inter.guild.id)].count(i)>1:
-                self.client.queue_song[str(inter.guild.id)].remove(i)
+            if self.CLIENT.queue_song[str(inter.guild.id)].count(i)>1:
+                self.CLIENT.queue_song[str(inter.guild.id)].remove(i)
         await inter.send(
             embed=ef.cembed(
                 title="Done",
                 description=f"Removed songs",
-                color = self.client.re[8]
+                color = self.CLIENT.re[8]
             )
         )
 
@@ -93,10 +88,10 @@ class Music(commands.Cog):
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if ctx.guild.voice_client and user.id in [i.id for i in ctx.guild.voice_client.channel.members]:
             st = ""
-            self.client.re[7][ctx.guild.id] = self.client.re[7].get(ctx.guild.id, -1) * -1
-            if self.client.re[7].get(ctx.guild.id,-1) == 1:
-                self.client.re[2][ctx.guild.id] = -1
-            if self.client.re[7][ctx.guild.id] < 0:
+            self.CLIENT.re[7][ctx.guild.id] = self.CLIENT.re[7].get(ctx.guild.id, -1) * -1
+            if self.CLIENT.re[7].get(ctx.guild.id,-1) == 1:
+                self.CLIENT.re[2][ctx.guild.id] = -1
+            if self.CLIENT.re[7][ctx.guild.id] < 0:
                 st = "Off"
             else:
                 st = "_On_"
@@ -104,7 +99,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Autoplay", 
                     description=st, 
-                    color=self.client.re[8],
+                    color=self.CLIENT.re[8],
                     author=user
                 )
             )
@@ -113,7 +108,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You need to be in the voice channel with Alfred to toggle autoplay",
-                    color=self.client.re[8],
+                    color=self.CLIENT.re[8],
                     author=user
                 )
             )
@@ -125,16 +120,16 @@ class Music(commands.Cog):
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if ctx.guild.voice_client and user.id in [i.id for i in ctx.guild.voice_client.channel.members]:
             st = ""
-            self.client.re[2][ctx.guild.id] = self.client.re[2].get(ctx.guild.id,-1) * -1
-            if self.client.re[2].get(ctx.guild.id,1) == 1:
-                self.client.re[7][ctx.guild.id] = -1
-            if self.client.re[2].get(ctx.guild.id,1) < 0:
+            self.CLIENT.re[2][ctx.guild.id] = self.CLIENT.re[2].get(ctx.guild.id,-1) * -1
+            if self.CLIENT.re[2].get(ctx.guild.id,1) == 1:
+                self.CLIENT.re[7][ctx.guild.id] = -1
+            if self.CLIENT.re[2].get(ctx.guild.id,1) < 0:
                 st = "Off"
             else:
                 st = "_On_"
             await ctx.send(
                 embed=nextcord.Embed(
-                    title="Loop", description=st, color=nextcord.Color(value=self.client.re[8])
+                    title="Loop", description=st, color=nextcord.Color(value=self.CLIENT.re[8])
                 )
             )
         else:
@@ -142,7 +137,7 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Permissions Denied",
                     description="You need to be in the voice channel to toggle loop",
-                    color=nextcord.Color(value=self.client.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.re[8]),
                 )
             )
             
@@ -152,15 +147,15 @@ class Music(commands.Cog):
         mem = [names.id for names in ctx.guild.voice_client.channel.members] if ctx.guild.voice_client else []
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if mem.count(user.id) > 0:
-            if len(self.client.queue_song.get(str(ctx.guild.id),[])) > 0:
-                self.client.queue_song[str(ctx.guild.id)].clear()
-            self.client.re[3][str(ctx.guild.id)] = 0
+            if len(self.CLIENT.queue_song.get(str(ctx.guild.id),[])) > 0:
+                self.CLIENT.queue_song[str(ctx.guild.id)].clear()
+            self.CLIENT.re[3][str(ctx.guild.id)] = 0
             await ctx.send(
                 embed=ef.cembed(
                     title="Cleared queue",
                     description="_Done_",
-                    color=self.client.re[8],
-                    thumbnail=self.client.user.avatar.url
+                    color=self.CLIENT.re[8],
+                    thumbnail=self.CLIENT.user.avatar.url
                 )
             )
         else:
@@ -168,33 +163,33 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Permission denied",
                     description="Join the voice channel to modify queue",
-                    color=nextcord.Color(value=self.client.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.re[8]),
                 )
             )
 
     @commands.command()
     @commands.check(ef.check_command)
     async def pause(self, ctx):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         mem = [i.id for i in ctx.guild.voice_client.channel.members] if ctx.guild.voice_client else []
         embed = None
         if mem.count(user.id) > 0:
-            voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
+            voice = nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
             voice.pause()
-            url = self.client.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
-            song = self.client.da1.get(url, "Unavailable")
+            url = self.CLIENT.queue_song[str(ctx.guild.id)][self.CLIENT.re[3][str(ctx.guild.id)]]
+            song = self.CLIENT.da1.get(url, "Unavailable")
             embed=ef.cembed(
                 title="Paused",
                 description=f"[{song}]({url})",
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 author=user
             )
         else:
             embed=ef.cembed(
                 title="Permission denied",
                 description="Join the channel to pause the song",
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 author=user
             )
         await ef.isReaction(ctx, embed)     
@@ -202,12 +197,12 @@ class Music(commands.Cog):
     @commands.command(aliases=["dc","disconnect"])
     @commands.check(ef.check_command)
     async def leave(self, ctx):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         mem = [names.id for names in ctx.guild.voice_client.channel.members] if ctx.guild.voice_client else []
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
-        if len(mem) == 1 and mem[0] == self.client.user.id:
+        if len(mem) == 1 and mem[0] == self.CLIENT.user.id:
             if user.guild_permissions.administrator:
-                user = self.client.user
+                user = self.CLIENT.user
         if mem.count(user.id) > 0: 
             voice = ctx.guild.voice_client
             voice.stop()
@@ -215,7 +210,7 @@ class Music(commands.Cog):
             embed=ef.cembed(
                 title="Disconnected",
                 description="Bye, Thank you for using Alfred",
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 author=user
             )  
 
@@ -223,7 +218,7 @@ class Music(commands.Cog):
             embed=ef.cembed(
                 title="Permission denied",
                 description="Nice try dude! Join the voice channel",
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 author=user
             )
         await ef.isReaction(ctx, embed, clear=True)
@@ -245,27 +240,27 @@ class Music(commands.Cog):
             await inter.send("You need to connect to a voice channel")
             return
         if mode == "add to queue":        
-            if from_user.id in list(self.client.da.keys()):
-                self.client.queue_song[str(inter.guild.id)]+=self.client.da[from_user.id]
+            if from_user.id in list(self.CLIENT.da.keys()):
+                self.CLIENT.queue_song[str(inter.guild.id)]+=self.CLIENT.da[from_user.id]
                 await inter.send("Added your playlist to queue")
             else:
                 await inter.send("You do not have a Playlist")
                 return
         if mode == "add to playlist":
-            if inter.user.id not in list(self.client.da.keys()):
-                self.client.da[inter.user.id] = []
-            for i in self.client.queue_song[str(inter.guild.id)]:
-                if i not in self.client.da[inter.user.id]:
-                    self.client.da[inter.user.id].append(i)
+            if inter.user.id not in list(self.CLIENT.da.keys()):
+                self.CLIENT.da[inter.user.id] = []
+            for i in self.CLIENT.queue_song[str(inter.guild.id)]:
+                if i not in self.CLIENT.da[inter.user.id]:
+                    self.CLIENT.da[inter.user.id].append(i)
             await inter.send("Added songs in queue to playlist\n*Note: The songs are added uniquely, which means that if a song in queue is repeated in your playlist, then that song wont be added*")
         if mode == "clear":
-            if self.client.da.get(inter.user.id): 
+            if self.CLIENT.da.get(inter.user.id): 
                 confirmation = await ef.wait_for_confirm(
-                    inter, self.client, 
-                    "Are you sure?", self.client.re[8]
+                    inter, self.CLIENT, 
+                    "Are you sure?", self.CLIENT.re[8]
                 )
                 if confirmation:
-                    del self.client.da[inter.user.id]
+                    del self.CLIENT.da[inter.user.id]
                     await inter.send("Cleared your playlist")
                 else:
                     await inter.send("Cancelled")
@@ -274,13 +269,13 @@ class Music(commands.Cog):
         if mode == "show":
             l = []
             thumbnail = ef.safe_pfp(from_user)
-            songs = self.client.da.get(from_user.id, [])
+            songs = self.CLIENT.da.get(from_user.id, [])
             n=0
             for i in songs:
                 n+=1
-                if not self.client.da1.get(i):
-                    self.client.da1[i] = await ef.get_name(i)
-                l.append(f"`{n}.` {self.client.da1.get(i)}\n")   
+                if not self.CLIENT.da1.get(i):
+                    self.CLIENT.da1[i] = await ef.get_name(i)
+                l.append(f"`{n}.` {self.CLIENT.da1.get(i)}\n")   
                 
             st = []
             for i in range(len(songs)//10):
@@ -299,7 +294,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title=f"Playlist of {from_user.name}",
                     description=i,
-                    color=self.client.re[8],
+                    color=self.CLIENT.re[8],
                     thumbnail=thumbnail
                 )
                 embeds.append(embed)
@@ -313,12 +308,12 @@ class Music(commands.Cog):
             channel = channel.name
         print("Connect music", str(getattr(ctx, 'author', getattr(ctx, 'user', None))))
         try:
-            self.client.re[0]+=1
+            self.CLIENT.re[0]+=1
             user = getattr(ctx, 'author', getattr(ctx, 'user', None))
-            if not str(ctx.guild.id) in self.client.queue_song:
-                self.client.queue_song[str(ctx.guild.id)] = []
-            if not str(ctx.guild.id) in self.client.re[3]:
-                self.client.re[3][str(ctx.guild.id)] = 0
+            if not str(ctx.guild.id) in self.CLIENT.queue_song:
+                self.CLIENT.queue_song[str(ctx.guild.id)] = []
+            if not str(ctx.guild.id) in self.CLIENT.re[3]:
+                self.CLIENT.re[3][str(ctx.guild.id)] = 0
             if channel == None:
                 if user.voice and user.voice.channel:
                     voiceChannel = user.voice.channel               
@@ -327,15 +322,15 @@ class Music(commands.Cog):
                         embed=ef.cembed(
                             description="Connected\nBitrate of the channel: "
                             + str(ctx.guild.voice_client.channel.bitrate // 1000),
-                            color=self.client.re[8],
+                            color=self.CLIENT.re[8],
                         )
                     )
                 else:
-                    emo = assets.Emotes(self.client)
+                    emo = assets.Emotes(self.CLIENT)
                     await ctx.send(
                         embed=nextcord.Embed(
                             description=f"You are not in a voice channel {emo.join_vc}",
-                            color=nextcord.Color(value=self.client.re[8]),
+                            color=nextcord.Color(value=self.CLIENT.re[8]),
                         )
                     )
             else:
@@ -347,14 +342,14 @@ class Music(commands.Cog):
                             title="Connected",
                             description=f"Connected to {voiceChannel.name} \nBitrate of the channel: "
                             + str(ctx.guild.voice_client.channel.bitrate // 1000),
-                            color=nextcord.Color(value=self.client.re[8])
+                            color=nextcord.Color(value=self.CLIENT.re[8])
                         )
                     )
                 else:
                     await ctx.send(
                         embed=ef.cembed(
                             description="The voice channel does not exist",
-                            color=nextcord.Color(value=self.client.re[8])
+                            color=nextcord.Color(value=self.CLIENT.re[8])
                         )
                     )
     
@@ -363,16 +358,16 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Hmm", 
                     description=str(e), 
-                    color=nextcord.Color(value=self.client.re[8])
+                    color=nextcord.Color(value=self.CLIENT.re[8])
                 )
             )
-            channel = self.client.get_channel(self.dev_channel)
+            channel = self.CLIENT.get_channel(self.DEV_CHANNEL)
             await channel.send(
                 embed=ef.cembed(
                     title="Connect music",
                     description=traceback.format_exc(),
                     footer = f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}: {ctx.guild}",
-                    color=self.client.re[8],
+                    color=self.CLIENT.re[8],
                 )
             )
 
@@ -382,25 +377,25 @@ class Music(commands.Cog):
         st = ""
         index = 0
         found_songs = 0
-        for i in self.client.queue_song[str(ctx.guild.id)]:
-            if i in self.client.da1:
+        for i in self.CLIENT.queue_song[str(ctx.guild.id)]:
+            if i in self.CLIENT.da1:
                 found_songs += 1
-                if self.client.da1[i].lower().find(part.lower()) != -1:
-                    st += str(index) + ". " + self.client.da1[i] + "\n"
+                if self.CLIENT.da1[i].lower().find(part.lower()) != -1:
+                    st += str(index) + ". " + self.CLIENT.da1[i] + "\n"
             index += 1
         if st == "":
             st = "Not found"
-        if len(self.client.queue_song[str(ctx.guild.id)]) - found_songs > 0:
+        if len(self.CLIENT.queue_song[str(ctx.guild.id)]) - found_songs > 0:
             st += "\n\nWARNING: Some song names may not be loaded properly, this search may not be accurate"
             st += "\nSongs not found: " + str(
-                len(self.client.queue_song[str(ctx.guild.id)]) - found_songs
+                len(self.CLIENT.queue_song[str(ctx.guild.id)]) - found_songs
             )
         await ctx.send(
             embed=ef.cembed(
                 title="Songs in queue",
                 description=st,
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url,
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url,
             )
         )    
         
@@ -408,7 +403,7 @@ class Music(commands.Cog):
     @commands.check(ef.check_command)
     @commands.cooldown(1,5,commands.BucketType.guild)
     async def queue(self, ctx, *, name=""):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         st = ""
         num = 0        
         if ef.check_voice(ctx) and name != "":
@@ -426,10 +421,10 @@ class Music(commands.Cog):
                                 url = "https://www.youtube.com/watch?v=" + video[0]
                                 st = ""
                                 num = 0
-                                if url not in self.client.da1:
+                                if url not in self.CLIENT.da1:
                                     name_of_the_song = await ef.get_name(url)
-                                    self.client.da1[url] = name_of_the_song
-                                self.client.queue_song[str(ctx.guild.id)].append(url)
+                                    self.CLIENT.da1[url] = name_of_the_song
+                                self.CLIENT.queue_song[str(ctx.guild.id)].append(url)
                             except Exception as e:
                                 print(e)
                                 break
@@ -443,11 +438,11 @@ class Music(commands.Cog):
                     url = "https://www.youtube.com/watch?v=" + video[0]
                     st = ""
                     num = 0
-                    if url not in self.client.da1:
+                    if url not in self.CLIENT.da1:
                         name_of_the_song = await ef.get_name(url)
                         print(name_of_the_song, ":", url)
-                        self.client.da1[url] = name_of_the_song
-                    self.client.queue_song[str(ctx.guild.id)].append(url)
+                        self.CLIENT.da1[url] = name_of_the_song
+                    self.CLIENT.queue_song[str(ctx.guild.id)].append(url)
             else:       
                 name = ef.convert_to_url(name)
                 sear = "https://www.youtube.com/results?search_query=" + name
@@ -458,22 +453,22 @@ class Music(commands.Cog):
                 st = ""
                 await ctx.send("Added to queue")
                 num = 0
-                if url not in self.client.da1:
+                if url not in self.CLIENT.da1:
                     name_of_the_song = await ef.get_name(url)
-                    self.client.da1[url] = name_of_the_song
-                self.client.queue_song[str(ctx.guild.id)].append(url)
+                    self.CLIENT.da1[url] = name_of_the_song
+                self.CLIENT.queue_song[str(ctx.guild.id)].append(url)
                 
-            for i in self.client.queue_song[str(ctx.guild.id)]:
-                if num >= len(self.client.queue_song[str(ctx.guild.id)]) - 10:
-                    if not i in self.client.da1.keys():
-                        self.client.da1[i] = await ef.get_name(i)
-                    st = st + str(num) + ". " + self.client.da1[i].replace("&quot", "'") + "\n"
+            for i in self.CLIENT.queue_song[str(ctx.guild.id)]:
+                if num >= len(self.CLIENT.queue_song[str(ctx.guild.id)]) - 10:
+                    if not i in self.CLIENT.da1.keys():
+                        self.CLIENT.da1[i] = await ef.get_name(i)
+                    st = st + str(num) + ". " + self.CLIENT.da1[i].replace("&quot", "'") + "\n"
                 num += 1
             # st=st+str(num)+". "+da1[i]+"\n"
             if st == "":
                 st = "_Empty_"
             em = nextcord.Embed(
-                title="Queue", description=st, color=nextcord.Color(value=self.client.re[8])
+                title="Queue", description=st, color=nextcord.Color(value=self.CLIENT.re[8])
             )
             mess = await ctx.send(embed=em)
             if type(ctx) == nextcord.Interaction:
@@ -482,35 +477,35 @@ class Music(commands.Cog):
         elif not name:
             num = 0
             st = ""
-            if str(ctx.guild.id) not in self.client.queue_song:
+            if str(ctx.guild.id) not in self.CLIENT.queue_song:
                 await ctx.send(
                     embed=ef.cembed(
                         title="Empty",
                         description="Empty queue, add a song to the queue using 'q command",
-                        color=self.client.re[8],
+                        color=self.CLIENT.re[8],
                         footer="You can also use play command"
                     )
                 )
                 return
-            if len(self.client.queue_song[str(ctx.guild.id)]) < 30:
-                for i in self.client.queue_song[str(ctx.guild.id)]:
-                    if not i in self.client.da1:
-                        self.client.da1[i] = ef.youtube_info(i)["title"]
-                    st += f"`{num}.` {self.client.da1[i]}\n"
+            if len(self.CLIENT.queue_song[str(ctx.guild.id)]) < 30:
+                for i in self.CLIENT.queue_song[str(ctx.guild.id)]:
+                    if not i in self.CLIENT.da1:
+                        self.CLIENT.da1[i] = ef.youtube_info(i)["title"]
+                    st += f"`{num}.` {self.CLIENT.da1[i]}\n"
                     num += 1
             else:            
-                num = self.client.re[3].get(str(ctx.guild.id),10)
+                num = self.CLIENT.re[3].get(str(ctx.guild.id),10)
                 if num<10: num = 10
                 for i in range(num-10, num+10):
                     try:
-                        st += f"`{i}.` {self.client.da1.get(self.client.queue_song[str(ctx.guild.id)][i],'Unavailable')}\n"
+                        st += f"`{i}.` {self.CLIENT.da1.get(self.CLIENT.queue_song[str(ctx.guild.id)][i],'Unavailable')}\n"
                     except: 
                         pass
             embed = ef.cembed(
                 title="Queue", 
                 description=st if st != "" else "Empty", 
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url
             )
             mess = await ctx.send(embed=embed)
             if isinstance(ctx, nextcord.Interaction):
@@ -521,7 +516,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Permission denied",
                     description="Join the voice channel to modify queue",
-                    color=self.client.re[8],
+                    color=self.CLIENT.re[8],
                     author=getattr(ctx, 'author', getattr(ctx, 'user', None))
                 )
             )
@@ -529,13 +524,13 @@ class Music(commands.Cog):
     @commands.command()
     @commands.check(ef.check_command)
     async def again(self, ctx):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if user.voice and user.voice.channel:
-            if not str(ctx.guild.id) in self.client.queue_song:
-                self.client.queue_song[str(ctx.guild.id)] = []
-            if not str(ctx.guild.id) in self.client.re[3]:
-                self.client.re[3][str(ctx.guild.id)] = 0
+            if not str(ctx.guild.id) in self.CLIENT.queue_song:
+                self.CLIENT.queue_song[str(ctx.guild.id)] = []
+            if not str(ctx.guild.id) in self.CLIENT.re[3]:
+                self.CLIENT.re[3][str(ctx.guild.id)] = 0
                 
             if ctx.guild.voice_client == None:
                 voiceChannel = user.voice.channel
@@ -549,9 +544,9 @@ class Music(commands.Cog):
                 if mem.count(user.id) > 0:
                     voice = ctx.guild.voice_client
                     bitrate = "\nBitrate of the channel: " +str(voice.channel.bitrate // 1000)
-                    song = self.client.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
-                    if song not in self.client.da1:
-                        self.client.da1[song] = ef.youtube_info(song)["title"]                
+                    song = self.CLIENT.queue_song[str(ctx.guild.id)][self.CLIENT.re[3][str(ctx.guild.id)]]
+                    if song not in self.CLIENT.da1:
+                        self.CLIENT.da1[song] = ef.youtube_info(song)["title"]                
                     URL = ef.youtube_download(song)
                     voice.stop()
                     voice.play(
@@ -560,9 +555,9 @@ class Music(commands.Cog):
                     )
                     embed=ef.cembed(
                         title="Playing",
-                        description=self.client.da1[song] + bitrate,
-                        color=self.client.re[8],
-                        thumbnail=self.client.user.avatar.url,
+                        description=self.CLIENT.da1[song] + bitrate,
+                        color=self.CLIENT.re[8],
+                        thumbnail=self.CLIENT.user.avatar.url,
                     )
                     print(type(ctx))
                     if isinstance(ctx, nextcord.Message): 
@@ -571,48 +566,48 @@ class Music(commands.Cog):
                     else:
                         await ef.isReaction(ctx,embed)
                 else:
-                    emo = assets.Emotes(self.client)
+                    emo = assets.Emotes(self.CLIENT)
                     embed=ef.cembed(
                         title="Permission denied",
                         description=f"{emo.animated_wrong} Join the voice channel to play the song",
-                        color=self.client.re[8],
-                        thumbnail=self.client.user.avatar.url,
+                        color=self.CLIENT.re[8],
+                        thumbnail=self.CLIENT.user.avatar.url,
                     )
             except Exception as e:
-                channel = self.client.get_channel(self.dev_channel)
+                channel = self.CLIENT.get_channel(self.DEV_CHANNEL)
                 await ctx.channel.send(
                     embed=ef.cembed(
                         title="Error",
                         description=str(e),
-                        color=self.client.re[8],
-                        thumbnail=self.client.user.avatar.url,
+                        color=self.CLIENT.re[8],
+                        thumbnail=self.CLIENT.user.avatar.url,
                     )
                 )
                 await channel.send(
                     embed=nextcord.Embed(
                         title="Error in play function",
                         description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
-                        color=nextcord.Color(value=self.client.re[8]),
+                        color=nextcord.Color(value=self.CLIENT.re[8]),
                     )
                 )
 
     @commands.command(aliases=["<"])
     @commands.check(ef.check_command)
     async def previous(self, ctx):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         try:
             if ef.check_voice(ctx):            
-                self.client.re[3][str(ctx.guild.id)] -= 1
-                if self.client.re[3][str(ctx.guild.id)] == -1:
-                    self.client.re[3][str(ctx.guild.id)] = len(self.client.queue_song.get(str(ctx.guild.id),[]))-1          
-                song = self.client.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
-                voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
+                self.CLIENT.re[3][str(ctx.guild.id)] -= 1
+                if self.CLIENT.re[3][str(ctx.guild.id)] == -1:
+                    self.CLIENT.re[3][str(ctx.guild.id)] = len(self.CLIENT.queue_song.get(str(ctx.guild.id),[]))-1          
+                song = self.CLIENT.queue_song[str(ctx.guild.id)][self.CLIENT.re[3][str(ctx.guild.id)]]
+                voice = nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
                 URL, name = ef.youtube_download1(song)
-                self.client.da1[song] = name
+                self.CLIENT.da1[song] = name
                 embed=nextcord.Embed(
                     title="Playing",
-                    description=self.client.da1[song],
-                    color=nextcord.Color(value=self.client.re[8]),
+                    description=self.CLIENT.da1[song],
+                    color=nextcord.Color(value=self.CLIENT.re[8]),
                 )
                 voice.stop()
                 voice.play(
@@ -623,16 +618,16 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Permission denied",
                     description="Join the voice channel to move to the previous song",
-                    color=nextcord.Color(value=self.client.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.re[8]),
                 )
             await ef.isReaction(ctx, embed)
         except Exception as e:
-            channel = self.client.get_channel(self.dev_channel)
+            channel = self.CLIENT.get_channel(self.DEV_CHANNEL)
             await channel.send(
                 embed=ef.cembed(
                     title="Error in previous function",
                     description=str(e),
-                    color=nextcord.Color(value=self.client.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.re[8]),
                     footer=f"{ctx.author.name}: {ctx.guild.name}"
                 )
             )
@@ -642,15 +637,15 @@ class Music(commands.Cog):
         emojis = emoji.emojize(":upwards_button:"),emoji.emojize(":downwards_button:")
         def check(reaction, user):
             return (
-                user.id != self.client.user.id
+                user.id != self.CLIENT.user.id
                 and str(reaction.emoji) in emojis
                 and reaction.message.id == mess.id
             )
-        page=self.client.re[3][str(mess.guild.id)]//10
+        page=self.CLIENT.re[3][str(mess.guild.id)]//10
         while True:
-            songs = self.client.queue_song[str(mess.guild.id)]
+            songs = self.CLIENT.queue_song[str(mess.guild.id)]
             try:
-                reaction, user = await self.client.wait_for("reaction_add", check = check, timeout=None)
+                reaction, user = await self.CLIENT.wait_for("reaction_add", check = check, timeout=None)
                 if reaction.emoji == emojis[0] and page>0:
                     page-=1
                 elif reaction.emoji == emojis[1] and page<=len(songs)//10    :
@@ -659,14 +654,14 @@ class Music(commands.Cog):
                 st = ""
                 for i in range(cu,cu+10):
                     if len(songs)>i:
-                        if not self.client.da1.get(songs[i]):
-                            self.client.da1[songs[i]] = await ef.get_name(songs[i])
-                        st+=f"`{i}.` {self.client.da1.get(songs[i],'Unavailable')}\n"
+                        if not self.CLIENT.da1.get(songs[i]):
+                            self.CLIENT.da1[songs[i]] = await ef.get_name(songs[i])
+                        st+=f"`{i}.` {self.CLIENT.da1.get(songs[i],'Unavailable')}\n"
                 await mess.edit(
                     embed=ef.cembed(
                         title="Queue",
                         description=st,
-                        color=self.client.re[8],
+                        color=self.CLIENT.re[8],
                         footer='Amazing songs btw, keep going' if len(songs)!=0 else 'Use queue to add some songs'
                     )
                 )
@@ -677,62 +672,62 @@ class Music(commands.Cog):
     @commands.command()
     @commands.check(ef.check_command)
     async def stop(self, ctx):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         if ef.check_voice(ctx):
-            voice=nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
+            voice=nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
             voice.stop()
-            await ctx.send(embed=ef.cembed(title="Stop", color=self.client.re[8]))
+            await ctx.send(embed=ef.cembed(title="Stop", color=self.CLIENT.re[8]))
         else:
             await ctx.send(
                 embed=ef.cembed(
                     title="Permission denied",
                     description="Join the channel to stop the song",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
 
     @commands.command()
     @commands.check(ef.check_command)
     async def resume(self, ctx):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         if ef.check_voice(ctx):
-            voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
+            voice = nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
             voice.resume()
-            url = self.client.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
-            song_name = self.client.da1[url]
+            url = self.CLIENT.queue_song[str(ctx.guild.id)][self.CLIENT.re[3][str(ctx.guild.id)]]
+            song_name = self.CLIENT.da1[url]
             embed=nextcord.Embed(
                 title="Playing",
                 description=f"[{song_name}]({url})",
-                color=nextcord.Color(value=self.client.re[8]),
+                color=nextcord.Color(value=self.CLIENT.re[8]),
             )
     
         else:
             embed = ef.cembed(
                 title="Permissions Denied",
                 description="You need to be in the voice channel to resume this",
-                color=self.client.re[8]
+                color=self.CLIENT.re[8]
             )
         await ef.isReaction(ctx,embed)
 
             
     def repeat(self, ctx, voice):
-        songs = self.client.queue_song.get(str(ctx.guild.id),[])
+        songs = self.CLIENT.queue_song.get(str(ctx.guild.id),[])
         if len(songs) == 0: return
-        index = self.client.re[3].get(str(ctx.guild.id),0)
+        index = self.CLIENT.re[3].get(str(ctx.guild.id),0)
         if len(songs)<index:
             index = 0
-            self.client.re[3][str(ctx.guild.id)]=index
+            self.CLIENT.re[3][str(ctx.guild.id)]=index
         time.sleep(1)
-        if self.client.re[7].get(ctx.guild.id,-1) == 1 and not voice.is_playing():
-            self.client.re[3][str(ctx.guild.id)] += 1
-            index = self.client.re[3].get(str(ctx.guild.id),0)
-            if self.client.re[3][str(ctx.guild.id)] >= len(self.client.queue_song[str(ctx.guild.id)]):
-                self.client.re[3][str(ctx.guild.id)] = 0
-        if self.client.re[2].get(ctx.guild.id,-1) == 1 or self.client.re[7].get(ctx.guild.id,-1) == 1:
+        if self.CLIENT.re[7].get(ctx.guild.id,-1) == 1 and not voice.is_playing():
+            self.CLIENT.re[3][str(ctx.guild.id)] += 1
+            index = self.CLIENT.re[3].get(str(ctx.guild.id),0)
+            if self.CLIENT.re[3][str(ctx.guild.id)] >= len(self.CLIENT.queue_song[str(ctx.guild.id)]):
+                self.CLIENT.re[3][str(ctx.guild.id)] = 0
+        if self.CLIENT.re[2].get(ctx.guild.id,-1) == 1 or self.CLIENT.re[7].get(ctx.guild.id,-1) == 1:
             if not voice.is_playing():
                 URL, name = ef.youtube_download1(songs[index])
-                if not songs[index] in self.client.da1:
-                    self.client.da1[songs[index]] = name
+                if not songs[index] in self.CLIENT.da1:
+                    self.CLIENT.da1[songs[index]] = name
                 voice.play(
                     nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS),
                     after=lambda e: self.repeat(ctx, voice),
@@ -741,7 +736,7 @@ class Music(commands.Cog):
     @commands.command()
     @commands.check(ef.check_command)
     async def lyrics(self, ctx, *, song):
-        embed=await ef.ly(song, self.client.re)
+        embed=await ef.ly(song, self.CLIENT.re)
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -751,29 +746,29 @@ class Music(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description=f"Join the voice channel to modify queue{assets.Emotes(self.client).animated_wrong}",
-                    color=self.client.re[8],
-                    thumbnail=self.client.user.avatar.url                    
+                    description=f"Join the voice channel to modify queue{assets.Emotes(self.CLIENT).animated_wrong}",
+                    color=self.CLIENT.re[8],
+                    thumbnail=self.CLIENT.user.avatar.url                    
                 )
             )
             return
-        if self.client.queue_song.get(ctx.guild.id):
-            if len(self.client.queue_song[ctx.guild.id])<index:
-                a = self.client.queue_song[ctx.guild.id].pop(index)
+        if self.CLIENT.queue_song.get(ctx.guild.id):
+            if len(self.CLIENT.queue_song[ctx.guild.id])<index:
+                a = self.CLIENT.queue_song[ctx.guild.id].pop(index)
                 await ctx.send(
                     embed=ef.cembed(
                         title="Removed",
-                        description=f"Removed {self.client.da1.get(a, 'Unavailable')}",
-                        color=self.client.re[8],
-                        thumbnail=self.client.user.avatar.url
+                        description=f"Removed {self.CLIENT.da1.get(a, 'Unavailable')}",
+                        color=self.CLIENT.re[8],
+                        thumbnail=self.CLIENT.user.avatar.url
                     )
                 )
             else:
                 await ctx.send(
                     embed=ef.cembed(
                         title="Couldn't remove",
-                        description=f"The list has only {len(self.client.queue_song[ctx.guild.id])-1}",
-                        color=self.client.re[8]
+                        description=f"The list has only {len(self.CLIENT.queue_song[ctx.guild.id])-1}",
+                        color=self.CLIENT.re[8]
                     )
                 )
         else:
@@ -781,7 +776,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Empty",
                     description="Your Queue is Empty",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
 
@@ -791,35 +786,35 @@ class Music(commands.Cog):
     async def play(self, ctx, *, index):
         ind = index
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         if (
             ctx.guild.voice_client == None
             and user.voice
             and user.voice.channel
         ):
-            if not str(ctx.guild.id) in self.client.queue_song:
-                self.client.queue_song[str(ctx.guild.id)] = []
-            if not str(ctx.guild.id) in self.client.re[3]:
-                self.client.re[3][str(ctx.guild.id)] = 0
+            if not str(ctx.guild.id) in self.CLIENT.queue_song:
+                self.CLIENT.queue_song[str(ctx.guild.id)] = []
+            if not str(ctx.guild.id) in self.CLIENT.re[3]:
+                self.CLIENT.re[3][str(ctx.guild.id)] = 0
             channel = user.voice.channel.id
             voiceChannel = nextcord.utils.get(ctx.guild.voice_channels, id=channel)
             await voiceChannel.connect()
         try:
             if ef.check_voice(ctx):
-                voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
+                voice = nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
                 if ind.isnumeric():
-                    if int(ind) <= len(self.client.queue_song[str(ctx.guild.id)]):
-                        self.client.re[3][str(ctx.guild.id)] = int(ind)
-                        index = self.client.re[3][str(ctx.guild.id)]
-                        songs = self.client.queue_song[str(ctx.guild.id)]
+                    if int(ind) <= len(self.CLIENT.queue_song[str(ctx.guild.id)]):
+                        self.CLIENT.re[3][str(ctx.guild.id)] = int(ind)
+                        index = self.CLIENT.re[3][str(ctx.guild.id)]
+                        songs = self.CLIENT.queue_song[str(ctx.guild.id)]
                         song = songs[index]
                         URL, name_of_the_song = ef.youtube_download1(song)
-                        self.client.da1[song] = name_of_the_song
+                        self.CLIENT.da1[song] = name_of_the_song
                         mess = await ctx.send(
                             embed=nextcord.Embed(
                                 title="Playing",
-                                description=self.client.da1[song],
-                                color=nextcord.Color(self.client.re[8]),
+                                description=self.CLIENT.da1[song],
+                                color=nextcord.Color(self.CLIENT.re[8]),
                             )
                         )
                         voice.stop()
@@ -829,11 +824,11 @@ class Music(commands.Cog):
                         )
                         await self.player_pages(mess)
                     else:
-                        songs = self.client.queue_song[str(ctx.guild.id)]
+                        songs = self.CLIENT.queue_song[str(ctx.guild.id)]
                         embed = nextcord.Embed(
                             title="Hmm",
                             description=f"There are only {len(songs)} songs",
-                            color=nextcord.Color(self.client.re[8]),
+                            color=nextcord.Color(self.CLIENT.re[8]),
                         )
                         await ctx.send(embed=embed)
                 else:
@@ -845,17 +840,17 @@ class Music(commands.Cog):
                         await ctx.send(
                             embed=ef.cembed(
                                 description="We couldnt find the song, please try it with a different name, shorter name is prefered",
-                                color=self.client.re[8]
+                                color=self.CLIENT.re[8]
                             )
                         )
                         return
                     url = "https://www.youtube.com/watch?v=" + video[0]
                     URL, name_of_the_song = ef.youtube_download1(url)
-                    self.client.re[3][str(ctx.guild.id)] = len(self.client.queue_song[str(ctx.guild.id)])       
-                    songs = self.client.queue_song[str(ctx.guild.id)]
+                    self.CLIENT.re[3][str(ctx.guild.id)] = len(self.CLIENT.queue_song[str(ctx.guild.id)])       
+                    songs = self.CLIENT.queue_song[str(ctx.guild.id)]
                     if len(songs) == 0 or songs[-1] != url:
-                        self.client.queue_song[str(ctx.guild.id)].append(url)
-                    self.client.da1[url] = name_of_the_song
+                        self.CLIENT.queue_song[str(ctx.guild.id)].append(url)
+                    self.CLIENT.da1[url] = name_of_the_song
                     voice.stop()
                     voice.play(
                         nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS),
@@ -865,7 +860,7 @@ class Music(commands.Cog):
                         embed=nextcord.Embed(
                             title="Playing",
                             description=name_of_the_song,
-                            color=nextcord.Color(value=self.client.re[8]),
+                            color=nextcord.Color(value=self.CLIENT.re[8]),
                         )
                     )
     
@@ -874,33 +869,33 @@ class Music(commands.Cog):
                     embed=nextcord.Embed(
                         title="Permission denied",
                         description="Join the voice channel to play the song",
-                        color=nextcord.Color(value=self.client.re[8]),
+                        color=nextcord.Color(value=self.CLIENT.re[8]),
                     )
                 )
         except Exception as e:
-            channel = self.client.get_channel(self.dev_channel)
+            channel = self.CLIENT.get_channel(self.DEV_CHANNEL)
             await ctx.send(
                 embed=nextcord.Embed(
                     title="Error in play function",
                     description=f"{e}",
-                    color=nextcord.Color(value=self.client.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.re[8]),
                 )
             )
             await channel.send(
                 embed=nextcord.Embed(
                     title="Error in play function",
                     description=f"{traceback.format_exc()}\n{ctx.guild.name}: {ctx.channel.name}",
-                    color=nextcord.Color(value=self.client.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.re[8]),
                 )
             )
 
     @commands.command(aliases=["curr"])
     @commands.check(ef.check_command)
     async def currentmusic(self, ctx):
-        self.client.re[0]+=1
-        if len(self.client.queue_song[str(ctx.guild.id)]) > 0:
-            songs = self.client.queue_song[str(ctx.guild.id)]
-            index = self.client.re[3][str(ctx.guild.id)]
+        self.CLIENT.re[0]+=1
+        if len(self.CLIENT.queue_song[str(ctx.guild.id)]) > 0:
+            songs = self.CLIENT.queue_song[str(ctx.guild.id)]
+            index = self.CLIENT.re[3][str(ctx.guild.id)]
             description = f"[Current index: {index}]({songs[index]})\n"
             info = ef.youtube_info(songs[index])
             check = "\n\nDescription: \n" + info["description"] + "\n"
@@ -911,9 +906,9 @@ class Music(commands.Cog):
                 + f"\n\n{info['view_count']} views\n{info['like_count']} :thumbsup:\n"
             )        
             embed=ef.cembed(
-                title=self.client.da1[songs[index]],
+                title=self.CLIENT.da1[songs[index]],
                 description=description,
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 thumbnail=info["thumbnail"],
             )
             await ef.isReaction(ctx,embed)
@@ -921,7 +916,7 @@ class Music(commands.Cog):
             embed=ef.cembed(
                 title="Empty queue",
                 description="Your queue is currently empty",
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 footer="check 'q if you have any song"
             )
             await ef.isReaction(ctx, embed)
@@ -929,28 +924,28 @@ class Music(commands.Cog):
     @commands.command(aliases=[">", "skip"])
     @commands.check(ef.check_command)
     async def next(self, ctx):
-        self.client.re[0]+=1
+        self.CLIENT.re[0]+=1
         try:
             if ef.check_voice(ctx):
-                self.client.re[3][str(ctx.guild.id)] += 1
-                if self.client.re[3][str(ctx.guild.id)] >= len(self.client.queue_song[str(ctx.guild.id)]):
-                    self.client.re[3][str(ctx.guild.id)] = len(self.client.queue_song[str(ctx.guild.id)]) - 1
+                self.CLIENT.re[3][str(ctx.guild.id)] += 1
+                if self.CLIENT.re[3][str(ctx.guild.id)] >= len(self.CLIENT.queue_song[str(ctx.guild.id)]):
+                    self.CLIENT.re[3][str(ctx.guild.id)] = len(self.CLIENT.queue_song[str(ctx.guild.id)]) - 1
                     await ctx.send(
                         embed=ef.cembed(
                             title="Last song",
                             description="Only "
-                            + str(len(self.client.queue_song[str(ctx.guild.id)]))
+                            + str(len(self.CLIENT.queue_song[str(ctx.guild.id)]))
                             + " songs in your queue",
-                            color=self.client.re[8],
+                            color=self.CLIENT.re[8],
                         )
                     )
-                song = self.client.queue_song[str(ctx.guild.id)][self.client.re[3][str(ctx.guild.id)]]
-                voice = nextcord.utils.get(self.client.voice_clients, guild=ctx.guild)
+                song = self.CLIENT.queue_song[str(ctx.guild.id)][self.CLIENT.re[3][str(ctx.guild.id)]]
+                voice = nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
                 URL = ef.youtube_download(song)            
                 embed=ef.cembed(
                     title="Playing",
-                    description=self.client.da1.get(song,"Unavailable"),
-                    color=self.client.re[8],
+                    description=self.CLIENT.da1.get(song,"Unavailable"),
+                    color=self.CLIENT.re[8],
                 )
                 await ef.isReaction(ctx,embed)
                 voice.stop()
@@ -962,17 +957,17 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Permission denied",
                     description="Join the voice channel to move to the next song",
-                    color=nextcord.Color(value=self.client.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.re[8]),
                 )
                 await ef.isReaction(ctx,embed)
         except Exception as e:
-            channel = self.client.get_channel(self.dev_channel)
+            channel = self.CLIENT.get_channel(self.DEV_CHANNEL)
             await channel.send(
                 embed=ef.cembed(
                     title="Error in next function",
                     description=traceback.format_exc(),
                     footer=f"{ctx.channel.name}:{ctx.guild.name}",
-                    color=self.client.re[8],
+                    color=self.CLIENT.re[8],
                 )
             )
     
@@ -982,25 +977,25 @@ class Music(commands.Cog):
         if user.bot: return
         if reaction.emoji == "⏸":
             if (
-                str(user) != str(self.client.user)
-                and reaction.message.author == self.client.user
+                str(user) != str(self.CLIENT.user)
+                and reaction.message.author == self.CLIENT.user
             ):
                 await reaction.remove(user)
-                self.client.re[0]+=1
+                self.CLIENT.re[0]+=1
                 reaction.message.author = user
                 await self.pause(reaction.message)
         if reaction.emoji == "⏹":
             if (
-                str(user) != str(self.client.user)
-                and reaction.message.author == self.client.user
+                str(user) != str(self.CLIENT.user)
+                and reaction.message.author == self.CLIENT.user
             ):
                 await reaction.remove(user)
                 reaction.message.author = user
                 await self.leave(reaction.message)
         if reaction.emoji == "🔁":
             if (
-                str(user) != str(self.client.user)
-                and reaction.message.author == self.client.user
+                str(user) != str(self.CLIENT.user)
+                and reaction.message.author == self.CLIENT.user
             ):
                 try: await reaction.remove(user)
                 except: pass
@@ -1009,8 +1004,8 @@ class Music(commands.Cog):
 
         if reaction.emoji == "⏮":
             if (
-                str(user) != str(self.client.user)
-                and reaction.message.author == self.client.user
+                str(user) != str(self.CLIENT.user)
+                and reaction.message.author == self.CLIENT.user
             ):
                 try:
                     await reaction.remove(user)
@@ -1020,8 +1015,8 @@ class Music(commands.Cog):
                 await self.previous(reaction.message)  
         if reaction.emoji == "⏭":
             if (
-                str(user) != str(self.client.user)
-                and reaction.message.author == self.client.user
+                str(user) != str(self.CLIENT.user)
+                and reaction.message.author == self.CLIENT.user
             ):
                 try:await reaction.remove(user)
                 except:pass
@@ -1029,8 +1024,8 @@ class Music(commands.Cog):
                 await self.next(reaction.message)       
         if reaction.emoji == "▶":
             if (
-                str(user) != str(self.client.user)
-                and reaction.message.author == self.client.user
+                str(user) != str(self.CLIENT.user)
+                and reaction.message.author == self.CLIENT.user
             ):
                 try: await reaction.remove(user)
                 except:pass
@@ -1042,7 +1037,7 @@ class Music(commands.Cog):
 
         if (
             reaction.emoji == emoji.emojize(":keycap_*:")
-            and reaction.message.author == self.client.user
+            and reaction.message.author == self.CLIENT.user
         ):
             ctx = reaction.message
             try:
@@ -1050,8 +1045,8 @@ class Music(commands.Cog):
             except:
                 pass
             st= ""
-            index = self.client.re[3][str(ctx.guild.id)] 
-            songs = self.client.queue_song[str(ctx.guild.id)]
+            index = self.CLIENT.re[3][str(ctx.guild.id)] 
+            songs = self.CLIENT.queue_song[str(ctx.guild.id)]
             lower = 0 if index - 10 < 0 else index - 10
             higher = len(songs) if index+10>len(songs) else index+10
             length = f"Length of queue: {len(songs)}\n"
@@ -1064,7 +1059,7 @@ class Music(commands.Cog):
             
             
             for i in range(lower,higher):
-                song = f"{i}. {self.client.da1[songs[i]]}"
+                song = f"{i}. {self.CLIENT.da1[songs[i]]}"
                 if i == index: 
                     song = f"*{song}*"
                 st = f"{st}{song}\n"
@@ -1072,11 +1067,11 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Queue",
                     description=st + bitrate + length + latency,
-                    color=nextcord.Color(value=self.client.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.re[8]),
                 )
             )
 
                 
-def setup(client,**i):
-    client.add_cog(Music(client,**i))
+def setup(CLIENT,**i):
+    CLIENT.add_cog(Music(CLIENT,**i))
     

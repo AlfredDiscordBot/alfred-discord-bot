@@ -13,8 +13,8 @@ def requirements():
 
 
 class ApplicationButton(ui.View):
-    def __init__(self, client: commands.Bot):
-        self.client = client
+    def __init__(self, CLIENT: commands.Bot):
+        self.CLIENT = CLIENT
         super().__init__(
             timeout=None
         )
@@ -25,21 +25,21 @@ class ApplicationButton(ui.View):
         custom_id="alfred_application"
     )
     async def open_modal(self, button, inter):
-        if inter.message.author.id != self.client.user.id:
+        if inter.message.author.id != self.CLIENT.user.id:
             await inter.response.send_message("Not for me", ephemeral=True)
             await inter.delete_original_message()
             return
         await inter.response.send_modal(
-            ApplicationModel(self.client, inter.message)
+            ApplicationModel(self.CLIENT, inter.message)
         )
 
 class ApplicationModel(ui.Modal):
-    def __init__(self, client, message):
+    def __init__(self, CLIENT, message):
         super().__init__(
             "Application",
             timeout=600,
         )
-        self.client = client
+        self.CLIENT = CLIENT
         self.message = message
         self.embed = self.message.embeds[0]
         self.embed_to_items()
@@ -58,7 +58,7 @@ class ApplicationModel(ui.Modal):
             self.add_item(getattr(self, f"field{n}"))
 
     async def callback(self, inter):
-        channel= self.client.get_channel(int(self.message.embeds[0].footer.text))
+        channel= self.CLIENT.get_channel(int(self.message.embeds[0].footer.text))
         fields=[]
         for attribute in dir(self):
             if attribute.startswith("field"):
@@ -73,7 +73,7 @@ class ApplicationModel(ui.Modal):
             embed=ef.cembed(
                 title=f"Application By {inter.user.name}",
                 author=inter.user,
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 description=f"This was done in the {inter.channel.mention}",
                 footer={
                     'text': f'UserID: {inter.user.id}',
@@ -115,28 +115,28 @@ class ApplicationCreate(ui.Modal):
             embed=ef.cembed(
                 title="Application",
                 description=f"```\n{filter_graves(self.question.value)}\n```",
-                color=inter.client.re[8],
+                color=inter.CLIENT.re[8],
                 thumbnail=ef.safe_pfp(inter.guild),
                 footer=str(self.log_channel.id)
             ),
-            view=ApplicationButton(inter.client)
+            view=ApplicationButton(inter.CLIENT)
         )
         await inter.response.send_message(
             ephemeral=True,
             embed=ef.cembed(
                 description="Done",
-                color=inter.client.re[8]
+                color=inter.CLIENT.re[8]
             )
         )
 
 
 class Application(commands.Cog):
-    def __init__(self, client: commands.Bot):
-        self.client = client
+    def __init__(self, CLIENT: commands.Bot):
+        self.CLIENT = CLIENT
 
     @commands.Cog.listener()
     async def on_ready(self):
-        self.client.add_view(ApplicationButton(self.client))
+        self.CLIENT.add_view(ApplicationButton(self.CLIENT))
 
     @nextcord.slash_command(
         name="application",
@@ -154,8 +154,8 @@ class Application(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You do not have manage server permission",
-                    color=self.client.re[8],
-                    thumbnail=self.client.user.avatar.url
+                    color=self.CLIENT.re[8],
+                    thumbnail=self.CLIENT.user.avatar.url
                 )
             )
             return
@@ -164,5 +164,5 @@ class Application(commands.Cog):
         )
     
 
-def setup(client,**i):
-    client.add_cog(Application(client,**i))
+def setup(CLIENT,**i):
+    CLIENT.add_cog(Application(CLIENT,**i))

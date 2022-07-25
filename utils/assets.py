@@ -6,9 +6,9 @@ color = nextcord.ButtonStyle.blurple
 BLUE_LINE = "https://www.wrberadio.com/home/attachment/blue-line-png-1"
 
 class Confirm(nextcord.ui.View):
-    def __init__(self, client, re = {8: 5160}):
+    def __init__(self, CLIENT, re = {8: 5160}):
         super().__init__()
-        self.client = client
+        self.CLIENT = CLIENT
         self.value = None
         self.color = re[8]
         
@@ -38,8 +38,8 @@ class Confirm(nextcord.ui.View):
         self.stop()
         return self.value
 
-async def confirm_button(ctx, message, client, re={8: 5160}):
-    view = Confirm(client, re)
+async def confirm_button(ctx, message, CLIENT, re={8: 5160}):
+    view = Confirm(CLIENT, re)
     await ctx.send(
         embed=ef.cembed(
             title="Confirmation",
@@ -93,17 +93,17 @@ async def pa(ctx, embeds, restricted = False, start_from = 0, delete_after: int=
         await ctx.send(embed=embeds[0], delete_after=delete_after)
 
 class Emotes:
-    def __init__(self, client):
-        self.client = client
-        self.animated_wrong = client.get_emoji(935914136620134410)
-        self.red_arrow = client.get_emoji(945741947220402176)
-        self.animated_correct = client.get_emoji(958424323415212102)
-        self.join_vc = client.get_emoji(852810663603994624)
-        self.check = client.get_emoji(967279216343277579)
-        self.loading = client.get_emoji(948396323843997776)
-        self.upvote = client.get_emoji(945509681256865845)
-        self.boost = client.get_emoji(975323250546597888)
-        self.yikes = client.get_emoji(852810342991527946)
+    def __init__(self, CLIENT):
+        self.CLIENT = CLIENT
+        self.animated_wrong = CLIENT.get_emoji(935914136620134410)
+        self.red_arrow = CLIENT.get_emoji(945741947220402176)
+        self.animated_correct = CLIENT.get_emoji(958424323415212102)
+        self.join_vc = CLIENT.get_emoji(852810663603994624)
+        self.check = CLIENT.get_emoji(967279216343277579)
+        self.loading = CLIENT.get_emoji(948396323843997776)
+        self.upvote = CLIENT.get_emoji(945509681256865845)
+        self.boost = CLIENT.get_emoji(975323250546597888)
+        self.yikes = CLIENT.get_emoji(852810342991527946)
         
     def get_emoji(self, e):
         return getattr(self, e, None)
@@ -131,13 +131,13 @@ VOTE_FIELD_HOLDER = {
 VOTE_FIELDS =[
     {'name': i, 'value': VOTE_FIELD_HOLDER[i], 'inline': False} for i in VOTE_FIELD_HOLDER
 ]
-vote_embed = lambda client: ef.cembed(
+vote_embed = lambda CLIENT: ef.cembed(
     title = "Thanks for all your support 💖",
     description = VOTE_MESSAGE,
-    color = client.re[8],
-    author = client.user,
+    color = CLIENT.re[8],
+    author = CLIENT.user,
     fields = VOTE_FIELDS,
-    thumbnail = client.user.avatar.url,
+    thumbnail = CLIENT.user.avatar.url,
     image = "https://previews.123rf.com/images/enterline/enterline1806/enterline180601886/103633300-the-word-vote-concept-written-in-colorful-abstract-typography-vector-eps-10-available-.jpg",
     footer = {
         'text': 'Have a great day',
@@ -146,11 +146,11 @@ vote_embed = lambda client: ef.cembed(
 )
 
 class JSONViewer(nextcord.ui.View):
-    def __init__(self, di, client):
+    def __init__(self, di, CLIENT):
         super().__init__()
         self.di = di
         self.current_location = []
-        self.client = client
+        self.CLIENT = CLIENT
         self.currently_selected = list(self.di)[0] if len(self.di) else None
 
     def smart_get(self, a, location):
@@ -175,8 +175,8 @@ class JSONViewer(nextcord.ui.View):
             return ef.cembed(
                 title="Empty",
                 description="This location is empty",
-                color=self.client.re[8],
-                author=self.client.user
+                color=self.CLIENT.re[8],
+                author=self.CLIENT.user
             )
 
         temp = self.di.copy()
@@ -187,8 +187,8 @@ class JSONViewer(nextcord.ui.View):
             return ef.cembed(
                 title="Empty",
                 description="This location is empty",
-                color=self.client.re[8],
-                author=self.client.user
+                color=self.CLIENT.re[8],
+                author=self.CLIENT.user
             )       
 
         if not isinstance(temp, (list, dict)):
@@ -206,8 +206,8 @@ class JSONViewer(nextcord.ui.View):
         return ef.cembed(
             title=f"JSONViewer",
             description=f"{description}\n\n{'/'.join([str(i)[:30] for i in self.current_location])}",
-            color=self.client.re[8],
-            author=self.client.user
+            color=self.CLIENT.re[8],
+            author=self.CLIENT.user
         )
 
 

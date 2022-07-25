@@ -10,14 +10,14 @@ from .Roles import setup_view
 # Use nextcord.slash_command()
 
 def requirements():
-    return ["dev_channel"]
+    return ["DEV_CHANNEL"]
 
 class Configuration(commands.Cog):    
     text_slash_ = ef.defa(ChannelType.text)
 
-    def __init__(self, client: commands.Bot, dev_channel):
-        self.client = client
-        self.dev_channel = dev_channel
+    def __init__(self, CLIENT: commands.Bot, DEV_CHANNEL):
+        self.CLIENT = CLIENT
+        self.DEV_CHANNEL = DEV_CHANNEL
         self.command_list = []
         with open("commands.txt","r") as f:
             self.command_list = f.read().split("\n")[:-1]
@@ -28,19 +28,19 @@ class Configuration(commands.Cog):
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if user.guild_permissions.administrator:
             output=""
-            if ctx.guild.id in self.client.config['snipe']:
-                self.client.config['snipe'].remove(ctx.guild.id)
+            if ctx.guild.id in self.CLIENT.config['snipe']:
+                self.CLIENT.config['snipe'].remove(ctx.guild.id)
                 output="All people can use the snipe command"
                 
             else:
-                self.client.config['snipe'].append(ctx.guild.id)
+                self.CLIENT.config['snipe'].append(ctx.guild.id)
                 output="Only admins can use snipe command"
     
             await ctx.send(embed=ef.cembed(
                 title="Done",
                 description=output,
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url)
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url)
             )
         else:
             await ctx.send(
@@ -48,7 +48,7 @@ class Configuration(commands.Cog):
                     title="Permission Denied",
                     description="Only an admin can toggle this setting",
                     color=nextcord.Color.red(),
-                    thumbnail=self.client.user.avatar.url
+                    thumbnail=self.CLIENT.user.avatar.url
                 )
             )
     @nextcord.slash_command(name="config", description="Configure Alfred the way you want")
@@ -66,26 +66,26 @@ class Configuration(commands.Cog):
         if pref == None:
             await ctx.send(
                 embed=ef.cembed(
-                    description=f"My Prefix is `{self.client.prefix_dict.get(ctx.guild.id,default_prefix)}`",
-                    color=self.client.re[8]
+                    description=f"My Prefix is `{self.CLIENT.prefix_dict.get(ctx.guild.id,default_prefix)}`",
+                    color=self.CLIENT.re[8]
                 )
             )
             return
         if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
             if pref.startswith('"') and pref.endswith('"') and len(pref)>1:
                 pref=pref[1:-1]
-            self.client.prefix_dict[ctx.guild.id] = pref
+            self.CLIENT.prefix_dict[ctx.guild.id] = pref
             await ctx.send(
-                embed=ef.cembed(title="Done", description=f"Prefix set as {pref}", color=self.client.re[8])
+                embed=ef.cembed(title="Done", description=f"Prefix set as {pref}", color=self.CLIENT.re[8])
             )
             if pref == default_prefix:
-                del self.client.prefix_dict[ctx.guild.id]
+                del self.CLIENT.prefix_dict[ctx.guild.id]
         else:
             await ctx.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description="You cannot change the prefix, you need to be an admin"+str(assets.Emotes(self.client).animated_wrong),
-                    color=self.client.re[8],
+                    description="You cannot change the prefix, you need to be an admin"+str(assets.Emotes(self.CLIENT).animated_wrong),
+                    color=self.CLIENT.re[8],
                 )
             )
     
@@ -93,17 +93,17 @@ class Configuration(commands.Cog):
     @commands.check(ef.check_command)
     async def remove_prefix(self, ctx):
         if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
-            if self.client.prefix_dict.get(ctx.guild.id):
-                self.client.prefix_dict.pop(ctx.guild.id)
+            if self.CLIENT.prefix_dict.get(ctx.guild.id):
+                self.CLIENT.prefix_dict.pop(ctx.guild.id)
             await ctx.send(
-                embed=ef.cembed(title="Done", description=f"Prefix removed", color=self.client.re[8])
+                embed=ef.cembed(title="Done", description=f"Prefix removed", color=self.CLIENT.re[8])
             )
         else:
             await ctx.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description="You cannot change the prefix, you need to be an admin"+str(assets.Emotes(self.client).animated_wrong),
-                    color=self.client.re[8],
+                    description="You cannot change the prefix, you need to be an admin"+str(assets.Emotes(self.CLIENT).animated_wrong),
+                    color=self.CLIENT.re[8],
                 )
             )
             
@@ -112,27 +112,27 @@ class Configuration(commands.Cog):
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if user.guild_permissions.administrator:
             output=""
-            if ctx.guild.id in self.client.config['respond']:
-                self.client.config['respond'].remove(ctx.guild.id)
+            if ctx.guild.id in self.CLIENT.config['respond']:
+                self.CLIENT.config['respond'].remove(ctx.guild.id)
                 output="Auto respond turned on"
                 
             else:
-                self.client.config['respond'].append(ctx.guild.id)
+                self.CLIENT.config['respond'].append(ctx.guild.id)
                 output="Auto respond turned off"
     
             await ctx.send(embed=ef.cembed(
                 title="Enabled",
                 description=output,
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url)
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url)
             )
         else:
             await ctx.reply(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description="You need admin permissions to toggle this"+str(assets.Emotes(self.client).animated_wrong),
+                    description="You need admin permissions to toggle this"+str(assets.Emotes(self.CLIENT).animated_wrong),
                     color=nextcord.Color.red(),
-                    thumbnail=self.client.user.avatar.url
+                    thumbnail=self.CLIENT.user.avatar.url
                 )
             )
 
@@ -141,18 +141,24 @@ class Configuration(commands.Cog):
     async def toggle_suicide(self, ctx):
         if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
             output=""
-            if ctx.guild.id in self.client.observer:
-                self.client.observer.remove(ctx.guild.id)
-                output="enabled"
-            else:
-                self.client.observer.append(ctx.guild.id)
+            if ctx.guild.id in self.CLIENT.observer:
+                self.CLIENT.observer.remove(ctx.guild.id)
                 output="disabled"
-            await ctx.reply(embed=ef.cembed(title="Done",description=f"I've {output} the suicide observer",color=self.client.re[8]))
+            else:
+                self.CLIENT.observer.append(ctx.guild.id)
+                output="enabled"
+            await ctx.reply(
+                embed=ef.cembed(
+                    title="Done",
+                    description=f"I've {output} the suicide observer",
+                    color=self.CLIENT.re[8]
+                )
+            )
         else:
             await ctx.send(
                 embed=ef.cembed(
                     title="Permission Denied",
-                    description="Only an admin can toggle this setting"+str(assets.Emotes(self.client).animated_wrong),
+                    description="Only an admin can toggle this setting"+str(assets.Emotes(self.CLIENT).animated_wrong),
                     color=nextcord.Color.red()
                 )
             )
@@ -166,39 +172,39 @@ class Configuration(commands.Cog):
             await inter.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description="Only an admin can use this command, please ask an admin to enable this"+str(assets.Emotes(self.client).animated_wrong),
+                    description="Only an admin can use this command, please ask an admin to enable this"+str(assets.Emotes(self.CLIENT).animated_wrong),
                     color=nextcord.Color.red(),
                     
                 )
             )
             return
-        if command.lower() not in [i.name.lower() for i in self.client.commands] and mode in ['enable','disable']:
+        if command.lower() not in [i.name.lower() for i in self.CLIENT.commands] and mode in ['enable','disable']:
             await inter.send("This is not a command, check the spelling")
             return
-        if command not in self.client.config['commands'] and command!='-':
-            self.client.config['commands'][command] = []
+        if command not in self.CLIENT.config['commands'] and command!='-':
+            self.CLIENT.config['commands'][command] = []
         if mode == 'enable' and command != '-':
-            if inter.guild.id in self.client.config['commands'][command]:
-                self.client.config['commands'][command].remove(inter.guild.id)
+            if inter.guild.id in self.CLIENT.config['commands'][command]:
+                self.CLIENT.config['commands'][command].remove(inter.guild.id)
                 await inter.send(
                     embed=ef.cembed(
                         title="Done",
                         description=f"Enabled {command} in this server",
-                        color=self.client.re[8],
-                        thumbnail=self.client.user.avatar.url
+                        color=self.CLIENT.re[8],
+                        thumbnail=self.CLIENT.user.avatar.url
                     )
                 )
                 return
             await inter.send("Already Enabled")
         elif mode == 'disable' and command != '-':
-            if inter.guild.id not in self.client.config['commands'][command]:
-                self.client.config['commands'][command].append(inter.guild.id)
+            if inter.guild.id not in self.CLIENT.config['commands'][command]:
+                self.CLIENT.config['commands'][command].append(inter.guild.id)
                 await inter.send(
                     embed=ef.cembed(
                         title="Done",
                         description=f"Disabled {command} in this server",
-                        color=self.client.re[8],
-                        thumbnail=self.client.user.avatar.url
+                        color=self.CLIENT.re[8],
+                        thumbnail=self.CLIENT.user.avatar.url
                     )
                 )
                 return
@@ -206,8 +212,8 @@ class Configuration(commands.Cog):
         else:
             disabled_commands = []
             enabled_commands = []
-            for i in [j.name for j in self.client.commands]:
-                if inter.guild.id in self.client.config['commands'].get(i,[]):
+            for i in [j.name for j in self.CLIENT.commands]:
+                if inter.guild.id in self.CLIENT.config['commands'].get(i,[]):
                     disabled_commands.append(i)
                 else:
                     enabled_commands.append(i)
@@ -218,8 +224,8 @@ class Configuration(commands.Cog):
                 embed=ef.cembed(
                     title="Commands",
                     description=enabled_commands+"\n\n"+disabled_commands,
-                    color=self.client.re[8],
-                    thumbnail=self.client.user.avatar.url,
+                    color=self.CLIENT.re[8],
+                    thumbnail=self.CLIENT.user.avatar.url,
                     footer="Everything is enabled by default"
                 )
             )
@@ -246,7 +252,7 @@ class Configuration(commands.Cog):
         
     ):
         await inter.response.defer()
-        self.client.config['welcome'][inter.guild.id] = {
+        self.CLIENT.config['welcome'][inter.guild.id] = {
             'channel' : channel.id,
             'description': description,
             'title': title,
@@ -275,10 +281,10 @@ class Configuration(commands.Cog):
     @commands.check(ef.check_command)
     async def subscribe(self, ctx, channel: nextcord.TextChannel=None, url=None, *, message=""):
         if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
-            if 'youtube' not in self.client.config: 
-                self.client.config['youtube']={}
-            if channel.id not in self.client.config['youtube']: 
-                self.client.config['youtube'][channel.id]=set()
+            if 'youtube' not in self.CLIENT.config: 
+                self.CLIENT.config['youtube']={}
+            if channel.id not in self.CLIENT.config['youtube']: 
+                self.CLIENT.config['youtube'][channel.id]=set()
             if url is not None:
                 url = ef.check_end(url)
                 if not ef.validate_url(url):
@@ -286,28 +292,28 @@ class Configuration(commands.Cog):
                         embed=ef.cembed(
                             title="Huh",
                             description="That's an invalid url form id",
-                            color=self.client.re[8],
-                            thumbnail=self.client.user.avatar.url
+                            color=self.CLIENT.re[8],
+                            thumbnail=self.CLIENT.user.avatar.url
                         )
                     )
                     return
-                self.client.config['youtube'][channel.id].add((url,message))
-                await ctx.send(embed=ef.cembed(title="Done",description=f"Added {url} to the list and it'll be displayed in {channel.mention}",color=self.client.re[8],thumbnail=self.client.user.avatar.url))
+                self.CLIENT.config['youtube'][channel.id].add((url,message))
+                await ctx.send(embed=ef.cembed(title="Done",description=f"Added {url} to the list and it'll be displayed in {channel.mention}",color=self.CLIENT.re[8],thumbnail=self.CLIENT.user.avatar.url))
             else:
-                all_links = "\n".join([i[0] for i in self.client.config['youtube'][channel.id]])
+                all_links = "\n".join([i[0] for i in self.CLIENT.config['youtube'][channel.id]])
                 await ctx.send(embed=ef.cembed(
                     title="All youtube subscriptions in this channel",
                     description=all_links,
-                    color=self.client.re[8],
-                    thumbnail = self.client.user.avatar.url
+                    color=self.CLIENT.re[8],
+                    thumbnail = self.CLIENT.user.avatar.url
                 ))
         else:
             await ctx.send(
                 embed=ef.cembed(
                     title="Permission Denied",
                     description="Only an admin can set it",
-                    color=self.client.re[8],
-                    thumbnail=self.client.user.avatar.url
+                    color=self.CLIENT.re[8],
+                    thumbnail=self.CLIENT.user.avatar.url
                 )
             )
     
@@ -315,37 +321,37 @@ class Configuration(commands.Cog):
     @commands.check(ef.check_command)
     async def unsubscribe(self, ctx, channel: nextcord.TextChannel=None, url=None):
         if getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator:
-            if 'youtube' not in self.client.config:
-                self.client.config['youtube']={}
-            if channel.id not in self.client.config['youtube']: 
-                self.client.config['youtube'][channel.id]=set()
+            if 'youtube' not in self.CLIENT.config:
+                self.CLIENT.config['youtube']={}
+            if channel.id not in self.CLIENT.config['youtube']: 
+                self.CLIENT.config['youtube'][channel.id]=set()
             if url is None:   
-                all_links = "\n".join([i[0] for i in self.client.config['youtube'][channel.id]])
+                all_links = "\n".join([i[0] for i in self.CLIENT.config['youtube'][channel.id]])
                 await ctx.send(embed=ef.cembed(
                     title="All youtube subscriptions in this channel",
                     description=all_links,
-                    color=self.client.re[8],
-                    thumbnail = self.client.user.avatar.url
+                    color=self.CLIENT.re[8],
+                    thumbnail = self.CLIENT.user.avatar.url
                 ))
                 return
             try:
                 url = ef.check_end(url)
-                for u,m in self.client.config['youtube'][channel.id]:
+                for u,m in self.CLIENT.config['youtube'][channel.id]:
                     if u == url:
-                        self.client.config['youtube'][channel.id].remove((u,m))
+                        self.CLIENT.config['youtube'][channel.id].remove((u,m))
                         break   
                 
-                await ctx.send(embed=ef.cembed(title="Done", description=f"Removed {url} from the list", color=self.client.re[8], thumbnail=self.client.user.avatar.url))
+                await ctx.send(embed=ef.cembed(title="Done", description=f"Removed {url} from the list", color=self.CLIENT.re[8], thumbnail=self.CLIENT.user.avatar.url))
             except KeyError:
                 print(traceback.format_exc())
-                await ctx.reply(embed=ef.cembed(title="Hmm",description=f"The URL provided is not in {channel.name}'s subscriptions",color=self.client.re[8]))
+                await ctx.reply(embed=ef.cembed(title="Hmm",description=f"The URL provided is not in {channel.name}'s subscriptions",color=self.CLIENT.re[8]))
         else:
             await ctx.send(
                 embed=ef.cembed(
                     title="Permission Denied",
                     description="Only an admin can remove subscriptions",
-                    color=self.client.re[8],
-                    thumbnail=self.client.user.avatar.url
+                    color=self.CLIENT.re[8],
+                    thumbnail=self.CLIENT.user.avatar.url
                 )
             )
 
@@ -357,15 +363,15 @@ class Configuration(commands.Cog):
     ):
         await inter.response.defer()        
         if mode == "show":
-            su = not inter.guild.id in self.client.observer
-            rs = not inter.guild.id in self.client.config['respond']
-            sn = not inter.guild.id in self.client.config['snipe']
+            su = inter.guild.id in self.CLIENT.observer
+            rs = not inter.guild.id in self.CLIENT.config['respond']
+            sn = not inter.guild.id in self.CLIENT.config['snipe']
             if not sn: sn = "Only Admins"
             else: sn = "All people"
             embed = ef.cembed(
                 title="Features",
                 description="This shows all the extra features in alfred",
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 thumbnail=ef.safe_pfp(inter.guild),
                 fields=ef.dict2fields(
                     {
@@ -383,7 +389,7 @@ class Configuration(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You need to be an admin to toggle settings",
-                    color=self.client.re[8],
+                    color=self.CLIENT.re[8],
                     thumbnail=ef.safe_pfp(inter.guild),
                     author=inter.user
                 )
@@ -394,47 +400,48 @@ class Configuration(commands.Cog):
             output=""
             if mode == "enable":                
                 if feature == "snipe":
-                    if not inter.guild.id in self.client.config['snipe']:
-                        self.client.config['snipe'].append(inter.guild.id)
+                    if not inter.guild.id in self.CLIENT.config['snipe']:
+                        self.CLIENT.config['snipe'].append(inter.guild.id)
                     output = "Only admins can use snipe command"
                 elif feature == "response":
-                    if inter.guild.id in self.client.config['respond']:
-                        self.client.config['respond'].remove(inter.guild.id)
+                    if inter.guild.id in self.CLIENT.config['respond']:
+                        self.CLIENT.config['respond'].remove(inter.guild.id)
                     output = "Enabled Auto response, try saying `Alfred hello`"
                 else:
-                    if inter.guild.id in self.client.observer:
-                        self.client.observer.remove(inter.guild.id)
-                        output="Enabled Suicide observer"                 
+                    if not inter.guild.id in self.CLIENT.observer:
+                        self.CLIENT.observer.append(inter.guild.id)
+                    output="Enabled suicide observer"
+                                
             elif mode == "disable":
                 if feature == "snipe":
-                    if inter.guild.id in self.client.config['snipe']:
-                        self.client.config['snipe'].remove(inter.guild.id)
+                    if inter.guild.id in self.CLIENT.config['snipe']:
+                        self.CLIENT.config['snipe'].remove(inter.guild.id)
                     output="All people can use snipe command"
                 elif feature == "response":
-                    if not inter.guild.id in self.client.config['respond']:
-                        self.client.config['respond'].append(inter.guild.id)
+                    if not inter.guild.id in self.CLIENT.config['respond']:
+                        self.CLIENT.config['respond'].append(inter.guild.id)
                     output="Disabled Auto Response. You've decided to not talk to Alfred :sob:"
                 else:
-                    if not inter.guild.id in self.client.observer:
-                        self.client.observer.append(inter.guild.id)
-                    output="Disabled suicide observer"
+                    if inter.guild.id in self.CLIENT.observer:
+                        self.CLIENT.observer.remove(inter.guild.id)
+                        output="Disabled Suicide observer"   
             await inter.send(
                 embed=ef.cembed(
                     description=output,
                     title="Done",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )     
         except:
             a = traceback.format_exc()
-            d = self.client.get_channel(self.dev_channel)
+            d = self.CLIENT.get_channel(self.DEV_CHANNEL)
             await d.send(
                 embed=ef.cembed(
                     title="Error in config",
                     description=str(a),
-                    color=self.client.re[8],
+                    color=self.CLIENT.re[8],
                     footer=f"{inter.user.name} -> {inter.guild.name}",
-                    thumbnail=self.client.user.avatar.url
+                    thumbnail=self.CLIENT.user.avatar.url
                 )
             )      
 
@@ -447,27 +454,27 @@ class Configuration(commands.Cog):
                     title="Permission",
                     description="You need admin permissions to do the security work, Ask your owner to execute this command for protection",
                     color=nextcord.Color.red(),
-                    thumbnail=self.client.user.avatar.url
+                    thumbnail=self.CLIENT.user.avatar.url
                 )
             )
             return
         if log_channel == 'delete':
-            if inter.guild.id in self.client.config['security']:
-                del self.client.config['security'][inter.guild.id]
+            if inter.guild.id in self.CLIENT.config['security']:
+                del self.CLIENT.config['security'][inter.guild.id]
             await inter.send(
                 embed=ef.cembed(
                     description="Removed SEAlfred from this server, this server is now left unprotected",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
             return
         channel_id = log_channel.id    
-        self.client.config['security'][inter.guild.id] = channel_id
+        self.CLIENT.config['security'][inter.guild.id] = channel_id
         await inter.send(
             embed=ef.cembed(
                 title="Done",
                 description=f"Set {log_channel.mention} as the log channel, all the updates will be pushed to this",
-                color=self.client.re[8]
+                color=self.CLIENT.re[8]
             )
         )         
 
@@ -479,7 +486,7 @@ class Configuration(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You cannot set autoreact, you do not have admin privilege",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
             return
@@ -488,7 +495,7 @@ class Configuration(commands.Cog):
                 embed=ef.cembed(
                     title="Hmm",
                     description=ef.emoji.emojize("You need to mention a channel\n'autoreact #channel :one:|:two:|:three:"),
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
             return
@@ -497,19 +504,19 @@ class Configuration(commands.Cog):
                 embed = ef.cembed(
                     title="Hmm",
                     description="You need one or more emojis separated by |",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
             return
-        if channel.id not in self.client.autor:
-            self.client.autor[channel.id]=[i.strip() for i in ef.emoji.demojize(Emojis).split("|")]
+        if channel.id not in self.CLIENT.autor:
+            self.CLIENT.autor[channel.id]=[i.strip() for i in ef.emoji.demojize(Emojis).split("|")]
         else:
-            self.client.autor[channel.id]+=[i.strip() for i in ef.emoji.demojize(Emojis).split("|")]
+            self.CLIENT.autor[channel.id]+=[i.strip() for i in ef.emoji.demojize(Emojis).split("|")]
         await ctx.send(
             embed=ef.cembed(
                 title="Done",
                 description=f"For every message in {channel.mention} Alfred will add {Emojis} reaction",
-                color=self.client.re[8]
+                color=self.CLIENT.re[8]
             )
         )
 
@@ -522,33 +529,33 @@ class Configuration(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You cannot remove autoreact, you do not have admin privilege",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
             return
-        if not channel.id in self.client.autor:
+        if not channel.id in self.CLIENT.autor:
             await ctx.send(
                 embed=ef.cembed(
                     title="Hmm",
                     description="This channel does not have any reactions",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
             return
         confirmation = await ef.wait_for_confirm(
-            ctx, self.client,
+            ctx, self.CLIENT,
             "Do you want to remove every automatic reaction in this channel?",
-            color=self.client.re[8],
+            color=self.CLIENT.re[8],
             usr=getattr(ctx, 'author', getattr(ctx, 'user', None))
         )
         if not confirmation:
             return
-        self.client.autor.pop(channel.id)
+        self.CLIENT.autor.pop(channel.id)
         await ctx.send(
             embed=ef.cembed(
                 title="Done",
                 description=f"Removed every reaction in {channel.mention}",
-                color=self.client.re[8]
+                color=self.CLIENT.re[8]
             )
         )  
 
@@ -575,31 +582,31 @@ class Configuration(commands.Cog):
             embed=ef.cembed(
                 title="Roles",
                 description="\n".join([role.mention for role in roles]),
-                color=self.client.re[8],
+                color=self.CLIENT.re[8],
                 author={
                     'name': inter.guild.name,
                     'icon_url': inter.guild.icon
                 },
                 footer={
                     'text': 'This feature is still Beta',
-                    'icon_url': self.client.user.avatar.url
+                    'icon_url': self.CLIENT.user.avatar.url
                 },
                 thumbnail=inter.guild.icon,
                 image=assets.BLUE_LINE
             ),
             view=setup_view(roles)
         )
-        if inter.guild.id not in self.client.config['roles']:
-            self.client.config['roles'][inter.guild.id] = []
-        self.client.config['roles'][inter.guild.id].append(
+        if inter.guild.id not in self.CLIENT.config['roles']:
+            self.CLIENT.config['roles'][inter.guild.id] = []
+        self.CLIENT.config['roles'][inter.guild.id].append(
             [role.id for role in roles]
         )
         await inter.send(
             embed=ef.cembed(
                 title="Done",
                 description=f"Completed, the role selection can be seen in {channel.mention}",
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url,
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url,
                 fields=[
                     {
                         'name': 'Roles',
@@ -612,5 +619,5 @@ class Configuration(commands.Cog):
 
 
 
-def setup(client,**i):
-    client.add_cog(Configuration(client,**i))
+def setup(CLIENT,**i):
+    CLIENT.add_cog(Configuration(CLIENT,**i))

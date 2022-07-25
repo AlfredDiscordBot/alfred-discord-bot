@@ -432,8 +432,8 @@ class Trend:
     
 
 class Code(commands.Cog):
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, CLIENT):
+        self.CLIENT = CLIENT
         self.rce = CodeExecutor()
         self.trending = Trend()
 
@@ -479,9 +479,9 @@ class Code(commands.Cog):
                 owner_thumbnail=repo_stats.get('owner', {}).get('avatar_url', None),
                 image=image
             )
-            info = await repo_stats_dict(repo, self.client.re[8])
+            info = await repo_stats_dict(repo, self.CLIENT.re[8])
             repo_embeds.append(
-                embed_from_dict(info, inter, inter.client)
+                embed_from_dict(info, inter, inter.CLIENT)
             )
         return repo_embeds
 
@@ -500,9 +500,9 @@ class Code(commands.Cog):
             embed=ef.cembed(
                 title="RunTimes",
                 description=f"```diff\nHere are all the languages supported by EMKC\n\n{runtimes}\n```",
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url,
-                author=self.client.user,
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url,
+                author=self.CLIENT.user,
                 footer="**Code and Language are a required argument"
             )
             await ctx.send(
@@ -517,8 +517,8 @@ class Code(commands.Cog):
             embed=ef.cembed(
                 title="Output",
                 description=output,
-                color=self.client.re[8],
-                thumbnail=self.client.user.avatar.url,
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url,
                 author=ctx.author,
                 url=ctx.message.jump_url,
                 footer={
@@ -537,7 +537,7 @@ class Code(commands.Cog):
         await inter.response.defer()
         stats = get_user_stats(user)
         if stats:
-            stats_dict = user_stats_dict(stats, self.client.re[8], user)
+            stats_dict = user_stats_dict(stats, self.CLIENT.re[8], user)
             repos = await self.get_repos(user, inter)
         else:
             stats_dict = {
@@ -550,7 +550,7 @@ class Code(commands.Cog):
             }
             repos = []
         embed = embed_from_dict(
-            stats_dict, inter, self.client
+            stats_dict, inter, self.CLIENT
         )        
         await assets.pa(inter, [embed]+repos, restricted=True)
 
@@ -560,7 +560,7 @@ class Code(commands.Cog):
 
         if stats:
             stats_embed = await repo_stats_dict(
-                stats, self.client.re[8]
+                stats, self.CLIENT.re[8]
             )
         else:
             stats_embed = {
@@ -570,10 +570,10 @@ class Code(commands.Cog):
                     'name': inter.user.name,
                     'icon_url': ef.safe_pfp(inter.user)
                 },
-                'color': self.client.re[8]
+                'color': self.CLIENT.re[8]
             }
         embed=embed_from_dict(
-            stats_embed, inter, self.client
+            stats_embed, inter, self.CLIENT
         )
         await inter.send(embed=embed)
     
@@ -589,5 +589,5 @@ class Code(commands.Cog):
         await assets.pa(inter, self.trending.trending_repositories())
 
 
-def setup(client,**i):
-    client.add_cog(Code(client,**i))
+def setup(CLIENT,**i):
+    CLIENT.add_cog(Code(CLIENT,**i))
