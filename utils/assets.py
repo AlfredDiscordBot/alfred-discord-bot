@@ -54,6 +54,7 @@ async def confirm_button(ctx, message, CLIENT, re={8: 5160}):
     a = await view.wait()
     return a
 
+
 class SelectionPages(nextcord.ui.Select):
     def __init__(self, CTX, EMBEDS: list, RESTRICTED: bool, *args, **kwargs):
         self.CTX = CTX
@@ -66,9 +67,7 @@ class SelectionPages(nextcord.ui.Select):
                 self.op[i.title] = i
                 options.append(
                     nextcord.SelectOption(
-                        label=i.title,
-                        emoji="📜",
-                        description="Go to this page"
+                        label=i.title, emoji="📜", description="Go to this page"
                     )
                 )
             else:
@@ -76,7 +75,7 @@ class SelectionPages(nextcord.ui.Select):
                     nextcord.SelectOption(
                         label="Page Title Unavailable",
                         emoji="📜",
-                        description="Go to this page"
+                        description="Go to this page",
                     )
                 )
         print(type(options[0]))
@@ -85,10 +84,12 @@ class SelectionPages(nextcord.ui.Select):
             max_values=1,
             options=options,
         )
+
     async def callback(self, interaction: nextcord.Interaction):
-        user = getattr(self.CTX, 'author', getattr(self.CTX, 'user', None))
+        user = getattr(self.CTX, "author", getattr(self.CTX, "user", None))
         if interaction.user.id == user.id:
             await interaction.edit(embed=self.op[self.values[0]])
+
 
 class SelectionPagesView(nextcord.ui.View):
     def __init__(self, CTX, EMBEDS: list, RESTRICTED: bool, *args, **kwargs):
@@ -126,7 +127,9 @@ class ButtonPages(nextcord.ui.View):
         await inter.response.edit_message(embed=self.embeds[self.page])
 
 
-async def pa(ctx, embeds, restricted=False, start_from=0, delete_after: int = None, t: str = "b"):
+async def pa(
+    ctx, embeds, restricted=False, start_from=0, delete_after: int = None, t: str = "b"
+):
     if len(embeds) > 1:
         view = None
         if t == "b":
@@ -389,23 +392,22 @@ class Msetup_DropDownSelect(nextcord.ui.Select):
         self.user = user
         self.func = func
         options = [
-            nextcord.SelectOption(label=i.upper(), emoji="⏺️", description=f"Set {i}") for i in ef.m_options
+            nextcord.SelectOption(label=i.upper(), emoji="⏺️", description=f"Set {i}")
+            for i in ef.m_options
         ]
         super().__init__(
             placeholder="Select Embed Feature",
             min_values=1,
             max_values=1,
-            options=options
+            options=options,
         )
 
     async def callback(self, interaction: nextcord.Interaction):
         if interaction.user.id != self.user.id:
-            await interaction.response.send_message(
-                "Not your Embed 🔪",
-                ephemeral=True
-            )
+            await interaction.response.send_message("Not your Embed 🔪", ephemeral=True)
             return
         await self.func(self.values[0])
+
 
 class Msetup_DropDownView(nextcord.ui.View):
     def __init__(self, func, user):

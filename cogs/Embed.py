@@ -205,10 +205,10 @@ class MSetup:
         else:
             self.INSTRUCTION = await self.ctx.send(embed=embed)
         if not self.EDIT_MESSAGE:
-            user = getattr(self.ctx, 'user', getattr(self.ctx, 'author', None))
+            user = getattr(self.ctx, "user", getattr(self.ctx, "author", None))
             self.EDIT_MESSAGE = await self.ctx.send(
                 embed=embed_from_dict(self.di, self.ctx, self.CLIENT),
-                view=assets.Msetup_DropDownView(self.change_setup, user)                
+                view=assets.Msetup_DropDownView(self.change_setup, user),
             )
         else:
             await self.EDIT_MESSAGE.edit(
@@ -216,18 +216,17 @@ class MSetup:
             )
 
     async def change_setup(self, MODE: str) -> str:
-        self.SETUP_VALUE = MODE        
+        self.SETUP_VALUE = MODE
         self.SETUP_VALUE = MODE.lower()
         await self.EDIT_MESSAGE.edit(
             embed=ef.cembed(
                 title=f"Editing {MODE}",
                 description=f"Currently editing {MODE}, please follow the syntax from the instruction page",
                 color=self.CLIENT.re[8],
-                thumbnail=self.CLIENT.user.avatar.url                    
+                thumbnail=self.CLIENT.user.avatar.url,
             )
         )
         return MODE
-    
 
     def to_yaml(self):
         """

@@ -158,7 +158,7 @@ class Music(commands.Cog):
 
     @commands.command(aliases=["cq"])
     @commands.check(ef.check_command)
-    async def clearqueue(self, ctx):        
+    async def clearqueue(self, ctx):
         if ef.check_voice(ctx):
             if len(self.CLIENT.queue_song.get(ctx.guild.id, [])) > 0:
                 self.CLIENT.queue_song[ctx.guild.id].clear()
