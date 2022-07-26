@@ -166,7 +166,7 @@ class BotInfo(commands.Cog):
                 await ctx.send(embed=embed)
             else:
                 n = 0
-                await assets.pa(ctx, self.embe, start_from=n, restricted=True)
+                await assets.pa(ctx, self.embe, start_from=n, restricted=True, t = "s")
         except Exception:
             print(traceback.format_exc())
 

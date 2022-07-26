@@ -520,7 +520,7 @@ class Code(commands.Cog):
     async def trending_repo(self, inter):
         await inter.response.defer()
         await self.ghtrend.setup()
-        await assets.pa(inter, self.ghtrend.trending_repositories())
+        await assets.pa(inter, self.ghtrend.trending_repositories(), t = "s")
 
 
 def setup(CLIENT, **i):
