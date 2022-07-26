@@ -78,7 +78,6 @@ class SelectionPages(nextcord.ui.Select):
                         description="Go to this page",
                     )
                 )
-        print(type(options[0]))
         super().__init__(
             min_values=1,
             max_values=1,

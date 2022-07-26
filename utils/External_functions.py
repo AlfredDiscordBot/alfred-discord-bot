@@ -410,19 +410,13 @@ def extract_color(color: str):
     """
     color = color.replace("#", "0x")
     try:
-        color_temp = (
-            int("0x" + str(color)[2:4], base=16),
-            int("0x" + str(color)[4:6], base=16),
-            int("0x" + str(color)[6:8], base=16),
-        )
-        return color_temp
+        return nextcord.Color(int(color, base=16)).to_rgb()
     except Exception:
         print(traceback.format_exc())
 
 
 def svg2png(url: str):
     """Convert SVG image (url) to PNG format."""
-    # print(SVG2PNG_API_URI, SVG2PNG_API_TOKEN)
     res = requests.get(
         SVG2PNG_API_URI, params=[("url", url), ("token", SVG2PNG_API_TOKEN)]
     )
@@ -478,6 +472,9 @@ async def post_async(api: str, header: dict = {}, json: dict = {}):
 
 
 def suicide_m(client, color):
+    """
+    Returns Suicide Embed
+    """
     return cembed(
         title="Suicide and Self harm prevention",
         description="\n".join(
@@ -535,8 +532,11 @@ async def player_reaction(mess):
 
 
 def remove_all(original, s):
+    """
+    Removes specified `s` from the string
+    """
     for i in s:
-        original.replace(i, "")
+        original = original.replace(i, "")
     return original
 
 
@@ -544,11 +544,8 @@ def safe_pfp(user: Union[nextcord.Member, nextcord.guild.Guild]):
     if user is None:
         return
     if isinstance(user, nextcord.guild.Guild):
-        return user.icon.url if user.icon else None
-    pfp = user.default_avatar.url
-    if user.avatar:
-        return user.avatar.url
-    return pfp
+        return user.icon
+    return user.avatar.url if user.avatar else user.default_avatar.url
 
 
 def defa(*types, default=None, choices=[], required=False):
@@ -797,8 +794,8 @@ def requirements():
     return []
 
 class <name>(commands.Cog):
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, CLIENT):
+        self.CLIENT = CLIENT
 
 
 def setup(client,**i):
