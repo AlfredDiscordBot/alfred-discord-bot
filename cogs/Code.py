@@ -11,22 +11,19 @@ from utils.Storage_facility import Variables
 from dataclasses import dataclass
 from .Embed import filter_graves, embed_from_dict
 from datetime import datetime
-from typing import (
-    Any,
-    List,
-    Dict,
-    Union,
-    Optional
-)
+from typing import Any, List, Dict, Union, Optional
 
 # Coded by Shravan-1908
 # Use nextcord.slash_command()
 
+
 def requirements():
     return []
 
+
 def iso2dtime(iso: str):
     return f"<t:{int(datetime.fromisoformat(iso[:-1]).timestamp())}>"
+
 
 class CodeExecutor:
     """
@@ -110,6 +107,7 @@ Output:
         except Exception as e:
             traceback.print_exc(e)
             return "Couldn't connect at the moment."
+
 
 @dataclass
 class GitHubUserStats:
@@ -208,19 +206,20 @@ class GitHubRepoStats:
         result += f"Homepage: {self.homepage}\n"
         return result
 
+
 @lru_cache(maxsize=50)
 def fetch_image(url: str) -> str:
     return f"https://opengraph.githubassets.com/1/{url}"
-        
+
 
 @lru_cache(maxsize=20)
 async def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
     repo_stats = await ef.get_async(
         f"https://api.github.com/repos/{repo}",
         headers={"Accept": "application/vnd.github.mercy-preview+json"},
-        kind="json"
+        kind="json",
     )
-    image = fetch_image(repo)   
+    image = fetch_image(repo)
 
     if repo_stats.get("message"):
         return None
@@ -228,7 +227,7 @@ async def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
     if not repo_stats.get("license", None):
         repo_stats["license"] = ""
     else:
-        repo_stats['license'] = repo_stats['license']['name']
+        repo_stats["license"] = repo_stats["license"]["name"]
 
     return GitHubRepoStats(
         name=repo_stats.get("name", ""),
@@ -244,12 +243,12 @@ async def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
         open_issues=repo_stats.get("open_issues", ""),
         watchers=repo_stats.get("watchers", ""),
         subscribers_count=repo_stats.get("subscribers_count", ""),
-        license=repo_stats.get('license', ''),
+        license=repo_stats.get("license", ""),
         topics=repo_stats.get("topics", ""),
         homepage=repo_stats.get("homepage", ""),
-        owner=repo_stats.get("owner", {}).get('login'),
+        owner=repo_stats.get("owner", {}).get("login"),
         owner_thumbnail=repo_stats.get("owner", {}).get("avatar_url", None),
-        image=image
+        image=image,
     )
 
 
@@ -266,12 +265,9 @@ async def repo_stats_dict(stats: GitHubRepoStats, color: int = None):
         info["color"] = color
 
     info["url"] = stats.html_url
-    info['author'] = {
-        'name': stats.owner,
-        'icon_url': stats.owner_thumbnail
-    }
+    info["author"] = {"name": stats.owner, "icon_url": stats.owner_thumbnail}
     if stats.image:
-        info['image'] = stats.image
+        info["image"] = stats.image
     info[
         "thumbnail"
     ] = "https://www.nicepng.com/png/full/52-520535_free-files-github-github-icon-png-white.png"
@@ -279,22 +275,24 @@ async def repo_stats_dict(stats: GitHubRepoStats, color: int = None):
         {
             "name": "Stats",
             "value": f"💻` Language:` {stats.language} \n🍴` Forks:` {stats.forks_count} \n⭐` Stars:` {stats.stargazers_count} \n📰` License:` {stats.license}",
-            'inline': False
+            "inline": False,
         },
         {
             "name": "People",
             "value": f"👀` Watchers:` {stats.watchers} \n⁉️` Issues:` {stats.open_issues} \n👍` Subscribers:` {stats.stargazers_count}",
-            'inline': False
+            "inline": False,
         },
         {
             "name": "Topics",
-            "value": "```\n#️⃣"+("\n#️⃣".join(stats.topics) if len(stats.topics)>0 else "No topics")+"\n```",
-            'inline': False
+            "value": "```\n#️⃣"
+            + ("\n#️⃣".join(stats.topics) if len(stats.topics) > 0 else "No topics")
+            + "\n```",
+            "inline": False,
         },
         {
             "name": "Dates",
             "value": f"⌚` Created:` {iso2dtime(stats.created_at)} \n⌚` Updated:` {iso2dtime(stats.created_at)} \n⌚` Pushed:` {iso2dtime(stats.pushed_at)}",
-            "inline": False
+            "inline": False,
         },
     ]
     info["footer"] = f"Owner: {stats.owner}"
@@ -314,11 +312,8 @@ def user_stats_dict(stats: GitHubUserStats, color: int = None, uname: str = ""):
     info["title"] = stats.name or uname
     info["thumbnail"] = stats.avatar_url
     info["url"] = stats.html_url
-    info['author'] = {
-        'name': stats.name,
-        'icon_url': stats.avatar_url
-    }
-    info['image'] = stats.avatar_url
+    info["author"] = {"name": stats.name, "icon_url": stats.avatar_url}
+    info["image"] = stats.avatar_url
 
     info[
         "description"
@@ -336,38 +331,36 @@ def user_stats_dict(stats: GitHubUserStats, color: int = None, uname: str = ""):
 
     return info
 
+
 class GhCacheControl:
     def __init__(self):
         self.repository: list = []
         self.SETUP: bool = False
 
-    def github_cache(self, load: bool = True, **kwargs):        
+    def github_cache(self, load: bool = True, **kwargs):
         if load:
             v = Variables("cogs/__pycache__/ghcache")
             d = v.show_data()
-            return d.get('repo', []), d.get('time', 0)
+            return d.get("repo", []), d.get("time", 0)
         else:
             v = Variables("cogs/__pycache__/ghcache")
-            v.pass_all(
-                **kwargs,
-                time=int(ef.time.time())
-            )
+            v.pass_all(**kwargs, time=int(ef.time.time()))
             v.save()
             d = v.show_data()
-            return d.get('repo', []), d.get('time', 0)
+            return d.get("repo", []), d.get("time", 0)
 
     def add_pages(self, l: list, t: int) -> list:
         new_embeds = []
         count = 0
         for i in l:
-            count+=1
-            i['footer'] = {
-                'text': f'{count} of {len(l)}',
-                'icon_url': 'https://cdn-icons-png.flaticon.com/512/25/25231.png'
+            count += 1
+            i["footer"] = {
+                "text": f"{count} of {len(l)}",
+                "icon_url": "https://cdn-icons-png.flaticon.com/512/25/25231.png",
             }
             new_embeds.append(i)
         return new_embeds
-        
+
     async def setup(self):
         r, t = self.github_cache(load=True)
         if int(ef.time.time()) - t > 86400:
@@ -384,6 +377,7 @@ class GhCacheControl:
 
     def trending_repositories(self):
         return [ef.cembed(**i) for i in self.repository]
+
 
 class Code(commands.Cog):
     def __init__(self, CLIENT):
@@ -404,14 +398,16 @@ class Code(commands.Cog):
         return f"+ {runtime['language']} -> {runtime['version']}"
 
     async def get_repos(self, username: str, inter: nextcord.Interaction):
-        j = await ef.get_async(f"https://api.github.com/users/{username}/repos", kind="json")
+        j = await ef.get_async(
+            f"https://api.github.com/users/{username}/repos", kind="json"
+        )
         repo_embeds = []
         for repo_stats in j:
-            image = fetch_image(repo_stats.get('full_name'))
+            image = fetch_image(repo_stats.get("full_name"))
             if not repo_stats.get("license", None):
                 repo_stats["license"] = {}
             else:
-                repo_stats['license'] = repo_stats['license']['name']
+                repo_stats["license"] = repo_stats["license"]["name"]
             repo = GitHubRepoStats(
                 name=repo_stats.get("name", ""),
                 description=repo_stats.get("description", ""),
@@ -426,43 +422,32 @@ class Code(commands.Cog):
                 open_issues=repo_stats.get("open_issues", ""),
                 watchers=repo_stats.get("watchers", ""),
                 subscribers_count=repo_stats.get("subscribers_count", ""),
-                license=repo_stats.get('license', ''),
+                license=repo_stats.get("license", ""),
                 topics=repo_stats.get("topics", ""),
                 homepage=repo_stats.get("homepage", ""),
                 owner=repo_stats.get("owner", "").get("login", ""),
-                owner_thumbnail=repo_stats.get('owner', {}).get('avatar_url', None),
-                image=image
+                owner_thumbnail=repo_stats.get("owner", {}).get("avatar_url", None),
+                image=image,
             )
             info = await repo_stats_dict(repo, self.CLIENT.re[8])
-            repo_embeds.append(
-                embed_from_dict(info, inter, inter.CLIENT)
-            )
+            repo_embeds.append(embed_from_dict(info, inter, inter.CLIENT))
         return repo_embeds
 
-    @commands.command(
-        name="code",
-        aliases=['run'],
-        description="Run Code through EMKC"
-    )
+    @commands.command(name="code", aliases=["run"], description="Run Code through EMKC")
     async def code(self, ctx, lang: str = None, *, code: str = None):
         if not lang or not code:
-            runtimes = "\n".join([
-                self.runtimes_to_str(i) for i in self.rce.runtimes
-            ])         
+            runtimes = "\n".join([self.runtimes_to_str(i) for i in self.rce.runtimes])
 
-            
-            embed=ef.cembed(
+            embed = ef.cembed(
                 title="RunTimes",
                 description=f"```diff\nHere are all the languages supported by EMKC\n\n{runtimes}\n```",
                 color=self.CLIENT.re[8],
                 thumbnail=self.CLIENT.user.avatar.url,
                 author=self.CLIENT.user,
-                footer="**Code and Language are a required argument"
+                footer="**Code and Language are a required argument",
             )
-            await ctx.send(
-                embed=embed
-            )
-            return    
+            await ctx.send(embed=embed)
+            return
 
         actual_code = filter_graves(code)
         output = self.rce.execute_code(language=lang, code=actual_code)
@@ -476,18 +461,18 @@ class Code(commands.Cog):
                 author=ctx.author,
                 url=ctx.message.jump_url,
                 footer={
-                    'text': 'This result was provided by EMKC',
-                    'icon_url': 'https://emkc.org/images/icon_square_64.png'
-                }
+                    "text": "This result was provided by EMKC",
+                    "icon_url": "https://emkc.org/images/icon_square_64.png",
+                },
             )
         )
-    
+
     @nextcord.slash_command(name="github", description="Get info about Github...")
     async def gh(self, inter):
         print(inter.user)
 
     @gh.subcommand(description="User")
-    async def user(self, inter, user: str): 
+    async def user(self, inter, user: str):
         await inter.response.defer()
         stats = get_user_stats(user)
         if stats:
@@ -495,52 +480,48 @@ class Code(commands.Cog):
             repos = await self.get_repos(user, inter)
         else:
             stats_dict = {
-                'title':'UserNotFound',
-                'description':'Sorry we couldn\'t find this user',
-                'author':{
-                    'name': inter.user.name,
-                    'icon_url': ef.safe_pfp(inter.user)
-                }
+                "title": "UserNotFound",
+                "description": "Sorry we couldn't find this user",
+                "author": {
+                    "name": inter.user.name,
+                    "icon_url": ef.safe_pfp(inter.user),
+                },
             }
             repos = []
-        embed = embed_from_dict(
-            stats_dict, inter, self.CLIENT
-        )        
-        await assets.pa(inter, [embed]+repos, restricted=True)
+        embed = embed_from_dict(stats_dict, inter, self.CLIENT)
+        await assets.pa(inter, [embed] + repos, restricted=True)
 
     @gh.subcommand(description="Repository")
     async def repo(self, inter, repo: str):
         stats = await get_repo_stats(repo)
 
         if stats:
-            stats_embed = await repo_stats_dict(
-                stats, self.CLIENT.re[8]
-            )
+            stats_embed = await repo_stats_dict(stats, self.CLIENT.re[8])
         else:
             stats_embed = {
-                'title': 'Repository Not Found',
-                'description': 'I\'m sorry, I couldn\'t find that repository',
-                'author': {
-                    'name': inter.user.name,
-                    'icon_url': ef.safe_pfp(inter.user)
+                "title": "Repository Not Found",
+                "description": "I'm sorry, I couldn't find that repository",
+                "author": {
+                    "name": inter.user.name,
+                    "icon_url": ef.safe_pfp(inter.user),
                 },
-                'color': self.CLIENT.re[8]
+                "color": self.CLIENT.re[8],
             }
-        embed=embed_from_dict(
-            stats_embed, inter, self.CLIENT
-        )
+        embed = embed_from_dict(stats_embed, inter, self.CLIENT)
         await inter.send(embed=embed)
-    
+
     @gh.subcommand(name="trending", description="Trending Github")
     async def trending_command(self, inter):
         print(inter.user)
 
-    @trending_command.subcommand(name="repo", description="Gives a list of trending repositories")
+    @trending_command.subcommand(
+        name="repo", description="Gives a list of trending repositories"
+    )
     async def trending_repo(self, inter):
         await inter.response.defer()
         await self.ghtrend.setup()
         await assets.pa(inter, self.ghtrend.trending_repositories())
 
 
-def setup(CLIENT,**i):
-    CLIENT.add_cog(Code(CLIENT,**i))
+def setup(CLIENT, **i):
+    CLIENT.add_cog(Code(CLIENT, **i))

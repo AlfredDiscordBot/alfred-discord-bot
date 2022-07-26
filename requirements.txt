@@ -50,14 +50,15 @@ soupsieve==2.2
 SQLAlchemy==1.4.31
 statistics==1.0.3.5
 toml==0.10.2
-typing-extensions==3.7.4.3
+typing-extensions==3.7.4.3black
 tzlocal==2.1
 urllib3==1.26.6
 Werkzeug==2.0.2
-wordcloud==1.8.2.2
+wordcloud==1lack.8.2.2
 wikipedia==1.4.0
 xmltodict==0.12.0
 yarl==1.6.3
 youtube-dl==2021.12.17
 pylint
 flake8
+black

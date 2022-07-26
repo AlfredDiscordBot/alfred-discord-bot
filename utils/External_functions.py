@@ -13,7 +13,7 @@ from typing import List, Union
 import psutil
 import os
 import time
-import nextcord 
+import nextcord
 import random
 import imdb
 import emoji
@@ -38,59 +38,83 @@ ydl_op = {
             "preferredquality": "384",
         }
     ],
-    'noplaylist':'True'
+    "noplaylist": "True",
 }
 SVG2PNG_API_URI = os.getenv("svg2pnguri")
 SVG2PNG_API_TOKEN = os.getenv("svg2pngtoken")
 
 m_options = [
-    'title',
-    'description',
-    'color',
-    'footer',
-    'thumbnail',
-    'image',
-    'author',
-    'url',
-    'fields'
+    "title",
+    "description",
+    "color",
+    "footer",
+    "thumbnail",
+    "image",
+    "author",
+    "url",
+    "fields",
 ]
 
-Emoji_alphabets = [chr(i) for i in range(127462,127488)]
+Emoji_alphabets = [chr(i) for i in range(127462, 127488)]
 
 load_dotenv()
 
-def activities(client, FORCED_ACTIVITY = None):
+
+def activities(client, FORCED_ACTIVITY=None):
     if FORCED_ACTIVITY:
-        return nextcord.Activity(type=nextcord.ActivityType.watching, name=FORCED_ACTIVITY)
+        return nextcord.Activity(
+            type=nextcord.ActivityType.watching, name=FORCED_ACTIVITY
+        )
     all_activities = [
-        nextcord.Activity(type=nextcord.ActivityType.watching, name="Dark Knight Rises"),
-        nextcord.Activity(type=nextcord.ActivityType.listening, name="Something in the way"),
-        nextcord.Activity(type=nextcord.ActivityType.listening, name=f"{len(client.guilds)} servers"),
-        nextcord.Activity(type=nextcord.ActivityType.listening, name=f"{len(client.users)} people enjoy Alfred"),
-        nextcord.Activity(type=nextcord.ActivityType.watching, name="Nextcord People stab their people"),
-        nextcord.Activity(type=nextcord.ActivityType.listening, name="Wayne Enterprise"),
-        nextcord.Activity(type=nextcord.ActivityType.watching, name="Raimi Trilogy with Thwipper"),
-        nextcord.Activity(type=nextcord.ActivityType.watching, name="New Updates")
+        nextcord.Activity(
+            type=nextcord.ActivityType.watching, name="Dark Knight Rises"
+        ),
+        nextcord.Activity(
+            type=nextcord.ActivityType.listening, name="Something in the way"
+        ),
+        nextcord.Activity(
+            type=nextcord.ActivityType.listening, name=f"{len(client.guilds)} servers"
+        ),
+        nextcord.Activity(
+            type=nextcord.ActivityType.listening,
+            name=f"{len(client.users)} people enjoy Alfred",
+        ),
+        nextcord.Activity(
+            type=nextcord.ActivityType.watching,
+            name="Nextcord People stab their people",
+        ),
+        nextcord.Activity(
+            type=nextcord.ActivityType.listening, name="Wayne Enterprise"
+        ),
+        nextcord.Activity(
+            type=nextcord.ActivityType.watching, name="Raimi Trilogy with Thwipper"
+        ),
+        nextcord.Activity(type=nextcord.ActivityType.watching, name="New Updates"),
     ]
     return random.choice(all_activities)
-    
-@lru_cache(maxsize = 512)
+
+
+@lru_cache(maxsize=512)
 def youtube_info(url):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
         info = ydl.extract_info(url, download=False)
     return info
 
+
 def timestamp(i):
     return datetime.fromtimestamp(i)
+
 
 def convert_to_url(name):
     name = urllib.parse.quote(name)
     return name
 
+
 async def wolf_spoken(wolfram, question):
     question = convert_to_url(question)
     url = f"http://api.wolframalpha.com/v1/spoken?appid={wolfram}&i={question}"
     return await get_async(url)
+
 
 @lru_cache(maxsize=512)
 async def get_youtube_url(url):
@@ -110,21 +134,22 @@ def get_if_process_exists(name):
                 for i in [p.info["name"] for p in psutil.process_iter(["name"])]
                 if i.find(name) != -1
             ]
-        )>0
+        )
+        > 0
     )
 
 
 def cembed(
-    title=None, 
-    description=None, 
-    thumbnail=None, 
-    picture=None, 
-    url=None, 
-    color=nextcord.Color.dark_theme(), 
-    footer=None, 
-    author=False, 
-    fields=None, 
-    image=None
+    title=None,
+    description=None,
+    thumbnail=None,
+    picture=None,
+    url=None,
+    color=nextcord.Color.dark_theme(),
+    footer=None,
+    author=False,
+    fields=None,
+    image=None,
 ):
     embed = nextcord.Embed()
     if color != nextcord.Color.dark_theme():
@@ -155,7 +180,10 @@ def cembed(
         else:
             embed.set_footer(
                 text=footer.get("text", "Footer Error"),
-                icon_url=footer.get("icon_url", "https://colourlex.com/wp-content/uploads/2021/02/vine-black-painted-swatch.jpg")
+                icon_url=footer.get(
+                    "icon_url",
+                    "https://colourlex.com/wp-content/uploads/2021/02/vine-black-painted-swatch.jpg",
+                ),
             )
     if author:
         if isinstance(author, str):
@@ -163,12 +191,13 @@ def cembed(
         elif isinstance(author, dict):
             embed.set_author(**author)
         elif isinstance(author, nextcord.member.Member):
-            embed.set_author(name=author.name, icon_url = safe_pfp(author)) 
+            embed.set_author(name=author.name, icon_url=safe_pfp(author))
         pass
-        
+
     return embed
-    
-def imdb_embed(movie="",re: list={8:5160}):
+
+
+def imdb_embed(movie="", re: list = {8: 5160}):
     """
     Returns details about a movie as an embed in discord
     Parameters include movies
@@ -185,25 +214,20 @@ def imdb_embed(movie="",re: list={8:5160}):
         title = movie[0]["title"]
         mov = ia.get_movie(movie[0].getID())
         di = {
-            'Cast' : ', '.join([str(i) for i in mov['cast']][:5]),
-            'writer': ', '.join([str(j) for j in mov['writer']]),
-            'Rating': ':star:'*int(mov['rating']),
-            'Genres': ', '.join(mov['genres']),
-            'Year' : mov['year'],
-            'Director': mov.get('director')
+            "Cast": ", ".join([str(i) for i in mov["cast"]][:5]),
+            "writer": ", ".join([str(j) for j in mov["writer"]]),
+            "Rating": ":star:" * int(mov["rating"]),
+            "Genres": ", ".join(mov["genres"]),
+            "Year": mov["year"],
+            "Director": mov.get("director"),
         }
-        plot = mov['plot'][0]
+        plot = mov["plot"][0]
         image = movie[0]["full-size cover url"]
-        embed = cembed(
-            title=title,
-            description=plot,
-            color=re[8],
-            image = image
-        )
-        n=0
+        embed = cembed(title=title, description=plot, color=re[8], image=image)
+        n = 0
         for i in di:
-            n+=1
-            embed.add_field(name=i, value=di[i], inline=(n%3==0))
+            n += 1
+            embed.add_field(name=i, value=di[i], inline=(n % 3 == 0))
         return embed
     except Exception as e:
         print(traceback.format_exc())
@@ -213,39 +237,38 @@ def imdb_embed(movie="",re: list={8:5160}):
             color=re[8],
         )
 
-async def redd(ctx, account: str="wholesomememes", number: int = 25):
-    a = await get_async(f"https://meme-api.herokuapp.com/gimme/{account}/{number}",kind="json")
+
+async def redd(ctx, account: str = "wholesomememes", number: int = 25):
+    a = await get_async(
+        f"https://meme-api.herokuapp.com/gimme/{account}/{number}", kind="json"
+    )
     embeds = []
-    bot = getattr(ctx, 'bot', getattr(ctx, 'client', None))
-    if 'message' in a.keys():
-        return [cembed(
-            title="Oops",
-            description=a['message'],
-            color=bot.re[8]
-        )]
-    memes = a['memes']
+    bot = getattr(ctx, "bot", getattr(ctx, "client", None))
+    if "message" in a.keys():
+        return [cembed(title="Oops", description=a["message"], color=bot.re[8])]
+    memes = a["memes"]
     for i in memes:
         embed = cembed(
-            title=i['title'],
-            image=i['url'],
-            url=i['postLink'],
-            footer=i['author']+" | "+str(i['ups'])+" votes",
+            title=i["title"],
+            image=i["url"],
+            url=i["postLink"],
+            footer=i["author"] + " | " + str(i["ups"]) + " votes",
             color=bot.re[8],
-            thumbnail=bot.user.avatar.url
+            thumbnail=bot.user.avatar.url,
         )
         if not ctx.channel.nsfw:
-            if i['nsfw']:
+            if i["nsfw"]:
                 continue
         embeds.append(embed)
     if not embeds:
         embed = cembed(
             title="Something seems wrong",
             description="There are no posts in this accounts, or it may be `NSFW`",
-            color = bot.re[8]
+            color=bot.re[8],
         )
         embeds.append(embed)
     return embeds
-        
+
 
 def protect(text):
     return (
@@ -283,7 +306,7 @@ async def devop_mtext(client, channel, color):
         "" + emoji.emojize(":black_circle:") + " for clear screen\n"
     )
     embed = cembed(
-        title="DEVOP", description=text_dev, color=color,footer="Good day Master Wayne"
+        title="DEVOP", description=text_dev, color=color, footer="Good day Master Wayne"
     )
     embed.set_thumbnail(url=client.user.avatar.url)
     mess = await channel.send(embed=embed)
@@ -301,23 +324,28 @@ async def devop_mtext(client, channel, color):
 async def wait_for_confirm(ctx, client, message: str, color=61620, usr=None):
     mess = await ctx.channel.send(
         embed=cembed(
-            title="Confirmation", 
-            description=message, 
+            title="Confirmation",
+            description=message,
             color=color,
-            author=usr or getattr(ctx, 'author', getattr(ctx, 'user', False))
+            author=usr or getattr(ctx, "author", getattr(ctx, "user", False)),
         )
     )
     await mess.add_reaction(emoji.emojize(":check_mark_button:"))
     await mess.add_reaction(emoji.emojize(":cross_mark_button:"))
 
-    person=usr
+    person = usr
 
     def check(reaction, user):
         return (
             reaction.message.id == mess.id
             and reaction.emoji
-            in [emoji.emojize(":check_mark_button:"), emoji.emojize(":cross_mark_button:")]
-            and user == getattr(ctx, 'author', getattr(ctx, 'user', None)) if person is None else person == user
+            in [
+                emoji.emojize(":check_mark_button:"),
+                emoji.emojize(":cross_mark_button:"),
+            ]
+            and user == getattr(ctx, "author", getattr(ctx, "user", None))
+            if person is None
+            else person == user
         )
 
     reaction, user = await client.wait_for("reaction_add", check=check)
@@ -327,40 +355,46 @@ async def wait_for_confirm(ctx, client, message: str, color=61620, usr=None):
     if reaction.emoji == emoji.emojize(":cross_mark_button:"):
         await mess.edit(
             embed=cembed(
-                title="Ok cool", 
-                description="Aborted", 
+                title="Ok cool",
+                description="Aborted",
                 color=nextcord.Color(color),
-                author = user
+                author=user,
             )
         )
-        try: await mess.clear_reactions()
-        except Exception: print("Failed to clear reactions", ctx.guild.id)
+        try:
+            await mess.clear_reactions()
+        except Exception:
+            print("Failed to clear reactions", ctx.guild.id)
         return False
 
 
 def equalise(all_strings: List[str]):
-    '''
+    """
     Makes all string same size
-    '''
+    """
     maximum = max(list(map(len, all_strings)))
     return {i: i + " " * (maximum - len(i)) for i in all_strings}
+
 
 def reset_emo(client):
     emo = assets.Emotes(client)
     return emo
-    
+
+
 def youtube_download(url: str):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        info=ydl.extract_info(url, download=False) 
+        info = ydl.extract_info(url, download=False)
         URL = info["formats"][0]["url"]
     return URL
 
+
 def youtube_download1(url: str):
     with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        info=ydl.extract_info(url, download=False)
-        name=info['title']
+        info = ydl.extract_info(url, download=False)
+        name = info["title"]
         URL = info["formats"][0]["url"]
     return (URL, name)
+
 
 def subtract_list(l1: List, l2: List):
     a = []
@@ -369,10 +403,11 @@ def subtract_list(l1: List, l2: List):
             a.append(i)
     return a
 
+
 def extract_color(color: str):
-    '''
+    """
     Extracts RGB from Hex
-    '''
+    """
     color = color.replace("#", "0x")
     try:
         color_temp = (
@@ -394,11 +429,10 @@ def svg2png(url: str):
     return res.content
 
 
-
 async def get_name(url: str):
-    '''
+    """
     get Youtube Video Name through Async
-    '''
+    """
     a = await get_async(url)
     return (
         a[a.find("<title>") + len("<title>") : a.find("</title>")]
@@ -407,21 +441,22 @@ async def get_name(url: str):
         .replace("&#39;", "'")
     )
 
-async def get_async(url: str, headers: dict = {}, kind:str = "content"):
-    '''
+
+async def get_async(url: str, headers: dict = {}, kind: str = "content"):
+    """
     Simple Async get request
-    '''
+    """
     output = ""
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(url) as resp:
-            if kind == "json":                
+            if kind == "json":
                 try:
                     output = await resp.json()
                 except Exception as e:
                     print(e)
                     output = await resp.text()
             elif kind.startswith("file>"):
-                f = await aiofiles.open(kind[5:], mode = "wb")
+                f = await aiofiles.open(kind[5:], mode="wb")
                 await f.write(await resp.read())
                 await f.close()
                 return
@@ -429,21 +464,26 @@ async def get_async(url: str, headers: dict = {}, kind:str = "content"):
                 output = BytesIO(await resp.read())
             else:
                 output = await resp.text()
-                
+
         await session.close()
     return output
-    
-async def post_async(api: str, header:dict  = {}, json:dict = {}):
+
+
+async def post_async(api: str, header: dict = {}, json: dict = {}):
     async with aiohttp.ClientSession() as session:
         async with session.post(api, headers=header, json=json) as resp:
-            if resp.headers['Content-Type'] != 'application/json':
+            if resp.headers["Content-Type"] != "application/json":
                 return await resp.read()
             return await resp.json()
-            
-def suicide_m(client,color):
+
+
+def suicide_m(client, color):
     return cembed(
         title="Suicide and Self harm prevention",
-        description='\n'.join([i.strip() for i in """ 
+        description="\n".join(
+            [
+                i.strip()
+                for i in """ 
     You are not alone ...
     And your Life is worth a lot ..
     SPEAK OUT !!
@@ -453,26 +493,33 @@ def suicide_m(client,color):
 
 
     international suicide helplines>>> https://www.opencounseling.com/suicide-hotlines
-        """.split('\n')]),
+        """.split(
+                    "\n"
+                )
+            ]
+        ),
         color=color,
         thumbnail=client.user.avatar.url,
-        picture="https://www.humanium.org/en/wp-content/uploads/2019/09/shutterstock_1140282473-scaled.jpg"
+        picture="https://www.humanium.org/en/wp-content/uploads/2019/09/shutterstock_1140282473-scaled.jpg",
     )
 
-def check_end(s : str):
+
+def check_end(s: str):
     if not s.endswith("/videos"):
-        return s+"/videos"
+        return s + "/videos"
     return s
 
+
 def check_voice(ctx):
-    '''
+    """
     Checks if the user is in the Voice Channel
-    '''
+    """
     try:
         mem = [ID for ID in ctx.guild.voice_client.channel.members]
     except:
         mem = []
-    return getattr(ctx, 'author', getattr(ctx, 'user', None)).id in mem
+    return getattr(ctx, "author", getattr(ctx, "user", None)).id in mem
+
 
 async def player_reaction(mess):
     await mess.add_reaction("⏮")
@@ -486,13 +533,16 @@ async def player_reaction(mess):
     await mess.add_reaction(emoji.emojize(":downwards_button:"))
     await mess.add_reaction(emoji.emojize(":musical_note:"))
 
+
 def remove_all(original, s):
     for i in s:
-        original.replace(i,"")
+        original.replace(i, "")
     return original
 
+
 def safe_pfp(user: Union[nextcord.Member, nextcord.guild.Guild]):
-    if user is None: return
+    if user is None:
+        return
     if isinstance(user, nextcord.guild.Guild):
         return user.icon.url if user.icon else None
     pfp = user.default_avatar.url
@@ -500,29 +550,35 @@ def safe_pfp(user: Union[nextcord.Member, nextcord.guild.Guild]):
         return user.avatar.url
     return pfp
 
-def defa(*types, default = None, choices=[], required = False):
-    if types == []: return SlashOption(default = default, required = False)
+
+def defa(*types, default=None, choices=[], required=False):
+    if types == []:
+        return SlashOption(default=default, required=False)
     if choices != []:
-        return SlashOption(choices=choices, default = default, required = required)   
-    return SlashOption(channel_types = types, required = required)
+        return SlashOption(choices=choices, default=default, required=required)
+    return SlashOption(channel_types=types, required=required)
+
 
 async def ly(song, re: List):
-    '''
+    """
     Returns lyrics Embed of a song
-    '''
-    j = await get_async(f"https://api.popcat.xyz/lyrics?song={convert_to_url(song)}",kind="json")
+    """
+    j = await get_async(
+        f"https://api.popcat.xyz/lyrics?song={convert_to_url(song)}", kind="json"
+    )
     return cembed(
-        title=j.get('title',"Couldnt get title"),
-        description=j.get('lyrics',"Unavailable"),
+        title=j.get("title", "Couldnt get title"),
+        description=j.get("lyrics", "Unavailable"),
         color=re[8],
-        thumbnail=j.get('image'),
-        footer=j.get('artist',"Unavailable")
+        thumbnail=j.get("image"),
+        footer=j.get("artist", "Unavailable"),
     )
 
-async def isReaction(ctx, embed, clear = False):
-    '''
+
+async def isReaction(ctx, embed, clear=False):
+    """
     Adaptive solution for Interaction, Reaction and Prefix commands
-    '''
+    """
     if isinstance(ctx, nextcord.message.Message):
         message = await ctx.edit(embed=embed)
     else:
@@ -533,16 +589,20 @@ async def isReaction(ctx, embed, clear = False):
         except:
             pass
 
+
 def uniq(li):
     return list(Counter(li).keys())
+
 
 def timestamp(i):
     return time.ctime(i)
 
+
 class SpaceX:
-    '''
+    """
     SpaceX Simple API -> Coded By alvinbengeorge
-    '''
+    """
+
     def __init__(self, color: Union[int, nextcord.Color]):
         self.name = None
         self.time = None
@@ -553,40 +613,46 @@ class SpaceX:
         self.crew = []
         self.id = None
         self.color = color
-        
+
     async def setup(self):
-        js = await get_async("https://api.spacexdata.com/v4/launches/latest", kind="json")
-        self.name = js['name']
-        self.time = timestamp(int(js['date_unix']))
-        self.thumbnail = js['links']['patch']['large']
-        self.youtube = js['links']['webcast']
-        self.wikipedia = js['links']['wikipedia']
-        self.crew = js['crew']
-        self.id = js['id']
-        self.fno = js['flight_number']
+        js = await get_async(
+            "https://api.spacexdata.com/v4/launches/latest", kind="json"
+        )
+        self.name = js["name"]
+        self.time = timestamp(int(js["date_unix"]))
+        self.thumbnail = js["links"]["patch"]["large"]
+        self.youtube = js["links"]["webcast"]
+        self.wikipedia = js["links"]["wikipedia"]
+        self.crew = js["crew"]
+        self.id = js["id"]
+        self.fno = js["flight_number"]
 
     async def history(self):
-        jso = await get_async("https://api.spacexdata.com/v4/history", kind = "json")
+        jso = await get_async("https://api.spacexdata.com/v4/history", kind="json")
         embeds = []
         for i in jso[::-1]:
             embed = cembed(
-                title=i['title'],
-                description=i['details'],
+                title=i["title"],
+                description=i["details"],
                 color=self.color,
                 thumbnail="https://www.spacex.com/static/images/share.jpg",
-                footer = i['id'] + " | " + str(timestamp(i['event_date_unix']))
+                footer=i["id"] + " | " + str(timestamp(i["event_date_unix"])),
             )
             embeds.append(embed)
         print("Done")
         return embeds
 
+
 class Meaning:
-    '''
+    """
     Meaning Simple API -> Coded by alvinbengeorge
-    '''
+    """
+
     def __init__(self, word: str, color: Union[int, nextcord.Color]):
-        self.word = word,
-        self.url = "https://api.dictionaryapi.dev/api/v2/entries/en/"+convert_to_url(word)
+        self.word = (word,)
+        self.url = "https://api.dictionaryapi.dev/api/v2/entries/en/" + convert_to_url(
+            word
+        )
         self.result = None
         self.embeds = []
         self.color = color
@@ -601,119 +667,121 @@ class Meaning:
             raise IndexError("Run setup first |coro|")
         elif type(self.result) == dict:
             a = cembed(
-                title=self.result['title'],
-                description=self.result['message'],
-                color = self.color,
-                thumbnail = "https://c.tenor.com/IHdlTRsmcS4AAAAC/404.gif"
+                title=self.result["title"],
+                description=self.result["message"],
+                color=self.color,
+                thumbnail="https://c.tenor.com/IHdlTRsmcS4AAAAC/404.gif",
             )
             self.embeds.append(a)
         else:
             r = self.result
-            description=f"**Phonetics**: {r[0].get('phonetic')}\n"
-            description+=f"**Part of speech**: {r[0]['meanings'][0].get('partOfSpeech')}"
-            embed=cembed(
-                title=r[0]['word'],
+            description = f"**Phonetics**: {r[0].get('phonetic')}\n"
+            description += (
+                f"**Part of speech**: {r[0]['meanings'][0].get('partOfSpeech')}"
+            )
+            embed = cembed(
+                title=r[0]["word"],
                 description=description,
                 color=self.color,
-                thumbnail=self.thumbnail
+                thumbnail=self.thumbnail,
             )
             self.embeds.append(embed)
-            definitions = r[0]['meanings'][0]['definitions']
+            definitions = r[0]["meanings"][0]["definitions"]
             page = 0
             for i in definitions:
-                page+=1
-                des = i['definition']
-                example = i.get('example')
-                synonyms = i.get('synonyms')
-                antonyms = i.get('antonyms')
+                page += 1
+                des = i["definition"]
+                example = i.get("example")
+                synonyms = i.get("synonyms")
+                antonyms = i.get("antonyms")
                 if example is None:
                     example = f"{page} of {len(definitions)}"
                 embed = cembed(
-                    title = r[0]['word'],
-                    description = des,
+                    title=r[0]["word"],
+                    description=des,
                     color=self.color,
-                    footer = example,
-                    thumbnail=self.thumbnail
+                    footer=example,
+                    thumbnail=self.thumbnail,
                 )
                 if synonyms and synonyms != []:
                     embed.add_field(
-                        name="Synonyms",
-                        value=', '.join(synonyms),
-                        inline=True
+                        name="Synonyms", value=", ".join(synonyms), inline=True
                     )
                 if antonyms and antonyms != []:
                     embed.add_field(
-                        name="Antonyms",
-                        value=','.join(antonyms),
-                        inline=True
+                        name="Antonyms", value=",".join(antonyms), inline=True
                     )
                 self.embeds.append(embed)
         return self.embeds
 
-async def animals(client, ctx, color: Union[int, nextcord.Color], number:int = 10):
-    d2 = await get_async(f"https://zoo-animal-api.herokuapp.com/animals/rand/{number}",kind="json")
-    user = getattr(ctx,'author',getattr(ctx,'user',None))
+
+async def animals(client, ctx, color: Union[int, nextcord.Color], number: int = 10):
+    d2 = await get_async(
+        f"https://zoo-animal-api.herokuapp.com/animals/rand/{number}", kind="json"
+    )
+    user = getattr(ctx, "author", getattr(ctx, "user", None))
     icon_url = safe_pfp(user)
     embeds = []
-    for d in d2:    
-        embed=cembed(
-            title=d['name'],
-            description=d['diet'],
+    for d in d2:
+        embed = cembed(
+            title=d["name"],
+            description=d["diet"],
             color=color,
             thumbnail=client.user.avatar.url,
-            image=d['image_link'],
-            footer=d['active_time']
+            image=d["image_link"],
+            footer=d["active_time"],
         )
-        embed.set_author(name=user.name,icon_url=icon_url)
+        embed.set_author(name=user.name, icon_url=icon_url)
         d1 = {
-            'Latin name': d['latin_name'],
-            'Animal Type': d['animal_type'],
-            'Length': f"{d['length_min']} to {d['length_max']} feet",
-            'Weight': f"{int(float(d['weight_min'])*0.453592)} to {int(float(d['weight_max'])*0.453592)} kg",
-            'Life Span': f"{d['lifespan']} years",
-            'Habitat': f"{d['habitat']}, {d['geo_range']}"
+            "Latin name": d["latin_name"],
+            "Animal Type": d["animal_type"],
+            "Length": f"{d['length_min']} to {d['length_max']} feet",
+            "Weight": f"{int(float(d['weight_min'])*0.453592)} to {int(float(d['weight_max'])*0.453592)} kg",
+            "Life Span": f"{d['lifespan']} years",
+            "Habitat": f"{d['habitat']}, {d['geo_range']}",
         }
         for i in d1.items():
             embed.add_field(name=i[0], value=i[1], inline=True)
-    
+
         embeds.append(embed)
     return embeds
+
 
 def audit_check(log):
     latest = log[0]
     che = log[:10]
     initiators = Counter([i.user for i in che])
     for i in initiators:
-        tim = time.time()-120
+        tim = time.time() - 120
         offensive = [
             nextcord.AuditLogAction.kick,
             nextcord.AuditLogAction.ban,
             nextcord.AuditLogAction.channel_delete,
         ]
-        actions = [j.action for j in che if j.user == i and j.action in offensive and j.created_at.timestamp()>tim]
-        if len(actions)>5:
-            return i      
-        
-    
+        actions = [
+            j.action
+            for j in che
+            if j.user == i and j.action in offensive and j.created_at.timestamp() > tim
+        ]
+        if len(actions) > 5:
+            return i
+
 
 def check_command(ctx):
-    a = ctx.bot.config['commands']
+    a = ctx.bot.config["commands"]
     if a.get(str(ctx.command.name)):
         if ctx.guild.id in a[ctx.command.name]:
             return False
     return True
 
+
 async def quo(color):
     a = await get_async("https://api.quotable.io/random", kind="json")
-    footer = ', '.join(a['tags'])
-    description = a['content']
-    title = a['author']
-    return cembed(
-        title=title,
-        description=description,
-        footer=footer,
-        color=color
-    )
+    footer = ", ".join(a["tags"])
+    description = a["content"]
+    title = a["author"]
+    return cembed(title=title, description=description, footer=footer, color=color)
+
 
 co = """
 import nextcord
@@ -737,14 +805,16 @@ def setup(client,**i):
     client.add_cog(<name>(client,**i))
 """.strip()
 
+
 def cog_creator(name: str):
     if f"{name}.py" in os.listdir("cogs/"):
         return "Already exists"
 
     with open(f"cogs/{name}.py", "w") as f:
-        f.write(co.replace("<name>",name))
+        f.write(co.replace("<name>", name))
 
     return "Done"
+
 
 class Attributor:
     def __init__(self, data: dict):
@@ -755,52 +825,42 @@ class Attributor:
 class Pokemon:
     def __init__(self):
         self.pokemons = {}
-        for i in requests.get("https://pokeapi.co/api/v2/pokemon/?limit=1000000").json()['results']:
-            self.pokemons.update({i['name']:i['url']})
+        for i in requests.get(
+            "https://pokeapi.co/api/v2/pokemon/?limit=1000000"
+        ).json()["results"]:
+            self.pokemons.update({i["name"]: i["url"]})
 
     def search(self, name: str):
-        return [i for i in self.pokemons if regex.findall(name.lower().replace("_",r"\S{1}"), i.lower())][:25]
+        return [
+            i
+            for i in self.pokemons
+            if regex.findall(name.lower().replace("_", r"\S{1}"), i.lower())
+        ][:25]
 
-    async def get_stats(
-        self, 
-        pokemon: str, 
-        embed: bool = False, 
-        color = 28656
-    ):
+    async def get_stats(self, pokemon: str, embed: bool = False, color=28656):
         try:
-            d = await get_async(
-                self.pokemons[pokemon],
-                kind="json"
-            )
+            d = await get_async(self.pokemons[pokemon], kind="json")
         except:
             if embed:
-                return(cembed(description="Not found", color=color))
-            return{"message": "Not Found"}
-        
-        if not embed: return d            
-        embed=cembed(
-            title=pokemon,
-            color=color,
-            thumbnail=d['sprites']['front_default']
+                return cembed(description="Not found", color=color)
+            return {"message": "Not Found"}
+
+        if not embed:
+            return d
+        embed = cembed(
+            title=pokemon, color=color, thumbnail=d["sprites"]["front_default"]
         )
-        for i in d['stats']:
-            embed.add_field(
-                name=i['stat']['name'],
-                value=i['base_stat']
-            )
-        embed.add_field(
-            name="Weight",
-            value=d['weight']
-        )
-        
+        for i in d["stats"]:
+            embed.add_field(name=i["stat"]["name"], value=i["base_stat"])
+        embed.add_field(name="Weight", value=d["weight"])
+
         embed.add_field(
             name="Abilities",
-            value="\n".join([i['ability']['name'] for i in d['abilities']])
+            value="\n".join([i["ability"]["name"] for i in d["abilities"]]),
         )
         return embed
-        
-        
-        
+
+
 def validate_url(url: str) -> bool:
     """
     Checks if the url is valid or not
@@ -812,50 +872,54 @@ def validate_url(url: str) -> bool:
     except MissingSchema as e:
         return False
 
+
 class TechTerms:
     def __init__(self):
         pass
-        
+
     async def search(self, query):
-        '''
+        """
         async search a query from techterms.com
-        '''
-        if not query: 
+        """
+        if not query:
             l = await get_async("https://techterms.com/ac?query=a")
-        else: 
+        else:
             l = await get_async(f"https://techterms.com/ac?query={query}")
-        return [i['value'] for i in json.loads(l)]
-        
+        return [i["value"] for i in json.loads(l)]
+
     async def get_page_as_embeds(self, query):
         url = f"https://techterms.com/definition/{query.lower().replace(' ', '_')}"
         content = await get_async(url)
         if "Term not found" in content:
-            return [{
-                'title': "Not found",
-                'description': "The definition that you're looking for is not available in TechTerms"
-            }]
-        soup = BeautifulSoup(content, 'html.parser')
-        l = soup.find_all('div', class_ = "card hasheader")[0]
-        line = chr(9600)*30
+            return [
+                {
+                    "title": "Not found",
+                    "description": "The definition that you're looking for is not available in TechTerms",
+                }
+            ]
+        soup = BeautifulSoup(content, "html.parser")
+        l = soup.find_all("div", class_="card hasheader")[0]
+        line = chr(9600) * 30
         title = l.h1.get_text()
         embeds = []
-        ps = l.find_all('p')
+        ps = l.find_all("p")
         n = 0
         for i in ps:
-            n+=1
+            n += 1
             description = f"```\n{line}\n{i.get_text()}\n{line}\n```"
             embed = {
-                'title': title,
-                'description': description,
-                'url': url,
-                'footer': {
-                    'text': f'Source: TechTerms.com | {n} of {len(ps)}',
-                    'icon_url': 'https://play-lh.googleusercontent.com/heAUDFlRj040etj32Pve296Az4r_sgsUECjZNqSJOQAWA96qeqWdfE0pxtx-JNbIbG4'
+                "title": title,
+                "description": description,
+                "url": url,
+                "footer": {
+                    "text": f"Source: TechTerms.com | {n} of {len(ps)}",
+                    "icon_url": "https://play-lh.googleusercontent.com/heAUDFlRj040etj32Pve296Az4r_sgsUECjZNqSJOQAWA96qeqWdfE0pxtx-JNbIbG4",
                 },
-                'image': "https://play-lh.googleusercontent.com/MDWegEXmQwrcDJBbgjO_83EHp4-PIBdb_IXfYcUQLO5JmQ9w7Td-ZOZ7mKx12Rvctpz4=w600-h300-pc0xffffff-pd"
+                "image": "https://play-lh.googleusercontent.com/MDWegEXmQwrcDJBbgjO_83EHp4-PIBdb_IXfYcUQLO5JmQ9w7Td-ZOZ7mKx12Rvctpz4=w600-h300-pc0xffffff-pd",
             }
             embeds.append(embed)
         return embeds
+
 
 class Proton:
     def __init__(self):
@@ -879,20 +943,25 @@ class Proton:
         if self.search_game(name) == []:
             return []
         id = self.search_game(name)[0][0]
-        
-        report = await get_async(f'https://protondb.max-p.me/games/{id}/reports', kind ="json")        
+
+        report = await get_async(
+            f"https://protondb.max-p.me/games/{id}/reports", kind="json"
+        )
         reports = []
-        for i in report:            
-            details  = f"```\n{i['notes'] if i['notes'] else '-'}\n```\n\n```yml\nCompatibility: {i['rating']}\nOperating System: {i['os']}\nGPU Driver: {i['gpuDriver']}\nProton: {i['protonVersion']}\nSpecs: {i['specs']}\n```"    
-            
-            reports.append({
-                'title': str([j[1] for j in self.games if j[0]==id][0]),
-                'description': details,
-                'footer': timestamp(int(i['timestamp'])),
-                'thumbnail': "https://live.mrf.io/statics/i/ps/www.muylinux.com/wp-content/uploads/2019/01/ProtonDB.png?width=1200&enable=upscale",
-                'image': "https://pcgw-community.sfo2.digitaloceanspaces.com/monthly_2020_04/chrome_a3Txoxr2j5.jpg.4679e68e37701c9fbd6a0ecaa116b8e5.jpg"
-            })
+        for i in report:
+            details = f"```\n{i['notes'] if i['notes'] else '-'}\n```\n\n```yml\nCompatibility: {i['rating']}\nOperating System: {i['os']}\nGPU Driver: {i['gpuDriver']}\nProton: {i['protonVersion']}\nSpecs: {i['specs']}\n```"
+
+            reports.append(
+                {
+                    "title": str([j[1] for j in self.games if j[0] == id][0]),
+                    "description": details,
+                    "footer": timestamp(int(i["timestamp"])),
+                    "thumbnail": "https://live.mrf.io/statics/i/ps/www.muylinux.com/wp-content/uploads/2019/01/ProtonDB.png?width=1200&enable=upscale",
+                    "image": "https://pcgw-community.sfo2.digitaloceanspaces.com/monthly_2020_04/chrome_a3Txoxr2j5.jpg.4679e68e37701c9fbd6a0ecaa116b8e5.jpg",
+                }
+            )
         return reports
+
 
 class PublicAPI:
     def __init__(self, client):
@@ -901,18 +970,17 @@ class PublicAPI:
         self.all_names = []
         self.client = client
         self.author = None
-        
 
     async def update(self, author):
         if self.data == {}:
-            self.data = await get_async(self.BASE_URL, kind = "json")
-            self.all_names = [i['API'] for i in self.data['entries']]
+            self.data = await get_async(self.BASE_URL, kind="json")
+            self.all_names = [i["API"] for i in self.data["entries"]]
         self.author = author
 
     def search_result(self, name):
         if not self.data:
             return []
-        
+
         return [i for i in self.all_names if name.lower() in i.lower()]
 
     def find(self, name):
@@ -925,84 +993,85 @@ class PublicAPI:
     def return_embed(self, index, color):
         if index == -1:
             return cembed(
-                title = "Not Found",
-                description = "The API you're looking for is not found",
-                color = color,
-                
+                title="Not Found",
+                description="The API you're looking for is not found",
+                color=color,
             )
-        info = self.data['entries'][index]
+        info = self.data["entries"][index]
         return cembed(
-            title = info['API'],
-            description = info['Description'],
-            color = color,
-            url = info.get('Link'),
-            fields = [
-                {'name': k, 'value': v if v else "-", 'inline': False} for k, v in info.items()
+            title=info["API"],
+            description=info["Description"],
+            color=color,
+            url=info.get("Link"),
+            fields=[
+                {"name": k, "value": v if v else "-", "inline": False}
+                for k, v in info.items()
             ],
-            footer = f"{self.data['count']} Entries",
-            author = self.author,
-            thumbnail = "https://www.elemental.co.za/cms/resources/uploads/blog/86/926f6aaba773.png"
+            footer=f"{self.data['count']} Entries",
+            author=self.author,
+            thumbnail="https://www.elemental.co.za/cms/resources/uploads/blog/86/926f6aaba773.png",
         )
-
 
 
 def delete_all(s: str, ch: Union[List, str]):
     for i in ch:
-        s = s.replace(i,"")
+        s = s.replace(i, "")
     return s
+
 
 class MineCraft:
     def __init__(self, client):
         self.client = client
         self.BASE_URL = "https://www.digminecraft.com/"
-        self.HTML = requests.get("https://www.digminecraft.com/effects/index.php").content.decode()
-        self.soup = BeautifulSoup(self.HTML, 'html.parser')
+        self.HTML = requests.get(
+            "https://www.digminecraft.com/effects/index.php"
+        ).content.decode()
+        self.soup = BeautifulSoup(self.HTML, "html.parser")
         self.CATEGORIES = {}
 
-    def all_categories(self) -> dict:        
-        for category in self.soup.find_all('div', class_="menu")[1:]:
-            for tables in category.find_all('ul'):
-                for rows in tables.find_all('li'):
+    def all_categories(self) -> dict:
+        for category in self.soup.find_all("div", class_="menu")[1:]:
+            for tables in category.find_all("ul"):
+                for rows in tables.find_all("li"):
                     if a := rows.a:
-                        self.CATEGORIES[a.get_text()] = self.BASE_URL+a['href']
+                        self.CATEGORIES[a.get_text()] = self.BASE_URL + a["href"]
 
         return self.CATEGORIES
 
     async def get_options(self, URL: str) -> str:
         strings = [""]
         self.HTML = await get_async(URL)
-        self.soup = BeautifulSoup(self.HTML, 'html.parser')
+        self.soup = BeautifulSoup(self.HTML, "html.parser")
 
-        for i in self.soup.find_all('a', class_="list-group-item"):
-            strings[-1]+=f"[{i.get_text().strip()}](https://www.digminecraft.com{i['href']})\n"
-            if len(strings[-1])%10==0:
+        for i in self.soup.find_all("a", class_="list-group-item"):
+            strings[
+                -1
+            ] += f"[{i.get_text().strip()}](https://www.digminecraft.com{i['href']})\n"
+            if len(strings[-1]) % 10 == 0:
                 strings.append("")
 
         return strings
 
     def create_sections(self, soup: BeautifulSoup) -> dict:
-        article = soup.find('div', class_="article").div
+        article = soup.find("div", class_="article").div
         sections = [
             {
-                'title': article.find('h1').get_text().upper(),
-                'description': 'This is created from DigMineCraft.com'
-            },     
-            {
-                'title': article.find('h1').get_text().upper(),
-                'description': ''
-            }       
+                "title": article.find("h1").get_text().upper(),
+                "description": "This is created from DigMineCraft.com",
+            },
+            {"title": article.find("h1").get_text().upper(), "description": ""},
         ]
-        for i in article.find_all('p'):
+        for i in article.find_all("p"):
             if i.h2:
-                sections[1]['description']+=f"**{i.get_text().strip()}**\n"
+                sections[1]["description"] += f"**{i.get_text().strip()}**\n"
             else:
-                sections[1]['description']+=i.get_text().strip()+"\n"
+                sections[1]["description"] += i.get_text().strip() + "\n"
 
         return sections
 
     async def get_article(self, URL: str) -> nextcord.Embed:
         a = await get_async(URL)
-        soup = BeautifulSoup(a, 'html.parser')
+        soup = BeautifulSoup(a, "html.parser")
         all_sections = self.create_sections(soup)
         embeds = []
         for i in all_sections:
@@ -1011,31 +1080,32 @@ class MineCraft:
                     **i,
                     author=self.client.user,
                     color=self.client.re[8],
-                    thumbnail="https://www.digminecraft.com/mechanism_recipes/images/completed_beacon.png"
+                    thumbnail="https://www.digminecraft.com/mechanism_recipes/images/completed_beacon.png",
                 )
             )
         return embeds
 
 
-
 def cog_requirements(name: str):
-    return importlib.import_module(f'cogs.{name}').requirements()
+    return importlib.import_module(f"cogs.{name}").requirements()
+
 
 def error_message(error: str):
     return cembed(
         title="An Error has occured",
         description=error,
         color=nextcord.Color.red(),
-        thumbnail="https://raw.githubusercontent.com/alvinbengeorge/alfred-discord-bot/default/error.png"        
+        thumbnail="https://raw.githubusercontent.com/alvinbengeorge/alfred-discord-bot/default/error.png",
     )
 
+
 def dict2fields(d: dict, inline: bool = True):
-    return [
-        {'name':i, 'value': d[i], 'inline': inline} for i in d
-    ]
+    return [{"name": i, "value": d[i], "inline": inline} for i in d]
+
 
 def line_strip(text: str):
-    return '\n'.join([i.strip() for i in text.split("\n")])
+    return "\n".join([i.strip() for i in text.split("\n")])
+
 
 class Detector:
     def __init__(self, CLIENT):
@@ -1043,7 +1113,7 @@ class Detector:
         self.CLIENT = CLIENT
 
     async def process_message(self, message: nextcord.message.Message):
-        content = ''.join([i for i in message.clean_content if i in ascii_letters])
+        content = "".join([i for i in message.clean_content if i in ascii_letters])
         if content:
             if message.author.id not in self.deathrate:
                 self.deathrate[message.author.id] = 0
@@ -1051,20 +1121,18 @@ class Detector:
             try:
                 preds = await post_async(
                     "https://suicide-detector-api-1.yashvardhan13.repl.co/classify",
-                    json = {
-                        'text': content
-                    }
+                    json={"text": content},
                 )
             except AttributeError:
-                preds = {'result': None}
+                preds = {"result": None}
 
             if preds.get("result") == "Sucide":
-                self.deathrate[message.author.id]+=1
+                self.deathrate[message.author.id] += 1
             else:
                 return None
 
             if self.deathrate.get(message.author.id) >= 10:
-                self.deathrate[message.author.id]=0
-                return suicide_m(self.CLIENT, self.CLIENT.re[8])                
+                self.deathrate[message.author.id] = 0
+                return suicide_m(self.CLIENT, self.CLIENT.re[8])
         else:
             return None
