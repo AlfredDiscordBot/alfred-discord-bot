@@ -9,7 +9,7 @@ from subprocess import getoutput
 #Use nextcord.slash_command()
 
 def requirements():
-    return []
+    return ["DEV_CHANNEL"]
 
 class Pylint(commands.Cog):
     TRUSTED_SERVERS = [
@@ -24,9 +24,10 @@ class Pylint(commands.Cog):
         required = False,
         default = "lint"
     )
-    def __init__(self, client: commands.Bot):        
-        self.client = client  
-        self.sample_lint = LintAction(self.client.re[8])
+    def __init__(self, CLIENT: commands.Bot, DEV_CHANNEL):        
+        self.CLIENT = CLIENT  
+        self.DEV_CHANNEL = DEV_CHANNEL
+        self.sample_lint = LintAction(self.CLIENT.re[8])
         self.lint_in_session = False
         
     @nextcord.slash_command(name="pylint", description="Check Pylint of a py file", guild_ids = TRUSTED_SERVERS)
@@ -36,13 +37,22 @@ class Pylint(commands.Cog):
                 embed=ef.cembed(
                     title="Busy",
                     description="A Lint is in session, please wait till the Lint scan is done",
-                    color=self.client.re[8]
+                    color=self.CLIENT.re[8]
                 )
             )
             return
         self.lint_in_session = True
         await inter.response.defer()
-        session = LintAction(self.client.re[8])
+        await self.CLIENT.get_channel(self.DEV_CHANNEL).send(
+            embed=ef.cembed(
+                title="Executed Lint Commands",
+                description=f"This was done in {inter.guild} by {inter.user.mention}",
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar,
+                author=inter.user
+            )
+        )
+        session = LintAction(self.CLIENT.re[8])
         session.lint(file, type)
         while True:
             await asyncio.sleep(3)
@@ -143,5 +153,5 @@ class LintAction:
         
 
 
-def setup(client,**i):
-    client.add_cog(Pylint(client,**i))
+def setup(CLIENT,**i):
+    CLIENT.add_cog(Pylint(CLIENT,**i))

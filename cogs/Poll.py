@@ -8,8 +8,8 @@ def requirements():
     return []
 
 class Poll(commands.Cog):
-    def __init__(self, client: commands.Bot):
-        self.client = client
+    def __init__(self, CLIENT: commands.Bot):
+        self.CLIENT = CLIENT
 
     @nextcord.slash_command(name="polling", description="Seperate options with |")
     async def polling_slash(
@@ -31,7 +31,7 @@ class Poll(commands.Cog):
                     title="Sorry you can only give 20 options",
                     description=reply,
                     color=nextcord.Color.red(),
-                    thumbnail=self.client.user.avatar.url
+                    thumbnail=self.CLIENT.user.avatar.url
                 )
             )
         for i in range(len(options)):
@@ -40,7 +40,7 @@ class Poll(commands.Cog):
         embed=ef.cembed(
             title="Poll",
             description=text,
-            color=self.client.re[8],
+            color=self.CLIENT.re[8],
             footer=f"from {inter.user.name} | {inter.guild.name}",
             picture = image,
             author = inter.user
@@ -52,5 +52,5 @@ class Poll(commands.Cog):
         for i in range(len(options)): 
             await message.add_reaction(ef.emoji.emojize(f":keycap_{i+1}:") if i<10 else ef.Emoji_alphabets[i-10])
 
-def setup(client,**i):
-    client.add_cog(Poll(client,**i))
+def setup(CLIENT,**i):
+    CLIENT.add_cog(Poll(CLIENT,**i))

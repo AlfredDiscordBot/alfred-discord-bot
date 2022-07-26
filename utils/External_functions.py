@@ -369,10 +369,11 @@ def subtract_list(l1: List, l2: List):
             a.append(i)
     return a
 
-def extract_color(color):
+def extract_color(color: str):
     '''
     Extracts RGB from Hex
     '''
+    color = color.replace("#", "0x")
     try:
         color_temp = (
             int("0x" + str(color)[2:4], base=16),
@@ -1056,7 +1057,7 @@ class Detector:
                 )
             except AttributeError:
                 preds = {'result': None}
-                
+
             if preds.get("result") == "Sucide":
                 self.deathrate[message.author.id]+=1
             else:

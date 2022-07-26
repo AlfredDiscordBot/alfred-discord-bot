@@ -329,13 +329,13 @@ class Role(nextcord.ui.Select):
                 reason=f"Selection Role"
             )
             await interaction.send(
-                content=f"Added {role.mention}",
+                content=f"Removed {role.mention}",
                 ephemeral=True
             )
         else:
             await interaction.user.add_roles(role)
             await interaction.send(
-                content=f"Removed {role.mention}",
+                content=f"Added {role.mention}",
                 ephemeral=True
             )
 
