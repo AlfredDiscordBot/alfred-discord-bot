@@ -14,7 +14,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-code
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.8'm 
