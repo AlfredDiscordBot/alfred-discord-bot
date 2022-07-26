@@ -430,7 +430,7 @@ class Code(commands.Cog):
                 image=image,
             )
             info = await repo_stats_dict(repo, self.CLIENT.re[8])
-            repo_embeds.append(embed_from_dict(info, inter, inter.CLIENT))
+            repo_embeds.append(embed_from_dict(info, inter, self.CLIENT))
         return repo_embeds
 
     @commands.command(name="code", aliases=["run"], description="Run Code through EMKC")
