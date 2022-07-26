@@ -5,13 +5,16 @@ from nextcord.ext import commands
 
 # Use nextcord.slash_command()
 
+
 def requirements():
     return []
+
 
 def has_role(member: nextcord.Member, role: nextcord.Role):
     if role in member.roles:
         return True
     return False
+
 
 class Mod(commands.Cog):
     def __init__(self, CLIENT):
@@ -25,7 +28,7 @@ class Mod(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if message.guild.id in self.CLIENT.config['commands'].get('snipe',[]):
+        if message.guild.id in self.CLIENT.config["commands"].get("snipe", []):
             return
         if not message.channel.id in list(self.deleted_message.keys()):
             self.deleted_message[message.channel.id] = []
@@ -40,40 +43,47 @@ class Mod(commands.Cog):
                     (str(message.author), message.embeds[0], True)
                 )
 
-    @nextcord.slash_command(name="snipe", description="Get the last few deleted messages")
-    async def snipe_slash(self, inter, number = 50):
+    @nextcord.slash_command(
+        name="snipe", description="Get the last few deleted messages"
+    )
+    async def snipe_slash(self, inter, number=50):
         await self.snipe(inter, number)
-
 
     @commands.command()
     @commands.check(ef.check_command)
-    async def snipe(self, ctx, number:int=50):
+    async def snipe(self, ctx, number: int = 50):
         number = int(number)
         if (
-            getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.administrator
-            or ctx.guild.id not in self.CLIENT.config['snipe']
+            getattr(
+                ctx, "author", getattr(ctx, "user", None)
+            ).guild_permissions.administrator
+            or ctx.guild.id not in self.CLIENT.config["snipe"]
         ):
-            message = self.deleted_message.get(ctx.channel.id,[("Empty","Nothing here lol")])[::-1]
-            count=0
+            message = self.deleted_message.get(
+                ctx.channel.id, [("Empty", "Nothing here lol")]
+            )[::-1]
+            count = 0
             embeds = []
             s = ""
             for i in message[:number]:
-                count+=1            
+                count += 1
                 if len(i) < 3:
-                    s+="**" + i[0] + ":**\n" + i[1]+"\n\n"     
-                    if count%5==0 or count == len(message) or count == number:
-                        embed=ef.cembed(
+                    s += "**" + i[0] + ":**\n" + i[1] + "\n\n"
+                    if count % 5 == 0 or count == len(message) or count == number:
+                        embed = ef.cembed(
                             title="Snipe",
                             description=s,
                             color=self.CLIENT.re[8],
-                            thumbnail=ef.safe_pfp(ctx.guild)
+                            thumbnail=ef.safe_pfp(ctx.guild),
                         )
                         embeds.append(embed)
-                        s=""                        
+                        s = ""
                 else:
-                    await ctx.send("**" + i[0] + ":**",embed=i[1])
-            if len(embeds)>0: 
-                await assets.pa(ctx, embeds, start_from=0, restricted=True, delete_after=20)
+                    await ctx.send("**" + i[0] + ":**", embed=i[1])
+            if len(embeds) > 0:
+                await assets.pa(
+                    ctx, embeds, start_from=0, restricted=True, delete_after=20
+                )
         else:
             await ctx.send(
                 embed=ef.cembed(
@@ -81,18 +91,18 @@ class Mod(commands.Cog):
                     description="Sorry guys, only admins can snipe now",
                     color=self.CLIENT.re[8],
                     thumbnail=self.CLIENT.avatar.url,
-                    author=ctx.author
+                    author=ctx.author,
                 )
             )
 
     @commands.command(aliases=["ban"])
     @commands.check(ef.check_command)
-    @commands.cooldown(1,10,commands.BucketType.guild)
+    @commands.cooldown(1, 10, commands.BucketType.guild)
     async def ban_member(self, ctx, member: ef.nextcord.Member, *, reason=None):
         if ctx.author.guild_permissions.ban_members:
-            await member.ban(reason = reason)
+            await member.ban(reason=reason)
             await ctx.send(
-                embed = ef.cembed(
+                embed=ef.cembed(
                     title="That dude's gone forever",
                     description=f"{member.name} was banned by {ctx.author.name}",
                     color=self.CLIENT.re[8],
@@ -100,7 +110,7 @@ class Mod(commands.Cog):
             )
         else:
             await ctx.send(
-                embed = ef.cembed(
+                embed=ef.cembed(
                     title="Permissions Denied",
                     description="You cant ban members, you dont have the permission to do it",
                     color=self.CLIENT.re[8],
@@ -128,62 +138,66 @@ class Mod(commands.Cog):
                     color=self.CLIENT.re[8],
                 )
             )
-            
+
     @commands.command(aliases=["mu"])
     @commands.check(ef.check_command)
     @commands.cooldown(1, 10, commands.BucketType.guild)
-    async def mute(self, ctx, member: ef.nextcord.Member, time:int=10):
-        self.CLIENT.re[0]+=1
-        if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.mute_members:
+    async def mute(self, ctx, member: ef.nextcord.Member, time: int = 10):
+        self.CLIENT.re[0] += 1
+        if not getattr(
+            ctx, "author", getattr(ctx, "user", None)
+        ).guild_permissions.mute_members:
             await ctx.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description = "You dont have enough permission to execute this command",
-                    color=self.CLIENT.re[8]
+                    description="You dont have enough permission to execute this command",
+                    color=self.CLIENT.re[8],
                 )
             )
             return
         print("Member id: ", member.id)
-        await member.edit(timeout = ef.datetime.timedelta(minutes = time))
+        await member.edit(timeout=ef.datetime.timedelta(minutes=time))
         await ctx.send(
             embed=ef.cembed(
                 title="Done",
                 description=f"Muted {member.mention}",
-                color=self.CLIENT.re[8]
+                color=self.CLIENT.re[8],
             )
         )
-
-
-
 
     @commands.command(aliases=["um"])
     @commands.check(ef.check_command)
     async def unmute(self, ctx, member: ef.nextcord.Member):
-        self.CLIENT.re[0]+=1
-        if not getattr(ctx, 'author', getattr(ctx, 'user', None)).guild_permissions.mute_members:
+        self.CLIENT.re[0] += 1
+        if not getattr(
+            ctx, "author", getattr(ctx, "user", None)
+        ).guild_permissions.mute_members:
             await ctx.send(
                 embed=ef.cembed(
                     title="Permissions Denied",
-                    description = "You dont have enough permission to execute this command",
-                    color=self.CLIENT.re[8]
+                    description="You dont have enough permission to execute this command",
+                    color=self.CLIENT.re[8],
                 )
             )
             return
         print("Member id: ", member.id)
-        await member.edit(timeout = None)
+        await member.edit(timeout=None)
         await ctx.send(
             embed=ef.cembed(
                 title="Done",
                 description=f"Unmuted {member.mention}",
-                color=self.CLIENT.re[8]
+                color=self.CLIENT.re[8],
             )
         )
 
     @commands.command(aliases=["*"])
     @commands.check(ef.check_command)
     async def change_nickname(self, ctx, member: nextcord.Member, *, nickname=None):
-        user = getattr(ctx, 'author', getattr(ctx, 'user', None))
-        if user.guild_permissions.change_nickname and user.top_role.position > member.top_role.position:
+        user = getattr(ctx, "author", getattr(ctx, "user", None))
+        if (
+            user.guild_permissions.change_nickname
+            and user.top_role.position > member.top_role.position
+        ):
             await member.edit(nick=nickname)
             await ctx.send(
                 embed=ef.cembed(
@@ -201,24 +215,29 @@ class Mod(commands.Cog):
                 )
             )
 
-    @commands.command(aliases=['purge'])
+    @commands.command(aliases=["purge"])
     @commands.check(ef.check_command)
-    async def clear(self, ctx, text, num:int=10):
-        self.CLIENT.re[0]+=1
+    async def clear(self, ctx, text, num: int = 10):
+        self.CLIENT.re[0] += 1
         await ctx.message.delete()
         if str(text) == self.CLIENT.re[1]:
-            user = getattr(ctx, 'author', getattr(ctx, 'user', None))
+            user = getattr(ctx, "author", getattr(ctx, "user", None))
             if user.guild_permissions.manage_messages or user.id == 432801163126243328:
                 confirmation = True
                 if int(num) > 10:
                     confirmation = await ef.wait_for_confirm(
-                        ctx, self.CLIENT, 
+                        ctx,
+                        self.CLIENT,
                         f"Do you want to delete {num} messages",
-                        color=self.CLIENT.re[8]
+                        color=self.CLIENT.re[8],
                     )
                 if confirmation:
                     await ctx.channel.delete_messages(
-                        [i async for i in ctx.channel.history(limit=num) if not i.pinned][:100]
+                        [
+                            i
+                            async for i in ctx.channel.history(limit=num)
+                            if not i.pinned
+                        ][:100]
                     )
             else:
                 await ctx.send(
@@ -229,7 +248,7 @@ class Mod(commands.Cog):
                     )
                 )
         else:
-            await ctx.send("Wrong password")    
+            await ctx.send("Wrong password")
 
     @nextcord.slash_command(name="autoaddrole", description="Add roles to all")
     async def autoadd(self, inter):
@@ -246,16 +265,19 @@ class Mod(commands.Cog):
                     color=nextcord.Color.red(),
                     thumbnail=self.CLIENT.user.avatar.url,
                     author=inter.user,
-                    footer="Please ask your owner to execute this command"
+                    footer="Please ask your owner to execute this command",
                 )
             )
             return
         confirm = await ef.wait_for_confirm(
-            inter, self.CLIENT, "Are you Sure you want to do this", color=self.CLIENT.re[8]
+            inter,
+            self.CLIENT,
+            "Are you Sure you want to do this",
+            color=self.CLIENT.re[8],
         )
         if not confirm:
             await inter.send("Aborting")
-            return 
+            return
         to_be_added = [_ for _ in inter.guild.bots if not has_role(_, role)]
         await inter.send(
             embed=ef.cembed(
@@ -263,15 +285,15 @@ class Mod(commands.Cog):
                 description="This may take a while to process, please be patient",
                 color=self.CLIENT.re[8],
                 author=inter.user,
-                footer=f"This will be applied to {len(to_be_added)} bots"
+                footer=f"This will be applied to {len(to_be_added)} bots",
             )
         )
-        for bot in to_be_added: 
+        for bot in to_be_added:
             try:
                 await bot.add_roles(role)
                 await asyncio.sleep(2)
             except Exception:
-                print(traceback.format_exc())   
+                print(traceback.format_exc())
 
     @autoadd.subcommand(name="toeveryone", description="Bots")
     async def everyone(self, inter, role: nextcord.Role):
@@ -284,16 +306,19 @@ class Mod(commands.Cog):
                     color=nextcord.Color.red(),
                     thumbnail=self.CLIENT.user.avatar.url,
                     author=inter.user,
-                    footer="Please ask your owner to execute this command"
+                    footer="Please ask your owner to execute this command",
                 )
             )
             return
         confirm = await ef.wait_for_confirm(
-            inter, self.CLIENT, "Are you Sure you want to do this", color=self.CLIENT.re[8]
+            inter,
+            self.CLIENT,
+            "Are you Sure you want to do this",
+            color=self.CLIENT.re[8],
         )
         if not confirm:
             await inter.send("Aborting")
-            return 
+            return
         to_be_added = [_ for _ in inter.guild.members if not has_role(_, role)]
         await inter.send(
             embed=ef.cembed(
@@ -301,18 +326,18 @@ class Mod(commands.Cog):
                 description="This may take a while to process, please be patient",
                 color=self.CLIENT.re[8],
                 author=inter.user,
-                footer=f"This will be applied to {len(to_be_added)} members"
+                footer=f"This will be applied to {len(to_be_added)} members",
             )
         )
-        for member in to_be_added: 
+        for member in to_be_added:
             try:
                 await member.add_roles(role)
                 await asyncio.sleep(2)
             except Exception:
-                print(traceback.format_exc())  
+                print(traceback.format_exc())
 
     @commands.command()
-    async def get_invite(self, ctx, time:int=600):
+    async def get_invite(self, ctx, time: int = 600):
         link = await ctx.channel.create_invite(max_age=time)
         await ctx.send(
             embed=ef.cembed(
@@ -320,7 +345,7 @@ class Mod(commands.Cog):
                 description=str(link),
                 color=self.CLIENT.re[8],
             )
-        )    
+        )
 
     @autoadd.subcommand(name="tohumans", description="Bots")
     async def humans(self, inter, role: nextcord.Role):
@@ -333,16 +358,19 @@ class Mod(commands.Cog):
                     color=nextcord.Color.red(),
                     thumbnail=self.CLIENT.user.avatar.url,
                     author=inter.user,
-                    footer="Please ask your owner to execute this command"
+                    footer="Please ask your owner to execute this command",
                 )
             )
             return
         confirm = await ef.wait_for_confirm(
-            inter, self.CLIENT, "Are you Sure you want to do this", color=self.CLIENT.re[8]
+            inter,
+            self.CLIENT,
+            "Are you Sure you want to do this",
+            color=self.CLIENT.re[8],
         )
         if not confirm:
             await inter.send("Aborting")
-            return 
+            return
         to_be_added = [_ for _ in inter.guild.humans if not has_role(_, role)]
         await inter.send(
             embed=ef.cembed(
@@ -350,16 +378,16 @@ class Mod(commands.Cog):
                 description="This may take a while to process, please be patient",
                 color=self.CLIENT.re[8],
                 author=inter.user,
-                footer=f"This will be applied to {len(to_be_added)} humans"
+                footer=f"This will be applied to {len(to_be_added)} humans",
             )
         )
-        for member in to_be_added: 
+        for member in to_be_added:
             try:
                 await member.add_roles(role)
                 await asyncio.sleep(2)
             except Exception:
-                print(traceback.format_exc())        
+                print(traceback.format_exc())
 
 
-def setup(CLIENT,**i):
-    CLIENT.add_cog(Mod(CLIENT,**i))
+def setup(CLIENT, **i):
+    CLIENT.add_cog(Mod(CLIENT, **i))

@@ -6,8 +6,10 @@ import utils.helping_hand as h
 
 # Use nextcord.slash_command()
 
+
 def requirements():
     return ["DEV_CHANNEL"]
+
 
 class Misc(commands.Cog):
     def __init__(self, CLIENT, DEV_CHANNEL):
@@ -25,7 +27,7 @@ class Misc(commands.Cog):
     @commands.command()
     @commands.check(ef.check_command)
     async def yey(self, ctx):
-        self.CLIENT.re[0]+=1
+        self.CLIENT.re[0] += 1
         print("yey")
         em = ef.cembed(title="*yey*", color=self.CLIENT.re[8])
         await ctx.send(embed=em)
@@ -33,34 +35,25 @@ class Misc(commands.Cog):
     @commands.command()
     @commands.check(ef.check_command)
     async def lol(self, ctx):
-        self.CLIENT.re[0]+=1
+        self.CLIENT.re[0] += 1
         em = ef.cembed(title="***L😂L***", color=self.CLIENT.re[8])
         await ctx.send(embed=em)
 
     @commands.command()
     @commands.check(ef.check_command)
     async def f(self, ctx):
-        embed=ef.cembed(
-            color=self.CLIENT.re[8],
-            image=choice(self.urls)
-        )
+        embed = ef.cembed(color=self.CLIENT.re[8], image=choice(self.urls))
         await ctx.send(embed=embed)
-    
+
     @commands.command()
     async def src(self, ctx):
-        await ctx.send(
-            embed=h.help_him(self.CLIENT, self.CLIENT.re)[1]
-        )
+        await ctx.send(embed=h.help_him(self.CLIENT, self.CLIENT.re)[1])
 
     @commands.command()
     @commands.check(ef.check_command)
     async def nay(self, ctx):
         await ctx.send(
-            embed=ef.cembed(
-                title="***nay***", 
-                description="", 
-                color=self.CLIENT.re[8]
-            )
+            embed=ef.cembed(title="***nay***", description="", color=self.CLIENT.re[8])
         )
 
     @commands.command()
@@ -115,7 +108,7 @@ class Misc(commands.Cog):
                 footer=f"This happened in {ctx.guild.name}",
                 color=self.CLIENT.re[8],
                 image="https://c.tenor.com/0GJ-XEcYLfcAAAAM/wongwingchun58.gif",
-                thumbnail=self.CLIENT.user.avatar.url
+                thumbnail=self.CLIENT.user.avatar.url,
             )
         )
         await ctx.send(
@@ -124,10 +117,10 @@ class Misc(commands.Cog):
                 author=ctx.author,
                 color=self.CLIENT.re[8],
                 image="https://c.tenor.com/0GJ-XEcYLfcAAAAM/wongwingchun58.gif",
-                thumbnail=self.CLIENT.user.avatar.url
+                thumbnail=self.CLIENT.user.avatar.url,
             )
         )
 
 
-def setup(CLIENT,**i):
-    CLIENT.add_cog(Misc(CLIENT,**i))
+def setup(CLIENT, **i):
+    CLIENT.add_cog(Misc(CLIENT, **i))

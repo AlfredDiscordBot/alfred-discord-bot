@@ -61,3 +61,4 @@ yarl==1.6.3
 youtube-dl==2021.12.17
 pylint
 flake8
+black
