@@ -3,6 +3,7 @@ import requests
 import nextcord
 import utils.assets as assets
 import utils.External_functions as ef
+import utils.Trend as Trend
 
 from nextcord.ext import commands, tasks
 from functools import lru_cache
@@ -11,6 +12,7 @@ from dataclasses import dataclass
 from .Embed import filter_graves, embed_from_dict
 from datetime import datetime
 from typing import (
+    Any,
     List,
     Dict,
     Union,
@@ -334,117 +336,69 @@ def user_stats_dict(stats: GitHubUserStats, color: int = None, uname: str = ""):
 
     return info
 
-class Trend:
+class GhCacheControl:
     def __init__(self):
-        self.repositories: list = []
-        self.users: list = []
-        self.len_repo: int = len(self.repositories)
-        self.len_user: int = len(self.users)
-        self.SETUP = False
+        self.repository: list = []
+        self.SETUP: bool = False
 
-    async def setup(self):
-        r, u, t = self.github_cache(load=True)
-        if int(ef.time.time()) - t > 86400:
-            self.repositories: list = await ef.get_async("https://gh-trending-api.herokuapp.com/repositories", kind="json")
-            self.users: list = await ef.get_async("https://gh-trending-api.herokuapp.com/developers", kind="json")
-            r, u = self.repositories, self.users
-            self.github_cache(load=False, repo=r, user=u)
+    def github_cache(self, load: bool = True, **kwargs):        
+        if load:
+            v = Variables("cogs/__pycache__/ghcache")
+            d = v.show_data()
+            return d.get('repo', []), d.get('time', 0)
         else:
-            self.repositories, self.users = r, u
-        self.len_repo = len(self.repositories)
-        self.len_user = len(self.users)
+            v = Variables("cogs/__pycache__/ghcache")
+            v.pass_all(
+                **kwargs,
+                time=int(ef.time.time())
+            )
+            v.save()
+            d = v.show_data()
+            return d.get('repo', []), d.get('time', 0)
+
+    def add_pages(self, l: list, t: int) -> list:
+        new_embeds = []
+        count = 0
+        for i in l:
+            count+=1
+            i['footer'] = {
+                'text': f'{count} of {len(l)}',
+                'icon_url': 'https://cdn-icons-png.flaticon.com/512/25/25231.png'
+            }
+            new_embeds.append(i)
+        return new_embeds
+        
+    async def setup(self):
+        r, t = self.github_cache(load=True)
+        if int(ef.time.time()) - t > 86400:
+            print("Updating GhCache")
+            trending = await Trend.fetch_trending()
+            self.repository = self.add_pages([i.return_dict() for i in trending], t)
+            self.github_cache(load=False, repo=self.repository)
+        else:
+            self.repository = r
         self.SETUP = True
 
     async def refresh(self):
         await self.setup()
 
-    def repo_to_embed(self, repo: dict) -> nextcord.Embed:
-        '''
-        Renders an embed from the Repository Dict from gh trending API
-        '''
-        try:
-            main_developer = repo['builtBy'][0]
-            di = {
-                'title': f"{repo['username']}/{repo['repositoryName']}",
-                'url': repo['url'],
-                'description': f"```\n{repo.get('description')}\n```",
-                'color': int(repo['languageColor'].replace('#','0x'), base=16) if repo['languageColor'] else nextcord.Color.default(),
-                'fields': ef.dict2fields(
-                    {
-                        'Developers 🧑‍💻': '\n'.join(
-                            [f"[{i['username']}]({i['url']})" for i in repo['builtBy'][:5]]
-                        ),
-                        'Stats': '\n'.join(
-                            [
-                                f'`Stars: `{repo["totalStars"]} ⭐',
-                                f'`Forks: `{repo["forks"]} 🍴',
-                                f'`Language: `{repo["language"]}'
-
-                            ]
-                        )
-
-                    },
-                    inline=False
-                ),
-                'footer': {
-                    'text': f'{repo["rank"]} of {self.len_repo}',
-                    'icon_url': 'https://cdn-icons-png.flaticon.com/512/25/25231.png'
-                } ,      
-                'author': {
-                    'name': main_developer.get('username', "Unavailable"),
-                    'icon_url': main_developer.get('avatar'),
-                    'url': main_developer.get('url')
-                },
-                'image': fetch_image(f"{repo['username']}/{repo['repositoryName']}")
-            }
-            return ef.cembed(**di)
-        except Exception:
-            print(repo)
-            print(traceback.format_exc())
-            return ef.cembed(
-                title="Sorry",
-                description="An Error Occured while reading from this repository",
-                color=nextcord.Color.red()                
-            )
-
     def trending_repositories(self):
-        return [self.repo_to_embed(i) for i in self.repositories[:50]]
-
-    def github_cache(self, load: bool = False, **kw):
-        try:            
-            if load:        
-                v = Variables("cogs/__pycache__/ghcache")
-                data = v.show_data()
-                return data.get('repo', []), data.get('user', []), data.get('time', 0)
-            else:
-                v = Variables("cogs/__pycache__/ghcache")
-                v.edit(
-                    **kw,
-                    time=int(ef.time.time())
-                )
-                v.save()
-                data = v.show_data()
-                return data.get('repo', []), data.get('user', []), data.get('time', 0)
-        except:
-            print("Error in ghcache")
-            return f"Load Error:\n{traceback.format_exc()}", "Error", 0
-
-    
+        return [ef.cembed(**i) for i in self.repository]
 
 class Code(commands.Cog):
     def __init__(self, CLIENT):
         self.CLIENT = CLIENT
         self.rce = CodeExecutor()
-        self.trending = Trend()
+        self.ghtrend = GhCacheControl()
 
     @commands.Cog.listener()
     async def on_ready(self):
-        await self.trending.setup()
+        await self.ghtrend.setup()
         await self.update_loop.start()
 
     @tasks.loop(hours=4)
     async def update_loop(self):
-        await self.trending.refresh()
+        await self.ghtrend.refresh()
 
     def runtimes_to_str(self, runtime: dict) -> str:
         return f"+ {runtime['language']} -> {runtime['version']}"
@@ -584,9 +538,8 @@ class Code(commands.Cog):
     @trending_command.subcommand(name="repo", description="Gives a list of trending repositories")
     async def trending_repo(self, inter):
         await inter.response.defer()
-        if not self.trending.SETUP:
-            await self.trending.setup()
-        await assets.pa(inter, self.trending.trending_repositories())
+        await self.ghtrend.setup()
+        await assets.pa(inter, self.ghtrend.trending_repositories())
 
 
 def setup(CLIENT,**i):

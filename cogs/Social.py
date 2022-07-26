@@ -6,7 +6,21 @@ import utils.inshort as inshort
 from nextcord.ext import commands
 from wikipedia import search, summary
 
-NEWS_CATEGORIES = inshort.get_categories() + ['all']
+NEWS_CATEGORIES = [
+    'national', 
+    'business', 
+    'sports', 
+    'world', 
+    'politics', 
+    'technology', 
+    'startup', 
+    'entertainment', 
+    'miscellaneous', 
+    'hatke', 
+    'science', 
+    'automobile', 
+    'all'
+]
 
 
 def requirements():
@@ -16,7 +30,7 @@ class Social(commands.Cog):
     def __init__(self, CLIENT, DEV_CHANNEL):
         self.CLIENT = CLIENT
         self.DEV_CHANNEL = DEV_CHANNEL
-        self.link_for_cats = []
+        self.link_for_cats = []        
 
     @nextcord.slash_command(name="social", description="Contains all the social cog slash commands")
     async def social(self, inter):

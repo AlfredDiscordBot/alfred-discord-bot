@@ -64,11 +64,11 @@ class Music(commands.Cog):
     )
     async def remove_duplicates(self, inter):    
         await inter.response.defer()
-        self.CLIENT.re[3][str(inter.guild.id)] = 0
-        songs = self.CLIENT.queue_song[str(inter.guild.id)]
+        self.CLIENT.re[3][inter.guild.id] = 0
+        songs = self.CLIENT.queue_song[inter.guild.id]
         for i in songs:
-            if self.CLIENT.queue_song[str(inter.guild.id)].count(i)>1:
-                self.CLIENT.queue_song[str(inter.guild.id)].remove(i)
+            if self.CLIENT.queue_song[inter.guild.id].count(i)>1:
+                self.CLIENT.queue_song[inter.guild.id].remove(i)
         await inter.send(
             embed=ef.cembed(
                 title="Done",
@@ -147,9 +147,9 @@ class Music(commands.Cog):
         mem = [names.id for names in ctx.guild.voice_client.channel.members] if ctx.guild.voice_client else []
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if mem.count(user.id) > 0:
-            if len(self.CLIENT.queue_song.get(str(ctx.guild.id),[])) > 0:
-                self.CLIENT.queue_song[str(ctx.guild.id)].clear()
-            self.CLIENT.re[3][str(ctx.guild.id)] = 0
+            if len(self.CLIENT.queue_song.get(ctx.guild.id,[])) > 0:
+                self.CLIENT.queue_song[ctx.guild.id].clear()
+            self.CLIENT.re[3][ctx.guild.id] = 0
             await ctx.send(
                 embed=ef.cembed(
                     title="Cleared queue",
@@ -177,7 +177,7 @@ class Music(commands.Cog):
         if mem.count(user.id) > 0:
             voice = nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
             voice.pause()
-            url = self.CLIENT.queue_song[str(ctx.guild.id)][self.CLIENT.re[3][str(ctx.guild.id)]]
+            url = self.CLIENT.queue_song[ctx.guild.id][self.CLIENT.re[3][ctx.guild.id]]
             song = self.CLIENT.da1.get(url, "Unavailable")
             embed=ef.cembed(
                 title="Paused",
@@ -241,7 +241,7 @@ class Music(commands.Cog):
             return
         if mode == "add to queue":        
             if from_user.id in list(self.CLIENT.da.keys()):
-                self.CLIENT.queue_song[str(inter.guild.id)]+=self.CLIENT.da[from_user.id]
+                self.CLIENT.queue_song[inter.guild.id]+=self.CLIENT.da[from_user.id]
                 await inter.send("Added your playlist to queue")
             else:
                 await inter.send("You do not have a Playlist")
@@ -249,7 +249,7 @@ class Music(commands.Cog):
         if mode == "add to playlist":
             if inter.user.id not in list(self.CLIENT.da.keys()):
                 self.CLIENT.da[inter.user.id] = []
-            for i in self.CLIENT.queue_song[str(inter.guild.id)]:
+            for i in self.CLIENT.queue_song[inter.guild.id]:
                 if i not in self.CLIENT.da[inter.user.id]:
                     self.CLIENT.da[inter.user.id].append(i)
             await inter.send("Added songs in queue to playlist\n*Note: The songs are added uniquely, which means that if a song in queue is repeated in your playlist, then that song wont be added*")
@@ -310,10 +310,10 @@ class Music(commands.Cog):
         try:
             self.CLIENT.re[0]+=1
             user = getattr(ctx, 'author', getattr(ctx, 'user', None))
-            if not str(ctx.guild.id) in self.CLIENT.queue_song:
-                self.CLIENT.queue_song[str(ctx.guild.id)] = []
-            if not str(ctx.guild.id) in self.CLIENT.re[3]:
-                self.CLIENT.re[3][str(ctx.guild.id)] = 0
+            if not ctx.guild.id in self.CLIENT.queue_song:
+                self.CLIENT.queue_song[ctx.guild.id] = []
+            if not ctx.guild.id in self.CLIENT.re[3]:
+                self.CLIENT.re[3][ctx.guild.id] = 0
             if channel == None:
                 if user.voice and user.voice.channel:
                     voiceChannel = user.voice.channel               
@@ -377,7 +377,7 @@ class Music(commands.Cog):
         st = ""
         index = 0
         found_songs = 0
-        for i in self.CLIENT.queue_song[str(ctx.guild.id)]:
+        for i in self.CLIENT.queue_song[ctx.guild.id]:
             if i in self.CLIENT.da1:
                 found_songs += 1
                 if self.CLIENT.da1[i].lower().find(part.lower()) != -1:
@@ -385,10 +385,10 @@ class Music(commands.Cog):
             index += 1
         if st == "":
             st = "Not found"
-        if len(self.CLIENT.queue_song[str(ctx.guild.id)]) - found_songs > 0:
+        if len(self.CLIENT.queue_song[ctx.guild.id]) - found_songs > 0:
             st += "\n\nWARNING: Some song names may not be loaded properly, this search may not be accurate"
             st += "\nSongs not found: " + str(
-                len(self.CLIENT.queue_song[str(ctx.guild.id)]) - found_songs
+                len(self.CLIENT.queue_song[ctx.guild.id]) - found_songs
             )
         await ctx.send(
             embed=ef.cembed(
@@ -424,7 +424,7 @@ class Music(commands.Cog):
                                 if url not in self.CLIENT.da1:
                                     name_of_the_song = await ef.get_name(url)
                                     self.CLIENT.da1[url] = name_of_the_song
-                                self.CLIENT.queue_song[str(ctx.guild.id)].append(url)
+                                self.CLIENT.queue_song[ctx.guild.id].append(url)
                             except Exception as e:
                                 print(e)
                                 break
@@ -442,7 +442,7 @@ class Music(commands.Cog):
                         name_of_the_song = await ef.get_name(url)
                         print(name_of_the_song, ":", url)
                         self.CLIENT.da1[url] = name_of_the_song
-                    self.CLIENT.queue_song[str(ctx.guild.id)].append(url)
+                    self.CLIENT.queue_song[ctx.guild.id].append(url)
             else:       
                 name = ef.convert_to_url(name)
                 sear = "https://www.youtube.com/results?search_query=" + name
@@ -456,10 +456,10 @@ class Music(commands.Cog):
                 if url not in self.CLIENT.da1:
                     name_of_the_song = await ef.get_name(url)
                     self.CLIENT.da1[url] = name_of_the_song
-                self.CLIENT.queue_song[str(ctx.guild.id)].append(url)
+                self.CLIENT.queue_song[ctx.guild.id].append(url)
                 
-            for i in self.CLIENT.queue_song[str(ctx.guild.id)]:
-                if num >= len(self.CLIENT.queue_song[str(ctx.guild.id)]) - 10:
+            for i in self.CLIENT.queue_song[ctx.guild.id]:
+                if num >= len(self.CLIENT.queue_song[ctx.guild.id]) - 10:
                     if not i in self.CLIENT.da1.keys():
                         self.CLIENT.da1[i] = await ef.get_name(i)
                     st = st + str(num) + ". " + self.CLIENT.da1[i].replace("&quot", "'") + "\n"
@@ -487,18 +487,18 @@ class Music(commands.Cog):
                     )
                 )
                 return
-            if len(self.CLIENT.queue_song[str(ctx.guild.id)]) < 30:
-                for i in self.CLIENT.queue_song[str(ctx.guild.id)]:
+            if len(self.CLIENT.queue_song[ctx.guild.id]) < 30:
+                for i in self.CLIENT.queue_song[ctx.guild.id]:
                     if not i in self.CLIENT.da1:
                         self.CLIENT.da1[i] = ef.youtube_info(i)["title"]
                     st += f"`{num}.` {self.CLIENT.da1[i]}\n"
                     num += 1
             else:            
-                num = self.CLIENT.re[3].get(str(ctx.guild.id),10)
+                num = self.CLIENT.re[3].get(ctx.guild.id,10)
                 if num<10: num = 10
                 for i in range(num-10, num+10):
                     try:
-                        st += f"`{i}.` {self.CLIENT.da1.get(self.CLIENT.queue_song[str(ctx.guild.id)][i],'Unavailable')}\n"
+                        st += f"`{i}.` {self.CLIENT.da1.get(self.CLIENT.queue_song[ctx.guild.id][i],'Unavailable')}\n"
                     except: 
                         pass
             embed = ef.cembed(
@@ -527,10 +527,10 @@ class Music(commands.Cog):
         self.CLIENT.re[0]+=1
         user = getattr(ctx, 'author', getattr(ctx, 'user', None))
         if user.voice and user.voice.channel:
-            if not str(ctx.guild.id) in self.CLIENT.queue_song:
-                self.CLIENT.queue_song[str(ctx.guild.id)] = []
-            if not str(ctx.guild.id) in self.CLIENT.re[3]:
-                self.CLIENT.re[3][str(ctx.guild.id)] = 0
+            if not ctx.guild.id in self.CLIENT.queue_song:
+                self.CLIENT.queue_song[ctx.guild.id] = []
+            if not ctx.guild.id in self.CLIENT.re[3]:
+                self.CLIENT.re[3][ctx.guild.id] = 0
                 
             if ctx.guild.voice_client == None:
                 voiceChannel = user.voice.channel
@@ -544,7 +544,7 @@ class Music(commands.Cog):
                 if mem.count(user.id) > 0:
                     voice = ctx.guild.voice_client
                     bitrate = "\nBitrate of the channel: " +str(voice.channel.bitrate // 1000)
-                    song = self.CLIENT.queue_song[str(ctx.guild.id)][self.CLIENT.re[3][str(ctx.guild.id)]]
+                    song = self.CLIENT.queue_song[ctx.guild.id][self.CLIENT.re[3][ctx.guild.id]]
                     if song not in self.CLIENT.da1:
                         self.CLIENT.da1[song] = ef.youtube_info(song)["title"]                
                     URL = ef.youtube_download(song)
@@ -559,7 +559,6 @@ class Music(commands.Cog):
                         color=self.CLIENT.re[8],
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
-                    print(type(ctx))
                     if isinstance(ctx, nextcord.Message): 
                         mess = await ctx.channel.send(embed=embed)
                         await self.player_pages(mess)
@@ -597,10 +596,10 @@ class Music(commands.Cog):
         self.CLIENT.re[0]+=1
         try:
             if ef.check_voice(ctx):            
-                self.CLIENT.re[3][str(ctx.guild.id)] -= 1
-                if self.CLIENT.re[3][str(ctx.guild.id)] == -1:
-                    self.CLIENT.re[3][str(ctx.guild.id)] = len(self.CLIENT.queue_song.get(str(ctx.guild.id),[]))-1          
-                song = self.CLIENT.queue_song[str(ctx.guild.id)][self.CLIENT.re[3][str(ctx.guild.id)]]
+                self.CLIENT.re[3][ctx.guild.id] -= 1
+                if self.CLIENT.re[3][ctx.guild.id] == -1:
+                    self.CLIENT.re[3][ctx.guild.id] = len(self.CLIENT.queue_song.get(ctx.guild.id,[]))-1          
+                song = self.CLIENT.queue_song[ctx.guild.id][self.CLIENT.re[3][ctx.guild.id]]
                 voice = nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
                 URL, name = ef.youtube_download1(song)
                 self.CLIENT.da1[song] = name
@@ -693,7 +692,7 @@ class Music(commands.Cog):
         if ef.check_voice(ctx):
             voice = nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
             voice.resume()
-            url = self.CLIENT.queue_song[str(ctx.guild.id)][self.CLIENT.re[3][str(ctx.guild.id)]]
+            url = self.CLIENT.queue_song[ctx.guild.id][self.CLIENT.re[3][ctx.guild.id]]
             song_name = self.CLIENT.da1[url]
             embed=nextcord.Embed(
                 title="Playing",
@@ -711,18 +710,18 @@ class Music(commands.Cog):
 
             
     def repeat(self, ctx, voice):
-        songs = self.CLIENT.queue_song.get(str(ctx.guild.id),[])
+        songs = self.CLIENT.queue_song.get(ctx.guild.id, [])
         if len(songs) == 0: return
-        index = self.CLIENT.re[3].get(str(ctx.guild.id),0)
+        index = self.CLIENT.re[3].get(ctx.guild.id, 0)
         if len(songs)<index:
             index = 0
-            self.CLIENT.re[3][str(ctx.guild.id)]=index
+            self.CLIENT.re[3][ctx.guild.id]=index
         time.sleep(1)
         if self.CLIENT.re[7].get(ctx.guild.id,-1) == 1 and not voice.is_playing():
-            self.CLIENT.re[3][str(ctx.guild.id)] += 1
-            index = self.CLIENT.re[3].get(str(ctx.guild.id),0)
-            if self.CLIENT.re[3][str(ctx.guild.id)] >= len(self.CLIENT.queue_song[str(ctx.guild.id)]):
-                self.CLIENT.re[3][str(ctx.guild.id)] = 0
+            self.CLIENT.re[3][ctx.guild.id] += 1
+            index = self.CLIENT.re[3].get(ctx.guild.id,0)
+            if self.CLIENT.re[3][ctx.guild.id] >= len(self.CLIENT.queue_song[ctx.guild.id]):
+                self.CLIENT.re[3][ctx.guild.id] = 0
         if self.CLIENT.re[2].get(ctx.guild.id,-1) == 1 or self.CLIENT.re[7].get(ctx.guild.id,-1) == 1:
             if not voice.is_playing():
                 URL, name = ef.youtube_download1(songs[index])
@@ -793,9 +792,9 @@ class Music(commands.Cog):
             and user.voice.channel
         ):
             if not str(ctx.guild.id) in self.CLIENT.queue_song:
-                self.CLIENT.queue_song[str(ctx.guild.id)] = []
+                self.CLIENT.queue_song[ctx.guild.id] = []
             if not str(ctx.guild.id) in self.CLIENT.re[3]:
-                self.CLIENT.re[3][str(ctx.guild.id)] = 0
+                self.CLIENT.re[3][ctx.guild.id] = 0
             channel = user.voice.channel.id
             voiceChannel = nextcord.utils.get(ctx.guild.voice_channels, id=channel)
             await voiceChannel.connect()
@@ -803,10 +802,10 @@ class Music(commands.Cog):
             if ef.check_voice(ctx):
                 voice = nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
                 if ind.isnumeric():
-                    if int(ind) <= len(self.CLIENT.queue_song[str(ctx.guild.id)]):
-                        self.CLIENT.re[3][str(ctx.guild.id)] = int(ind)
-                        index = self.CLIENT.re[3][str(ctx.guild.id)]
-                        songs = self.CLIENT.queue_song[str(ctx.guild.id)]
+                    if int(ind) <= len(self.CLIENT.queue_song[ctx.guild.id]):
+                        self.CLIENT.re[3][ctx.guild.id] = int(ind)
+                        index = self.CLIENT.re[3][ctx.guild.id]
+                        songs = self.CLIENT.queue_song[ctx.guild.id]
                         song = songs[index]
                         URL, name_of_the_song = ef.youtube_download1(song)
                         self.CLIENT.da1[song] = name_of_the_song
@@ -824,7 +823,7 @@ class Music(commands.Cog):
                         )
                         await self.player_pages(mess)
                     else:
-                        songs = self.CLIENT.queue_song[str(ctx.guild.id)]
+                        songs = self.CLIENT.queue_song[ctx.guild.id]
                         embed = nextcord.Embed(
                             title="Hmm",
                             description=f"There are only {len(songs)} songs",
@@ -846,10 +845,10 @@ class Music(commands.Cog):
                         return
                     url = "https://www.youtube.com/watch?v=" + video[0]
                     URL, name_of_the_song = ef.youtube_download1(url)
-                    self.CLIENT.re[3][str(ctx.guild.id)] = len(self.CLIENT.queue_song[str(ctx.guild.id)])       
-                    songs = self.CLIENT.queue_song[str(ctx.guild.id)]
+                    self.CLIENT.re[3][ctx.guild.id] = len(self.CLIENT.queue_song[ctx.guild.id])       
+                    songs = self.CLIENT.queue_song[ctx.guild.id]
                     if len(songs) == 0 or songs[-1] != url:
-                        self.CLIENT.queue_song[str(ctx.guild.id)].append(url)
+                        self.CLIENT.queue_song[ctx.guild.id].append(url)
                     self.CLIENT.da1[url] = name_of_the_song
                     voice.stop()
                     voice.play(
@@ -893,9 +892,9 @@ class Music(commands.Cog):
     @commands.check(ef.check_command)
     async def currentmusic(self, ctx):
         self.CLIENT.re[0]+=1
-        if len(self.CLIENT.queue_song[str(ctx.guild.id)]) > 0:
-            songs = self.CLIENT.queue_song[str(ctx.guild.id)]
-            index = self.CLIENT.re[3][str(ctx.guild.id)]
+        if len(self.CLIENT.queue_song[ctx.guild.id]) > 0:
+            songs = self.CLIENT.queue_song[ctx.guild.id]
+            index = self.CLIENT.re[3][ctx.guild.id]
             description = f"[Current index: {index}]({songs[index]})\n"
             info = ef.youtube_info(songs[index])
             check = "\n\nDescription: \n" + info["description"] + "\n"
@@ -927,19 +926,19 @@ class Music(commands.Cog):
         self.CLIENT.re[0]+=1
         try:
             if ef.check_voice(ctx):
-                self.CLIENT.re[3][str(ctx.guild.id)] += 1
-                if self.CLIENT.re[3][str(ctx.guild.id)] >= len(self.CLIENT.queue_song[str(ctx.guild.id)]):
-                    self.CLIENT.re[3][str(ctx.guild.id)] = len(self.CLIENT.queue_song[str(ctx.guild.id)]) - 1
+                self.CLIENT.re[3][ctx.guild.id] += 1
+                if self.CLIENT.re[3][ctx.guild.id] >= len(self.CLIENT.queue_song[ctx.guild.id]):
+                    self.CLIENT.re[3][ctx.guild.id] = len(self.CLIENT.queue_song[ctx.guild.id]) - 1
                     await ctx.send(
                         embed=ef.cembed(
                             title="Last song",
                             description="Only "
-                            + str(len(self.CLIENT.queue_song[str(ctx.guild.id)]))
+                            + str(len(self.CLIENT.queue_song[ctx.guild.id]))
                             + " songs in your queue",
                             color=self.CLIENT.re[8],
                         )
                     )
-                song = self.CLIENT.queue_song[str(ctx.guild.id)][self.CLIENT.re[3][str(ctx.guild.id)]]
+                song = self.CLIENT.queue_song[ctx.guild.id][self.CLIENT.re[3][ctx.guild.id]]
                 voice = nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
                 URL = ef.youtube_download(song)            
                 embed=ef.cembed(
@@ -1045,8 +1044,8 @@ class Music(commands.Cog):
             except:
                 pass
             st= ""
-            index = self.CLIENT.re[3][str(ctx.guild.id)] 
-            songs = self.CLIENT.queue_song[str(ctx.guild.id)]
+            index = self.CLIENT.re[3][ctx.guild.id] 
+            songs = self.CLIENT.queue_song[ctx.guild.id]
             lower = 0 if index - 10 < 0 else index - 10
             higher = len(songs) if index+10>len(songs) else index+10
             length = f"Length of queue: {len(songs)}\n"

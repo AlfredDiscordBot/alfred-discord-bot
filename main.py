@@ -59,7 +59,7 @@ config: dict = {
     'connect':{},
     'slash': {},
     'roles': {}
-    }
+}
 da: dict = {}
 errors: list = ["```arm"]
 da1: dict = {}
@@ -147,7 +147,7 @@ def load_from_file(store):
     v = store.show_data()    
     da = v.get("da",{})
     da1 = v.get("da1", {})
-    queue_song = v.get("queue_song",{})
+    queue_song = {int(k): v for k, v  in v.get("queue_song",{}).items()}
     re = v.get("re",re)
     dev_users = v.get("dev_users",dev_users)
     prefix_dict = v.get("prefix_dict",{})

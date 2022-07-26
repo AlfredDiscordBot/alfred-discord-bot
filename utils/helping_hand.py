@@ -114,14 +114,6 @@ There's also /github user and /github repo as slash command, check that out too
 def help_him(client, re):
     thumbnail = client.user.avatar.url
 
-    Emoji_help = cembed(
-        title="Emojis",
-        description="You can now get emojis from Alfred's servers using 'e <emoji_name> which will use webhook, you need to enable that permission if you havent, also it may affect when external emojis is not enabled for everyone, please check these, and then come to the support server. Also use 'clear_webhooks if webhooks are jammed\n\n",
-        color=re[8],
-        thumbnail=thumbnail,
-        picture="https://copyrightalliance.org/wp-content/uploads/2017/07/emojis-cropped.png",
-    )
-
     code_help = cembed(
         title="Code",
         description="You can execute programs from various programming languages\n\nEx: 'code <language>\n```py\nprint('hello world')\n#code here\n```",
@@ -141,6 +133,11 @@ def help_him(client, re):
             {
                 'name': 'Github',
                 'value': 'Use `/github repo` for viewing information about github repository\nUse `/github user` for viewing information about a user\n Use `/github trending` command for viewing trending repository or user',
+                'inline': False
+            },
+            {
+                'name': 'JSON',
+                'value': 'There\'s a JSON Viewer in Alfred, you can use it by just doing\n`\'json_viewer <api_endpoint>`\nThis is only a `GET` Request, it is quite simple',
                 'inline': False
             }
         ]
@@ -221,7 +218,7 @@ def help_him(client, re):
     
     social_help=cembed(
         title="Socials",
-        description="`'reddit <account>` for reddit posts\n`'quote` gives a random quote\n`'mehspace @mention` will give a person's mehspace\n`/subscribe` command for subscribing to a channel\n`/unsubscribe` command to unsubscribe from a channel\n\nIf you need to learn to setup mehspace, go to  the `Yaml help page`",
+        description="`'reddit <account>` for reddit posts\n`'quote` gives a random quote\n`'mehspace @mention` will give a person's mehspace\n`/youtube subscribe` command for subscribing to a channel\n`/youtube unsubscribe` command to unsubscribe from a channel\n\nIf you need to learn to setup mehspace, go to  the `Yaml help page`",
         color=re[8],
         image="https://media.smallbiztrends.com/2022/01/social-audio.png",
         footer="We've decided to remove instagram as it's hard to keep up with their security improvements"
@@ -268,7 +265,6 @@ We do not store any of the message data provided to alfred and the ones provided
         mod_help, 
         yaml_help, 
         code_help,
-        Emoji_help, 
         social_help
     ]
     
