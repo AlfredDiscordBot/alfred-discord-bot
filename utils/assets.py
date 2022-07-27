@@ -1,4 +1,5 @@
 from typing import List
+from click import option
 import nextcord
 from . import External_functions as ef
 
@@ -54,8 +55,49 @@ async def confirm_button(ctx, message, CLIENT, re={8: 5160}):
     return a
 
 
-class Pages(nextcord.ui.View):
-    def __init__(self, ctx, embeds, restricted=False, start_from=0):
+class SelectionPages(nextcord.ui.Select):
+    def __init__(self, CTX, EMBEDS: list, RESTRICTED: bool, *args, **kwargs):
+        self.CTX = CTX
+        self.EMBEDS = EMBEDS[:25]
+        self.RESTRICTED = RESTRICTED
+        options = []
+        self.op = {}
+        for i in self.EMBEDS:
+            if isinstance(i.title, str):
+                self.op[i.title] = i
+                options.append(
+                    nextcord.SelectOption(
+                        label=i.title, emoji="📜", description="Go to this page"
+                    )
+                )
+            else:
+                options.append(
+                    nextcord.SelectOption(
+                        label="Page Title Unavailable",
+                        emoji="📜",
+                        description="Go to this page",
+                    )
+                )
+        super().__init__(
+            min_values=1,
+            max_values=1,
+            options=options,
+        )
+
+    async def callback(self, interaction: nextcord.Interaction):
+        user = getattr(self.CTX, "author", getattr(self.CTX, "user", None))
+        if interaction.user.id == user.id:
+            await interaction.edit(embed=self.op[self.values[0]])
+
+
+class SelectionPagesView(nextcord.ui.View):
+    def __init__(self, CTX, EMBEDS: list, RESTRICTED: bool, *args, **kwargs):
+        super().__init__(timeout=None)
+        self.add_item(SelectionPages(CTX, EMBEDS, RESTRICTED))
+
+
+class ButtonPages(nextcord.ui.View):
+    def __init__(self, ctx, embeds, restricted=False, start_from=0, *args):
         super().__init__()
         self.embeds = embeds
         self.ctx = ctx
@@ -84,11 +126,18 @@ class Pages(nextcord.ui.View):
         await inter.response.edit_message(embed=self.embeds[self.page])
 
 
-async def pa(ctx, embeds, restricted=False, start_from=0, delete_after: int = None):
+async def pa(
+    ctx, embeds, restricted=False, start_from=0, delete_after: int = None, t: str = "b"
+):
     if len(embeds) > 1:
+        view = None
+        if t == "b":
+            view = ButtonPages
+        elif t == "s":
+            view = SelectionPagesView
         await ctx.send(
             embed=embeds[start_from],
-            view=Pages(ctx, embeds, restricted, start_from),
+            view=view(ctx, embeds, restricted, start_from),
             delete_after=delete_after,
         )
     else:
@@ -313,7 +362,7 @@ class Role(nextcord.ui.Select):
         ]
         super().__init__(
             placeholder="Select your Role",
-            min_values=1,
+            min_values=0,
             max_values=1,
             options=options,
             custom_id="alfred_role_application",
@@ -335,3 +384,31 @@ class RoleView(nextcord.ui.View):
         super().__init__(timeout=None)
         self.roles = roles
         self.add_item(Role(self.roles))
+
+
+class Msetup_DropDownSelect(nextcord.ui.Select):
+    def __init__(self, func, user: nextcord.Member):
+        self.user = user
+        self.func = func
+        options = [
+            nextcord.SelectOption(label=i.upper(), emoji="⏺️", description=f"Set {i}")
+            for i in ef.m_options
+        ]
+        super().__init__(
+            placeholder="Select Embed Feature",
+            min_values=1,
+            max_values=1,
+            options=options,
+        )
+
+    async def callback(self, interaction: nextcord.Interaction):
+        if interaction.user.id != self.user.id:
+            await interaction.response.send_message("Not your Embed 🔪", ephemeral=True)
+            return
+        await self.func(self.values[0])
+
+
+class Msetup_DropDownView(nextcord.ui.View):
+    def __init__(self, func, user):
+        super().__init__(timeout=600)
+        self.add_item(Msetup_DropDownSelect(func=func, user=user))

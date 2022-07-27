@@ -2,6 +2,7 @@ import nextcord
 import traceback
 import asyncio
 import utils.External_functions as ef
+import utils.assets as assets
 from nextcord.ext import commands
 from yaml import safe_load, safe_dump
 from typing import Union
@@ -141,6 +142,7 @@ def yaml_to_dict(yaml):
 class MSetup:
     def __init__(self, ctx, CLIENT):
         self.ctx = ctx
+        self.USER = getattr(ctx, "author", getattr(ctx, "user", None))
         self.CLIENT = CLIENT
         self.di = {}
         self.EDIT_MESSAGE = None
@@ -204,13 +206,28 @@ class MSetup:
         else:
             self.INSTRUCTION = await self.ctx.send(embed=embed)
         if not self.EDIT_MESSAGE:
+            user = getattr(self.ctx, "user", getattr(self.ctx, "author", None))
             self.EDIT_MESSAGE = await self.ctx.send(
-                embed=embed_from_dict(self.di, self.ctx, self.CLIENT)
+                embed=embed_from_dict(self.di, self.ctx, self.CLIENT),
+                view=assets.Msetup_DropDownView(self.change_setup, user),
             )
         else:
             await self.EDIT_MESSAGE.edit(
                 embed=embed_from_dict(self.di, self.ctx, self.CLIENT)
             )
+
+    async def change_setup(self, MODE: str) -> str:
+        self.SETUP_VALUE = MODE
+        self.SETUP_VALUE = MODE.lower()
+        await self.EDIT_MESSAGE.edit(
+            embed=ef.cembed(
+                title=f"Editing {MODE}",
+                description=f"Currently editing {MODE}, please follow the syntax from the instruction page",
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar.url,
+            )
+        )
+        return MODE
 
     def to_yaml(self):
         """
@@ -265,7 +282,7 @@ class MSetup:
 
     def author(self, text=None):
         return (
-            {"name": self.ctx.author.name, "icon_url": ef.safe_pfp(self.ctx.author)}
+            {"name": self.USER.name, "icon_url": ef.safe_pfp(self.USER)}
             if text.lower() == "true"
             else text
         )
@@ -344,19 +361,22 @@ class Embed(commands.Cog):
         self.CLIENT = CLIENT
         self.old_messages = {}
 
-    @commands.command(aliases=["msetup1"])
+    @nextcord.slash_command(name="msetup", description="Set your mehspace here")
+    async def msetup_slash(self, inter):
+        await self.msetup(inter)
+
+    @commands.command(aliases=["msetup1", "mehsetup"])
     async def msetup(self, ctx):
         session = MSetup(ctx, self.CLIENT)
         await session.send_instructions()
         scd = ["send", "cancel", "done"]
+        user = getattr(ctx, "user", getattr(ctx, "author", None))
 
         while True:
             try:
                 message = await self.CLIENT.wait_for(
                     "message",
-                    check=lambda m: all(
-                        [m.author == ctx.author, m.channel == ctx.channel]
-                    ),
+                    check=lambda m: all([m.author == user, m.channel == ctx.channel]),
                 )
                 await session.process_message(message)
 
@@ -373,7 +393,7 @@ class Embed(commands.Cog):
                         )
 
                         if confirm:
-                            self.CLIENT.mspace[ctx.author.id] = session.to_yaml()
+                            self.CLIENT.mspace[user.id] = session.to_yaml()
                             await ctx.send("Done")
                             break
 
@@ -395,7 +415,7 @@ class Embed(commands.Cog):
                         if self.CLIENT.get_channel(int(text[7:-1])):
                             channel = self.CLIENT.get_channel(int(text[7:-1]))
                             print(channel)
-                            if channel.permissions_for(ctx.author).send_messages:
+                            if channel.permissions_for(user).send_messages:
                                 if channel.permissions_for(ctx.guild.me).send_messages:
                                     await channel.send(embed=embed)
                                 else:

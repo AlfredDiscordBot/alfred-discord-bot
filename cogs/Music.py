@@ -159,13 +159,7 @@ class Music(commands.Cog):
     @commands.command(aliases=["cq"])
     @commands.check(ef.check_command)
     async def clearqueue(self, ctx):
-        mem = (
-            [names.id for names in ctx.guild.voice_client.channel.members]
-            if ctx.guild.voice_client
-            else []
-        )
-        user = getattr(ctx, "author", getattr(ctx, "user", None))
-        if mem.count(user.id) > 0:
+        if ef.check_voice(ctx):
             if len(self.CLIENT.queue_song.get(ctx.guild.id, [])) > 0:
                 self.CLIENT.queue_song[ctx.guild.id].clear()
             self.CLIENT.re[3][ctx.guild.id] = 0

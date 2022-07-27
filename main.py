@@ -22,6 +22,7 @@ from utils.External_functions import (
     defa,
     devop_mtext,
     datetime,
+    line_strip,
     wait_for_confirm,
     safe_pfp,
     get_async,
@@ -468,7 +469,8 @@ async def load(ctx):
         cpu_freq = str(int(psutil.cpu_freq().current))
         ram = str(psutil.virtual_memory().percent)
         swap = str(psutil.swap_memory().percent)
-        usage = f"""```yml
+        usage = line_strip(
+            f"""```yml
         CPU Percentage: {cpu_per}%
         CPU Frequency : {cpu_freq}Mhz
         RAM usage: {ram}%
@@ -476,6 +478,7 @@ async def load(ctx):
         Nextcord: {nextcord.__version__}
         ```
         """
+        )
         usage = "\n".join([i.strip() for i in usage.split("\n")])
         embed = cembed(
             title="Current load",
@@ -545,55 +548,6 @@ async def docs(ctx, name):
                 title="Error", description=str(e), color=nextcord.Color(value=re[8])
             )
         )
-
-
-@CLIENT.event
-async def on_member_join(member):
-    if member.guild.id in config["security"]:
-        audit_log = await member.guild.audit_logs(limit=10).flatten()
-        latest = audit_log[0]
-        if member.bot:
-            channel = CLIENT.get_channel(config["security"][member.guild.id])
-            if channel:
-                await channel.send(
-                    embed=cembed(
-                        title="Bot added",
-                        description=f"{latest.target.mention} was added by {latest.user.mention}, please be careful while handling bots and try not to provide it with all the permissions as it can be dangerous",
-                        color=re[8],
-                        footer="Security alert by Alfred",
-                    )
-                )
-
-
-@CLIENT.event
-async def on_member_remove(member):
-    if member.guild.id in config["security"]:
-        print(member.guild)
-        a = member.guild
-        audit_log = await a.audit_logs(limit=10).flatten()
-        latest = audit_log[0]
-        if latest.target == member:
-            channel = CLIENT.get_channel(config["security"][member.guild.id])
-            if latest.action == nextcord.AuditLogAction.ban:
-                await channel.send(
-                    embed=cembed(
-                        title=f"Banned",
-                        description=f"{latest.user.mention} banned {latest.target.name}",
-                        color=re[8],
-                        footer="Security alert by Alfred",
-                        thumbnail=member.guild.icon.url,
-                    )
-                )
-            elif latest.action == nextcord.AuditLogAction.kick:
-                await channel.send(
-                    embed=cembed(
-                        title=f"Kicked",
-                        description=f"{latest.user.mention} kicked {latest.target.name}",
-                        color=re[8],
-                        footer="Security alert by Alfred",
-                        thumbnail=member.guild.icon.url,
-                    )
-                )
 
 
 @CLIENT.command()

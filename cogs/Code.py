@@ -430,7 +430,7 @@ class Code(commands.Cog):
                 image=image,
             )
             info = await repo_stats_dict(repo, self.CLIENT.re[8])
-            repo_embeds.append(embed_from_dict(info, inter, inter.CLIENT))
+            repo_embeds.append(embed_from_dict(info, inter, self.CLIENT))
         return repo_embeds
 
     @commands.command(name="code", aliases=["run"], description="Run Code through EMKC")
@@ -520,7 +520,7 @@ class Code(commands.Cog):
     async def trending_repo(self, inter):
         await inter.response.defer()
         await self.ghtrend.setup()
-        await assets.pa(inter, self.ghtrend.trending_repositories())
+        await assets.pa(inter, self.ghtrend.trending_repositories(), t="s")
 
 
 def setup(CLIENT, **i):
