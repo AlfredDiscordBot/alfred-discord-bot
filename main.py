@@ -71,11 +71,11 @@ re: list = [
     {},
     {},
     -1,
-    "", # re[5] if free
-    "", # re[6] is free
+    "",  # re[5] if free
+    "",  # re[6] is free
     {},
-    5360, # re[8] -> color
-    "", # re[9] is free
+    5360,  # re[8] -> color
+    "",  # re[9] is free
     {},
 ]
 youtube: list = []

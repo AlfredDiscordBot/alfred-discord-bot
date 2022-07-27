@@ -555,12 +555,21 @@ class Configuration(commands.Cog):
             )
         )
 
-    @config.subcommand(name="autoreact", description="Automatically reacts to every message in a channel")
-    async def autoreactslash(self, inter, channel: GuildChannel = ef.defa(ChannelType.text), emojis: str = ""):
+    @config.subcommand(
+        name="autoreact",
+        description="Automatically reacts to every message in a channel",
+    )
+    async def autoreactslash(
+        self, inter, channel: GuildChannel = ef.defa(ChannelType.text), emojis: str = ""
+    ):
         await self.autoreact(inter, channel, Emojis=emojis)
 
-    @config.subcommand(name="removereact", description="Clears autoreact from a channel")
-    async def removeautoreactslash(self, inter, channel: GuildChannel = ef.defa(ChannelType.text)):
+    @config.subcommand(
+        name="removereact", description="Clears autoreact from a channel"
+    )
+    async def removeautoreactslash(
+        self, inter, channel: GuildChannel = ef.defa(ChannelType.text)
+    ):
         await self.remove_autoreact(inter, channel=channel)
 
     @commands.command(aliases=["autoreaction"])
@@ -576,7 +585,7 @@ class Configuration(commands.Cog):
                     title="Permissions Denied",
                     description="You cannot set autoreact, you do not have admin privilege",
                     color=self.CLIENT.re[8],
-                    thumbnail=self.CLIENT.user.avatar
+                    thumbnail=self.CLIENT.user.avatar,
                 )
             )
             return
@@ -588,10 +597,8 @@ class Configuration(commands.Cog):
                         "You need to mention a channel\n'autoreact #channel :one:|:two:|:three:"
                     ),
                     color=self.CLIENT.re[8],
-                    author=getattr(
-                        ctx, "author", getattr(ctx, "user", None)
-                    ),
-                    thumbnail=self.CLIENT.user.avatar
+                    author=getattr(ctx, "author", getattr(ctx, "user", None)),
+                    thumbnail=self.CLIENT.user.avatar,
                 )
             )
             return
@@ -631,9 +638,7 @@ class Configuration(commands.Cog):
                     title="Permissions Denied",
                     description="You cannot remove autoreact, you do not have admin privilege",
                     color=self.CLIENT.re[8],
-                    author=getattr(
-                        ctx, "author", getattr(ctx, "user", None)
-                    )
+                    author=getattr(ctx, "author", getattr(ctx, "user", None)),
                 )
             )
             return
