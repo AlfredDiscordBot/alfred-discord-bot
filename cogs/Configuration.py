@@ -562,6 +562,7 @@ class Configuration(commands.Cog):
     async def autoreactslash(
         self, inter, channel: GuildChannel = ef.defa(ChannelType.text), emojis: str = ""
     ):
+        await inter.response.defer()
         await self.autoreact(inter, channel, Emojis=emojis)
 
     @config.subcommand(
@@ -570,6 +571,7 @@ class Configuration(commands.Cog):
     async def removeautoreactslash(
         self, inter, channel: GuildChannel = ef.defa(ChannelType.text)
     ):
+        await inter.response.defer()
         await self.remove_autoreact(inter, channel=channel)
 
     @commands.command(aliases=["autoreaction"])
@@ -642,6 +644,15 @@ class Configuration(commands.Cog):
                 )
             )
             return
+        if not channel:
+            await ctx.send(
+                embed=ef.cembed(
+                    title="This time",
+                    description="Mention a channel, in the `channel` field",
+                    color=self.CLIENT.re[8],
+                    thumbnail=self.CLIENT.user.avatar,
+                )
+            )
         if not channel.id in self.CLIENT.autor:
             await ctx.send(
                 embed=ef.cembed(
