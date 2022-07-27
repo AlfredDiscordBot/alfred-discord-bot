@@ -140,11 +140,14 @@ def yaml_to_dict(yaml):
 
 
 class MSetup:
-    def __init__(self, ctx, CLIENT):
+    def __init__(
+        self, ctx: Union[commands.context.Context, nextcord.Interaction], CLIENT
+    ):
         self.ctx = ctx
         self.USER = getattr(ctx, "author", getattr(ctx, "user", None))
         self.CLIENT = CLIENT
-        self.di = {}
+        self.END = False
+        self.di: dict = {}
         self.EDIT_MESSAGE = None
         self.INSTRUCTION = None
         self.OPTIONS = ef.m_options
@@ -216,8 +219,13 @@ class MSetup:
                 embed=embed_from_dict(self.di, self.ctx, self.CLIENT)
             )
 
-    async def change_setup(self, MODE: str) -> str:
-        self.SETUP_VALUE = MODE
+    async def change_setup(self, MODE: str, inter: nextcord.Interaction) -> str:
+        if self.END:
+            await inter.response.send_message(
+                content="🔚This Msetup Session Ended, please use `import` and reply to this embed by creating a new `/msetup`",
+                ephemeral=True,
+            )
+            return
         self.SETUP_VALUE = MODE.lower()
         await self.EDIT_MESSAGE.edit(
             embed=ef.cembed(
@@ -402,7 +410,7 @@ class Embed(commands.Cog):
 
                     if text.lower() == "cancel":
                         await ctx.send("Cancelled")
-                        return
+                        break
 
                     if text.lower().startswith("send"):
                         if validate_url(text[5:]):
@@ -441,6 +449,8 @@ class Embed(commands.Cog):
                 break
             except:
                 print(traceback.format_exc())
+
+        session.END = True
 
     @commands.command()
     @commands.check(ef.check_command)

@@ -405,7 +405,7 @@ class Msetup_DropDownSelect(nextcord.ui.Select):
         if interaction.user.id != self.user.id:
             await interaction.response.send_message("Not your Embed 🔪", ephemeral=True)
             return
-        await self.func(self.values[0])
+        await self.func(self.values[0], interaction)
 
 
 class Msetup_DropDownView(nextcord.ui.View):
