@@ -49,16 +49,10 @@ old_youtube_vid: dict = {}
 youtube_cache: dict = {}
 deleted_message: dict = {}
 config: dict = {
-    "snipe": [
-        841026124174983188,
-        822445271019421746,
-        830050310181486672,
-        912569937116147772,
-    ],
+    "snipe": [],
     "respond": [],
     "youtube": {},
     "welcome": {},
-    "ticket": {},
     "security": {},
     "commands": {},
     "reactions": {},
@@ -77,11 +71,11 @@ re: list = [
     {},
     {},
     -1,
-    "",
-    "205",
+    "", # re[5] if free
+    "", # re[6] is free
     {},
-    5360,
-    "48515587275%3A0AvceDiA27u1vT%3A26",
+    5360, # re[8] -> color
+    "", # re[9] is free
     {},
 ]
 youtube: list = []
@@ -106,7 +100,7 @@ FFMPEG_OPTIONS = {
     "options": "-vn",
 }
 
-print("Starting")
+print("INITIALISING CLIENT")
 
 
 def prefix_check(client_variable, message):
