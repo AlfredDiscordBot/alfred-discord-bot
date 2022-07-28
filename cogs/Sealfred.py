@@ -67,6 +67,7 @@ class Sealfred(commands.Cog):
                 )
             )
 
+    @commands.Cog.listener()
     async def on_member_join(self, member):
         if member.guild.id in self.CLIENT.config["security"]:
             audit_log = await member.guild.audit_logs(limit=10).flatten()

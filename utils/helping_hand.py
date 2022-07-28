@@ -1,4 +1,6 @@
 import nextcord
+
+from nextcord.ext import commands
 from .External_functions import cembed, defa, dict2fields
 from .assets import *
 
@@ -293,3 +295,53 @@ neofetch = """
                                      .......                                    
                                                                                 
 """
+
+class AutoHelpGen:
+    '''
+    Must only be used after or on_ready
+    Automatically Creates Embeds based on Cogs
+    '''
+    def __init__(self, CLIENT: commands.Bot, user: nextcord.Member, extra_embeds: List[nextcord.Embed]):
+        self.CLIENT = CLIENT
+        self.USER = user
+        self.COLOR = CLIENT.re[8]
+        self.IGNORE = [
+            "DataCleanup",
+            "Developer",
+            "SeaAlfred"
+        ]
+        self.COGS = self.generate_cogs()
+        self.EMBEDS = [
+            self.first_page(),
+            *extra_embeds,
+
+        ]
+
+    def generate_cogs(self):
+        cogs = []
+        for i, j in self.CLIENT.cogs.items():
+            if i not in self.IGNORE:
+                cogs.append(j)
+        return cogs
+
+    def embeds(self):
+        return self.EMBEDS
+
+    def first_page(self):
+        return cembed(
+            title=f"__Thank you for using {self.CLIENT.user.name}__",
+            author=self.CLIENT.user,
+            thumbnail=self.CLIENT.user.avatar,
+            footer="✅Verified by Discord"
+        )
+    
+    def fetch_application_commands(self, cog):
+        application_commands = []
+        for i in cog.application_commands:
+            main = f"/{i.name} "
+            st = ""
+            if temp := i.__dict__.get(['children']):
+                for i in temp:
+                    st+="`"+main+i+"`\n"
+            application_commands.append(st)
+        return "\n".join(application_commands)

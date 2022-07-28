@@ -254,12 +254,18 @@ class FunAPI(commands.Cog):
                 color=self.CLIENT.re[8],
                 description=f"This result is taken from Wolfram Alpha\nQuery: `{query}`",
             ),
-        )
+        )   
 
-    @commands.command()
+    @commands.command(aliases=["zoo", "animals"])
     @commands.check(ef.check_command)
-    async def json_viewer(self, ctx, url: str):
-        await assets.test_JSON(ctx, url=url)
+    async def animal(self, ctx):
+        embeds = await ef.animals(self.CLIENT, ctx, self.CLIENT.re[8])
+        await assets.pa(ctx, embeds, t='s')
+
+    @funapi.subcommand(name="animal", description="Gets random 10 animals")
+    async def animal_slash(self, inter: nextcord.Interaction):
+        await inter.response.defer()
+        await self.animal(inter)
 
     @funapi.subcommand(
         name="pokemon", description="Get details about a pokemon -> Beta"
