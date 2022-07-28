@@ -513,7 +513,7 @@ def check_voice(ctx):
     Checks if the user is in the Voice Channel
     """
     try:
-        mem = [ID for ID in ctx.guild.voice_client.channel.members]
+        mem = [member.id for member in ctx.guild.voice_client.channel.members]
     except:
         mem = []
     return getattr(ctx, "author", getattr(ctx, "user", None)).id in mem
