@@ -1,5 +1,6 @@
 from typing import List
 from click import option
+from discord import Interaction
 import nextcord
 from . import External_functions as ef
 
@@ -199,11 +200,12 @@ vote_embed = lambda CLIENT: ef.cembed(
 
 
 class JSONViewer(nextcord.ui.View):
-    def __init__(self, di, CLIENT):
+    def __init__(self, di, main):
         super().__init__()
+        self.USER = getattr(main, "author", getattr(main, "user", None))
         self.di = di
         self.current_location = []
-        self.CLIENT = CLIENT
+        self.CLIENT = getattr(main, "client", getattr(main, "bot", None))
         self.currently_selected = list(self.di)[0] if len(self.di) else None
 
     def smart_get(self, a, location):
@@ -322,6 +324,9 @@ class JSONViewer(nextcord.ui.View):
 
 
 async def test_JSON(ctx, url):
+    user = getattr(ctx, "author", getattr(ctx, "user", None))
+    client = getattr(ctx, "bot", getattr(ctx, "client", None))
+    color = ctx.client.re[8] if isinstance(ctx, nextcord.Interaction) else ctx.bot.re[8]
     if ef.validate_url(url):
         try:
             json = await ef.get_async(url, kind="json")
@@ -330,26 +335,28 @@ async def test_JSON(ctx, url):
                 embed=ef.cembed(
                     title="Got an Unexpected error",
                     description=f"```py\n{ef.traceback.format_exc()}\n```",
-                    color=ctx.bot.re[8],
-                    author=ctx.author,
-                    thumbnail=ctx.bot.user.avatar.url,
+                    color=color,
+                    author=user,
+                    thumbnail=client.user.avatar,
                 )
             )
         await ctx.send(
             embed=ef.cembed(
                 title="JSONViewer",
                 description="Here's the beginning of test_JSON\nHave fun",
-                color=ctx.bot.re[8],
+                color=color,
+                author=user,
+                thumbnail=client.user.avatar,
             ),
-            view=JSONViewer(json, ctx.bot),
+            view=JSONViewer(json, ctx),
         )
     else:
         await ctx.send(
             embed=ef.cembed(
                 title="Invalid",
                 description="Invalid URL, please type in proper URL to fetch from",
-                color=ctx.bot.re[8],
-                author=ctx.author,
+                color=color,
+                author=user,
             )
         )
 

@@ -14,7 +14,10 @@ def requirements():
     return ["DEV_CHANNEL"]
 
 
-class Configuration(commands.Cog):
+class Configuration(
+    commands.Cog,
+    description="This is where you get to configure Alfred's features, disable prefix commands and respond features",
+):
     text_slash_ = ef.defa(ChannelType.text)
 
     def __init__(self, CLIENT: commands.Bot, DEV_CHANNEL):

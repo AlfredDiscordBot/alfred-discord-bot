@@ -379,7 +379,10 @@ class GhCacheControl:
         return [ef.cembed(**i) for i in self.repository]
 
 
-class Code(commands.Cog):
+class Code(
+    commands.Cog,
+    description="Has tons of stuff that could help you code\n✅Runs Basic code in EMKC\n✅Github Repository and users\n✅JSON VIEWER",
+):
     def __init__(self, CLIENT):
         self.CLIENT = CLIENT
         self.rce = CodeExecutor()
@@ -467,9 +470,25 @@ class Code(commands.Cog):
             )
         )
 
-    @nextcord.slash_command(name="github", description="Get info about Github...")
+    @commands.command()
+    @commands.check(ef.check_command)
+    async def json_viewer(self, ctx, url: str):
+        await assets.test_JSON(ctx, url=url)
+
+    @nextcord.slash_command(
+        name="code", description="This is a paradise for developers"
+    )
+    async def code(self, inter):
+        print(inter.user)
+
+    @code.subcommand(name="github", description="Get info about Github...")
     async def gh(self, inter):
         print(inter.user)
+
+    @code.subcommand(name="json", description="View Json file from here")
+    async def json_v_slash(self, inter, url: str):
+        await inter.response.defer()
+        await assets.test_JSON(inter, url)
 
     @gh.subcommand(description="User")
     async def user(self, inter, user: str):
@@ -510,17 +529,17 @@ class Code(commands.Cog):
         embed = embed_from_dict(stats_embed, inter, self.CLIENT)
         await inter.send(embed=embed)
 
-    @gh.subcommand(name="trending", description="Trending Github")
-    async def trending_command(self, inter):
-        print(inter.user)
-
-    @trending_command.subcommand(
-        name="repo", description="Gives a list of trending repositories"
-    )
+    @gh.subcommand(name="trending", description="Gives a list of trending repositories")
     async def trending_repo(self, inter):
         await inter.response.defer()
         await self.ghtrend.setup()
         await assets.pa(inter, self.ghtrend.trending_repositories(), t="s")
+
+    @code.subcommand(name="pypi", description="Get a package from PyPi")
+    async def pypi_slash(self, inter, package: str = "nextcord"):
+        await inter.response.defer()
+        embeds = await ef.pypi_call(package=package, ctx=inter)
+        await assets.pa(inter, embeds, t="s")
 
 
 def setup(CLIENT, **i):

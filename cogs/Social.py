@@ -72,12 +72,6 @@ class Social(commands.Cog):
     async def imdb(self, ctx, *, movie):
         await ctx.send(embed=ef.imdb_embed(movie, self.CLIENT.re))
 
-    @commands.command(aliases=["zoo", "animals"])
-    @commands.check(ef.check_command)
-    async def animal(self, ctx):
-        embeds = await ef.animals(self.CLIENT, ctx, self.CLIENT.re[8])
-        await assets.pa(ctx, embeds)
-
     @social.subcommand(name="wikipedia", description="Get a topic from wikipedia")
     async def wiki_slash(self, inter, text):
         await inter.response.defer()

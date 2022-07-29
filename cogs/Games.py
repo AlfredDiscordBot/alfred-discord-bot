@@ -12,7 +12,7 @@ def requirements():
     return ["FFMPEG_OPTIONS"]
 
 
-class Games(commands.Cog):
+class Games(commands.Cog, description="Very Simple Games"):
     def __init__(self, CLIENT: commands.Bot, FFMPEG_OPTIONS):
         self.CLIENT = CLIENT
         self.FFMPEG_OPTIONS = FFMPEG_OPTIONS

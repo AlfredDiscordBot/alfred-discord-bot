@@ -12,7 +12,7 @@ def requirements():
     return ["WOLFRAM"]
 
 
-class FunAPI(commands.Cog):
+class FunAPI(commands.Cog, description="Here lies some fun stuff"):
     def __init__(self, CLIENT: commands.Bot, WOLFRAM: str):
         self.CLIENT = CLIENT
         self.space = ef.SpaceX(self.CLIENT.re[8])
@@ -256,10 +256,16 @@ class FunAPI(commands.Cog):
             ),
         )
 
-    @commands.command()
+    @commands.command(aliases=["zoo", "animals"])
     @commands.check(ef.check_command)
-    async def json_viewer(self, ctx, url: str):
-        await assets.test_JSON(ctx, url=url)
+    async def animal(self, ctx):
+        embeds = await ef.animals(self.CLIENT, ctx, self.CLIENT.re[8])
+        await assets.pa(ctx, embeds, t="s")
+
+    @funapi.subcommand(name="animal", description="Gets random 10 animals")
+    async def animal_slash(self, inter: nextcord.Interaction):
+        await inter.response.defer()
+        await self.animal(inter)
 
     @funapi.subcommand(
         name="pokemon", description="Get details about a pokemon -> Beta"

@@ -39,7 +39,10 @@ class Card:
         return self.query
 
 
-class Welcome(commands.Cog):
+class Welcome(
+    commands.Cog,
+    description="Sends a Welcome message to the specified channel\nUse `/config welcome` to setup",
+):
     def __init__(self, client):
         self.client = client
 
