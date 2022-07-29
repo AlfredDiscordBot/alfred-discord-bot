@@ -379,7 +379,10 @@ class GhCacheControl:
         return [ef.cembed(**i) for i in self.repository]
 
 
-class Code(commands.Cog, description="Has tons of stuff that could help you code\n✅Runs Basic code in EMKC\n✅Github Repository and users\n✅JSON VIEWER"):
+class Code(
+    commands.Cog,
+    description="Has tons of stuff that could help you code\n✅Runs Basic code in EMKC\n✅Github Repository and users\n✅JSON VIEWER",
+):
     def __init__(self, CLIENT):
         self.CLIENT = CLIENT
         self.rce = CodeExecutor()
@@ -466,13 +469,15 @@ class Code(commands.Cog, description="Has tons of stuff that could help you code
                 },
             )
         )
-    
+
     @commands.command()
     @commands.check(ef.check_command)
     async def json_viewer(self, ctx, url: str):
         await assets.test_JSON(ctx, url=url)
 
-    @nextcord.slash_command(name="code", description="This is a paradise for developers")
+    @nextcord.slash_command(
+        name="code", description="This is a paradise for developers"
+    )
     async def code(self, inter):
         print(inter.user)
 
@@ -524,9 +529,7 @@ class Code(commands.Cog, description="Has tons of stuff that could help you code
         embed = embed_from_dict(stats_embed, inter, self.CLIENT)
         await inter.send(embed=embed)
 
-    @gh.subcommand(
-        name="trending", description="Gives a list of trending repositories"
-    )
+    @gh.subcommand(name="trending", description="Gives a list of trending repositories")
     async def trending_repo(self, inter):
         await inter.response.defer()
         await self.ghtrend.setup()

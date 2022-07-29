@@ -15,7 +15,10 @@ def requirements():
     return ["DEV_CHANNEL", "start_time"]
 
 
-class BotInfo(commands.Cog, description="Has Information about the Bot and other commands to see info about your current server, etc."):
+class BotInfo(
+    commands.Cog,
+    description="Has Information about the Bot and other commands to see info about your current server, etc.",
+):
     def __init__(self, CLIENT, DEV_CHANNEL, start_time):
         self.CLIENT = CLIENT
         self.start_time = start_time

@@ -254,13 +254,13 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
                 color=self.CLIENT.re[8],
                 description=f"This result is taken from Wolfram Alpha\nQuery: `{query}`",
             ),
-        )   
+        )
 
     @commands.command(aliases=["zoo", "animals"])
     @commands.check(ef.check_command)
     async def animal(self, ctx):
         embeds = await ef.animals(self.CLIENT, ctx, self.CLIENT.re[8])
-        await assets.pa(ctx, embeds, t='s')
+        await assets.pa(ctx, embeds, t="s")
 
     @funapi.subcommand(name="animal", description="Gets random 10 animals")
     async def animal_slash(self, inter: nextcord.Interaction):

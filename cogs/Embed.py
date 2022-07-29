@@ -364,7 +364,10 @@ class MSetup:
         return self.to_yaml()
 
 
-class Embed(commands.Cog, description="This is one of the best Set of Features in Alfred, Helps you create Embed and is one of the most widely used command"):
+class Embed(
+    commands.Cog,
+    description="This is one of the best Set of Features in Alfred, Helps you create Embed and is one of the most widely used command",
+):
     def __init__(self, CLIENT: commands.Bot):
         self.CLIENT = CLIENT
         self.old_messages = {}

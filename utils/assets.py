@@ -202,7 +202,7 @@ vote_embed = lambda CLIENT: ef.cembed(
 class JSONViewer(nextcord.ui.View):
     def __init__(self, di, main):
         super().__init__()
-        self.USER = getattr(main, 'author', getattr(main, 'user', None))
+        self.USER = getattr(main, "author", getattr(main, "user", None))
         self.di = di
         self.current_location = []
         self.CLIENT = getattr(main, "client", getattr(main, "bot", None))
@@ -324,10 +324,10 @@ class JSONViewer(nextcord.ui.View):
 
 
 async def test_JSON(ctx, url):
-    user = getattr(ctx, 'author', getattr(ctx, 'user', None))
-    client = getattr(ctx, 'bot', getattr(ctx, 'client', None))
+    user = getattr(ctx, "author", getattr(ctx, "user", None))
+    client = getattr(ctx, "bot", getattr(ctx, "client", None))
     color = ctx.client.re[8] if isinstance(ctx, nextcord.Interaction) else ctx.bot.re[8]
-    if ef.validate_url(url):        
+    if ef.validate_url(url):
         try:
             json = await ef.get_async(url, kind="json")
         except:

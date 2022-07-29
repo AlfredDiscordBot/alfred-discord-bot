@@ -148,7 +148,7 @@ def cembed(
     url=None,
     color=nextcord.Color.dark_theme(),
     footer=None,
-    author: Union[nextcord.Member, bool, dict]=False,
+    author: Union[nextcord.Member, bool, dict] = False,
     fields=None,
     image=None,
 ):
@@ -734,7 +734,7 @@ async def animals(client, ctx, color: Union[int, nextcord.Color], number: int = 
                 "Weight": f"{int(float(d['weight_min'])*0.453592)} to {int(float(d['weight_max'])*0.453592)} kg",
                 "Life Span": f"{d['lifespan']} years",
                 "Habitat": f"{d['habitat']}, {d['geo_range']}",
-            }
+            },
         )
 
         embeds.append(embed)
@@ -1096,12 +1096,14 @@ def error_message(error: str):
 def dict2fields(d: dict, inline: bool = True):
     return [{"name": i, "value": d[i], "inline": inline} for i in d]
 
+
 def dict2str(d: dict):
-    return '\n'.join(f"`{i.upper()}: ` {j}" for i, j in d.items())
+    return "\n".join(f"`{i.upper()}: ` {j}" for i, j in d.items())
 
 
 def line_strip(text: str):
     return "\n".join([i.strip() for i in text.split("\n")])
+
 
 def nunchaku(var, t):
     if not var:
@@ -1139,9 +1141,11 @@ class Detector:
         else:
             return None
 
+
 async def pypi_call(package: str, ctx):
     j = await get_async(f"https://pypi.org/pypi/{package}/json", kind="json")
     return PyPi(j, ctx).render_embeds()
+
 
 class PyPi:
     def __init__(self, DICTIONARY, ctx):
@@ -1151,57 +1155,75 @@ class PyPi:
             self.COLOR = ctx.client.re[8]
             self.AUTHOR = ctx.user
         else:
-            self.COLOR = ctx.bot.re[8],
+            self.COLOR = (ctx.bot.re[8],)
             self.AUTHOR = ctx.author
         self.DICTIONARY: dict = DICTIONARY
-        self.DEFAULT_IMAGE = "https://miro.medium.com/max/1200/1*8Zh-mzLnVMDsbvXdKsU4lw.png"
+        self.DEFAULT_IMAGE = (
+            "https://miro.medium.com/max/1200/1*8Zh-mzLnVMDsbvXdKsU4lw.png"
+        )
         self.DEFAULT_THUMBNAIL = "https://i2.wp.com/sefiks.com/wp-content/uploads/2020/03/pip_big.jpg?resize=496%2C496&ssl=1"
 
     def render_embeds(self):
-        if 'message' in self.DICTIONARY:
+        if "message" in self.DICTIONARY:
             return [
                 cembed(
                     title="Error",
                     color=nextcord.Color.red(),
-                    description=self.DICTIONARY.get('message', "Could not get the error message"),
+                    description=self.DICTIONARY.get(
+                        "message", "Could not get the error message"
+                    ),
                     thumbnail=self.DEFAULT_THUMBNAIL,
                     image=self.DEFAULT_IMAGE,
                     author=self.AUTHOR,
-                    fields=dict2fields({'Solutions': 'Find if the package exists, this can also happen when the API is down'})
+                    fields=dict2fields(
+                        {
+                            "Solutions": "Find if the package exists, this can also happen when the API is down"
+                        }
+                    ),
                 )
             ]
-        embeds = [
-            self.first_page()
-        ]
+        embeds = [self.first_page()]
         return embeds
 
     def requirements(self, info: dict):
-        if dist:=info.get('requires_dist', ""):
-            dist = '```yml\n- '+'\n- '.join([_ for _ in dist[:5]])+"\n```"
+        if dist := info.get("requires_dist", ""):
+            dist = "```yml\n- " + "\n- ".join([_ for _ in dist[:5]]) + "\n```"
         return f"`Requires dist: ` {dist}\n`Requires Python: ` {info.get('requires_python')}"
 
     def first_page(self):
-        info: dict = self.DICTIONARY['info']
-        description=info.get('summary')
-        self.footer={
-            'text': f'Latest Version: {info["version"]}',
-            'icon_url': self.DEFAULT_THUMBNAIL
+        info: dict = self.DICTIONARY["info"]
+        description = info.get("summary")
+        self.footer = {
+            "text": f'Latest Version: {info["version"]}',
+            "icon_url": self.DEFAULT_THUMBNAIL,
         }
-        project_urls = "\n".join([f"`{i.upper()}: ` [🔗]({j})" for i, j in nunchaku(info["project_urls"], dict).items()])
-        title, url=info.get('name'), info.get('package_url')
-        fields={
-            'Requirements': self.requirements(info),
-            'Classifiers': '```yml\n- '+'\n- '.join(info['classifiers'][:5])+'\n```',
-            'Stats': f'`LICENSE: ` {info.get("license")} \n{project_urls}',
-            'Releases': '\n'.join([f"[{i}](https://pypi.org/project/{title}/{i})" for i in self.DICTIONARY['releases']][1:5])
+        project_urls = "\n".join(
+            [
+                f"`{i.upper()}: ` [🔗]({j})"
+                for i, j in nunchaku(info["project_urls"], dict).items()
+            ]
+        )
+        title, url = info.get("name"), info.get("package_url")
+        fields = {
+            "Requirements": self.requirements(info),
+            "Classifiers": "```yml\n- "
+            + "\n- ".join(info["classifiers"][:5])
+            + "\n```",
+            "Stats": f'`LICENSE: ` {info.get("license")} \n{project_urls}',
+            "Releases": "\n".join(
+                [
+                    f"[{i}](https://pypi.org/project/{title}/{i})"
+                    for i in self.DICTIONARY["releases"]
+                ][1:5]
+            ),
         }
 
         image = self.DEFAULT_IMAGE
-        for i in nunchaku(info['project_urls'], dict).values():
+        for i in nunchaku(info["project_urls"], dict).values():
             if i.startswith("https://github.com/"):
                 image = f"https://opengraph.githubassets.com/1/{'/'.join(i.split('/')[3:5])}"
                 break
-        
+
         return cembed(
             title=title,
             url=url,
@@ -1211,5 +1233,5 @@ class PyPi:
             footer=self.footer,
             fields=fields,
             thumbnail=self.DEFAULT_THUMBNAIL,
-            image=image
+            image=image,
         )
