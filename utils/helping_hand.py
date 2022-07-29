@@ -154,7 +154,8 @@ class AutoHelpGen:
         return self.EMBEDS
 
     def first_page(self):
-        FEATURES = line_strip("""
+        FEATURES = line_strip(
+            """
         ```yml
         - MUSIC
         - EMBED
@@ -162,7 +163,8 @@ class AutoHelpGen:
         - FUN
         - API
         ```
-        """)
+        """
+        )
         return cembed(
             title=self.CLIENT.user.name,
             author=self.CLIENT.user,
@@ -170,12 +172,7 @@ class AutoHelpGen:
             footer="✅Verified by Discord",
             image="https://github.com/AlfredDiscordBot/alfred-discord-bot/blob/default/Bat.jpg?raw=True",
             description=f"Default Prefix is `'`\n{self.CLIENT.user.name} is a free and open source software with MIT License published in Github, which is currently in {len(self.CLIENT.guilds)} servers",
-            fields=[
-                {
-                    'name': '__MAIN FEATURES__',
-                    'value': FEATURES
-                }
-            ]
+            fields=[{"name": "__MAIN FEATURES__", "value": FEATURES}],
         )
 
     def fetch_application_commands(self, cog):
