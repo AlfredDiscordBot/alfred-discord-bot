@@ -21,7 +21,10 @@ DEFAULT_FOOTER = lambda picture: {
 }
 
 
-class Giveaway(commands.Cog, description="Use `/giveaway` to create a giveaway, to roll, you can either use the prefix command `'roll <number>` or message command roll"):
+class Giveaway(
+    commands.Cog,
+    description="Use `/giveaway` to create a giveaway, to roll, you can either use the prefix command `'roll <number>` or message command roll",
+):
     def __init__(self, CLIENT: commands.Bot):
         self.CLIENT = CLIENT
 
