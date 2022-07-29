@@ -1,7 +1,6 @@
 from io import BytesIO
 from string import ascii_letters
 from bs4 import BeautifulSoup
-from cv2 import DescriptorMatcher_BRUTEFORCE_HAMMING
 from nextcord import SlashOption
 from dotenv import load_dotenv
 from functools import lru_cache
