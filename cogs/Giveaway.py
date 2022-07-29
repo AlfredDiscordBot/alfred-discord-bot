@@ -9,7 +9,19 @@ def requirements():
     return []
 
 
-class Giveaway(commands.Cog):
+DEFAULT_TITLE = "__GIVEAWAY__"
+DEFAULT_DESCRIPTION = (
+    lambda e, user: f"""
+New Giveaway, hosted by our very own {user.mention}, feel free to participate in this by reacting to the Emoji {e}
+"""
+)
+DEFAULT_FOOTER = lambda picture: {
+    "text": "All the best, I hope you win 🤞",
+    "icon_url": str(picture),
+}
+
+
+class Giveaway(commands.Cog, description="Use `/giveaway` to create a giveaway, to roll, you can either use the prefix command `'roll <number>` or message command roll"):
     def __init__(self, CLIENT: commands.Bot):
         self.CLIENT = CLIENT
 
@@ -21,20 +33,31 @@ class Giveaway(commands.Cog):
         inter,
         donor: nextcord.User = None,
         required_role: nextcord.Role = " ",
-        heading="Giveaway",
-        description="Giveaway",
+        heading=DEFAULT_TITLE,
+        description=None,
         emoji=emoji.emojize(":party_popper:"),
+        giveaway_money: str = None,
+        time: str = None,
         image="https://media.discordapp.net/attachments/960070023563603968/963041700996063282/standard_6.gif",
     ):
         await inter.response.defer()
         if donor is None:
             donor = inter.user
+        if description is None:
+            description = DEFAULT_DESCRIPTION(emoji, donor)
+        fields = {}
+        if giveaway_money:
+            fields["Money"] = giveaway_money
+        if time:
+            fields["Time"] = time
         embed = ef.cembed(
             title=heading,
             description=description,
             color=self.CLIENT.re[8],
             thumbnail=self.CLIENT.user.avatar.url,
             image=image,
+            footer=DEFAULT_FOOTER(self.CLIENT.user.avatar),
+            fields=ef.dict2fields(fields, inline=True),
         )
         embed.set_author(name=donor.name, icon_url=ef.safe_pfp(donor))
         m = await inter.send(
@@ -132,7 +155,7 @@ class Giveaway(commands.Cog):
             if roles != [] and roles not in i.roles:
                 users.remove(i)
                 await reaction.remove(i)
-        if len(users) == 0:
+        if not len(users):
             await inter.send("No one participated in the giveaway :frown:")
             return
         l = ""

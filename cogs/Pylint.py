@@ -13,7 +13,10 @@ def requirements():
     return ["DEV_CHANNEL"]
 
 
-class Pylint(commands.Cog):
+class Pylint(
+    commands.Cog,
+    description="This is where an important cog in alfred where you can test out Alfred's Code Scores",
+):
     TRUSTED_SERVERS = [
         822445271019421746,
         942303350182006815,

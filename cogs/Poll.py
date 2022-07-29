@@ -9,7 +9,7 @@ def requirements():
     return []
 
 
-class Poll(commands.Cog):
+class Poll(commands.Cog, description="Create a poll"):
     def __init__(self, CLIENT: commands.Bot):
         self.CLIENT = CLIENT
 
@@ -51,6 +51,23 @@ class Poll(commands.Cog):
                 if i < 10
                 else ef.Emoji_alphabets[i - 10]
             )
+
+    @nextcord.message_command(name="poll result")
+    async def result(self, inter: nextcord.Interaction, message):
+        check = any(
+            [
+                message.author.id != self.CLIENT.user.id,
+                message.embeds[0].title != "Poll",
+            ]
+        )
+        if check:
+            await inter.response.send_message(content="Not my poll 🤨", ephemeral=True)
+            return
+        await inter.response.defer()
+        P = ef.PollGraph(self.CLIENT, inter)
+        P.extract_from_message(message=message)
+        f, embed = P.generate_embed()
+        await inter.send(embed=embed, file=f)
 
 
 def setup(CLIENT, **i):
