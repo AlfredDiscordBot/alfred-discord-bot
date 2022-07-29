@@ -1,7 +1,7 @@
 import nextcord
 
 from nextcord.ext import commands
-from .External_functions import cembed, defa, dict2fields
+from .External_functions import cembed, defa, line_strip
 from .assets import *
 
 
@@ -91,7 +91,7 @@ MESSAGE = lambda client: cembed(
         "icon_url": client.user.avatar,
     },
     fields=FIELDS_MESSAGE,
-    author=client.user and not print(client.user),
+    author=client.user,
     thumbnail=client.user.avatar,
 )
 
@@ -154,11 +154,28 @@ class AutoHelpGen:
         return self.EMBEDS
 
     def first_page(self):
+        FEATURES = line_strip("""
+        ```yml
+        - MUSIC
+        - EMBED
+        - CODE
+        - FUN
+        - API
+        ```
+        """)
         return cembed(
             title=self.CLIENT.user.name,
             author=self.CLIENT.user,
             thumbnail=self.CLIENT.user.avatar,
             footer="✅Verified by Discord",
+            image="https://github.com/AlfredDiscordBot/alfred-discord-bot/blob/default/Bat.jpg?raw=True",
+            description=f"Default Prefix is `'`\n{self.CLIENT.user.name} is a free and open source software with MIT License published in Github, which is currently in {len(self.CLIENT.guilds)} servers",
+            fields=[
+                {
+                    'name': '__MAIN FEATURES__',
+                    'value': FEATURES
+                }
+            ]
         )
 
     def fetch_application_commands(self, cog):
