@@ -15,7 +15,7 @@ def requirements():
 models = ["BlenderBot", "DialoGPT", "Wolfram Scientific", "PopCat"]
 
 
-class ChatBot(commands.Cog):
+class ChatBot(commands.Cog, description=f"ChatBot features, Contains Four Models: {', '.join(models)}. They are amazing and unique\nCheck out each Model"):
     def __init__(self, CLIENT: commands.Bot, WOLFRAM):
         self.CLIENT = CLIENT
         self.WOLFRAM = WOLFRAM

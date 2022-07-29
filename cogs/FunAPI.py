@@ -12,7 +12,7 @@ def requirements():
     return ["WOLFRAM"]
 
 
-class FunAPI(commands.Cog):
+class FunAPI(commands.Cog, description="Here lies some fun stuff"):
     def __init__(self, CLIENT: commands.Bot, WOLFRAM: str):
         self.CLIENT = CLIENT
         self.space = ef.SpaceX(self.CLIENT.re[8])

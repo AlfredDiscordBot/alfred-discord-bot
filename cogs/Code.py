@@ -379,7 +379,7 @@ class GhCacheControl:
         return [ef.cembed(**i) for i in self.repository]
 
 
-class Code(commands.Cog):
+class Code(commands.Cog, description="Has tons of stuff that could help you code\n✅Runs Basic code in EMKC\n✅Github Repository and users\n✅JSON VIEWER"):
     def __init__(self, CLIENT):
         self.CLIENT = CLIENT
         self.rce = CodeExecutor()

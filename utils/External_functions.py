@@ -148,7 +148,7 @@ def cembed(
     url=None,
     color=nextcord.Color.dark_theme(),
     footer=None,
-    author=False,
+    author: Union[nextcord.Member, bool, dict]=False,
     fields=None,
     image=None,
 ):
@@ -191,9 +191,8 @@ def cembed(
             embed.set_author(name=author)
         elif isinstance(author, dict):
             embed.set_author(**author)
-        elif isinstance(author, nextcord.member.Member):
+        elif isinstance(author, (nextcord.member.Member, nextcord.user.ClientUser)):
             embed.set_author(name=author.name, icon_url=safe_pfp(author))
-        pass
 
     return embed
 

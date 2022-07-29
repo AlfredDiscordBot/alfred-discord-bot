@@ -112,7 +112,7 @@ class ApplicationCreate(ui.Modal):
         )
 
 
-class Application(commands.Cog):
+class Application(commands.Cog, description="Used for Creating Easy Application\nIt is a very easy process and very convenient"):
     def __init__(self, CLIENT: commands.Bot):
         self.CLIENT = CLIENT
 

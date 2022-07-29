@@ -15,7 +15,7 @@ def requirements():
     return ["DEV_CHANNEL", "start_time"]
 
 
-class BotInfo(commands.Cog):
+class BotInfo(commands.Cog, description="Has Information about the Bot and other commands to see info about your current server, etc."):
     def __init__(self, CLIENT, DEV_CHANNEL, start_time):
         self.CLIENT = CLIENT
         self.start_time = start_time
@@ -139,7 +139,7 @@ class BotInfo(commands.Cog):
         self.CLIENT.re[0] += 1
         try:
             if len(self.embe) < 30:
-                self.embe = helping_hand.help_him(self.CLIENT, self.CLIENT.re)
+                self.embe = helping_hand.help_him(self.CLIENT)
                 new_embed = ef.cembed(
                     title="Index",
                     description="Type `help <section>` to get to the help page\n```diff\n"
@@ -178,7 +178,7 @@ class BotInfo(commands.Cog):
     @help_slash.on_autocomplete("text")
     async def auto_com(self, inter, text):
         if len(self.embe) < 30:
-            self.embe = helping_hand.help_him(self.CLIENT, self.CLIENT.re)
+            self.embe = helping_hand.help_him(self.CLIENT)
             new_embed = ef.cembed(
                 title="Index",
                 description="Type `help <section>` to get to the help page\n```diff\n"
