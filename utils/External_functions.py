@@ -1,6 +1,7 @@
 from io import BytesIO
 from string import ascii_letters
 from bs4 import BeautifulSoup
+from matplotlib import pyplot as plt
 from nextcord import SlashOption
 from dotenv import load_dotenv
 from functools import lru_cache
@@ -1215,6 +1216,7 @@ class PyPi:
                     for i in self.DICTIONARY["releases"]
                 ][1:5]
             ),
+            "Command": f'pip3 install {title}=={info["version"]}',
         }
 
         image = self.DEFAULT_IMAGE
@@ -1233,4 +1235,69 @@ class PyPi:
             fields=fields,
             thumbnail=self.DEFAULT_THUMBNAIL,
             image=image,
+        )
+
+
+class PollGraph:
+    def __init__(self, CLIENT: nextcord.ext.commands.Bot, INTER: nextcord.Interaction):
+        self.INTER, self.CLIENT, self.CREATOR = INTER, CLIENT, None
+        self.d: dict = {}
+        self.options: dict = {}
+        self.reactions: dict = {}
+        self.question = ""
+        self.emojis: List[str] = [
+            emoji.emojize(f":keycap_{i+1}:") if i < 10 else Emoji_alphabets[i - 10]
+            for i in range(35)
+        ]
+
+    def extract_from_message(self, message):
+        description = message.embeds[0].description.split("\n\n")
+        self.question = "\n\n".join(description[:-1])
+        self.options = dict(
+            [(j.strip() for j in i.split("|")) for i in description[-1].split("\n")]
+        )
+        for i in message.reactions:
+            if i.emoji not in self.options:
+                continue
+            self.reactions.update({self.options[i.emoji]: i.count - 1})
+        self.CREATOR = message.embeds[0].author
+
+    def arrange_data(self):
+        a, b = [], []
+        for i, j in self.reactions.items():
+            a.append(i)
+            b.append(j / (sum(self.reactions.values()) or 1))
+        return a, b
+
+    def generate_image(self):
+        labels, values = self.arrange_data()
+        _, ax = plt.subplots()
+        ax.pie(values, labels=labels)
+
+        bt = BytesIO()
+        plt.savefig(bt, format="png")
+        plt.close()
+        bt.seek(0)
+        return bt
+
+    def inverted_dict(self, dictionary: dict):
+        return {v: k for k, v in dictionary.items()}
+
+    def generate_embed(self):
+        description = {
+            f"{self.inverted_dict(self.options)[k]} | {k}": v
+            for k, v in self.reactions.items()
+        }
+        return nextcord.File(fp=self.generate_image(), filename="result.png"), cembed(
+            title="Poll Results",
+            description=dict2str(description),
+            color=self.CLIENT.re[8],
+            author=self.INTER.user,
+            image="attachment://result.png",
+            thumbnail=safe_pfp(self.INTER.guild),
+            footer={
+                "text": f"This Poll was created by {self.CREATOR.name}",
+                "icon_url": getattr(self.CREATOR, "icon_url"),
+            },
+            fields={"`QUESTION`": self.question},
         )

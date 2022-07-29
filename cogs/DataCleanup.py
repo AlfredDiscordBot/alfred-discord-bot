@@ -80,7 +80,7 @@ class DataCleanup(commands.Cog):
 
         count = 0
         while True:
-            for i, j in self.CLIENT.config["security"]:
+            for i, j in self.CLIENT.config["security"].items():
                 if not all([self.CLIENT.get_guild(i), self.CLIENT.get_channel(j)]):
                     count += 1
                     del self.CLIENT.config["security"][i]

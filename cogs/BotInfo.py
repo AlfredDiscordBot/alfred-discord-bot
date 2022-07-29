@@ -141,17 +141,22 @@ class BotInfo(
     async def help(self, ctx, *, text="<Optional>"):
         self.CLIENT.re[0] += 1
         try:
-            if len(self.embe) < 30:
-                self.embe = helping_hand.help_him(self.CLIENT)
-                new_embed = ef.cembed(
-                    title="Index",
-                    description="Type `help <section>` to get to the help page\n```diff\n"
-                    + "\n+ ".join([i.title for i in self.embe])
-                    + "\n```",
-                    color=self.CLIENT.re[8],
-                )
-                self.embe.insert(1, new_embed)
-                self.index = [i.title for i in self.embe]
+            self.embe = helping_hand.help_him(self.CLIENT, ctx)
+            new_embed = ef.cembed(
+                title="Index",
+                description="Type `help <section>` to get to the help page\n```diff\n"
+                + "\n+ ".join([i.title for i in self.embe])
+                + "\n```",
+                color=self.CLIENT.re[8],
+                author=self.CLIENT.user,
+                thumbnail=self.CLIENT.user.avatar,
+                footer={
+                    "text": "Here's the list of Cogs in Alfred, why Dont you go through them",
+                    "icon_url": self.CLIENT.user.avatar,
+                },
+            )
+            self.embe.insert(1, new_embed)
+            self.index = [i.title for i in self.embe]
             if text in self.index:
                 n = self.index.index(text)
                 await assets.pa(ctx, [self.embe[n]], restricted=True)
@@ -162,9 +167,7 @@ class BotInfo(
                     title=i.name,
                     description=f"`{prefix}{i.name} {i.signature}`",
                     color=self.CLIENT.re[8],
-                )
-                embed.set_author(
-                    name=self.CLIENT.user.name, icon_url=self.CLIENT.user.avatar.url
+                    author=self.CLIENT.user,
                 )
                 await ctx.send(embed=embed)
             else:
