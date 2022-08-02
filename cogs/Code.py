@@ -381,7 +381,7 @@ class GhCacheControl:
 
 class Code(
     commands.Cog,
-    description="Has tons of stuff that could help you code\n✅Runs Basic code in EMKC\n✅Github Repository and users\n✅JSON VIEWER",
+    description="Has tons of stuff that could help you code```\n✅Runs Basic code in EMKC\n✅Github Repository and users\n✅JSON VIEWER\n```",
 ):
     def __init__(self, CLIENT):
         self.CLIENT = CLIENT
@@ -533,7 +533,7 @@ class Code(
     async def trending_repo(self, inter):
         await inter.response.defer()
         await self.ghtrend.setup()
-        await assets.pa(inter, self.ghtrend.trending_repositories(), t="s")
+        await assets.pa(inter, self.ghtrend.trending_repositories(), t="sb")
 
     @code.subcommand(name="pypi", description="Get a package from PyPi")
     async def pypi_slash(self, inter, package: str = "nextcord"):

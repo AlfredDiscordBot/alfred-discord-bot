@@ -118,6 +118,25 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
         )
         await ctx.send(embed=embed)
 
+    @funapi.subcommand(name="unsplash", description="Get image from unsplash")
+    async def unsplash(self, inter, image: str = "Batman"):
+        await inter.response.defer()
+        f = await ef.get_async(
+            f"https://source.unsplash.com/1920x1080?{ef.convert_to_url(image)}",
+            kind="fp",
+        )
+        f = nextcord.File(f, "image.png")
+        await inter.send(
+            embed=ef.cembed(
+                title=f"`{image.upper()}`",
+                description="This image is taken from `UNSPLASH`",
+                color=self.CLIENT.re[8],
+                author=inter.user,
+                image="attachment://image.png",
+            ),
+            file=f,
+        )
+
     @commands.command()
     async def cute_cat(self, ctx, res="1920x1080"):
         query = "kitten"

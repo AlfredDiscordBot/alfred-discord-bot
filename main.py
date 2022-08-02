@@ -2,6 +2,12 @@ import os
 import subprocess
 import aiohttp
 import nextcord
+import traceback
+import time
+import psutil
+import asyncio
+from io import BytesIO
+import utils.assets as assets
 
 print("Booting up with", nextcord.__version__)
 
@@ -31,15 +37,12 @@ from utils.External_functions import (
     get_youtube_url,
     svg2png,
     cog_requirements,
+    ydl_op,
 )
-import traceback
-import time
-import psutil
-import asyncio
-from io import BytesIO
-import utils.assets as assets
+
 
 location_of_file = os.getcwd()
+ydl_copy = ydl_op.copy()
 start_time = time.time()
 load_dotenv()
 observer: list = []
@@ -85,16 +88,6 @@ prefix_dict: dict = {}
 
 # replace your id with this
 dev_users: set = {"432801163126243328"}
-ydl_op = {
-    "format": "bestaudio/best",
-    "postprocessors": [
-        {
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": "mp3",
-            "preferredquality": "384",
-        }
-    ],
-}
 FFMPEG_OPTIONS = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
     "options": "-vn",
@@ -788,6 +781,12 @@ async def on_reaction_add(reaction, user):
                 author=user,
             )
         )
+
+
+@CLIENT.event
+async def on_application_command_error(inter, error):
+    print(type(error))
+    raise error
 
 
 @CLIENT.event

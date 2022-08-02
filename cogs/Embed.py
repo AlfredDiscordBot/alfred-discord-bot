@@ -202,6 +202,11 @@ class MSetup:
                     "value": "To import from your old mehspace, just type `import`\nIf you want to import from an embed, reply to a message and type import",
                     "inline": False,
                 },
+                {
+                    "name": "Fields",
+                    "value": "If you need to make `inline` as False(if you want fields in new line), use `->` instead of `>`",
+                    "inline": False,
+                },
             ],
         )
         if self.INSTRUCTION:
