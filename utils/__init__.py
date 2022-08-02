@@ -1,9 +1,14 @@
 from . import (
-    assets, 
-    External_functions, 
-    helping_hand, 
-    inshort, 
-    spotify_client, 
-    Storage_facility, 
-    Trend
+    assets,
+    External_functions,
+    helping_hand,
+    inshort,
+    spotify_client,
+    Storage_facility,
+    Trend,
 )
+
+
+class DEVOP:
+    def __init__(self) -> None:
+        pass
