@@ -21,11 +21,16 @@ class Configuration(
     text_slash_ = ef.defa(ChannelType.text)
 
     def __init__(self, CLIENT: commands.Bot, DEV_CHANNEL):
-        self.CLIENT = CLIENT
+        self.CLIENT: commands.Bot = CLIENT
         self.DEV_CHANNEL = DEV_CHANNEL
         self.command_list = []
         with open("commands.txt", "r") as f:
             self.command_list = f.read().split("\n")[:-1]
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        for i in ef.get_all_slash_commands(self.CLIENT).values():
+            i.add_check(ef.check_slash)
 
     @commands.command()
     @commands.check(ef.check_command)
@@ -190,6 +195,96 @@ class Configuration(
                     color=nextcord.Color.red(),
                 )
             )
+
+    @config.subcommand(name="slash", description="Enable and Disable slash commands")
+    async def slash_control(self, inter):
+        print(inter.user)
+
+    @slash_control.subcommand(name="enable", description="Enable this slash command")
+    async def slash_enable(self, inter: nextcord.Interaction, command):
+        if command not in ef.slash_and_sub(Client=self.CLIENT):
+            await inter.send(
+                embed=ef.cembed(
+                    title="Not a command",
+                    description="Please choose from the commands",
+                    color=nextcord.Color.red(),
+                    footer={
+                        "text": "If something seems wrong, please use /feedback",
+                        "icon_url": self.CLIENT.user.avatar,
+                    },
+                )
+            )
+            return
+        if not inter.user.guild_permissions.administrator:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    color=nextcord.Color.red(),
+                    description="You do not have Enough permission to execute this command, please ask one of the administrator to",
+                    author=inter.user,
+                )
+            )
+            return
+        if command not in self.CLIENT.config["slash"]:
+            self.CLIENT.config["slash"][command] = set()
+        if inter.guild.id in self.CLIENT.config["slash"][command]:
+            self.CLIENT.config["slash"][command].remove(inter.guild.id)
+        await inter.send(
+            embed=ef.cembed(
+                title="Done",
+                description=f"Enabled {command} in this server, to disable it, use `/config slash disable`",
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar,
+                author=inter.user,
+            )
+        )
+
+    @slash_control.subcommand(name="disable", description="Disable this slash command")
+    async def slash_disable(self, inter, command):
+        if command not in ef.slash_and_sub(Client=self.CLIENT):
+            await inter.send(
+                embed=ef.cembed(
+                    title="Not a command",
+                    description="Please choose from the commands",
+                    color=nextcord.Color.red(),
+                    footer={
+                        "text": "If something seems wrong, please use /feedback",
+                        "icon_url": self.CLIENT.user.avatar,
+                    },
+                )
+            )
+            return
+        if not inter.user.guild_permissions.administrator:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    color=nextcord.Color.red(),
+                    description="You do not have Enough permission to execute this command, please ask one of the administrator to",
+                    author=inter.user,
+                )
+            )
+            return
+        if command not in self.CLIENT.config["slash"]:
+            self.CLIENT.config["slash"][command] = set()
+
+        self.CLIENT.config["slash"][command].add(inter.guild.id)
+
+        await inter.send(
+            embed=ef.cembed(
+                title="Done",
+                description=f"Disabled {command} in this server, to enable it, use `/config slash enable`",
+                color=self.CLIENT.re[8],
+                thumbnail=self.CLIENT.user.avatar,
+                author=inter.user,
+            )
+        )
+
+    @slash_enable.on_autocomplete("command")
+    @slash_disable.on_autocomplete("command")
+    async def slash_autocomplete(self, inter: nextcord.Interaction, command):
+        await inter.response.send_autocomplete(
+            [i for i in ef.slash_and_sub(self.CLIENT) if i.startswith(command)][:25]
+        )
 
     @config.subcommand(
         name="commands", description="Enable and Disable commands, only for admins"

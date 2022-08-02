@@ -126,7 +126,7 @@ class LintAction:
 
         for line in splits:
             descriptions[-1] += line + "\n"
-            if len(descriptions[-1].split("\n")) == 30:
+            if len(descriptions[-1].split("\n")) == 20:
                 descriptions.append("")
 
         embeds = []

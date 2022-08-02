@@ -57,10 +57,13 @@ async def confirm_button(ctx, message, CLIENT, re={8: 5160}):
 
 
 class SelectionPages(nextcord.ui.Select):
-    def __init__(self, CTX, EMBEDS: list, RESTRICTED: bool, *args, **kwargs):
+    def __init__(
+        self, CTX, EMBEDS: list, RESTRICTED: bool, page_change=None, *args, **kwargs
+    ):
         self.CTX = CTX
         self.EMBEDS = EMBEDS[:25]
         self.RESTRICTED = RESTRICTED
+        self.func = page_change
         options = []
         self.op = {}
         for i in self.EMBEDS:
@@ -89,17 +92,23 @@ class SelectionPages(nextcord.ui.Select):
         user = getattr(self.CTX, "author", getattr(self.CTX, "user", None))
         if interaction.user.id == user.id:
             await interaction.edit(embed=self.op[self.values[0]])
+            self.func(list(self.op.keys()).index(self.values[0]))
 
 
-class SelectionPagesView(nextcord.ui.View):
-    def __init__(self, CTX, EMBEDS: list, RESTRICTED: bool, *args, **kwargs):
+class Pages(nextcord.ui.View):
+    def __init__(self, ctx, embeds, restricted=False, start_from=0, t="b"):
         super().__init__(timeout=None)
-        self.add_item(SelectionPages(CTX, EMBEDS, RESTRICTED))
-
-
-class ButtonPages(nextcord.ui.View):
-    def __init__(self, ctx, embeds, restricted=False, start_from=0, *args):
-        super().__init__()
+        if t in ["sb", "s"]:
+            self.add_item(SelectionPages(ctx, embeds, restricted, self.page_change))
+        if t in ["sb", "b"]:
+            left, right = (
+                nextcord.ui.Button(emoji="◀️", style=color),
+                nextcord.ui.Button(emoji="▶️", style=color),
+            )
+            left.callback = self.previous
+            right.callback = self.next
+            self.add_item(left)
+            self.add_item(right)
         self.embeds = embeds
         self.ctx = ctx
         self.restricted = restricted
@@ -107,8 +116,10 @@ class ButtonPages(nextcord.ui.View):
         self.page = start_from
         self.user = getattr(ctx, "user", getattr(ctx, "author", None))
 
-    @nextcord.ui.button(style=color, emoji="◀️")
-    async def previous(self, button, inter):
+    def page_change(self, page):
+        self.page = page
+
+    async def previous(self, inter):
         if self.restricted:
             if not self.user == inter.user:
                 return
@@ -116,8 +127,7 @@ class ButtonPages(nextcord.ui.View):
             self.page -= 1
         await inter.response.edit_message(embed=self.embeds[self.page])
 
-    @nextcord.ui.button(style=color, emoji="▶️")
-    async def next(self, button, inter):
+    async def next(self, inter):
         if self.restricted:
             if not self.user == inter.user:
                 return
@@ -131,14 +141,9 @@ async def pa(
     ctx, embeds, restricted=False, start_from=0, delete_after: int = None, t: str = "b"
 ):
     if len(embeds) > 1:
-        view = None
-        if t == "b":
-            view = ButtonPages
-        elif t == "s":
-            view = SelectionPagesView
         await ctx.send(
             embed=embeds[start_from],
-            view=view(ctx, embeds, restricted, start_from),
+            view=Pages(ctx, embeds, restricted, start_from, t),
             delete_after=delete_after,
         )
     else:

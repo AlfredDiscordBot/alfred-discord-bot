@@ -3,6 +3,7 @@ from string import ascii_letters
 from bs4 import BeautifulSoup
 from matplotlib import pyplot as plt
 from nextcord import SlashOption
+from nextcord.ext import commands
 from dotenv import load_dotenv
 from functools import lru_cache
 from datetime import datetime
@@ -106,7 +107,7 @@ def timestamp(i):
     return datetime.fromtimestamp(i)
 
 
-def convert_to_url(name):
+def convert_to_url(name: str):
     name = urllib.parse.quote(name)
     return name
 
@@ -1239,7 +1240,7 @@ class PyPi:
 
 
 class PollGraph:
-    def __init__(self, CLIENT: nextcord.ext.commands.Bot, INTER: nextcord.Interaction):
+    def __init__(self, CLIENT: commands.Bot, INTER: nextcord.Interaction):
         self.INTER, self.CLIENT, self.CREATOR = INTER, CLIENT, None
         self.d: dict = {}
         self.options: dict = {}
@@ -1301,3 +1302,41 @@ class PollGraph:
             },
             fields={"`QUESTION`": self.question},
         )
+
+
+def get_all_slash_commands(Client: commands.Bot):
+    return {i.name: i for i in Client.get_all_application_commands()}
+
+
+def slash_and_sub(Client: commands.Bot, cog=None):
+    st = []
+    a = get_all_slash_commands(Client=Client)
+    for i, j in a.items():
+        _condition = True
+        if cog:
+            _condition = j.parent_cog == cog
+        if not _condition:
+            continue
+        if not getattr(j, "children", None):
+            st.append(f"/{i}")
+            continue
+        for sub in j.children:
+            st.append(f"/{i} {sub}")
+    return st
+
+
+def check_slash(inter: nextcord.Interaction):
+    command: dict = inter.data
+    print(command)
+    command_name = command.get("name")
+    subcommand_name = ""
+    if isinstance(options := command.get("options", []), list) and len(options) > 0:
+        subcommand_name = options[0].get("name") or " "
+
+    full_command = f"/{command_name}{subcommand_name}".strip()
+    print(full_command)
+    if full_command not in inter.client.config["slash"]:
+        return True
+    if inter.guild.id in inter.client.config["slash"][full_command]:
+        return False
+    return True

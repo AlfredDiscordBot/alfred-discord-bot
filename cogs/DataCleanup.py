@@ -18,6 +18,7 @@ class DataCleanup(commands.Cog):
         print("DELETING MISC DATA")
         self.config()
         self.queue_song()
+        self.prefix_dict()
 
     def queue_song(self):
         count = 0
@@ -88,6 +89,33 @@ class DataCleanup(commands.Cog):
             else:
                 break
         print("CONFIG SECURITY ->", count)
+
+        count = 0
+        while True:
+            for i, j in self.CLIENT.config["slash"].items():
+                if i not in ef.slash_and_sub(self.CLIENT) or j == set():
+                    print("Deleting 1")
+                    del self.CLIENT.config["slash"][i]
+                    break
+                for server in j:
+                    if not self.CLIENT.get_guild(server):
+                        self.CLIENT.config["slash"][i].remove(server)
+                        break
+            else:
+                break
+        print("CONFIG SLASH ->", count)
+
+    def prefix_dict(self):
+        count = 0
+        while True:
+            for k, v in self.CLIENT.prefix_dict.items():
+                if v == "'" or not self.CLIENT.get_guild(k):
+                    count += 1
+                    del self.CLIENT.prefix_dict[k]
+                    break
+            else:
+                break
+        print("PREFIX DICT ->", count)
 
 
 def setup(client, **i):

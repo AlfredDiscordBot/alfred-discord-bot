@@ -2,6 +2,12 @@ import os
 import subprocess
 import aiohttp
 import nextcord
+import traceback
+import time
+import psutil
+import asyncio
+from io import BytesIO
+import utils.assets as assets
 
 print("Booting up with", nextcord.__version__)
 
@@ -31,15 +37,12 @@ from utils.External_functions import (
     get_youtube_url,
     svg2png,
     cog_requirements,
+    ydl_op,
 )
-import traceback
-import time
-import psutil
-import asyncio
-from io import BytesIO
-import utils.assets as assets
+
 
 location_of_file = os.getcwd()
+ydl_copy = ydl_op.copy()
 start_time = time.time()
 load_dotenv()
 observer: list = []
@@ -85,16 +88,6 @@ prefix_dict: dict = {}
 
 # replace your id with this
 dev_users: set = {"432801163126243328"}
-ydl_op = {
-    "format": "bestaudio/best",
-    "postprocessors": [
-        {
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": "mp3",
-            "preferredquality": "384",
-        }
-    ],
-}
 FFMPEG_OPTIONS = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
     "options": "-vn",
@@ -394,11 +387,11 @@ async def uemoji(ctx, emoji_name, number=1):
 
 
 @CLIENT.slash_command(name="svg2png", description="Convert SVG image to png format")
-async def svg2png_slash(ctx, url):
+async def svg2png_slash(inter, url):
     req()
-    await ctx.response.defer()
+    await inter.response.defer()
     img = svg2png(url)
-    await ctx.send(file=nextcord.File(BytesIO(img), "svg.png"))
+    await inter.send(file=nextcord.File(BytesIO(img), "svg.png"))
 
 
 @CLIENT.command(aliases=["cw"])
@@ -604,11 +597,18 @@ async def f_slash(inter, text):
     description="This is only for developers",
     guild_ids=[822445271019421746],
 )
-async def eval_slash(inter, text, ty=defa(choices=["python", "bash"])):
-    if ty == "bash":
-        await shell(inter, text=text)
-    else:
-        await python_shell(inter, text=text)
+async def eval_slash(inter):
+    print(inter.user)
+
+
+@eval_slash.subcommand(name="python")
+async def py(inter, text):
+    await python_shell(inter, text=text)
+
+
+@eval_slash.subcommand(name="bash")
+async def bash(inter, text):
+    await shell(inter, text=text)
 
 
 @CLIENT.command(aliases=["!"])
@@ -788,6 +788,39 @@ async def on_reaction_add(reaction, user):
                 author=user,
             )
         )
+
+
+@CLIENT.event
+async def on_application_command_error(inter, error):
+    if isinstance(error, nextcord.errors.ApplicationCheckFailure):
+        await inter.send(
+            embed=cembed(
+                title="Disabled Application",
+                description="This command is disabled in this server, please ask one of the server admins to enable it if you want to use it",
+                color=CLIENT.re[8],
+                footer={
+                    "text": "If you are an admin, you can enable it by using /config slash enable",
+                    "icon_url": safe_pfp(inter.guild),
+                },
+                thumbnail=CLIENT.user.avatar,
+                author=inter.user,
+            )
+        )
+        return
+    await inter.send(
+        embed=cembed(
+            title="Sorry",
+            description="An error has occured while executing this command, we will check on this",
+            color=nextcord.Color.red(),
+            author=inter.user,
+            thumbnail=CLIENT.user.avatar,
+            footer={
+                "text": "We're sorry for the inconvenience, please use /feedback to report this",
+                "icon_url": CLIENT.user.avatar,
+            },
+        )
+    )
+    raise error
 
 
 @CLIENT.event

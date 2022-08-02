@@ -15,7 +15,7 @@ def requirements():
     return []
 
 
-class Image(commands.Cog):
+class Image(commands.Cog, description="Fun Effects with your Profile Picture"):
     def __init__(self, client: commands.Bot):
         self.client = client
         self.re = self.client.re

@@ -172,7 +172,7 @@ class BotInfo(
                 await ctx.send(embed=embed)
             else:
                 n = 0
-                await assets.pa(ctx, self.embe, start_from=n, restricted=True, t="s")
+                await assets.pa(ctx, self.embe, start_from=n, restricted=True, t="sb")
         except Exception:
             print(traceback.format_exc())
 
@@ -259,12 +259,21 @@ class BotInfo(
             prefi = self.CLIENT.prefix_dict.get(
                 msg.guild.id if msg.guild is not None else None, "'"
             )
-            embed = nextcord.Embed(
+            embed = ef.cembed(
                 title="Hi!! I am Alfred.",
-                description=f"""Prefix is {prefi}\nFor more help, type {prefi}help""",
+                description=f"""Prefix is `{prefi}`\nFor more help, type `{prefi}help`""",
                 color=nextcord.Color(value=self.CLIENT.re[8]),
                 author=self.CLIENT.user,
                 thumbnail=self.CLIENT.user.avatar,
+                fields={
+                    "Stats": ef.dict2str(
+                        {
+                            "Servers ": len(self.CLIENT.guilds),
+                            "Users   ": len(self.CLIENT.users),
+                            "Nextcord": nextcord.__version__,
+                        }
+                    )
+                },
             )
             await msg.channel.send(embed=embed)
 
