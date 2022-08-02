@@ -27,6 +27,11 @@ class Configuration(
         with open("commands.txt", "r") as f:
             self.command_list = f.read().split("\n")[:-1]
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        for i in ef.get_all_slash_commands(self.CLIENT).values():
+            i.add_check(ef.check_slash)
+
     @commands.command()
     @commands.check(ef.check_command)
     async def sniper(self, ctx):

@@ -94,14 +94,12 @@ class DataCleanup(commands.Cog):
         while True:
             for i, j in self.CLIENT.config["slash"].items():
                 if i not in ef.slash_and_sub(self.CLIENT) or j == set():
+                    print("Deleting 1")
                     del self.CLIENT.config["slash"][i]
                     break
-                else:
-                    for server in j:
-                        if not self.CLIENT.get_guild(server):
-                            self.CLIENT.config["slash"][i].remove(server)
-                            break
-                    else:
+                for server in j:
+                    if not self.CLIENT.get_guild(server):
+                        self.CLIENT.config["slash"][i].remove(server)
                         break
             else:
                 break
