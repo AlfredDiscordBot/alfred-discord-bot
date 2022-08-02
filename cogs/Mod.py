@@ -1,5 +1,6 @@
 import nextcord, asyncio, traceback
 import utils.assets as assets
+import datetime
 import utils.External_functions as ef
 from nextcord.ext import commands
 
@@ -90,7 +91,7 @@ class Mod(commands.Cog):
                     title="Permissions Denied",
                     description="Sorry guys, only admins can snipe now",
                     color=self.CLIENT.re[8],
-                    thumbnail=self.CLIENT.avatar.url,
+                    thumbnail=self.CLIENT.user.avatar.url,
                     author=ctx.author,
                 )
             )
@@ -156,7 +157,7 @@ class Mod(commands.Cog):
             )
             return
         print("Member id: ", member.id)
-        await member.edit(timeout=ef.datetime.timedelta(minutes=time))
+        await member.edit(timeout=datetime.timedelta(minutes=time))
         await ctx.send(
             embed=ef.cembed(
                 title="Done",
