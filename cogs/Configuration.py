@@ -30,7 +30,11 @@ class Configuration(
     @commands.Cog.listener()
     async def on_ready(self):
         for i in ef.get_all_slash_commands(self.CLIENT).values():
-            i.add_check(ef.check_slash)
+            if c := getattr(i, "children", False):
+                for j in c.values():
+                    j.add_check(ef.check_slash)
+            else:
+                i.add_check(ef.check_slash)
 
     @commands.command()
     @commands.check(ef.check_command)

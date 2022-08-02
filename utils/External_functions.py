@@ -1327,14 +1327,13 @@ def slash_and_sub(Client: commands.Bot, cog=None):
 
 def check_slash(inter: nextcord.Interaction):
     command: dict = inter.data
-    print(command)
     command_name = command.get("name")
     subcommand_name = ""
     if isinstance(options := command.get("options", []), list) and len(options) > 0:
-        subcommand_name = options[0].get("name") or " "
+        if isinstance(inter.application_command, nextcord.SlashApplicationSubcommand):
+            subcommand_name = f" {options[0].get('name','')}"
 
     full_command = f"/{command_name}{subcommand_name}".strip()
-    print(full_command)
     if full_command not in inter.client.config["slash"]:
         return True
     if inter.guild.id in inter.client.config["slash"][full_command]:

@@ -331,7 +331,7 @@ class BotInfo(
             image="attachment://contrib.png",
         )
         fp = ef.svg2png(
-            "https://contrib.rocks/image?repo=alvinbengeorge/alfred-discord-bot"
+            url="https://contrib.rocks/image?repo=alvinbengeorge/alfred-discord-bot"
         )
         file = nextcord.File(io.BytesIO(fp), "contrib.png")
         await ctx.send(file=file, embed=embed)
