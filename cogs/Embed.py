@@ -266,20 +266,23 @@ class MSetup:
         import from a message
         """
         buttons = []
-        for i in msg.components:
-            if getattr(i, "url", False):
-                buttons.append(
-                    {
-                        "url": i.url,
-                        "label": getattr(i, "label", nextcord.ui.MISSING),
-                        "emoji": getattr(i, "emoji"),
-                    }
-                )
+        print(msg.components)
+        for j in msg.components:
+            for i in j.children:
+                print(getattr(i, "url", False))
+                if url := getattr(i, "url", False):
+                    buttons.append(
+                        {
+                            "url": url,
+                            "label": getattr(i, "label", nextcord.utils.MISSING),
+                            "emoji": str(getattr(i, "emoji", None)),
+                        }
+                    )
         if len(msg.embeds) == 0:
             await self.ctx.send("I see no embed in that message", delete_after=5)
             return
         self.di = converter(msg.embeds[0].to_dict())
-        self.di["buttons"] = buttons
+        self.di["button"] = buttons[:5]
         return self.to_yaml()
 
     def footer(self, text):

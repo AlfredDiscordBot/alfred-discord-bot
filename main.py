@@ -219,7 +219,16 @@ async def on_ready():
         print("\nStarting devop display")
         report += "[ OK ] Sending Devop Message\n"
         print("Finished devop display")
-        await send_devop(CLIENT, channel.id, {"save": save_devop, "stats": stats_devop})
+        await send_devop(
+            CLIENT,
+            channel.id,
+            {
+                "save": save_devop,
+                "stats": stats_devop,
+                "exit": exit_program,
+                "report": report_devop,
+            },
+        )
         with open("commands.txt", "w") as f:
             for i in CLIENT.commands:
                 f.write(i.name + "\n")
@@ -507,7 +516,14 @@ async def dev_op(ctx):
     if getattr(ctx, "author", getattr(ctx, "user", None)).id in dev_users:
         print("devop", str(getattr(ctx, "author", getattr(ctx, "user", None))))
         await send_devop(
-            CLIENT, DEV_CHANNEL, {"save": save_devop, "stats": stats_devop}
+            CLIENT,
+            DEV_CHANNEL,
+            {
+                "save": save_devop,
+                "stats": stats_devop,
+                "exit": exit_program,
+                "report": report_devop,
+            },
         )
     else:
         await ctx.send(
@@ -661,10 +677,60 @@ async def stats_devop(inter: nextcord.Interaction):
                     "Started            ": f"<t:{int(start_time)}:R>",
                     "Nextcord Version   ": str(nextcord.__version__),
                     "Commands Registered": f"{a+b} commands",
+                    "Server Count       ": f"{len(CLIENT.guilds)} servers",
+                    "User Count         ": f"{len(CLIENT.users)} users",
                 }
             ),
             color=CLIENT.re[8],
             author=CLIENT.user,
+            thumbnail=CLIENT.user.avatar,
+        )
+    )
+
+
+async def exit_program(inter: nextcord.Interaction):
+    if inter.user.id not in dev_users:
+        await inter.response.send_message("You're not a developer", ephemeral=True)
+
+    await inter.response.defer()
+    if cl := len(CLIENT.voice_clients):
+        try:
+            confirm = assets.confirm_button(
+                inter, f"There are {cl} server(s) listening to music", CLIENT, re
+            )
+            await CLIENT.get_channel(946381704958988348).send(
+                embed=cembed(
+                    author=inter.user,
+                    title="Exiting",
+                    color=re[8],
+                    description="Closing program safely, saving the files and logging out",
+                )
+            )
+            if confirm:
+                sys.exit()
+        except Exception:
+            sys.exit()
+    try:
+        await CLIENT.get_channel(946381704958988348).send(
+            embed=cembed(
+                author=inter.user,
+                color=re[8],
+                title="Exiting",
+                description="Closing program safely, saving the files and logging out",
+            )
+        )
+    except Exception:
+        pass
+    sys.exit()
+
+
+async def report_devop(inter: nextcord.Interaction):
+    await inter.send(
+        embed=cembed(
+            title="Report",
+            author=inter.user,
+            description=report,
+            color=re[8],
             thumbnail=CLIENT.user.avatar,
         )
     )
