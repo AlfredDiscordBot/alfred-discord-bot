@@ -469,32 +469,40 @@ class Embed(
         *,
         yaml=None,
     ):
-        embed = embed_from_dict(yaml_to_dict(filter_graves(yaml)), ctx, self.CLIENT)
-        if isinstance(channel, (nextcord.TextChannel, nextcord.threads.Thread)):
-            await channel.send(embed=embed)
-        elif validate_url(channel):
-            data = embed.to_dict()
-            await ef.post_async(channel, json={"embeds": [data]})
-        elif channel.lower() == "mehspace":
-            if yaml:
-                await ctx.send(embed=embed)
-                confirm = await ef.wait_for_confirm(
-                    ctx,
-                    self.CLIENT,
-                    "Do you want to use this as your profile?",
-                    color=self.CLIENT.re[8],
-                    usr=ctx.author,
-                )
-                if confirm:
-                    self.CLIENT.mspace[ctx.author.id] = yaml
-            else:
-                await ctx.send(
-                    embed=embed_from_dict(
+        try:
+            embed = embed_from_dict(yaml_to_dict(filter_graves(yaml)), ctx, self.CLIENT)
+            view = nextcord.utils.MISSING
+            if isinstance(embed, tuple):
+                embed, view = embed
+            if isinstance(channel, (nextcord.TextChannel, nextcord.threads.Thread)):
+                await channel.send(embed=embed, view=view)
+            elif validate_url(channel):
+                data = embed.to_dict()
+                await ef.post_async(channel, json={"embeds": [data]})
+            elif channel.lower() == "mehspace":
+                if yaml:
+                    await ctx.send(embed=embed, view=view)
+                    confirm = await ef.wait_for_confirm(
+                        ctx,
+                        self.CLIENT,
+                        "Do you want to use this as your profile?",
+                        color=self.CLIENT.re[8],
+                        usr=ctx.author,
+                    )
+                    if confirm:
+                        self.CLIENT.mspace[ctx.author.id] = yaml
+                else:
+                    embed = embed_from_dict(
                         yaml_to_dict(filter_graves(yaml)), ctx, self.CLIENT
                     )
-                )
-        else:
-            await ctx.send("Invalid channel or URL form")
+                    view = nextcord.utils.MISSING
+                    if isinstance(embed, tuple):
+                        embed, view = embed
+                    await ctx.send(embed=embed, view=view)
+            else:
+                await ctx.send("Invalid channel or URL form")
+        except:
+            print(traceback.format_exc())
 
     @nextcord.user_command(name="mehspace")
     async def meh(self, inter, member):
@@ -504,7 +512,10 @@ class Embed(
         yaml = filter_graves(self.CLIENT.mspace[member.id])
         di = yaml_to_dict(yaml)
         embed = embed_from_dict(di, inter, self.CLIENT)
-        await inter.send(embed=embed)
+        view = nextcord.utils.MISSING
+        if isinstance(embed, tuple):
+            embed, view = embed
+        await inter.send(embed=embed, view=view)
 
     @commands.command(name="mehspace", aliases=["meh", "myspace"])
     @commands.check(ef.check_command)
@@ -522,16 +533,18 @@ class Embed(
                 )
             )
             return
-        await ctx.send(
-            embed=embed_from_dict(
-                yaml_to_dict(filter_graves(self.CLIENT.mspace[user.id])),
-                ctx,
-                self.CLIENT,
-            )
+        embed = embed_from_dict(
+            yaml_to_dict(filter_graves(self.CLIENT.mspace[user.id])),
+            ctx,
+            self.CLIENT,
         )
+        view = nextcord.utils.MISSING
+        if isinstance(embed, tuple):
+            embed, view = embed
+        await ctx.send(embed=embed, view=view)
 
     @nextcord.slash_command(name="mehspace", description="Show Mehspace of someone")
-    async def mehspace(self, inter, user: nextcord.User = None):
+    async def mehspace(self, inter: nextcord.Interaction, user: nextcord.User = None):
         if not user:
             user = inter.user
         if user.id not in self.CLIENT.mspace:
@@ -545,13 +558,15 @@ class Embed(
                 )
             )
             return
-        await inter.response.send_message(
-            embed=embed_from_dict(
-                yaml_to_dict(filter_graves(self.CLIENT.mspace[user.id])),
-                inter,
-                self.CLIENT,
-            )
+        embed = embed_from_dict(
+            yaml_to_dict(filter_graves(self.CLIENT.mspace[user.id])),
+            inter,
+            self.CLIENT,
         )
+        view = nextcord.utils.MISSING
+        if isinstance(embed, tuple):
+            embed, view = embed
+        await inter.response.send_message(embed=embed, view=view)
 
     @nextcord.slash_command(name="embed", description="Create your embed using this")
     async def em(

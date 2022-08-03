@@ -24,7 +24,7 @@ class Developer(commands.Cog):
     @commands.check(ef.check_command)
     async def reply(self, ctx, channel, user, *, repl):
         if (
-            str(ctx.author.id) in self.CLIENT.dev_users
+            ctx.author.id in self.CLIENT.dev_users
             and ctx.guild.id == 822445271019421746
         ):
             channel = self.CLIENT.get_channel(int(channel))
@@ -56,7 +56,7 @@ class Developer(commands.Cog):
     async def dev_test(self, ctx, user: nextcord.Member = None):
         if not user:
             user = ctx.author
-        if str(user.id) in self.CLIENT.dev_users:
+        if ctx.author.id in self.CLIENT.dev_users:
             await ctx.send(f"{user} is a dev!")
         else:
             await ctx.send(f"{user} is not a dev!")
@@ -67,7 +67,7 @@ class Developer(commands.Cog):
         print(member)
         user = getattr(ctx, "author", getattr(ctx, "user", None))
         if str(user.id) in self.SUPER_USERS:
-            self.CLIENT.dev_users.remove(str(member.id))
+            self.CLIENT.dev_users.remove(member.id)
             await ctx.send(member.mention + " is no longer a dev")
         else:
             await ctx.send(
@@ -84,8 +84,8 @@ class Developer(commands.Cog):
         print(member)
         user = getattr(ctx, "author", getattr(ctx, "user", None))
         print("Add dev", str(user))
-        if str(user.id) in self.CLIENT.dev_users:
-            self.CLIENT.dev_users.add(str(member.id))
+        if user.id in self.CLIENT.dev_users:
+            self.CLIENT.dev_users.add(member.id)
             await ctx.send(member.mention + " is a dev now")
         else:
             await ctx.send(
@@ -99,7 +99,7 @@ class Developer(commands.Cog):
     @commands.command(name="update", description="Pulls new updates from Github")
     @commands.check(ef.check_command)
     async def update(self, ctx):
-        if str(ctx.author.id) in self.CLIENT.dev_users:
+        if ctx.author.id in self.CLIENT.dev_users:
             embed = ef.cembed(
                 title="Update command",
                 description="```bash\n" + getoutput("git pull") + "\n```",
@@ -127,7 +127,7 @@ class Developer(commands.Cog):
     @commands.command()
     @commands.check(ef.check_command)
     async def leave_server(self, ctx, *, server_name):
-        if str(ctx.author.id) in self.CLIENT.dev_users:
+        if ctx.author.id in self.CLIENT.dev_users:
             guild = nextcord.utils.get(self.CLIENT.guilds, name=server_name)
             if guild is None:
                 await ctx.send(

@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from functools import lru_cache
 from datetime import datetime
 from collections import Counter
+from numpy import isin
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 from typing import List, Union
@@ -152,6 +153,8 @@ def cembed(
     author: Union[nextcord.Member, bool, dict] = False,
     fields=None,
     image=None,
+    button: Union[dict, nextcord.ui.Button] = None,
+    **kwargs,
 ):
     embed = nextcord.Embed()
     if color != nextcord.Color.dark_theme():
@@ -194,6 +197,21 @@ def cembed(
             embed.set_author(**author)
         elif isinstance(author, (nextcord.member.Member, nextcord.user.ClientUser)):
             embed.set_author(name=author.name, icon_url=safe_pfp(author))
+
+    if button:
+        view = nextcord.ui.View(timeout=None)
+        if isinstance(button, (nextcord.ui.Button, dict)):
+            button = [button]
+        for i in button[:5]:
+            b = i
+            if isinstance(b, dict):
+                b = nextcord.ui.Button(
+                    label=b.get("label", "Link"),
+                    emoji=b.get("emoji", "🔗"),
+                    url=b.get("url"),
+                )
+            view.add_item(b)
+        return embed, view
 
     return embed
 
@@ -269,57 +287,6 @@ async def redd(ctx, account: str = "wholesomememes", number: int = 25):
         )
         embeds.append(embed)
     return embeds
-
-
-def protect(text):
-    return (
-        str(text).find("username") == -1
-        and str(text).find("os.") == -1
-        and str(text).find("ctx.") == -1
-        and str(text).find("__import__") == -1
-        and str(text).find("sys.") == -1
-        and str(text).find("psutil.") == -1
-        and str(text).find("clear") == -1
-        and str(text).find("dev_users") == -1
-        and str(text).find("remove") == -1
-        and str(text).find("class.") == -1
-        and str(text).find("subclass()") == -1
-        and str(text).find("client") == -1
-        and str(text).find("quit") == -1
-        and str(text).find("exit") == -1
-        and str(text).find("while True") == -1
-    )
-
-
-async def devop_mtext(client, channel, color):
-    await channel.delete_messages(
-        [i async for i in channel.history(limit=100) if not i.pinned][:100]
-    )
-    text_dev = (
-        "You get to activate and reset certain functions in this channel \n"
-        "💾 for saving to file \n"
-        "⭕ for list of all servers \n"
-        "❌ for exiting \n"
-        "🔥 for restart\n"
-        "📊 for current load\n"
-        "❕ for current issues\n"
-        "" + emoji.emojize(":satellite:") + " for speedtest\n"
-        "" + emoji.emojize(":black_circle:") + " for clear screen\n"
-    )
-    embed = cembed(
-        title="DEVOP", description=text_dev, color=color, footer="Good day Master Wayne"
-    )
-    embed.set_thumbnail(url=client.user.avatar.url)
-    mess = await channel.send(embed=embed)
-    await mess.add_reaction("💾")
-    await mess.add_reaction("⭕")
-    await mess.add_reaction("❌")
-    await mess.add_reaction(emoji.emojize(":fire:"))
-    await mess.add_reaction(emoji.emojize(":bar_chart:"))
-    await mess.add_reaction("❕")
-    await mess.add_reaction(emoji.emojize(":satellite:"))
-    await mess.add_reaction(emoji.emojize(":black_circle:"))
-    await mess.add_reaction(emoji.emojize(":laptop:"))
 
 
 async def wait_for_confirm(ctx, client, message: str, color=61620, usr=None):
