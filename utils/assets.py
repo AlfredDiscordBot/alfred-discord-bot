@@ -417,9 +417,11 @@ class Msetup_DropDownSelect(nextcord.ui.Select):
 
 
 class Msetup_DropDownView(nextcord.ui.View):
-    def __init__(self, func, user):
+    def __init__(self, func, user, *more_items):
         super().__init__(timeout=600)
         self.add_item(Msetup_DropDownSelect(func=func, user=user))
+        for i in more_items:
+            self.add_item(i)
 
 
 class DEVOPVIEW(nextcord.ui.View):

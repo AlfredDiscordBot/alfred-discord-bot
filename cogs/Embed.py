@@ -1,3 +1,4 @@
+from dataclasses import MISSING
 import nextcord
 import traceback
 import asyncio
@@ -215,14 +216,25 @@ class MSetup:
             self.INSTRUCTION = await self.ctx.send(embed=embed)
         if not self.EDIT_MESSAGE:
             user = getattr(self.ctx, "user", getattr(self.ctx, "author", None))
+            view = assets.Msetup_DropDownView(self.change_setup, user)
+            embed = embed_from_dict(self.di, self.ctx, self.CLIENT)
+            if isinstance(embed, tuple):
+                embed, view_ = embed
+                for i in view_.children:
+                    view.add_item(i)
             self.EDIT_MESSAGE = await self.ctx.send(
-                embed=embed_from_dict(self.di, self.ctx, self.CLIENT),
-                view=assets.Msetup_DropDownView(self.change_setup, user),
+                embed=embed,
+                view=view,
             )
         else:
-            await self.EDIT_MESSAGE.edit(
-                embed=embed_from_dict(self.di, self.ctx, self.CLIENT)
-            )
+            embed = embed_from_dict(self.di, self.ctx, self.CLIENT)
+            user = getattr(self.ctx, "user", getattr(self.ctx, "author", None))
+            view = assets.Msetup_DropDownView(self.change_setup, user)
+            if isinstance(embed, tuple):
+                embed, view_ = embed
+                for i in view_.children:
+                    view.add_item(i)
+            await self.EDIT_MESSAGE.edit(embed=embed, view=view)
 
     async def change_setup(self, MODE: str, inter: nextcord.Interaction) -> str:
         if self.END:
@@ -232,7 +244,7 @@ class MSetup:
             )
             return
         self.SETUP_VALUE = MODE.lower()
-        await self.EDIT_MESSAGE.edit(
+        await inter.edit(
             embed=ef.cembed(
                 title=f"Editing {MODE}",
                 description=f"Currently editing {MODE}, please follow the syntax from the instruction page",
@@ -249,14 +261,25 @@ class MSetup:
         self.set_preset()
         return "```yml\n" + safe_dump(self.di) + "\n```"
 
-    async def imp(self, msg):
+    async def imp(self, msg: nextcord.Message):
         """
         import from a message
         """
+        buttons = []
+        for i in msg.components:
+            if getattr(i, "url", False):
+                buttons.append(
+                    {
+                        "url": i.url,
+                        "label": getattr(i, "label", nextcord.ui.MISSING),
+                        "emoji": getattr(i, "emoji"),
+                    }
+                )
         if len(msg.embeds) == 0:
             await self.ctx.send("I see no embed in that message", delete_after=5)
             return
         self.di = converter(msg.embeds[0].to_dict())
+        self.di["buttons"] = buttons
         return self.to_yaml()
 
     def footer(self, text):
@@ -303,7 +326,7 @@ class MSetup:
     async def process_message(self, msg):
         """
         Send the message here and the class will automatically do it's work :)
-        Should only be passes after `send_instructions |coro|`
+        Should only be passed after `send_instructions |coro|`
         """
         text = msg.content
         if not any(map(text.startswith, ["send", "done", "cancel"])):
