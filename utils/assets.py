@@ -439,5 +439,6 @@ class DEVOPVIEW(nextcord.ui.View):
         )
         stats.callback = functions["stats"]
         save.callback = functions["save"]
+        ex.callback = functions["exit"]
         for i in (stats, save, ex, invite, report):
             self.add_item(i)
