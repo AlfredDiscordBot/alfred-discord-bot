@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_file
 from threading import Thread
 
 app = Flask("")
@@ -7,6 +7,11 @@ app = Flask("")
 @app.route("/")
 def home():
     return "Hello. I am Alfred!"
+
+
+@app.route("/info")
+def info():
+    return send_file("BotInfo.jpg", attachment_filename="BotInfo.jpg")
 
 
 def run():

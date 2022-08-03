@@ -1,3 +1,4 @@
+from dataclasses import MISSING
 import nextcord
 import traceback
 import asyncio
@@ -215,14 +216,25 @@ class MSetup:
             self.INSTRUCTION = await self.ctx.send(embed=embed)
         if not self.EDIT_MESSAGE:
             user = getattr(self.ctx, "user", getattr(self.ctx, "author", None))
+            view = assets.Msetup_DropDownView(self.change_setup, user)
+            embed = embed_from_dict(self.di, self.ctx, self.CLIENT)
+            if isinstance(embed, tuple):
+                embed, view_ = embed
+                for i in view_.children:
+                    view.add_item(i)
             self.EDIT_MESSAGE = await self.ctx.send(
-                embed=embed_from_dict(self.di, self.ctx, self.CLIENT),
-                view=assets.Msetup_DropDownView(self.change_setup, user),
+                embed=embed,
+                view=view,
             )
         else:
-            await self.EDIT_MESSAGE.edit(
-                embed=embed_from_dict(self.di, self.ctx, self.CLIENT)
-            )
+            embed = embed_from_dict(self.di, self.ctx, self.CLIENT)
+            user = getattr(self.ctx, "user", getattr(self.ctx, "author", None))
+            view = assets.Msetup_DropDownView(self.change_setup, user)
+            if isinstance(embed, tuple):
+                embed, view_ = embed
+                for i in view_.children:
+                    view.add_item(i)
+            await self.EDIT_MESSAGE.edit(embed=embed, view=view)
 
     async def change_setup(self, MODE: str, inter: nextcord.Interaction) -> str:
         if self.END:
@@ -232,7 +244,7 @@ class MSetup:
             )
             return
         self.SETUP_VALUE = MODE.lower()
-        await self.EDIT_MESSAGE.edit(
+        await inter.edit(
             embed=ef.cembed(
                 title=f"Editing {MODE}",
                 description=f"Currently editing {MODE}, please follow the syntax from the instruction page",
@@ -249,14 +261,25 @@ class MSetup:
         self.set_preset()
         return "```yml\n" + safe_dump(self.di) + "\n```"
 
-    async def imp(self, msg):
+    async def imp(self, msg: nextcord.Message):
         """
         import from a message
         """
+        buttons = []
+        for i in msg.components:
+            if getattr(i, "url", False):
+                buttons.append(
+                    {
+                        "url": i.url,
+                        "label": getattr(i, "label", nextcord.ui.MISSING),
+                        "emoji": getattr(i, "emoji"),
+                    }
+                )
         if len(msg.embeds) == 0:
             await self.ctx.send("I see no embed in that message", delete_after=5)
             return
         self.di = converter(msg.embeds[0].to_dict())
+        self.di["buttons"] = buttons
         return self.to_yaml()
 
     def footer(self, text):
@@ -303,7 +326,7 @@ class MSetup:
     async def process_message(self, msg):
         """
         Send the message here and the class will automatically do it's work :)
-        Should only be passes after `send_instructions |coro|`
+        Should only be passed after `send_instructions |coro|`
         """
         text = msg.content
         if not any(map(text.startswith, ["send", "done", "cancel"])):
@@ -469,32 +492,40 @@ class Embed(
         *,
         yaml=None,
     ):
-        embed = embed_from_dict(yaml_to_dict(filter_graves(yaml)), ctx, self.CLIENT)
-        if isinstance(channel, (nextcord.TextChannel, nextcord.threads.Thread)):
-            await channel.send(embed=embed)
-        elif validate_url(channel):
-            data = embed.to_dict()
-            await ef.post_async(channel, json={"embeds": [data]})
-        elif channel.lower() == "mehspace":
-            if yaml:
-                await ctx.send(embed=embed)
-                confirm = await ef.wait_for_confirm(
-                    ctx,
-                    self.CLIENT,
-                    "Do you want to use this as your profile?",
-                    color=self.CLIENT.re[8],
-                    usr=ctx.author,
-                )
-                if confirm:
-                    self.CLIENT.mspace[ctx.author.id] = yaml
-            else:
-                await ctx.send(
-                    embed=embed_from_dict(
+        try:
+            embed = embed_from_dict(yaml_to_dict(filter_graves(yaml)), ctx, self.CLIENT)
+            view = nextcord.utils.MISSING
+            if isinstance(embed, tuple):
+                embed, view = embed
+            if isinstance(channel, (nextcord.TextChannel, nextcord.threads.Thread)):
+                await channel.send(embed=embed, view=view)
+            elif validate_url(channel):
+                data = embed.to_dict()
+                await ef.post_async(channel, json={"embeds": [data]})
+            elif channel.lower() == "mehspace":
+                if yaml:
+                    await ctx.send(embed=embed, view=view)
+                    confirm = await ef.wait_for_confirm(
+                        ctx,
+                        self.CLIENT,
+                        "Do you want to use this as your profile?",
+                        color=self.CLIENT.re[8],
+                        usr=ctx.author,
+                    )
+                    if confirm:
+                        self.CLIENT.mspace[ctx.author.id] = yaml
+                else:
+                    embed = embed_from_dict(
                         yaml_to_dict(filter_graves(yaml)), ctx, self.CLIENT
                     )
-                )
-        else:
-            await ctx.send("Invalid channel or URL form")
+                    view = nextcord.utils.MISSING
+                    if isinstance(embed, tuple):
+                        embed, view = embed
+                    await ctx.send(embed=embed, view=view)
+            else:
+                await ctx.send("Invalid channel or URL form")
+        except:
+            print(traceback.format_exc())
 
     @nextcord.user_command(name="mehspace")
     async def meh(self, inter, member):
@@ -504,7 +535,10 @@ class Embed(
         yaml = filter_graves(self.CLIENT.mspace[member.id])
         di = yaml_to_dict(yaml)
         embed = embed_from_dict(di, inter, self.CLIENT)
-        await inter.send(embed=embed)
+        view = nextcord.utils.MISSING
+        if isinstance(embed, tuple):
+            embed, view = embed
+        await inter.send(embed=embed, view=view)
 
     @commands.command(name="mehspace", aliases=["meh", "myspace"])
     @commands.check(ef.check_command)
@@ -522,16 +556,18 @@ class Embed(
                 )
             )
             return
-        await ctx.send(
-            embed=embed_from_dict(
-                yaml_to_dict(filter_graves(self.CLIENT.mspace[user.id])),
-                ctx,
-                self.CLIENT,
-            )
+        embed = embed_from_dict(
+            yaml_to_dict(filter_graves(self.CLIENT.mspace[user.id])),
+            ctx,
+            self.CLIENT,
         )
+        view = nextcord.utils.MISSING
+        if isinstance(embed, tuple):
+            embed, view = embed
+        await ctx.send(embed=embed, view=view)
 
     @nextcord.slash_command(name="mehspace", description="Show Mehspace of someone")
-    async def mehspace(self, inter, user: nextcord.User = None):
+    async def mehspace(self, inter: nextcord.Interaction, user: nextcord.User = None):
         if not user:
             user = inter.user
         if user.id not in self.CLIENT.mspace:
@@ -545,13 +581,15 @@ class Embed(
                 )
             )
             return
-        await inter.response.send_message(
-            embed=embed_from_dict(
-                yaml_to_dict(filter_graves(self.CLIENT.mspace[user.id])),
-                inter,
-                self.CLIENT,
-            )
+        embed = embed_from_dict(
+            yaml_to_dict(filter_graves(self.CLIENT.mspace[user.id])),
+            inter,
+            self.CLIENT,
         )
+        view = nextcord.utils.MISSING
+        if isinstance(embed, tuple):
+            embed, view = embed
+        await inter.response.send_message(embed=embed, view=view)
 
     @nextcord.slash_command(name="embed", description="Create your embed using this")
     async def em(

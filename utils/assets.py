@@ -1,5 +1,5 @@
 from typing import List
-from click import option
+from nextcord.ui import Button, button
 from discord import Interaction
 import nextcord
 from . import External_functions as ef
@@ -15,10 +15,8 @@ class Confirm(nextcord.ui.View):
         self.value = None
         self.color = re[8]
 
-    @nextcord.ui.button(label="Confirm", style=nextcord.ButtonStyle.green)
-    async def confirm(
-        self, button: nextcord.ui.Button, interaction: nextcord.Interaction
-    ):
+    @button(label="Confirm", style=nextcord.ButtonStyle.green)
+    async def confirm(self, button: Button, interaction: nextcord.Interaction):
         await interaction.response.edit_message(
             embed=ef.cembed(
                 title="Done",
@@ -30,10 +28,8 @@ class Confirm(nextcord.ui.View):
         self.stop()
         return self.value
 
-    @nextcord.ui.button(label="Cancel", style=color)
-    async def cancel(
-        self, button: nextcord.ui.Button, interaction: nextcord.Interaction
-    ):
+    @button(label="Cancel", style=color)
+    async def cancel(self, button: Button, interaction: nextcord.Interaction):
         await interaction.response.edit_message(
             embed=ef.cembed(
                 title="Done",
@@ -102,8 +98,8 @@ class Pages(nextcord.ui.View):
             self.add_item(SelectionPages(ctx, embeds, restricted, self.page_change))
         if t in ["sb", "b"]:
             left, right = (
-                nextcord.ui.Button(emoji="◀️", style=color),
-                nextcord.ui.Button(emoji="▶️", style=color),
+                Button(emoji="◀️", style=color),
+                Button(emoji="▶️", style=color),
             )
             left.callback = self.previous
             right.callback = self.next
@@ -272,13 +268,13 @@ class JSONViewer(nextcord.ui.View):
             author=self.CLIENT.user,
         )
 
-    @nextcord.ui.button(emoji="◀️", style=color)
+    @button(emoji="◀️", style=color)
     async def back(self, button, inter):
         if self.current_location:
             self.currently_selected = self.current_location.pop()
         await inter.edit(embed=self.display())
 
-    @nextcord.ui.button(emoji="▶️", style=color)
+    @button(emoji="▶️", style=color)
     async def forward(self, button, inter):
         if self.currently_selected:
             self.current_location.append(self.currently_selected)
@@ -293,7 +289,7 @@ class JSONViewer(nextcord.ui.View):
                 self.currently_selected = temp[0]
         await inter.edit(embed=self.display())
 
-    @nextcord.ui.button(emoji="🔼", style=color)
+    @button(emoji="🔼", style=color)
     async def up(self, button, inter):
         temp = self.di.copy()
         for i in self.current_location:
@@ -310,7 +306,7 @@ class JSONViewer(nextcord.ui.View):
 
         await inter.edit(embed=self.display())
 
-    @nextcord.ui.button(emoji="🔽", style=color)
+    @button(emoji="🔽", style=color)
     async def down(self, button, inter):
         temp = self.di.copy()
         for i in self.current_location:
@@ -421,6 +417,27 @@ class Msetup_DropDownSelect(nextcord.ui.Select):
 
 
 class Msetup_DropDownView(nextcord.ui.View):
-    def __init__(self, func, user):
+    def __init__(self, func, user, *more_items):
         super().__init__(timeout=600)
         self.add_item(Msetup_DropDownSelect(func=func, user=user))
+        for i in more_items:
+            self.add_item(i)
+
+
+class DEVOPVIEW(nextcord.ui.View):
+    def __init__(self, client: ef.commands.Bot, functions):
+        self.functions = functions
+        self.client = client
+        super().__init__(timeout=None)
+        invite_link = "https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands"
+        stats, save, ex, invite, report = (
+            Button(style=color, label="Stats", emoji="⭕"),
+            Button(style=color, label="Save", emoji="💾"),
+            Button(style=color, label="Exit", emoji="❌"),
+            Button(style=color, label="Invite", emoji="🔗", url=invite_link),
+            Button(style=color, label="Report", emoji="📜"),
+        )
+        stats.callback = functions["stats"]
+        save.callback = functions["save"]
+        for i in (stats, save, ex, invite, report):
+            self.add_item(i)

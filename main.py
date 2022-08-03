@@ -1,4 +1,4 @@
-import os
+import os, sys
 import subprocess
 import aiohttp
 import nextcord
@@ -6,28 +6,31 @@ import traceback
 import time
 import psutil
 import asyncio
-from io import BytesIO
 import utils.assets as assets
 
 print("Booting up with", nextcord.__version__)
 
 from keep_alive import keep_alive
+from io import BytesIO
+from utils import send_devop
 from requests import post
 from emoji import emojize
 from nextcord.ext import commands, tasks
 from dotenv import load_dotenv
 from utils.Storage_facility import Variables
+from utils import info_im
 from io import StringIO
 from contextlib import redirect_stdout
 from cogs.Embed import get_color
 from utils.External_functions import (
     cembed,
     dict2fields,
+    dict2str,
     error_message,
     check_command,
     defa,
-    devop_mtext,
     datetime,
+    get_all_slash_commands,
     line_strip,
     wait_for_confirm,
     safe_pfp,
@@ -87,7 +90,7 @@ WOLFRAM: str = os.getenv("wolfram")
 prefix_dict: dict = {}
 
 # replace your id with this
-dev_users: set = {"432801163126243328"}
+dev_users: set = {432801163126243328}
 FFMPEG_OPTIONS = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
     "options": "-vn",
@@ -140,7 +143,7 @@ def save_to_file():
     store.save()
 
 
-def load_from_file(store):
+def load_from_file(store: Variables):
     global da
     global da1
     global queue_song
@@ -158,7 +161,7 @@ def load_from_file(store):
     da1 = v.get("da1", {})
     queue_song = {int(k): v for k, v in v.get("queue_song", {}).items()}
     re = v.get("re", re)
-    dev_users = v.get("dev_users", dev_users)
+    dev_users = {int(i) for i in v.get("dev_users", dev_users)}
     prefix_dict = v.get("prefix_dict", {})
     observer = v.get("observer", [])
     old_youtube_vid = v.get("old_youtube_vid", {})
@@ -214,27 +217,33 @@ async def on_ready():
         load_from_file(store)
         print("Finished loading\n")
         print("\nStarting devop display")
-        await devop_mtext(CLIENT, channel, re[8])
         report += "[ OK ] Sending Devop Message\n"
         print("Finished devop display")
-
+        await send_devop(CLIENT, channel.id, {"save": save_devop, "stats": stats_devop})
         with open("commands.txt", "w") as f:
             for i in CLIENT.commands:
                 f.write(i.name + "\n")
         report += "[ OK ] Updated commands txt file"
     except Exception as e:
-        mess = await channel.send(
+        await channel.send(
             embed=nextcord.Embed(
                 title="Error in the function on_ready",
-                description=str(e),
+                description=str(traceback.format_exc()),
                 color=nextcord.Color(value=re[8]),
             )
         )
-        await mess.add_reaction("❌")
-    dev_loop.start()
+        sys.exit()
     print("Prepared")
+    dev_loop.start()
     youtube_loop.start()
     send_file_loop.start()
+    info_im.render_information(
+        color=nextcord.Color(re[8]).to_rgb(),
+        SERVER_COUNT=len(CLIENT.guilds),
+        USER_COUNT=len(CLIENT.users),
+        NEXTCORD_VERSION=len(nextcord.__version__),
+        DISCRIMINATOR=f"#{CLIENT.user.discriminator}",
+    )
     report += "```"
     await channel.send(
         embed=cembed(
@@ -420,7 +429,7 @@ async def clear_webhooks(ctx):
 )
 async def color_slash(inter, rgb_color=str(nextcord.Color(re[8]).to_rgb())):
     rgb_color = get_color(rgb_color)
-    if str(inter.user.id) not in dev_users:
+    if inter.user.id not in dev_users:
         await inter.send(
             embed=cembed(
                 title="Woopsies",
@@ -495,10 +504,11 @@ async def pr_slash(inter, text: str):
 @CLIENT.command()
 @commands.check(check_command)
 async def dev_op(ctx):
-    if str(getattr(ctx, "author", getattr(ctx, "user", None)).id) in list(dev_users):
+    if getattr(ctx, "author", getattr(ctx, "user", None)).id in dev_users:
         print("devop", str(getattr(ctx, "author", getattr(ctx, "user", None))))
-        channel = CLIENT.get_channel(DEV_CHANNEL)
-        await devop_mtext(CLIENT, channel, re[8])
+        await send_devop(
+            CLIENT, DEV_CHANNEL, {"save": save_devop, "stats": stats_devop}
+        )
     else:
         await ctx.send(
             embed=cembed(
@@ -566,7 +576,7 @@ async def feedback(ctx, *, text):
 
 @CLIENT.command()
 async def rollback(ctx):
-    if str(ctx.author.id) not in dev_users or ctx.channel.id != 941601738815860756:
+    if ctx.author.id not in dev_users or ctx.channel.id != 941601738815860756:
         return
     if not ctx.message.reference:
         await ctx.send("Not replied to a message")
@@ -611,9 +621,59 @@ async def bash(inter, text):
     await shell(inter, text=text)
 
 
+def developer_check(member: nextcord.Member):
+    if member.id in dev_users:
+        return True
+    return False
+
+
+async def save_devop(inter: nextcord.Interaction):
+    if not developer_check(inter.user):
+        await inter.response.send_message(
+            f"This is not for you {inter.user}", ephemeral=True
+        )
+        return
+    save_to_file()
+    await inter.send(
+        embed=cembed(
+            title="Done",
+            description="Save Complete",
+            author=inter.user,
+            color=CLIENT.re[8],
+            thumbnail=CLIENT.user.avatar,
+        )
+    )
+
+
+async def stats_devop(inter: nextcord.Interaction):
+    if not developer_check(inter.user):
+        await inter.response.send_message(
+            f"This is not for you {inter.user}", ephemeral=True
+        )
+        return
+    a, b = len(CLIENT.commands), len(get_all_slash_commands(CLIENT))
+    await inter.response.send_message(
+        embed=cembed(
+            title="Stats",
+            description=dict2str(
+                {
+                    "Name               ": CLIENT.user.name,
+                    "Started            ": f"<t:{int(start_time)}:R>",
+                    "Nextcord Version   ": str(nextcord.__version__),
+                    "Commands Registered": f"{a+b} commands",
+                }
+            ),
+            color=CLIENT.re[8],
+            author=CLIENT.user,
+            thumbnail=CLIENT.user.avatar,
+        )
+    )
+
+
 @CLIENT.command(aliases=["!"])
 async def restart_program(ctx):
-    if str(getattr(ctx, "author", getattr(ctx, "user", None)).id) in list(dev_users):
+    user = getattr(ctx, "author", getattr(ctx, "user", None))
+    if user.id in dev_users:
         save_to_file()
         try:
             if len(CLIENT.voice_clients) > 0:
@@ -679,115 +739,6 @@ async def restart_program(ctx):
 @CLIENT.event
 async def on_message_edit(message_before, message_after):
     await CLIENT.process_commands(message_after)
-
-
-@CLIENT.event
-async def on_reaction_add(reaction, user):
-    req()
-    ctx = reaction.message
-    try:
-        if (not user.bot) and str(user.id) in list(dev_users):
-            global DEV_CHANNEL
-            channel = CLIENT.get_channel(DEV_CHANNEL)
-            if (
-                reaction.emoji == emojize(":laptop:")
-                and str(reaction.message.channel.id) == str(channel.id)
-                and reaction.message.author == CLIENT.user
-            ):
-                st = "\n".join(
-                    [
-                        str(getattr(CLIENT.get_user(int(i)), "name", None))
-                        for i in dev_users
-                    ]
-                )
-                await reaction.remove(user)
-                await channel.send(
-                    embed=cembed(
-                        title="Developers",
-                        description=st,
-                        author=user,
-                        footer="Thank you for supporting",
-                        color=nextcord.Color(value=re[8]),
-                    )
-                )
-            if reaction.emoji == emojize(":bar_chart:") and str(
-                reaction.message.channel.id
-            ) == str(channel.id):
-                await reaction.remove(user)
-                reaction.message.author == user
-                await load(reaction.message)
-            if reaction.emoji == "⭕" and ctx.channel.id == channel.id:
-                await reaction.remove(user)
-                await channel.send(
-                    embed=cembed(
-                        title="Servers",
-                        description="\n".join([i.name + "" for i in CLIENT.guilds]),
-                        color=nextcord.Color(value=re[8]),
-                        author=user,
-                    )
-                )
-            if reaction.emoji == emojize(":fire:") and str(
-                reaction.message.channel.id
-            ) == str(channel.id):
-                reaction.message.author = user
-                await restart_program(reaction.message)
-            if reaction.emoji == "💾" and reaction.message.channel.id == channel.id:
-                save_to_file()
-                await reaction.remove(user)
-            if reaction.emoji == emojize(":cross_mark:") and str(
-                reaction.message.channel.id
-            ) == str(channel.id):
-                await reaction.remove(user)
-                if len(CLIENT.voice_clients) > 0:
-                    confirmation = await wait_for_confirm(
-                        reaction.message,
-                        CLIENT,
-                        f"There are {len(CLIENT.voice_clients)} servers listening to music through Alfred, Do you wanna exit?",
-                        color=re[8],
-                        usr=user,
-                    )
-                    if not confirmation:
-                        return
-                try:
-                    for voice in CLIENT.voice_clients:
-                        voice.stop()
-                        await voice.disconnect()
-                except:
-                    pass
-                await channel.purge(limit=10000000000)
-                await channel.send(
-                    embed=nextcord.Embed(
-                        title="Exit",
-                        description=("Requested by " + str(user)),
-                        color=nextcord.Color(value=re[8]),
-                    )
-                )
-                os.system("pkill python3")
-
-            if reaction.emoji == emojize(":black_circle:") and str(
-                reaction.message.channel.id
-            ) == str(channel.id):
-                await devop_mtext(CLIENT, channel, re[8])
-    except PermissionError:
-        await reaction.message.channel.send(
-            embed=cembed(
-                title="Missing Permissions",
-                description="Alfred is missing permissions, please try to fix this, best recommended is to add Admin to the bot",
-                color=re[8],
-                thumbnail=CLIENT.user.avatar.url,
-            )
-        )
-    except Exception as e:
-        channel = CLIENT.get_channel(DEV_CHANNEL)
-        await channel.send(
-            embed=cembed(
-                title="Error in on_reaction_add",
-                description=f"{traceback.format_exc()}",
-                footer=f"{reaction.message.guild.name}:{reaction.message.channel.name}",
-                color=nextcord.Color(value=re[8]),
-                author=user,
-            )
-        )
 
 
 @CLIENT.event
@@ -896,7 +847,7 @@ async def python_shell(ctx, *, text):
     user = getattr(ctx, "author", getattr(ctx, "user", None))
     print("Python Shell", text, user)
     global dev_users
-    if str(user.id) in dev_users:
+    if user.id in dev_users:
         try:
             text = text.replace("```py", "").replace("```", "")
             await CLIENT.get_channel(946381704958988348).send(
@@ -944,7 +895,7 @@ async def shell(ctx, *, text):
     if isinstance(ctx, nextcord.Interaction):
         await ctx.response.defer()
     user = getattr(ctx, "author", getattr(ctx, "user", None))
-    if not str(user.id) in dev_users:
+    if not user.id in dev_users:
         await ctx.send(
             embed=cembed(
                 title="Permissions Denied",
@@ -985,7 +936,7 @@ async def shell(ctx, *, text):
 @commands.check(check_command)
 async def exe(ctx, *, text):
     req()
-    if str(getattr(ctx, "author", getattr(ctx, "user", None)).id) in dev_users:
+    if getattr(ctx, "author", getattr(ctx, "user", None)).id in dev_users:
         if ctx.guild.id != 822445271019421746:
             await ctx.send(
                 embed=cembed(
@@ -1086,7 +1037,7 @@ def load_extension(name):
         return f"[ OK ] Added {name}\n"
     except Exception as e:
         print(f" :{e}")
-        return f"Error in cog {name}:\n" + traceback.format_exc() + "\n"
+        return f"Error in cog {name}:\n" + e + "\n"
 
 
 def load_all():

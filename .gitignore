@@ -11,6 +11,7 @@ Storage.py
 nohup.out
 .instagramy_cache/
 *.pyc
+BotInfo.jpg
 __pycache__/
 .pytest_cache/
 venv/

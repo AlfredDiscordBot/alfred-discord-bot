@@ -512,7 +512,7 @@ class Music(commands.Cog):
         elif not name:
             num = 0
             st = ""
-            if str(ctx.guild.id) not in self.CLIENT.queue_song:
+            if ctx.guild.id not in self.CLIENT.queue_song:
                 await ctx.send(
                     embed=ef.cembed(
                         title="Empty",
@@ -573,11 +573,7 @@ class Music(commands.Cog):
                 await voiceChannel.connect()
             mem = []
             try:
-                try:
-                    mem = [i.id for i in ctx.guild.voice_client.channel.members]
-                except:
-                    mem = []
-                if mem.count(user.id) > 0:
+                if ef.check_voice(ctx):
                     voice = ctx.guild.voice_client
                     bitrate = "\nBitrate of the channel: " + str(
                         voice.channel.bitrate // 1000
@@ -686,9 +682,9 @@ class Music(commands.Cog):
                 and reaction.message.id == mess.id
             )
 
-        page = self.CLIENT.re[3][str(mess.guild.id)] // 10
+        page = self.CLIENT.re[3][mess.guild.id] // 10
         while True:
-            songs = self.CLIENT.queue_song[str(mess.guild.id)]
+            songs = self.CLIENT.queue_song[mess.guild.id]
             try:
                 reaction, user = await self.CLIENT.wait_for(
                     "reaction_add", check=check, timeout=None
@@ -842,9 +838,9 @@ class Music(commands.Cog):
         user = getattr(ctx, "author", getattr(ctx, "user", None))
         self.CLIENT.re[0] += 1
         if ctx.guild.voice_client == None and user.voice and user.voice.channel:
-            if not str(ctx.guild.id) in self.CLIENT.queue_song:
+            if not ctx.guild.id in self.CLIENT.queue_song:
                 self.CLIENT.queue_song[ctx.guild.id] = []
-            if not str(ctx.guild.id) in self.CLIENT.re[3]:
+            if not ctx.guild.id in self.CLIENT.re[3]:
                 self.CLIENT.re[3][ctx.guild.id] = 0
             channel = user.voice.channel.id
             voiceChannel = nextcord.utils.get(ctx.guild.voice_channels, id=channel)
