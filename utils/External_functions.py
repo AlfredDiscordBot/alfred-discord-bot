@@ -56,6 +56,7 @@ m_options = [
     "author",
     "url",
     "fields",
+    "button",
 ]
 
 Emoji_alphabets = [chr(i) for i in range(127462, 127488)]

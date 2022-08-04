@@ -211,6 +211,11 @@ class MSetup:
                     "value": "If you need to make `inline` as False(if you want fields in new line), use `->` instead of `>`",
                     "inline": False,
                 },
+                {
+                    "name": "Link Buttons",
+                    "value": "Basic syntax is\n`<emoji> <url> <label>`\nEx:🔗https://www.github.com/AlfredDiscordBot/alfred-discord-bot Link\nAll of them must be seperated by space ",
+                    "inline": False,
+                },
             ],
         )
         if self.INSTRUCTION:
@@ -329,6 +334,16 @@ class MSetup:
             else text
         )
 
+    def process_button(self, text: str = None):
+        lines = text.split("\n")
+        buttons = []
+        for i in lines:
+            e, url, label = *i.split(" ")[:2], " ".join(i.split(" ")[2:])
+            if not validate_url(url):
+                continue
+            buttons.append({"emoji": e, "url": url, "label": label})
+        return buttons
+
     async def process_message(self, msg):
         """
         Send the message here and the class will automatically do it's work :)
@@ -380,6 +395,8 @@ class MSetup:
                 output = self.fields(text)
             if self.SETUP_VALUE == "author":
                 output = self.author(text)
+            if self.SETUP_VALUE == "button":
+                output = self.process_button(text)
             if self.SETUP_VALUE == "image":
                 if (not validate_url(text)) and (not text.lower() in self.presets):
                     await self.ctx.send(
@@ -550,7 +567,7 @@ class Embed(
             embed, view = embed
             if member.id == self.CLIENT.user.id:
                 msetup_button = nextcord.ui.Button(
-                    style=assets.color, label="Msetup", emoji="▶️"
+                    style=assets.color, label="Msetup", emoji="😑"
                 )
                 msetup_button.callback = self.msetup_slash
                 view.add_item(msetup_button)
@@ -582,7 +599,7 @@ class Embed(
             embed, view = embed
             if user.id == self.CLIENT.user.id:
                 msetup_button = nextcord.ui.Button(
-                    style=assets.color, label="Msetup", emoji="▶️"
+                    style=assets.color, label="Msetup", emoji="😑"
                 )
                 msetup_button.callback = self.msetup_slash
                 view.add_item(msetup_button)
@@ -613,7 +630,7 @@ class Embed(
             embed, view = embed
             if user.id == self.CLIENT.user.id:
                 msetup_button = nextcord.ui.Button(
-                    style=assets.color, label="Msetup", emoji="▶️"
+                    style=assets.color, label="Msetup", emoji="😑"
                 )
                 msetup_button.callback = self.msetup_slash
                 view.add_item(msetup_button)

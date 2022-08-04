@@ -25,7 +25,6 @@ class DEVOP:
         },
         "image": "attachment://BotInfo.jpg",
     }
-    FILE = ef.nextcord.File("BotInfo.jpg")
 
 
 async def send_devop(CLIENT: ef.commands.Bot, channel: int, functions: dict):
@@ -42,5 +41,5 @@ async def send_devop(CLIENT: ef.commands.Bot, channel: int, functions: dict):
     return await channel.send(
         embed=ef.cembed(**embed),
         view=assets.DEVOPVIEW(CLIENT, functions=functions),
-        file=DEVOP.FILE,
+        file=ef.nextcord.File("BotInfo.jpg"),
     )
