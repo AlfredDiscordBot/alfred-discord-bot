@@ -123,7 +123,10 @@ def embed_from_dict(info: dict, ctx, CLIENT) -> nextcord.Embed:
         info.get("color").startswith("0x") or info.get("color").startswith("#")
     ):
         info["color"] = str(ef.extract_color(info["color"].replace("#", "0x")))
-    info["color"] = get_color(info.get("color", None))
+    try:
+        info["color"] = get_color(info.get("color", None))
+    except Exception:
+        info["color"] = nextcord.Color(CLIENT.re[8])
     if info["color"]:
         if isinstance(info["color"], int):
             info["color"] = nextcord.Color(info["color"])
@@ -403,6 +406,10 @@ class Embed(
         self.CLIENT = CLIENT
         self.old_messages = {}
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.CLIENT.mspace[self.CLIENT.user.id] = assets.Alfred_Mehspace
+
     @nextcord.slash_command(name="msetup", description="Set your mehspace here")
     async def msetup_slash(self, inter):
         await self.msetup(inter)
@@ -541,6 +548,12 @@ class Embed(
         view = nextcord.utils.MISSING
         if isinstance(embed, tuple):
             embed, view = embed
+            if member.id == self.CLIENT.user.id:
+                msetup_button = nextcord.ui.Button(
+                    style=assets.color, label="Msetup", emoji="▶️"
+                )
+                msetup_button.callback = self.msetup_slash
+                view.add_item(msetup_button)
         await inter.send(embed=embed, view=view)
 
     @commands.command(name="mehspace", aliases=["meh", "myspace"])
@@ -567,6 +580,12 @@ class Embed(
         view = nextcord.utils.MISSING
         if isinstance(embed, tuple):
             embed, view = embed
+            if user.id == self.CLIENT.user.id:
+                msetup_button = nextcord.ui.Button(
+                    style=assets.color, label="Msetup", emoji="▶️"
+                )
+                msetup_button.callback = self.msetup_slash
+                view.add_item(msetup_button)
         await ctx.send(embed=embed, view=view)
 
     @nextcord.slash_command(name="mehspace", description="Show Mehspace of someone")
@@ -592,6 +611,12 @@ class Embed(
         view = nextcord.utils.MISSING
         if isinstance(embed, tuple):
             embed, view = embed
+            if user.id == self.CLIENT.user.id:
+                msetup_button = nextcord.ui.Button(
+                    style=assets.color, label="Msetup", emoji="▶️"
+                )
+                msetup_button.callback = self.msetup_slash
+                view.add_item(msetup_button)
         await inter.response.send_message(embed=embed, view=view)
 
     @nextcord.slash_command(name="embed", description="Create your embed using this")
@@ -642,6 +667,17 @@ class Embed(
             return
 
         e = message.embeds[0].to_dict()
+        e["button"] = []
+        for i in message.components:
+            for j in i.children:
+                if url := getattr(j, "url", False):
+                    e["button"].append(
+                        {
+                            "url": url,
+                            "label": getattr(j, "label", "Link"),
+                            "emoji": str(getattr(j, "emoji")),
+                        }
+                    )
 
         await inter.send(
             embed=ef.cembed(
@@ -664,6 +700,17 @@ class Embed(
             return
 
         e = message.embeds[0].to_dict()
+        e["button"] = []
+        for i in message.components:
+            for j in i.children:
+                if url := getattr(j, "url", False):
+                    e["button"].append(
+                        {
+                            "url": url,
+                            "label": getattr(j, "label", "Link"),
+                            "emoji": str(getattr(j, "emoji")),
+                        }
+                    )
 
         await ctx.send(
             embed=ef.cembed(

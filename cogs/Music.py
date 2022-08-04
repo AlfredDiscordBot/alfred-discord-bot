@@ -682,7 +682,7 @@ class Music(commands.Cog):
                 and reaction.message.id == mess.id
             )
 
-        page = self.CLIENT.re[3][mess.guild.id] // 10
+        page = self.CLIENT.re[3].get(mess.guild.id, 0) // 10
         while True:
             songs = self.CLIENT.queue_song[mess.guild.id]
             try:

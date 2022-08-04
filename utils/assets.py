@@ -163,6 +163,54 @@ class Emotes:
         return getattr(self, e, None)
 
 
+Alfred_Mehspace = """```yml
+author:
+  icon_url: https://cdn.discordapp.com/avatars/432801163126243328/a_d58b7cca15fbd376f4779b5873a97c6a.gif?size=1024
+  name: Dark-Knight
+color: <bot-color>
+description: "Hi, I'm a very simple free and open source bot. Check through `/help`\
+  \ for more information, I would love to see  you work with me. You can check out\
+  \ my github repository, all the links will given later on. I have quite tons of\
+  \ features, and my main purpose is to give you a smile \U0001F604. Do it now \U0001F604\
+  ...... just a bit more wide \U0001F604.... good. I will list out some of my features\
+  \ below"
+fields:
+- inline: false
+  name: __FEATURES__
+  value: "\u27E7\u27EB I'm free and open to use, you can even see my source by typing\
+    \ `'src`\n\u27E7\u27EB `Trustable` \u2192 Totally trustable, if you have a query\
+    \ about how something works, you can look into the source code or ask us, we even\
+    \ have our Privacy Policy\n\u27E7\u27EB `Secure` \u2192 All of the features are\
+    \ double checked\n\u27E7\u27EB `FunAPI` \u2192 Alfred has some fun stuff that\
+    \ you can play with, check it out, dont miss it\n\u27E7\u27EB `Speed` \u2192 I\
+    \ try to keep myself as fast as possible, well `it comes to us all`\n\u27E7\u27EB\
+    \ `Support`  \u2192 You can walk into Wayne Enterprises and ask the mods or my\
+    \ boss for help\n\u27E7\u27EB `FOSS` \u2192 Not gonna brag, but Stallman likes\
+    \ me"
+- inline: false
+  name: __SETTING YOUR MEHSPACE__
+  value: First up you gotta use the `msetup` command, or if you're a coder and if
+    you know `yaml syntax` you can use it that way using `'yml_embed mehspace`. If
+    you want to learn how renders and all the key and value structure, you can do
+    it by replying to a message with an embed and typing `'embedinfo`. If you're using
+    `msetup` it is quite self explanatory, type title or description, and then you
+    type the text, I will delete that message and guide you through it
+footer:
+  icon_url: <server-icon>
+  text: Join the Support Server for more info and if you want to contribute, head
+    over to alfred's official website
+image: https://github.com/AlfredDiscordBot/alfred-discord-bot/blob/default/Bat.jpg?raw=True
+title: Hi I'm Alfred
+button:
+  -  label: "Invite Alfred"
+     emoji: "<:Alfredmax:969783243048116234>"
+     url: "https://discord.com/oauth2/authorize?client_id=811591623242154046&permissions=8&scope=bot%20applications.commands"
+  -  label: "Support Server"
+     emoji: "<a:wayne:993742860568506408>"    
+     url: "https://discord.com/invite/XESZGvjDaT"
+```
+"""
+
 # https://top.gg/bot/811591623242154046/vote
 # https://discordbotlist.com/bots/811591623242154046/upvote
 # https://botsfordiscord.com/bot/811591623242154046/vote
@@ -440,5 +488,6 @@ class DEVOPVIEW(nextcord.ui.View):
         stats.callback = functions["stats"]
         save.callback = functions["save"]
         ex.callback = functions["exit"]
+        report.callback = functions["report"]
         for i in (stats, save, ex, invite, report):
             self.add_item(i)
