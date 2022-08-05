@@ -84,10 +84,6 @@ def activities(client, FORCED_ACTIVITY=None):
             name=f"{len(client.users)} people enjoy Alfred",
         ),
         nextcord.Activity(
-            type=nextcord.ActivityType.watching,
-            name="Nextcord People stab their people",
-        ),
-        nextcord.Activity(
             type=nextcord.ActivityType.listening, name="Wayne Enterprise"
         ),
         nextcord.Activity(
@@ -243,13 +239,18 @@ def imdb_embed(movie="", re: list = {8: 5160}):
         }
         plot = mov["plot"][0]
         image = movie[0]["full-size cover url"]
-        embed = cembed(title=title, description=plot, color=re[8], image=image)
-        n = 0
-        for i in di:
-            n += 1
-            embed.add_field(name=i, value=di[i], inline=(n % 3 == 0))
-        return embed
-    except Exception as e:
+        return cembed(
+            title=title, 
+            description=plot, 
+            color=re[8], 
+            image=image, 
+            fields=di,
+            footer={
+                'text': 'This is taken from IMDB',
+                'icon_url': 'https://ia.media-imdb.com/images/M/MV5BODc4MTA3NjkzNl5BMl5BcG5nXkFtZTgwMDg0MzQ2OTE@._V1_.png'
+            }
+        )        
+    except Exception:
         print(traceback.format_exc())
         return cembed(
             title="Oops",
