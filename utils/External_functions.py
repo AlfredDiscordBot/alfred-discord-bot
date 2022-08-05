@@ -240,16 +240,16 @@ def imdb_embed(movie="", re: list = {8: 5160}):
         plot = mov["plot"][0]
         image = movie[0]["full-size cover url"]
         return cembed(
-            title=title, 
-            description=plot, 
-            color=re[8], 
-            image=image, 
+            title=title,
+            description=plot,
+            color=re[8],
+            image=image,
             fields=di,
             footer={
-                'text': 'This is taken from IMDB',
-                'icon_url': 'https://ia.media-imdb.com/images/M/MV5BODc4MTA3NjkzNl5BMl5BcG5nXkFtZTgwMDg0MzQ2OTE@._V1_.png'
-            }
-        )        
+                "text": "This is taken from IMDB",
+                "icon_url": "https://ia.media-imdb.com/images/M/MV5BODc4MTA3NjkzNl5BMl5BcG5nXkFtZTgwMDg0MzQ2OTE@._V1_.png",
+            },
+        )
     except Exception:
         print(traceback.format_exc())
         return cembed(

@@ -428,7 +428,12 @@ class Embed(
         self.CLIENT.mspace[self.CLIENT.user.id] = assets.Alfred_Mehspace
 
     @nextcord.slash_command(name="msetup", description="Set your mehspace here")
-    async def msetup_slash(self, inter):
+    async def msetup_slash(self, inter: nextcord.Interaction):
+        if not inter.channel.permissions_for(inter.user).send_messages:
+            await inter.response.send_message(
+                content="You dont have permission to speak here", ephemeral=True
+            )
+            return
         await self.msetup(inter)
 
     @commands.command(aliases=["msetup1", "mehsetup"])
