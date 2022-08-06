@@ -48,6 +48,7 @@ location_of_file = os.getcwd()
 ydl_copy = ydl_op.copy()
 start_time = time.time()
 load_dotenv()
+keep_alive()
 observer: list = []
 mspace: dict = {}
 deathrate: dict = {}
@@ -1115,7 +1116,6 @@ def load_all():
 
 CLIENT.remove_command("help")
 load_all()
-keep_alive()
 
 try:
     CLIENT.run(os.getenv("token"))

@@ -178,14 +178,14 @@ fields:
 - inline: false
   name: __FEATURES__
   value: "\u27E7\u27EB I'm free and open to use, you can even see my source by typing\
-    \ `'src`\n\u27E7\u27EB `Trustable` \u2192 Totally trustable, if you have a query\
+    \ `'src`\n\n\u27E7\u27EB `Trustable` \u2192 Totally trustable, if you have a query\
     \ about how something works, you can look into the source code or ask us, we even\
-    \ have our Privacy Policy\n\u27E7\u27EB `Secure` \u2192 All of the features are\
-    \ double checked\n\u27E7\u27EB `FunAPI` \u2192 Alfred has some fun stuff that\
-    \ you can play with, check it out, dont miss it\n\u27E7\u27EB `Speed` \u2192 I\
-    \ try to keep myself as fast as possible, well `it comes to us all`\n\u27E7\u27EB\
+    \ have our Privacy Policy\n\n\u27E7\u27EB `Secure` \u2192 All of the features are\
+    \ double checked\n\n\u27E7\u27EB `FunAPI` \u2192 Alfred has some fun stuff that\
+    \ you can play with, check it out, dont miss it\n\n\u27E7\u27EB `Speed` \u2192 I\
+    \ try to keep myself as fast as possible, well `it comes to us all`\n\n\u27E7\u27EB\
     \ `Support`  \u2192 You can walk into Wayne Enterprises and ask the mods or my\
-    \ boss for help\n\u27E7\u27EB `FOSS` \u2192 Not gonna brag, but Stallman likes\
+    \ boss for help\n\n\u27E7\u27EB `FOSS` \u2192 Not gonna brag, but Stallman likes\
     \ me"
 - inline: false
   name: __SETTING YOUR MEHSPACE__

@@ -428,7 +428,12 @@ class Embed(
         self.CLIENT.mspace[self.CLIENT.user.id] = assets.Alfred_Mehspace
 
     @nextcord.slash_command(name="msetup", description="Set your mehspace here")
-    async def msetup_slash(self, inter):
+    async def msetup_slash(self, inter: nextcord.Interaction):
+        if not inter.channel.permissions_for(inter.user).send_messages:
+            await inter.response.send_message(
+                content="You dont have permission to speak here", ephemeral=True
+            )
+            return
         await self.msetup(inter)
 
     @commands.command(aliases=["msetup1", "mehsetup"])
@@ -448,6 +453,9 @@ class Embed(
 
                 if any(map(message.content.lower().startswith, scd)):
                     embed = embed_from_dict(session.di, ctx, self.CLIENT)
+                    view = nextcord.utils.MISSING
+                    if isinstance(embed, tuple):
+                        embed, view = embed
                     text = message.content
 
                     if text.lower() == "done":
@@ -483,7 +491,7 @@ class Embed(
                             print(channel)
                             if channel.permissions_for(user).send_messages:
                                 if channel.permissions_for(ctx.guild.me).send_messages:
-                                    await channel.send(embed=embed)
+                                    await channel.send(embed=embed, view=view)
                                 else:
                                     await ctx.send(
                                         "Bot doesnt have enough permissions",
