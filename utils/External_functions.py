@@ -1095,7 +1095,7 @@ class Detector:
             try:
                 preds = await post_async(
                     "https://suicide-detector-api-1.yashvardhan13.repl.co/classify",
-                    json={"text": content},
+                    json={"tokenc":os.getenv('tokenc'), "text": content},
                 )
             except AttributeError:
                 preds = {"result": None}

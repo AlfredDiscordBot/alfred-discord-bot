@@ -53,7 +53,7 @@ class Image(commands.Cog, description="Fun Effects with your Profile Picture"):
             url = ef.safe_pfp(inter.user)
         else:
             url = ef.safe_pfp(member)
-        json = {"url": url, "url2": url_of_picture, "ratio": ratio}
+        json = {"tokenb":os.getenv('tokenb'), "url": url, "url2": url_of_picture, "ratio": ratio}
         byte = await ef.post_async(
             "https://suicide-detector-api-1.yashvardhan13.repl.co/style_predict",
             json=json,
@@ -125,13 +125,13 @@ class Image(commands.Cog, description="Fun Effects with your Profile Picture"):
             )
             return
         elif effect in styles:
-            json = {"url": url, "effect": effect}
+            json = {"tokene":os.getenv('tokene'), "url": url, "effect": effect}
             byte = await ef.post_async(
                 "https://suicide-detector-api-1.yashvardhan13.repl.co/style", json=json
             )
 
         elif effect in effects:
-            json = {"url": url, "effect": effect}
+            json = {"tokene":os.getenv('tokene'), "url": url, "effect": effect}
             byte = await ef.post_async(
                 "https://suicide-detector-api-1.yashvardhan13.repl.co/cv", json=json
             )
