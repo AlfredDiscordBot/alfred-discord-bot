@@ -8,6 +8,7 @@ from .Embed import filter_graves
 
 # Use nextcord.slash_command()
 
+
 def requirements():
     return []
 

@@ -32,4 +32,3 @@ async def callback_432801163126243328(inter: nextcord.Interaction):
     await get_all_slash_commands(inter.client)["code"].children["github"].children[
         "user"
     ].callback(inter.client.cogs["Code"], inter, "alvinbengeorge")
-

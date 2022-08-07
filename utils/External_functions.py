@@ -811,10 +811,10 @@ class Pokemon:
         if not embed:
             return d
         embed = cembed(
-            title=pokemon, 
-            color=color, 
+            title=pokemon,
+            color=color,
             thumbnail=d["sprites"]["front_default"],
-            fields={i["stat"]["name"]: i["base_stat"] for i in d["stats"]}
+            fields={i["stat"]["name"]: i["base_stat"] for i in d["stats"]},
         )
         embed.add_field(name="Weight", value=d["weight"])
         embed.add_field(

@@ -135,7 +135,12 @@ class Pages(nextcord.ui.View):
 
 
 async def pa(
-    ctx: Union[commands.context.Context, Interaction], embeds, restricted=False, start_from=0, delete_after: int = None, t: str = "b"
+    ctx: Union[commands.context.Context, Interaction],
+    embeds,
+    restricted=False,
+    start_from=0,
+    delete_after: int = None,
+    t: str = "b",
 ):
     if len(embeds) > 1:
         await ctx.send(
