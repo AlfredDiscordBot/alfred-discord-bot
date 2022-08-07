@@ -28,7 +28,6 @@ from utils.External_functions import (
     dict2str,
     error_message,
     check_command,
-    defa,
     datetime,
     get_all_slash_commands,
     line_strip,
@@ -111,7 +110,7 @@ INTENTS = nextcord.Intents().default()
 INTENTS.members = True
 INTENTS.message_content = True
 
-CLIENT = nextcord.ext.commands.Bot(
+CLIENT: commands.Bot = commands.Bot(
     command_prefix=prefix_check, intents=INTENTS, case_insensitive=True
 )
 
@@ -333,7 +332,7 @@ async def dev_loop():
     try:
         a = await get_async("https://suicide-detector-api-1.yashvardhan13.repl.co/")
         if a != '{"message":"API is running"}':
-            ch = CLIENT.get_channel(976470062691135529)
+            ch = CLIENT.get_channel(1005831164650594445)
             await ch.send(
                 embed=cembed(
                     title="Fix her",

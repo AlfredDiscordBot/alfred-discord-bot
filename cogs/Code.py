@@ -437,7 +437,8 @@ class Code(
         return repo_embeds
 
     @commands.command(name="code", aliases=["run"], description="Run Code through EMKC")
-    async def code(self, ctx, lang: str = None, *, code: str = None):
+    @commands.check(ef.check_command)
+    async def code_prefix(self, ctx, lang: str = None, *, code: str = None):
         if not lang or not code:
             runtimes = "\n".join([self.runtimes_to_str(i) for i in self.rce.runtimes])
 

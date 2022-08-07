@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Union
 from nextcord.ui import Button, button
-from discord import Interaction
+from nextcord import Interaction
+from nextcord.ext import commands
 import nextcord
 from . import External_functions as ef
 
@@ -9,14 +10,14 @@ BLUE_LINE = "https://www.wrberadio.com/home/attachment/blue-line-png-1"
 
 
 class Confirm(nextcord.ui.View):
-    def __init__(self, CLIENT, re={8: 5160}):
+    def __init__(self, CLIENT: commands.Bot, re={8: 5160}):
         super().__init__()
         self.CLIENT = CLIENT
         self.value = None
         self.color = re[8]
 
     @button(label="Confirm", style=nextcord.ButtonStyle.green)
-    async def confirm(self, button: Button, interaction: nextcord.Interaction):
+    async def confirm(self, button: Button, interaction: Interaction):
         await interaction.response.edit_message(
             embed=ef.cembed(
                 title="Done",
@@ -29,7 +30,7 @@ class Confirm(nextcord.ui.View):
         return self.value
 
     @button(label="Cancel", style=color)
-    async def cancel(self, button: Button, interaction: nextcord.Interaction):
+    async def cancel(self, button: Button, interaction: Interaction):
         await interaction.response.edit_message(
             embed=ef.cembed(
                 title="Done",
@@ -60,8 +61,8 @@ class SelectionPages(nextcord.ui.Select):
         self.EMBEDS = EMBEDS[:25]
         self.RESTRICTED = RESTRICTED
         self.func = page_change
-        options = []
-        self.op = {}
+        options: list = []
+        self.op: dict = {}
         for i in self.EMBEDS:
             if isinstance(i.title, str):
                 self.op[i.title] = i
@@ -84,7 +85,7 @@ class SelectionPages(nextcord.ui.Select):
             options=options,
         )
 
-    async def callback(self, interaction: nextcord.Interaction):
+    async def callback(self, interaction: Interaction):
         user = getattr(self.CTX, "author", getattr(self.CTX, "user", None))
         if interaction.user.id == user.id:
             await interaction.edit(embed=self.op[self.values[0]])
@@ -134,7 +135,12 @@ class Pages(nextcord.ui.View):
 
 
 async def pa(
-    ctx, embeds, restricted=False, start_from=0, delete_after: int = None, t: str = "b"
+    ctx: Union[commands.context.Context, Interaction],
+    embeds,
+    restricted=False,
+    start_from=0,
+    delete_after: int = None,
+    t: str = "b",
 ):
     if len(embeds) > 1:
         await ctx.send(
@@ -239,7 +245,7 @@ vote_embed = lambda CLIENT: ef.cembed(
     color=CLIENT.re[8],
     author=CLIENT.user,
     fields=VOTE_FIELDS,
-    thumbnail=CLIENT.user.avatar.url,
+    thumbnail=CLIENT.user.avatar,
     image="https://previews.123rf.com/images/enterline/enterline1806/enterline180601886/103633300-the-word-vote-concept-written-in-colorful-abstract-typography-vector-eps-10-available-.jpg",
     footer={
         "text": "Have a great day",
@@ -249,7 +255,7 @@ vote_embed = lambda CLIENT: ef.cembed(
 
 
 class JSONViewer(nextcord.ui.View):
-    def __init__(self, di, main):
+    def __init__(self, di, main: Union[Interaction, commands.context.Context]):
         super().__init__()
         self.USER = getattr(main, "author", getattr(main, "user", None))
         self.di = di
@@ -375,7 +381,7 @@ class JSONViewer(nextcord.ui.View):
 async def test_JSON(ctx, url):
     user = getattr(ctx, "author", getattr(ctx, "user", None))
     client = getattr(ctx, "bot", getattr(ctx, "client", None))
-    color = ctx.client.re[8] if isinstance(ctx, nextcord.Interaction) else ctx.bot.re[8]
+    color = ctx.client.re[8] if isinstance(ctx, Interaction) else ctx.bot.re[8]
     if ef.validate_url(url):
         try:
             json = await ef.get_async(url, kind="json")
@@ -424,7 +430,7 @@ class Role(nextcord.ui.Select):
             custom_id="alfred_role_application",
         )
 
-    async def callback(self, interaction: nextcord.Interaction):
+    async def callback(self, interaction: Interaction):
         await interaction.response.defer()
         role = interaction.guild.get_role(int(self.values[0]))
         if role in interaction.user.roles:
@@ -457,7 +463,7 @@ class Msetup_DropDownSelect(nextcord.ui.Select):
             options=options,
         )
 
-    async def callback(self, interaction: nextcord.Interaction):
+    async def callback(self, interaction: Interaction):
         if interaction.user.id != self.user.id:
             await interaction.response.send_message("Not your Embed 🔪", ephemeral=True)
             return
