@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 from functools import lru_cache
 from datetime import datetime
 from collections import Counter
-from numpy import isin
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
 from typing import List, Union
@@ -152,7 +151,7 @@ def cembed(
     image=None,
     button: Union[dict, nextcord.ui.Button] = None,
     **kwargs,
-):
+) -> nextcord.Embed:
     embed = nextcord.Embed()
     if color != nextcord.Color.dark_theme():
         if type(color) == int:
@@ -760,13 +759,13 @@ from nextcord.ext import commands
 def requirements():
     return []
 
-class <name>(commands.Cog):
+class {name}(commands.Cog):
     def __init__(self, CLIENT):
         self.CLIENT = CLIENT
 
 
 def setup(client,**i):
-    client.add_cog(<name>(client,**i))
+    client.add_cog({name}(client,**i))
 """.strip()
 
 
@@ -775,7 +774,7 @@ def cog_creator(name: str):
         return "Already exists"
 
     with open(f"cogs/{name}.py", "w") as f:
-        f.write(co.replace("<name>", name))
+        f.write(co.format(name=name))
 
     return "Done"
 
@@ -812,12 +811,12 @@ class Pokemon:
         if not embed:
             return d
         embed = cembed(
-            title=pokemon, color=color, thumbnail=d["sprites"]["front_default"]
+            title=pokemon, 
+            color=color, 
+            thumbnail=d["sprites"]["front_default"],
+            fields={i["stat"]["name"]: i["base_stat"] for i in d["stats"]}
         )
-        for i in d["stats"]:
-            embed.add_field(name=i["stat"]["name"], value=i["base_stat"])
         embed.add_field(name="Weight", value=d["weight"])
-
         embed.add_field(
             name="Abilities",
             value="\n".join([i["ability"]["name"] for i in d["abilities"]]),

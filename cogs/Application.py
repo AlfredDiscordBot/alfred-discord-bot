@@ -8,7 +8,6 @@ from .Embed import filter_graves
 
 # Use nextcord.slash_command()
 
-
 def requirements():
     return []
 
@@ -40,9 +39,7 @@ class ApplicationModel(ui.Modal):
 
     def embed_to_items(self):
         questions = filter_graves(self.embed.description).strip().split("\n")
-        n = 0
-        for q in questions:
-            n += 1
+        for n, q in enumerate(questions):
             Input = ui.TextInput(
                 label=q[:40], min_length=1, style=TextInputStyle.paragraph
             )

@@ -5,7 +5,7 @@ import utils.External_functions as ef
 import utils.assets as assets
 from nextcord.ext import commands
 from yaml import safe_load, safe_dump
-from utils.callbacks import functions
+from utils.callbacks import get_callback_functions
 from typing import Union
 
 from requests.models import PreparedRequest
@@ -437,9 +437,9 @@ class Embed(
         await self.msetup(inter)
 
     def special_callback(self, member_id, embed, view):
-        if member_id not in functions():
+        if member_id not in get_callback_functions():
             return embed, view
-        f = functions().get(member_id)
+        f = get_callback_functions().get(member_id)
         button = nextcord.ui.Button(label=f[1], emoji="▶️", style=assets.color)
         button.callback = f[0]
         view.add_item(button)

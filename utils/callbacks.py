@@ -9,12 +9,11 @@
 import sys
 import nextcord
 
-from nextcord.ui import Button, button, View
 from .External_functions import cembed, get_all_slash_commands
 from .assets import pa
 
 
-def functions(*args, **kwargs):
+def get_callback_functions(*args, **kwargs):
     here = sys.modules[__name__]
     return {
         int(i.replace("callback_", "")): (
@@ -30,7 +29,7 @@ async def callback_432801163126243328(inter: nextcord.Interaction):
     """
     Profile
     """
-
     await get_all_slash_commands(inter.client)["code"].children["github"].children[
         "user"
     ].callback(inter.client.cogs["Code"], inter, "alvinbengeorge")
+
