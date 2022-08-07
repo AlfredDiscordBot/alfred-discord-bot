@@ -1,4 +1,3 @@
-from dataclasses import MISSING
 import nextcord
 import traceback
 import asyncio
@@ -6,6 +5,7 @@ import utils.External_functions as ef
 import utils.assets as assets
 from nextcord.ext import commands
 from yaml import safe_load, safe_dump
+from utils.callbacks import functions
 from typing import Union
 
 from requests.models import PreparedRequest
@@ -227,7 +227,7 @@ class MSetup:
             view = assets.Msetup_DropDownView(self.change_setup, user)
             embed = embed_from_dict(self.di, self.ctx, self.CLIENT)
             if isinstance(embed, tuple):
-                embed, view_ = embed
+                embed, view_ = self.special_callback(user.id, *embed)
                 for i in view_.children:
                     view.add_item(i)
             self.EDIT_MESSAGE = await self.ctx.send(
@@ -436,6 +436,15 @@ class Embed(
             return
         await self.msetup(inter)
 
+    def special_callback(self, member_id, embed, view):
+        if member_id not in functions():
+            return embed, view
+        f = functions().get(member_id)
+        button = nextcord.ui.Button(label=f[1], emoji="▶️", style=assets.color)
+        button.callback = f[0]
+        view.add_item(button)
+        return embed, view
+
     @commands.command(aliases=["msetup1", "mehsetup"])
     async def msetup(self, ctx):
         session = MSetup(ctx, self.CLIENT)
@@ -455,7 +464,7 @@ class Embed(
                     embed = embed_from_dict(session.di, ctx, self.CLIENT)
                     view = nextcord.utils.MISSING
                     if isinstance(embed, tuple):
-                        embed, view = embed
+                        embed, view = self.special_callback(user.id, *embed)
                     text = message.content
 
                     if text.lower() == "done":
@@ -531,7 +540,7 @@ class Embed(
             embed = embed_from_dict(yaml_to_dict(filter_graves(yaml)), ctx, self.CLIENT)
             view = nextcord.utils.MISSING
             if isinstance(embed, tuple):
-                embed, view = embed
+                embed, view = self.special_callback(ctx.author.id, *embed)
             if isinstance(channel, (nextcord.TextChannel, nextcord.threads.Thread)):
                 await channel.send(embed=embed, view=view)
             elif validate_url(channel):
@@ -555,7 +564,7 @@ class Embed(
                     )
                     view = nextcord.utils.MISSING
                     if isinstance(embed, tuple):
-                        embed, view = embed
+                        embed, view = self.special_callback(ctx.author.id, *embed)
                     await ctx.send(embed=embed, view=view)
             else:
                 await ctx.send("Invalid channel or URL form")
@@ -572,7 +581,7 @@ class Embed(
         embed = embed_from_dict(di, inter, self.CLIENT)
         view = nextcord.utils.MISSING
         if isinstance(embed, tuple):
-            embed, view = embed
+            embed, view = self.special_callback(member.id, *embed)
             if member.id == self.CLIENT.user.id:
                 msetup_button = nextcord.ui.Button(
                     style=assets.color, label="Msetup", emoji="😑"
@@ -604,7 +613,7 @@ class Embed(
         )
         view = nextcord.utils.MISSING
         if isinstance(embed, tuple):
-            embed, view = embed
+            embed, view = self.special_callback(user.id, *embed)
             if user.id == self.CLIENT.user.id:
                 msetup_button = nextcord.ui.Button(
                     style=assets.color, label="Msetup", emoji="😑"
@@ -635,7 +644,7 @@ class Embed(
         )
         view = nextcord.utils.MISSING
         if isinstance(embed, tuple):
-            embed, view = embed
+            embed, view = self.special_callback(user.id, *embed)
             if user.id == self.CLIENT.user.id:
                 msetup_button = nextcord.ui.Button(
                     style=assets.color, label="Msetup", emoji="😑"
