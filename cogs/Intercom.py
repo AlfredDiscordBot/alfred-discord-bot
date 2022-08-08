@@ -29,7 +29,7 @@ class Intercom(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You need Manage Server Permissions to use this command",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                 )
             )
             return
@@ -43,7 +43,7 @@ class Intercom(commands.Cog):
         await inter.send(
             embed=ef.cembed(
                 description=f"Set {channel.mention} for intercom",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 footer="When you enable this command, you're allowing your server to be seen",
             )
         )
@@ -61,7 +61,7 @@ class Intercom(commands.Cog):
                 embed=ef.cembed(
                     title="Call Ended",
                     description="The server has ended the call",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             self.calls.pop(self.calls.pop(ctx.guild.id))
@@ -117,7 +117,7 @@ class Intercom(commands.Cog):
                     title="PhoneBook",
                     description=st,
                     picture="https://static1.srcdn.com/wordpress/wp-content/uploads/2021/04/Batman-Batphone-Gordon-Joker.jpg",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             return
@@ -157,7 +157,7 @@ class Intercom(commands.Cog):
                 embed=ef.cembed(
                     title="Intercom",
                     description=f"Call from {ctx.guild.name}\nType `accept` or `decline`",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             await ctx.send("Call sent")
@@ -189,7 +189,7 @@ class Intercom(commands.Cog):
                 embed=ef.cembed(
                     title="Done",
                     description=f"Connected to {guild.name}",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     footer="'end to end the call",
                 )
             )
@@ -209,7 +209,7 @@ class Intercom(commands.Cog):
                 c = self.CLIENT.get_channel(self.CLIENT.config["connect"][b])
                 embed = ef.cembed(
                     description=msg.content,
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(msg.guild),
                 )
                 embed.set_author(name=msg.author.name, icon_url=ef.safe_pfp(msg.author))
                 if msg.attachments != []:
@@ -223,7 +223,7 @@ class Intercom(commands.Cog):
                 c = self.CLIENT.get_channel(self.CLIENT.config["connect"][a])
                 embed = ef.cembed(
                     description=msg.content,
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(msg.guild),
                     footer=f"{msg.guild.name} > {msg.guild.id}",
                 )
                 embed.set_author(name=msg.author.name, icon_url=ef.safe_pfp(msg.author))

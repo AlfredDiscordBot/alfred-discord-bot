@@ -432,7 +432,7 @@ class Code(
                 owner_thumbnail=repo_stats.get("owner", {}).get("avatar_url", None),
                 image=image,
             )
-            info = await repo_stats_dict(repo, self.CLIENT.re[8])
+            info = await repo_stats_dict(repo, self.CLIENT.color(inter.guild))
             repo_embeds.append(embed_from_dict(info, inter, self.CLIENT))
         return repo_embeds
 
@@ -445,7 +445,7 @@ class Code(
             embed = ef.cembed(
                 title="RunTimes",
                 description=f"```diff\nHere are all the languages supported by EMKC\n\n{runtimes}\n```",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
                 author=self.CLIENT.user,
                 footer="**Code and Language are a required argument",
@@ -460,7 +460,7 @@ class Code(
             embed=ef.cembed(
                 title="Output",
                 description=output,
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
                 author=ctx.author,
                 url=ctx.message.jump_url,
@@ -496,7 +496,7 @@ class Code(
         await inter.response.defer()
         stats = get_user_stats(user)
         if stats:
-            stats_dict = user_stats_dict(stats, self.CLIENT.re[8], user)
+            stats_dict = user_stats_dict(stats, self.CLIENT.color(inter.guild), user)
             repos = await self.get_repos(user, inter)
         else:
             stats_dict = {
@@ -516,7 +516,7 @@ class Code(
         stats = await get_repo_stats(repo)
 
         if stats:
-            stats_embed = await repo_stats_dict(stats, self.CLIENT.re[8])
+            stats_embed = await repo_stats_dict(stats, self.CLIENT.color(inter.guild))
         else:
             stats_embed = {
                 "title": "Repository Not Found",
@@ -525,7 +525,7 @@ class Code(
                     "name": inter.user.name,
                     "icon_url": ef.safe_pfp(inter.user),
                 },
-                "color": self.CLIENT.re[8],
+                "color": self.CLIENT.color(inter.guild),
             }
         embed = embed_from_dict(stats_embed, inter, self.CLIENT)
         await inter.send(embed=embed)

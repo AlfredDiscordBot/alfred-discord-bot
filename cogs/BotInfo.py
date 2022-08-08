@@ -33,7 +33,7 @@ class BotInfo(
             embed=ef.cembed(
                 title=guild.name,
                 description=f"{len(guild.members)-1} Lucky Member(s) Found",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(guild),
                 thumbnail=self.CLIENT.user.avatar.url,
                 footer=f"Currently in {len(self.CLIENT.guilds)} servers | {len(self.CLIENT.users)} Users",
                 fields=ef.dict2fields({"Member": f"{len(guild.members)} members"}),
@@ -48,7 +48,7 @@ class BotInfo(
                 title=guild.name,
                 description="I left this guild",
                 footer=f"Currently in {len(self.CLIENT.guilds)} servers | {len(self.CLIENT.users)} Users",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(guild),
                 thumbnail=self.CLIENT.user.avatar.url,
                 fields=ef.dict2fields({"Member": f"{len(guild.members)} members"}),
             )
@@ -92,7 +92,7 @@ class BotInfo(
         em = ef.cembed(
             title=f"Online {emo.check}",
             description=f"Hi, {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}\nLatency: \t{int(self.CLIENT.latency*1000)}ms\nRequests: \t{r:,}\nUpFrom: <t:{int(self.start_time)}>\nReady: {self.CLIENT.is_ready()}",
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(ctx.guild),
             footer="Have fun, bot has many features, check out /help",
             thumbnail=self.CLIENT.user.avatar.url,
             author=self.CLIENT.user,
@@ -140,41 +140,38 @@ class BotInfo(
     @commands.command(aliases=["h", "alfred"])
     async def help(self, ctx, *, text="<Optional>"):
         self.CLIENT.re[0] += 1
-        try:
-            self.embe = helping_hand.help_him(self.CLIENT, ctx)
-            new_embed = ef.cembed(
-                title="Index",
-                description="Type `help <section>` to get to the help page\n```diff\n"
-                + "\n+ ".join([i.title for i in self.embe])
-                + "\n```",
-                color=self.CLIENT.re[8],
+        self.embe = helping_hand.help_him(self.CLIENT, ctx)
+        new_embed = ef.cembed(
+            title="Index",
+            description="Type `help <section>` to get to the help page\n```diff\n"
+            + "\n+ ".join([i.title for i in self.embe])
+            + "\n```",
+            color=self.CLIENT.color(ctx.guild),
+            author=self.CLIENT.user,
+            thumbnail=self.CLIENT.user.avatar,
+            footer={
+                "text": "Here's the list of Cogs in Alfred, why Dont you go through them",
+                "icon_url": self.CLIENT.user.avatar,
+            },
+        )
+        self.embe.insert(1, new_embed)
+        self.index = [i.title for i in self.embe]
+        if text in self.index:
+            n = self.index.index(text)
+            await assets.pa(ctx, [self.embe[n]], restricted=True)
+        elif text in [i.name for i in self.CLIENT.commands]:
+            prefix = self.CLIENT.prefix_dict.get(ctx.guild.id, "'")
+            i = self.CLIENT.get_command(text)
+            embed = ef.cembed(
+                title=i.name,
+                description=f"`{prefix}{i.name} {i.signature}`",
+                color=self.CLIENT.color(ctx.guild),
                 author=self.CLIENT.user,
-                thumbnail=self.CLIENT.user.avatar,
-                footer={
-                    "text": "Here's the list of Cogs in Alfred, why Dont you go through them",
-                    "icon_url": self.CLIENT.user.avatar,
-                },
             )
-            self.embe.insert(1, new_embed)
-            self.index = [i.title for i in self.embe]
-            if text in self.index:
-                n = self.index.index(text)
-                await assets.pa(ctx, [self.embe[n]], restricted=True)
-            elif text in [i.name for i in self.CLIENT.commands]:
-                prefix = self.CLIENT.prefix_dict.get(ctx.guild.id, "'")
-                i = self.CLIENT.get_command(text)
-                embed = ef.cembed(
-                    title=i.name,
-                    description=f"`{prefix}{i.name} {i.signature}`",
-                    color=self.CLIENT.re[8],
-                    author=self.CLIENT.user,
-                )
-                await ctx.send(embed=embed)
-            else:
-                n = 0
-                await assets.pa(ctx, self.embe, start_from=n, restricted=True, t="sb")
-        except Exception:
-            print(traceback.format_exc())
+            await ctx.send(embed=embed)
+        else:
+            n = 0
+            await assets.pa(ctx, self.embe, start_from=n, restricted=True, t="sb")
 
     @nextcord.slash_command(name="help", description="Help from Alfred")
     async def help_slash(self, inter, text=None):
@@ -190,7 +187,7 @@ class BotInfo(
                 description="Type `help <section>` to get to the help page\n```diff\n"
                 + "\n+ ".join([i.title for i in self.embe])
                 + "\n```",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
             )
             self.embe.insert(1, new_embed)
@@ -222,7 +219,7 @@ class BotInfo(
             description=description,
             thumbnail=ef.safe_pfp(g),
             image=g.banner if g.banner else "",
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(inter.guild),
             footer=f"{b} | {h} | {m}",
             fields=ef.dict2fields(
                 {
@@ -237,7 +234,7 @@ class BotInfo(
         embed1 = ef.cembed(
             title=g.name,
             description=r,
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(g),
             thumbnail=ef.safe_pfp(g),
             footer=f"{len(g.roles)} Roles",
             author=g.owner,
@@ -245,7 +242,7 @@ class BotInfo(
         embed2 = ef.cembed(
             title=f"Emojis of {g.name}",
             description=emos,
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(g),
             author=g.owner,
             thumbnail=ef.safe_pfp(g),
             footer=f"{len(g.emojis)} Emojis",
@@ -262,7 +259,7 @@ class BotInfo(
             embed = ef.cembed(
                 title="Hi!! I am Alfred.",
                 description=f"""Prefix is `{prefi}`\nFor more help, type `{prefi}help`""",
-                color=nextcord.Color(value=self.CLIENT.re[8]),
+                color=self.CLIENT.color(msg.guild),
                 author=self.CLIENT.user,
                 thumbnail=self.CLIENT.user.avatar,
                 fields={
@@ -284,7 +281,7 @@ class BotInfo(
     @commands.command()
     async def learn(self, ctx):
         embeds = []
-        with open("Learn.md", "r") as f:
+        with open("Learn.md", "r", encoding=None) as f:
             l = f.read().replace("- ", "⋅ ").split("\n\n")
             j = l[:8]
             j.append("\n\n".join(l[8:]))
@@ -293,7 +290,7 @@ class BotInfo(
                 a += 1
                 embed = ef.cembed(
                     title="Learn",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     description=i,
                     footer=f"{a} of {len(j)}",
                 )
@@ -308,7 +305,7 @@ class BotInfo(
                 embed=ef.cembed(
                     title="LICENSE",
                     description=f"```\n{f.read()}\n```",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                     url="https://www.github.com/alvinbengeorge/alfred-discord-bot",
                 ),
@@ -325,7 +322,7 @@ class BotInfo(
         embed = ef.cembed(
             title="Contributors and Contributions",
             description="Hey guys, if you've been Developers of Alfred, Thank you very much for your contribution in this project. Our intend for this project was openness and we've gained it, I would like to thank everyone who is seeing this message, and thank you for accepting Alfred. Alfred crossed 250 servers recently, has more than 250,000 users.\n\nIf you want to take part in this, go to our [github page](https://www.github.com), here you can check our code and fork the repository and add a function and send us a PR. If you wish to know more about Alfred, use the feedback command",
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(ctx.guild),
             footer="Have a great day",
             thumbnail=self.CLIENT.user.avatar.url,
             image="attachment://contrib.png",
@@ -347,13 +344,15 @@ class BotInfo(
             embed = ef.cembed(
                 title="Emojis found",
                 description=st,
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
                 footer=f"Search results for {name}",
             )
             await ctx.send(embed=embed)
         except Exception as e:
-            await ctx.send(embed=ef.cembed(description=str(e), color=self.CLIENT.re[8]))
+            await ctx.send(
+                embed=ef.cembed(description=str(e), color=self.CLIENT.color(ctx.guild))
+            )
 
     @botinfo.subcommand(name="emoji", description="Get Alfred's Emoji")
     async def emoji_slash(self, inter, emoji: str):

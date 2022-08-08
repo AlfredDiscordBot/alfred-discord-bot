@@ -92,7 +92,7 @@ class Image(commands.Cog, description="Fun Effects with your Profile Picture"):
                 embed=ef.cembed(
                     title="OOPS",
                     description=helping_hand.effec,
-                    color=self.client.re[8],
+                    color=self.client.color(ctx.guild),
                     footer="You seem to have forgotten <effect> and <member> arguments",
                     author=ctx.author,
                 )
@@ -125,7 +125,7 @@ class Image(commands.Cog, description="Fun Effects with your Profile Picture"):
                 embed=ef.cembed(
                     title="OOPS",
                     description="""hmm no such effect. The effects are given below. \n `effects <effect> <member> if member is none the users pfp will be modified \n The list of effects is \n- cartoonify \n- watercolor \n- canny \n- pencil \n- econify \n- negative \n- pen \n- candy \n- composition \n- feathers \n- muse \n- mosaic \n- night \n- scream \n- wave \n- udnie """,
-                    color=self.client.re[8],
+                    color=self.client.color(ctx.guild),
                 )
             )
             return
@@ -160,7 +160,7 @@ class Image(commands.Cog, description="Fun Effects with your Profile Picture"):
         embed = ef.cembed(
             title="Word Cloud",
             image="attachment://test.png",
-            color=self.client.re[8],
+            color=self.client.color(inter.guild),
             footer=f"{len(messages)} Messages | {len(text)} Words",
             description=f"{description}\n```",
             thumbnail=ef.safe_pfp(inter.guild),

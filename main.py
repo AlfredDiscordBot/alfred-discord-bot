@@ -40,6 +40,7 @@ from utils.External_functions import (
     svg2png,
     cog_requirements,
     ydl_op,
+    color as cc,
 )
 
 
@@ -77,7 +78,7 @@ re: list = [
     {},
     {},
     -1,
-    "",  # re[5] if free
+    {},  # re[5] custom color
     "",  # re[6] is free
     {},
     5360,  # re[8] -> color
@@ -113,6 +114,8 @@ INTENTS.message_content = True
 CLIENT: commands.Bot = commands.Bot(
     command_prefix=prefix_check, intents=INTENTS, case_insensitive=True
 )
+
+CLIENT.color = lambda guild: cc(re, guild)
 
 try:
     store = Variables("storage")
@@ -190,7 +193,7 @@ except:
 report = f"""Started at: <t:{int(start_time)}>
 Current location: {location_of_file}
 Requests: {re[0]:,}
-Color: {nextcord.Color(re[8]).to_rgb()}
+Color: {nextcord.Color(cc(re)).to_rgb()}
 ```yml
 [ OK ] Loaded all modules
 [ OK ] Variables initialised 
@@ -238,7 +241,7 @@ async def on_ready():
             embed=nextcord.Embed(
                 title="Error in the function on_ready",
                 description=str(traceback.format_exc()),
-                color=nextcord.Color(value=re[8]),
+                color=nextcord.Color(value=cc(re)),
             )
         )
         sys.exit()
@@ -247,7 +250,7 @@ async def on_ready():
     youtube_loop.start()
     send_file_loop.start()
     info_im.render_information(
-        color=nextcord.Color(re[8]).to_rgb(),
+        color=nextcord.Color(cc(re)).to_rgb(),
         SERVER_COUNT=len(CLIENT.guilds),
         USER_COUNT=len(CLIENT.users),
         NEXTCORD_VERSION=len(nextcord.__version__),
@@ -258,7 +261,7 @@ async def on_ready():
         embed=cembed(
             title="Report",
             description=report,
-            color=re[8],
+            color=cc(re, channel.guild),
             thumbnail=CLIENT.user.avatar.url,
         )
     )
@@ -304,7 +307,7 @@ async def youtube_loop():
                             title="New Video out",
                             description=f"New Video from {j[0]}",
                             url=a[0],
-                            color=re[8],
+                            color=cc(re, send_channel.guild),
                             thumbnail=send_channel.guild.icon.url,
                         )
                     )
@@ -337,7 +340,7 @@ async def dev_loop():
                 embed=cembed(
                     title="Fix her",
                     description="Your server is offline Master Bruce, Go check it out ||plssssss||",
-                    color=re[8],
+                    color=cc(re, ch.guild),
                     footer="Why does this server fall sir?",
                     thumbnail=CLIENT.user.avatar.url,
                 )
@@ -369,41 +372,6 @@ async def wait_for_ready():
     await CLIENT.wait_until_ready()
 
 
-@CLIENT.command(aliases=["e", "emoji"])
-@commands.check(check_command)
-@commands.cooldown(1, 5, commands.BucketType.guild)
-async def uemoji(ctx, emoji_name, number=1):
-    req()
-    number -= 1
-    try:
-        await ctx.message.delete()
-    except:
-        pass
-    if emoji_name.startswith(":"):
-        emoji_name = emoji_name[1:]
-    if emoji_name.endswith(":"):
-        emoji_name = emoji_name[:-1]
-    if nextcord.utils.get(CLIENT.emojis, name=emoji_name) != None:
-        emoji_list = [names.name for names in CLIENT.emojis if names.name == emoji_name]
-        le = len(emoji_list)
-        if le >= 2:
-            if number > le - 1:
-                number = le - 1
-        user = getattr(ctx, "author", getattr(ctx, "user", None))
-        emoji = [names for names in CLIENT.emojis if names.name == emoji_name][number]
-        webhook = await ctx.channel.create_webhook(name=user.name)
-        await webhook.send(emoji, username=user.name, avatar_url=safe_pfp(user))
-        await webhook.delete()
-
-    else:
-        await ctx.send(
-            embed=nextcord.Embed(
-                description="The emoji is not available",
-                color=nextcord.Color(value=re[8]),
-            )
-        )
-
-
 @CLIENT.slash_command(name="svg2png", description="Convert SVG image to png format")
 async def svg2png_slash(inter, url):
     req()
@@ -412,29 +380,10 @@ async def svg2png_slash(inter, url):
     await inter.send(file=nextcord.File(BytesIO(img), "svg.png"))
 
 
-@CLIENT.command(aliases=["cw"])
-@commands.check(check_command)
-async def clear_webhooks(ctx):
-    webhooks = await ctx.channel.webhooks()
-    print(webhooks)
-    for webhook in webhooks:
-        try:
-            if webhook.user is CLIENT.user:
-                await webhook.delete()
-        except Exception as e:
-            print(e)
-    await ctx.send(
-        embed=cembed(
-            title="Done",
-            description="Deleted all the webhooks by alfred",
-            color=re[8],
-            thumbnail=CLIENT.user.avatar.url,
-        )
-    )
-
-
 @CLIENT.slash_command(
-    name="color", description="Change color theme", guild_ids=[822445271019421746]
+    name="defaultcolor",
+    description="Change color theme",
+    guild_ids=[822445271019421746],
 )
 async def color_slash(inter, rgb_color=str(nextcord.Color(re[8]).to_rgb())):
     rgb_color = get_color(rgb_color)
@@ -488,7 +437,7 @@ async def load(ctx):
         embed = cembed(
             title="Current load",
             description="\n".join([i.strip() for i in usage.split("\n")]),
-            color=nextcord.Color(value=re[8]),
+            color=nextcord.Color(value=cc(re, ctx.guild)),
             author=user,
             thumbnail=CLIENT.user.avatar.url,
         )
@@ -530,36 +479,34 @@ async def dev_op(ctx):
             embed=cembed(
                 title="Permission Denied",
                 description="You cannot use the devop function, only a developer can",
-                color=re[8],
+                color=cc(re, ctx.guild),
             )
         )
 
 
 @CLIENT.command()
 @commands.check(check_command)
-async def docs(ctx, name):
+async def docs(ctx, expression):
     try:
-        if name.find("(") == -1:
+        if expression.find("(") == -1:
             await ctx.send(
-                embed=nextcord.Embed(
+                embed=cembed(
                     title="Docs",
-                    description=str(eval(name + ".__doc__")),
-                    color=nextcord.Color(value=re[8]),
+                    description=str(eval(expression + ".__doc__")),
+                    color=cc(re, ctx.guild),
                 )
             )
         else:
             await ctx.send(
-                embed=nextcord.Embed(
+                embed=cembed(
                     title="Permissions Denied",
                     description="Functions are not allowed. Try without the brackets to get the information",
-                    color=nextcord.Color(value=re[8]),
+                    color=cc(re, ctx.guild),
                 )
             )
     except Exception as e:
         await ctx.send(
-            embed=nextcord.Embed(
-                title="Error", description=str(e), color=nextcord.Color(value=re[8])
-            )
+            embed=cembed(title="Error", description=str(e), color=cc(re, ctx.guild))
         )
 
 
@@ -568,12 +515,15 @@ async def feedback(ctx, *, text):
     embed = cembed(
         title=f"Message from {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}: {ctx.guild.name}",
         description=text,
-        color=re[8],
+        color=cc(re, ctx.guild),
         thumbnail=CLIENT.user.avatar.url,
     )
     await ctx.send(embed=embed)
     confirmation = await wait_for_confirm(
-        ctx, CLIENT, "Do you want to send this to the developers?", color=re[8]
+        ctx,
+        CLIENT,
+        "Do you want to send this to the developers?",
+        color=cc(re, ctx.guild),
     )
     if not confirmation:
         return
@@ -585,7 +535,7 @@ async def feedback(ctx, *, text):
         embed=cembed(
             title="Done",
             description="I've given this info to the developers, they will try fixing it asap :smiley:",
-            color=re[8],
+            color=cc(re, ctx.guild),
         )
     )
 
@@ -655,7 +605,7 @@ async def save_devop(inter: nextcord.Interaction):
             title="Done",
             description="Save Complete",
             author=inter.user,
-            color=CLIENT.re[8],
+            color=cc(CLIENT.re, inter.guild),
             thumbnail=CLIENT.user.avatar,
         )
     )
@@ -681,7 +631,7 @@ async def stats_devop(inter: nextcord.Interaction):
                     "User Count         ": f"{len(CLIENT.users)} users",
                 }
             ),
-            color=CLIENT.re[8],
+            color=cc(CLIENT.re, inter.guild),
             author=CLIENT.user,
             thumbnail=CLIENT.user.avatar,
         )
@@ -702,7 +652,7 @@ async def exit_program(inter: nextcord.Interaction):
                 embed=cembed(
                     author=inter.user,
                     title="Exiting",
-                    color=re[8],
+                    color=cc(re, inter.guild),
                     description="Closing program safely, saving the files and logging out",
                 )
             )
@@ -714,7 +664,7 @@ async def exit_program(inter: nextcord.Interaction):
         await CLIENT.get_channel(946381704958988348).send(
             embed=cembed(
                 author=inter.user,
-                color=re[8],
+                color=cc(re, guild=inter.guild),
                 title="Exiting",
                 description="Closing program safely, saving the files and logging out",
             )
@@ -747,7 +697,7 @@ async def restart_program(ctx):
                     ctx,
                     CLIENT,
                     f"There are {len(CLIENT.voice_clients)} servers listening to music through Alfred, Do you wanna exit?",
-                    color=re[8],
+                    color=cc(re, ctx.guild),
                 )
                 if not confirmation:
                     return
@@ -770,7 +720,7 @@ async def restart_program(ctx):
                 embed=cembed(
                     title="Restarted",
                     description="The program is beginning it's restarting process",
-                    color=re[8],
+                    color=cc(re[8], ctx.guild),
                     thumbnail=CLIENT.user.avatar.url,
                 )
             )
@@ -779,7 +729,7 @@ async def restart_program(ctx):
                     title="Restart",
                     description=f"Requested by {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}",
                     thumbnail=CLIENT.user.avatar.url,
-                    color=re[8],
+                    color=cc(re[8], ctx.guild),
                 )
             )
         except:
@@ -790,14 +740,14 @@ async def restart_program(ctx):
             embed=cembed(
                 title="Permission Denied",
                 description="Only developers can access this function",
-                color=re[8],
+                color=cc(re[8], ctx.guild),
                 thumbnail=CLIENT.user.avatar.url,
             )
         )
         await CLIENT.get_channel(DEV_CHANNEL).send(
             embed=cembed(
                 description=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name} from {ctx.guild.name} tried to use restart_program command",
-                color=re[8],
+                color=cc(re[8], ctx.guild),
             )
         )
 
@@ -850,7 +800,7 @@ async def on_command_error(ctx, error):
             embed=cembed(
                 title="Disabled command",
                 description="This command has been disabled by your admin, please ask them to enable it to use this\n\nIf you're an admin and you want to enable this command, use `/commands <enable> <command_name>`",
-                color=CLIENT.re[8],
+                color=cc(CLIENT.re[8], ctx.guild),
                 thumbnail=safe_pfp(ctx.author),
             )
         )
@@ -899,10 +849,10 @@ async def on_message(msg):
     except Exception as e:
         channel = CLIENT.get_channel(DEV_CHANNEL)
         await channel.send(
-            embed=nextcord.Embed(
+            embed=cembed(
                 title="Error",
                 description=str(traceback.format_exc()),
-                color=nextcord.Color(value=re[8]),
+                color=cc(re, channel.guild),
             )
         )
 
@@ -930,16 +880,16 @@ async def python_shell(ctx, *, text):
             em = cembed(
                 title=text,
                 description=str(a),
-                color=nextcord.Color(value=re[8]),
+                color=cc(re[8], ctx.guild),
                 thumbnail="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png",
             )
             await ctx.send(embed=em)
         except Exception as e:
             await ctx.send(
-                embed=nextcord.Embed(
+                embed=cembed(
                     title="Error_message",
                     description=str(e),
-                    color=nextcord.Color(value=re[8]),
+                    color=cc(re[8], ctx.guild),
                 )
             )
 
@@ -951,7 +901,7 @@ async def python_shell(ctx, *, text):
         await ctx.send(
             embed=nextcord.Embed(
                 description="Permissions Denied",
-                color=nextcord.Color(value=re[8]),
+                color=cc(re[8], ctx.guild),
             )
         )
 
@@ -966,7 +916,7 @@ async def shell(ctx, *, text):
             embed=cembed(
                 title="Permissions Denied",
                 description="This is an `only developer command`, please refrain from using this",
-                color=re[8],
+                color=cc(re, ctx.guild),
                 thumbnail=CLIENT.user.avatar.url,
             )
         )
@@ -977,7 +927,7 @@ async def shell(ctx, *, text):
             author=user,
             title=f"Shell Executed by {user}",
             description=text,
-            color=re[8],
+            color=cc(re, ctx.guild),
             thumbnail=CLIENT.user.avatar.url,
             footer=f"This happened in {ctx.guild}",
             url=getattr(ctx.message, "jump_url", None),
@@ -987,7 +937,7 @@ async def shell(ctx, *, text):
         embed=cembed(
             title="Shell Execution",
             description="```bash\n" + subprocess.getoutput(text)[:4000] + "\n```",
-            color=re[8],
+            color=cc(re, ctx.guild),
             author=user,
             thumbnail=CLIENT.user.avatar.url,
             footer={

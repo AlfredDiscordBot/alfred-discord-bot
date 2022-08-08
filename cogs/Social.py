@@ -61,7 +61,7 @@ class Social(commands.Cog):
                 embed=ef.cembed(
                     title="Oops",
                     description=str(e),
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                     author=self.CLIENT.user,
                     thumbnail=self.CLIENT.user.avatar.url,
                 )
@@ -87,7 +87,7 @@ class Social(commands.Cog):
                     title="New update",
                     description="After an update from a Discord Bot Listing Website, I found out that NSFW content can be found in Wikipedia. Doesn't mean that we purged the entire wikipedia command, it's now only allowed in NSFW channel",
                     footer="Sorry for the inconvenience",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                 )
             )
@@ -97,7 +97,7 @@ class Social(commands.Cog):
             em = ef.cembed(
                 title=str(t).title(),
                 description=str(summary(t, sentences=5)),
-                color=nextcord.Color(value=self.CLIENT.re[8]),
+                color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                 thumbnail="https://1000logos.net/wp-content/uploads/2017/05/Wikipedia-logos.jpg",
             )
             embeds.append(em)
@@ -111,7 +111,7 @@ class Social(commands.Cog):
             embed=ef.cembed(
                 title=j.get("title", "Unavaiable"),
                 image=j.get("image"),
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
                 footer=f"{j.get('upvotes')} Upvotes | {j.get('comments')} Comments",
             )
@@ -141,7 +141,9 @@ class Social(commands.Cog):
         if not d["success"]:
             await ctx.send(
                 embed=ef.cembed(
-                    title="Error", description=d["error"], color=self.CLIENT.re[8]
+                    title="Error",
+                    description=d["error"],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             return
@@ -153,7 +155,7 @@ class Social(commands.Cog):
                 description=i["content"],
                 url=i["url"],
                 footer=i["date"] + "|" + " From Inshorts",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
             )
             embed.set_author(
                 name=i["author"],

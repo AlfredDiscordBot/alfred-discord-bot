@@ -74,7 +74,7 @@ class Mod(commands.Cog):
                         embed = ef.cembed(
                             title="Snipe",
                             description=s,
-                            color=self.CLIENT.re[8],
+                            color=self.CLIENT.color(ctx.guild),
                             thumbnail=ef.safe_pfp(ctx.guild),
                         )
                         embeds.append(embed)
@@ -90,7 +90,7 @@ class Mod(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="Sorry guys, only admins can snipe now",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                     author=ctx.author,
                 )
@@ -106,7 +106,7 @@ class Mod(commands.Cog):
                 embed=ef.cembed(
                     title="That dude's gone forever",
                     description=f"{member.name} was banned by {ctx.author.name}",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
         else:
@@ -114,7 +114,7 @@ class Mod(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You cant ban members, you dont have the permission to do it",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
 
@@ -128,7 +128,7 @@ class Mod(commands.Cog):
                 embed=ef.cembed(
                     title="Kicked",
                     description=member.name + " was kicked by " + ctx.author.name,
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
         else:
@@ -136,7 +136,7 @@ class Mod(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You cant kick members, you dont have the permission to do it",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
 
@@ -152,7 +152,7 @@ class Mod(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You dont have enough permission to execute this command",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             return
@@ -162,7 +162,7 @@ class Mod(commands.Cog):
             embed=ef.cembed(
                 title="Done",
                 description=f"Muted {member.mention}",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
             )
         )
 
@@ -177,7 +177,7 @@ class Mod(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You dont have enough permission to execute this command",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             return
@@ -187,7 +187,7 @@ class Mod(commands.Cog):
             embed=ef.cembed(
                 title="Done",
                 description=f"Unmuted {member.mention}",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
             )
         )
 
@@ -204,7 +204,7 @@ class Mod(commands.Cog):
                 embed=ef.cembed(
                     title="Nickname Changed",
                     description=f"Nickname changed to {member.nick or member.name} by {user.mention}",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
         else:
@@ -212,7 +212,7 @@ class Mod(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You dont have permission to change others nickname",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
 
@@ -230,7 +230,7 @@ class Mod(commands.Cog):
                         ctx,
                         self.CLIENT,
                         f"Do you want to delete {num} messages",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                     )
                 if confirmation:
                     await ctx.channel.delete_messages(
@@ -245,7 +245,7 @@ class Mod(commands.Cog):
                     embed=ef.cembed(
                         title="Permission Denied",
                         description="You cant delete messages",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                     )
                 )
         else:
@@ -274,7 +274,7 @@ class Mod(commands.Cog):
             inter,
             self.CLIENT,
             "Are you Sure you want to do this",
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(inter.guild),
         )
         if not confirm:
             await inter.send("Aborting")
@@ -284,7 +284,7 @@ class Mod(commands.Cog):
             embed=ef.cembed(
                 title="All right",
                 description="This may take a while to process, please be patient",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 author=inter.user,
                 footer=f"This will be applied to {len(to_be_added)} bots",
             )
@@ -315,7 +315,7 @@ class Mod(commands.Cog):
             inter,
             self.CLIENT,
             "Are you Sure you want to do this",
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(inter.guild),
         )
         if not confirm:
             await inter.send("Aborting")
@@ -325,7 +325,7 @@ class Mod(commands.Cog):
             embed=ef.cembed(
                 title="All right",
                 description="This may take a while to process, please be patient",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 author=inter.user,
                 footer=f"This will be applied to {len(to_be_added)} members",
             )
@@ -344,7 +344,7 @@ class Mod(commands.Cog):
             embed=ef.cembed(
                 title="Invitation link",
                 description=str(link),
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
             )
         )
 
@@ -367,7 +367,7 @@ class Mod(commands.Cog):
             inter,
             self.CLIENT,
             "Are you Sure you want to do this",
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(inter.guild),
         )
         if not confirm:
             await inter.send("Aborting")
@@ -377,7 +377,7 @@ class Mod(commands.Cog):
             embed=ef.cembed(
                 title="All right",
                 description="This may take a while to process, please be patient",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 author=inter.user,
                 footer=f"This will be applied to {len(to_be_added)} humans",
             )

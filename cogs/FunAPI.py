@@ -15,7 +15,7 @@ def requirements():
 class FunAPI(commands.Cog, description="Here lies some fun stuff"):
     def __init__(self, CLIENT: commands.Bot, WOLFRAM: str):
         self.CLIENT = CLIENT
-        self.space = ef.SpaceX(self.CLIENT.re[8])
+        self.space = ef.SpaceX()
         self.proton = ef.Proton()
         self.tt = ef.TechTerms()
         self.APIs = ef.PublicAPI(self.CLIENT)
@@ -39,7 +39,10 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
     async def tech(self, inter, query="Python"):
         await inter.response.defer()
         e = await self.tt.get_page_as_embeds(query)
-        embeds = [ef.cembed(**i, color=self.CLIENT.re[8], author=inter.user) for i in e]
+        embeds = [
+            ef.cembed(**i, color=self.CLIENT.color(inter.guild), author=inter.user)
+            for i in e
+        ]
         await assets.pa(inter, embeds)
 
     @tech.on_autocomplete("query")
@@ -50,7 +53,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
     @commands.command()
     @commands.check(ef.check_command)
     async def quote(self, ctx):
-        embed = await ef.quo(self.CLIENT.re[8])
+        embed = await ef.quo(self.CLIENT.color(ctx.guild))
         await ctx.send(embed=embed)
 
     @funapi.subcommand(name="quote", description="Get a random quote")
@@ -65,12 +68,14 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
         await inter.response.defer()
         reports = await self.proton.report(game)
         embeds = [
-            ef.cembed(**i, color=self.CLIENT.re[8], author=inter.user) for i in reports
+            ef.cembed(**i, color=self.CLIENT.color(inter.guild), author=inter.user)
+            for i in reports
         ]
         if len(embeds) == 0:
             embeds = [
                 ef.cembed(
-                    description="Not Found, please try again", color=self.CLIENT.re[8]
+                    description="Not Found, please try again",
+                    color=self.CLIENT.color(inter.guild),
                 )
             ]
         await assets.pa(inter, embeds)
@@ -89,14 +94,14 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
                     title="Oops",
                     description="We couldnt find that sub-command, it's either history or latest",
                     image="https://thumbs.gfycat.com/CoarseAdventurousIbis-max-1mb.gif",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             return
 
     @spacex.command()
     async def history(self, ctx):
-        embeds = await self.space.history()
+        embeds = await self.space.history(self.CLIENT.color(ctx.guild))
         await assets.pa(ctx, embeds, start_from=0, restricted=False)
 
     @spacex.command()
@@ -130,7 +135,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
             embed=ef.cembed(
                 title=f"`{image.upper()}`",
                 description="This image is taken from `UNSPLASH`",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 author=inter.user,
                 image="attachment://image.png",
             ),
@@ -145,7 +150,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
         em = ef.cembed(
             title="Here's a picture of a Cute Cat",
             description="The Image you see here is collected from source.unsplash.com",
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(ctx.guild),
             author=ctx.author,
             thumbnail=self.CLIENT.user.avatar.url,
             image="attachment://cat.png",
@@ -156,7 +161,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
     async def dic(self, inter, word):
         await inter.response.defer()
         try:
-            mean = ef.Meaning(word=word, color=self.CLIENT.re[8])
+            mean = ef.Meaning(word=word, color=self.CLIENT.color(inter.guild))
             await mean.setup()
             await assets.pa(inter, mean.create_texts(), start_from=0, restricted=False)
         except Exception as e:
@@ -179,7 +184,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
         embed = ef.cembed(
             title="Cat Fact",
             description=a["fact"],
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(ctx.guild),
             thumbnail="https://i.imgur.com/u1TPbIp.png?1",
             author=ctx.author,
         )
@@ -189,7 +194,9 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
     async def APis(self, inter, name):
         await inter.response.defer()
         await self.APIs.update(inter.user)
-        embed = self.APIs.return_embed(self.APIs.find(name), self.CLIENT.re[8])
+        embed = self.APIs.return_embed(
+            self.APIs.find(name), self.CLIENT.color(inter.guild)
+        )
         await inter.send(embed=embed)
 
     @APis.on_autocomplete("name")
@@ -218,7 +225,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
             embed=ef.cembed(
                 title="Here's Shortened URL",
                 description=output["message"],
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 footer="This is provided by a website called TitanURL",
                 thumbnail=self.CLIENT.user.avatar.url,
                 author=ctx.author,
@@ -232,7 +239,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
                 embed=ef.cembed(
                     title="Invalid",
                     description="Invalid page, please try again",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                 )
             )
             return
@@ -241,7 +248,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
         embeds = [
             ef.cembed(
                 title="Result",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 description=i,
                 thumbnail=self.CLIENT.user.avatar.url,
             )
@@ -270,7 +277,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
                 title="Wolfram",
                 author=ctx.author,
                 image="attachment://output.png",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 description=f"This result is taken from Wolfram Alpha\nQuery: `{query}`",
             ),
         )
@@ -278,7 +285,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
     @commands.command(aliases=["zoo", "animals"])
     @commands.check(ef.check_command)
     async def animal(self, ctx):
-        embeds = await ef.animals(self.CLIENT, ctx, self.CLIENT.re[8])
+        embeds = await ef.animals(self.CLIENT, ctx, self.CLIENT.color(ctx.guild))
         await assets.pa(ctx, embeds, t="s")
 
     @funapi.subcommand(name="animal", description="Gets random 10 animals")
@@ -291,7 +298,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
     )
     async def poke(self, inter: nextcord.Interaction, pokemon: str):
         await inter.response.defer()
-        embed = await self.p.get_stats(pokemon, True, self.CLIENT.re[8])
+        embed = await self.p.get_stats(pokemon, True, self.CLIENT.color(inter.guild))
         await inter.send(embed=embed)
 
     @poke.on_autocomplete("pokemon")

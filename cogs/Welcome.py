@@ -85,7 +85,7 @@ class Welcome(
             description=self.preset(
                 member, c.get("description") or "Hello <name>, welcome to <server>"
             ),
-            color=self.client.re[8],
+            color=self.client.color(member.guild),
             thumbnail=ef.safe_pfp(member.guild),
             image="attachment://welcome.png",
         )
@@ -105,7 +105,7 @@ class Welcome(
             embed=ef.cembed(
                 title="GoodBye",
                 description=f"{member.name} left {member.guild.name} at <t:{int(time.time())}:R>\nHope you enjoyed your stay {member.name}",
-                color=self.client.re[8],
+                color=self.client.color(member.guild),
                 thumbnail=ef.safe_pfp(member),
             ),
         )

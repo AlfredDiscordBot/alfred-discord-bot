@@ -37,7 +37,7 @@ class Games(commands.Cog, description="Very Simple Games"):
         embed = ef.cembed(
             title="Rock Paper Scissor",
             description="Hi, You will be playing rock paper scissor against me, please try not to delay it as discord hates me for waiting",
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(inter.guild),
             thumbnail=self.CLIENT.user.avatar.url,
             footer="You can press X when you wanna stop or else it'll timeout after 10 minutes",
             author=inter.user,
@@ -72,7 +72,7 @@ class Games(commands.Cog, description="Very Simple Games"):
                     embed = ef.cembed(
                         title="Bye",
                         description="Ig I'll see you later",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(inter.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
                     embed.add_field(name="You", value=s[user], inline=True)
@@ -87,7 +87,7 @@ class Games(commands.Cog, description="Very Simple Games"):
                             embed=ef.cembed(
                                 title="Draw",
                                 description=f"You both put {r}",
-                                color=self.CLIENT.re[8],
+                                color=self.CLIENT.color(inter.guild),
                                 thumbnail=self.CLIENT.user.avatar.url,
                                 footer="Try again",
                             )
@@ -96,7 +96,7 @@ class Games(commands.Cog, description="Very Simple Games"):
                         embed = ef.cembed(
                             title="You won",
                             description=f"You put {r}, I put {alfred}",
-                            color=self.CLIENT.re[8],
+                            color=self.CLIENT.color(inter.guild),
                             thumbnail=ef.safe_pfp(user),
                         )
                         s[user] += 1
@@ -109,7 +109,7 @@ class Games(commands.Cog, description="Very Simple Games"):
                         embed = ef.cembed(
                             title="You lost",
                             description=f"You put {r}, I put {alfred}",
-                            color=self.CLIENT.re[8],
+                            color=self.CLIENT.color(inter.guild),
                             thumbnail=ef.safe_pfp(user),
                         )
                         s[self.CLIENT.user] += 1
