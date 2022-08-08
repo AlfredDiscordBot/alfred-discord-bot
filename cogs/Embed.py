@@ -542,7 +542,7 @@ class Embed(
             embed = embed_from_dict(yaml_to_dict(filter_graves(yaml)), ctx, self.CLIENT)
             view = nextcord.utils.MISSING
             if isinstance(embed, tuple):
-                embed, view = self.special_callback(ctx.author.id, *embed)
+                embed, view = embed
             if isinstance(channel, (nextcord.TextChannel, nextcord.threads.Thread)):
                 await channel.send(embed=embed, view=view)
             elif validate_url(channel):
