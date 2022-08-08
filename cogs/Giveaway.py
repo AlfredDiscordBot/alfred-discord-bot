@@ -56,7 +56,7 @@ class Giveaway(
         embed = ef.cembed(
             title=heading,
             description=description,
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(inter.guild),
             thumbnail=self.CLIENT.user.avatar.url,
             image=image,
             footer=DEFAULT_FOOTER(self.CLIENT.user.avatar),
@@ -78,7 +78,7 @@ class Giveaway(
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You need manage channel permission to access this function",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             return
@@ -113,7 +113,7 @@ class Giveaway(
             embed=ef.cembed(
                 title="Time up",
                 description="The giveaway has ended, hope you get it the next time",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
             )
         )

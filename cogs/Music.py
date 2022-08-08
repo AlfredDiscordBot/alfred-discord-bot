@@ -79,7 +79,9 @@ class Music(commands.Cog):
                 self.CLIENT.queue_song[inter.guild.id].remove(i)
         await inter.send(
             embed=ef.cembed(
-                title="Done", description=f"Removed songs", color=self.CLIENT.re[8]
+                title="Done",
+                description=f"Removed songs",
+                color=self.CLIENT.color(inter.guild),
             )
         )
 
@@ -109,7 +111,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Autoplay",
                     description=st,
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     author=user,
                 )
             )
@@ -118,7 +120,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You need to be in the voice channel with Alfred to toggle autoplay",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     author=user,
                 )
             )
@@ -144,7 +146,7 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Loop",
                     description=st,
-                    color=nextcord.Color(value=self.CLIENT.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                 )
             )
         else:
@@ -152,7 +154,7 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Permissions Denied",
                     description="You need to be in the voice channel to toggle loop",
-                    color=nextcord.Color(value=self.CLIENT.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                 )
             )
 
@@ -167,7 +169,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Cleared queue",
                     description="_Done_",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                 )
             )
@@ -176,7 +178,7 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Permission denied",
                     description="Join the voice channel to modify queue",
-                    color=nextcord.Color(value=self.CLIENT.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                 )
             )
 
@@ -199,14 +201,14 @@ class Music(commands.Cog):
             embed = ef.cembed(
                 title="Paused",
                 description=f"[{song}]({url})",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 author=user,
             )
         else:
             embed = ef.cembed(
                 title="Permission denied",
                 description="Join the channel to pause the song",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 author=user,
             )
         await ef.isReaction(ctx, embed)
@@ -231,7 +233,7 @@ class Music(commands.Cog):
             embed = ef.cembed(
                 title="Disconnected",
                 description="Bye, Thank you for using Alfred",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 author=user,
             )
 
@@ -239,7 +241,7 @@ class Music(commands.Cog):
             embed = ef.cembed(
                 title="Permission denied",
                 description="Nice try dude! Join the voice channel",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 author=user,
             )
         await ef.isReaction(ctx, embed, clear=True)
@@ -279,7 +281,7 @@ class Music(commands.Cog):
         if mode == "clear":
             if self.CLIENT.da.get(inter.user.id):
                 confirmation = await ef.wait_for_confirm(
-                    inter, self.CLIENT, "Are you sure?", self.CLIENT.re[8]
+                    inter, self.CLIENT, "Are you sure?", self.CLIENT.color(inter.guild)
                 )
                 if confirmation:
                     del self.CLIENT.da[inter.user.id]
@@ -317,7 +319,7 @@ class Music(commands.Cog):
                 embed = ef.cembed(
                     title=f"Playlist of {from_user.name}",
                     description=i,
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                     thumbnail=thumbnail,
                 )
                 embeds.append(embed)
@@ -344,7 +346,7 @@ class Music(commands.Cog):
                         embed=ef.cembed(
                             description="Connected\nBitrate of the channel: "
                             + str(ctx.guild.voice_client.channel.bitrate // 1000),
-                            color=self.CLIENT.re[8],
+                            color=self.CLIENT.color(ctx.guild),
                         )
                     )
                 else:
@@ -352,7 +354,7 @@ class Music(commands.Cog):
                     await ctx.send(
                         embed=nextcord.Embed(
                             description=f"You are not in a voice channel {emo.join_vc}",
-                            color=nextcord.Color(value=self.CLIENT.re[8]),
+                            color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                         )
                     )
             else:
@@ -366,14 +368,14 @@ class Music(commands.Cog):
                             title="Connected",
                             description=f"Connected to {voiceChannel.name} \nBitrate of the channel: "
                             + str(ctx.guild.voice_client.channel.bitrate // 1000),
-                            color=nextcord.Color(value=self.CLIENT.re[8]),
+                            color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                         )
                     )
                 else:
                     await ctx.send(
                         embed=ef.cembed(
                             description="The voice channel does not exist",
-                            color=nextcord.Color(value=self.CLIENT.re[8]),
+                            color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                         )
                     )
 
@@ -382,7 +384,7 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Hmm",
                     description=str(e),
-                    color=nextcord.Color(value=self.CLIENT.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                 )
             )
             channel = self.CLIENT.get_channel(self.DEV_CHANNEL)
@@ -391,7 +393,7 @@ class Music(commands.Cog):
                     title="Connect music",
                     description=traceback.format_exc(),
                     footer=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name}: {ctx.guild}",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
 
@@ -418,7 +420,7 @@ class Music(commands.Cog):
             embed=ef.cembed(
                 title="Songs in queue",
                 description=st,
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
             )
         )
@@ -503,7 +505,7 @@ class Music(commands.Cog):
             em = nextcord.Embed(
                 title="Queue",
                 description=st,
-                color=nextcord.Color(value=self.CLIENT.re[8]),
+                color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
             )
             mess = await ctx.send(embed=em)
             if type(ctx) == nextcord.Interaction:
@@ -517,7 +519,7 @@ class Music(commands.Cog):
                     embed=ef.cembed(
                         title="Empty",
                         description="Empty queue, add a song to the queue using 'q command",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                         footer="You can also use play command",
                     )
                 )
@@ -540,7 +542,7 @@ class Music(commands.Cog):
             embed = ef.cembed(
                 title="Queue",
                 description=st if st != "" else "Empty",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
             )
             mess = await ctx.send(embed=embed)
@@ -552,7 +554,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Permission denied",
                     description="Join the voice channel to modify queue",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     author=getattr(ctx, "author", getattr(ctx, "user", None)),
                 )
             )
@@ -592,7 +594,7 @@ class Music(commands.Cog):
                     embed = ef.cembed(
                         title="Playing",
                         description=self.CLIENT.da1[song] + bitrate,
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
                     if isinstance(ctx, nextcord.Message):
@@ -605,7 +607,7 @@ class Music(commands.Cog):
                     embed = ef.cembed(
                         title="Permission denied",
                         description=f"{emo.animated_wrong} Join the voice channel to play the song",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
             except Exception as e:
@@ -614,7 +616,7 @@ class Music(commands.Cog):
                     embed=ef.cembed(
                         title="Error",
                         description=str(e),
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
                 )
@@ -622,7 +624,7 @@ class Music(commands.Cog):
                     embed=nextcord.Embed(
                         title="Error in play function",
                         description=f"{e}\n{ctx.guild.name}: {ctx.channel.name}",
-                        color=nextcord.Color(value=self.CLIENT.re[8]),
+                        color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                     )
                 )
 
@@ -646,7 +648,7 @@ class Music(commands.Cog):
                 embed = nextcord.Embed(
                     title="Playing",
                     description=self.CLIENT.da1[song],
-                    color=nextcord.Color(value=self.CLIENT.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                 )
                 voice.stop()
                 voice.play(
@@ -657,7 +659,7 @@ class Music(commands.Cog):
                 embed = nextcord.Embed(
                     title="Permission denied",
                     description="Join the voice channel to move to the previous song",
-                    color=nextcord.Color(value=self.CLIENT.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                 )
             await ef.isReaction(ctx, embed)
         except Exception as e:
@@ -666,7 +668,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Error in previous function",
                     description=str(e),
-                    color=nextcord.Color(value=self.CLIENT.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                     footer=f"{ctx.author.name}: {ctx.guild.name}",
                 )
             )
@@ -704,7 +706,7 @@ class Music(commands.Cog):
                     embed=ef.cembed(
                         title="Queue",
                         description=st,
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(mess.guild),
                         footer="Amazing songs btw, keep going"
                         if len(songs) != 0
                         else "Use queue to add some songs",
@@ -721,13 +723,15 @@ class Music(commands.Cog):
         if ef.check_voice(ctx):
             voice = nextcord.utils.get(self.CLIENT.voice_clients, guild=ctx.guild)
             voice.stop()
-            await ctx.send(embed=ef.cembed(title="Stop", color=self.CLIENT.re[8]))
+            await ctx.send(
+                embed=ef.cembed(title="Stop", color=self.CLIENT.color(ctx.guild))
+            )
         else:
             await ctx.send(
                 embed=ef.cembed(
                     title="Permission denied",
                     description="Join the channel to stop the song",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
 
@@ -743,14 +747,14 @@ class Music(commands.Cog):
             embed = nextcord.Embed(
                 title="Playing",
                 description=f"[{song_name}]({url})",
-                color=nextcord.Color(value=self.CLIENT.re[8]),
+                color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
             )
 
         else:
             embed = ef.cembed(
                 title="Permissions Denied",
                 description="You need to be in the voice channel to resume this",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
             )
         await ef.isReaction(ctx, embed)
 
@@ -797,7 +801,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description=f"Join the voice channel to modify queue{assets.Emotes(self.CLIENT).animated_wrong}",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                 )
             )
@@ -809,7 +813,7 @@ class Music(commands.Cog):
                     embed=ef.cembed(
                         title="Removed",
                         description=f"Removed {self.CLIENT.da1.get(a, 'Unavailable')}",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
                 )
@@ -818,7 +822,7 @@ class Music(commands.Cog):
                     embed=ef.cembed(
                         title="Couldn't remove",
                         description=f"The list has only {len(self.CLIENT.queue_song[ctx.guild.id])-1}",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                     )
                 )
         else:
@@ -826,7 +830,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Empty",
                     description="Your Queue is Empty",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
 
@@ -860,7 +864,7 @@ class Music(commands.Cog):
                             embed=nextcord.Embed(
                                 title="Playing",
                                 description=self.CLIENT.da1[song],
-                                color=nextcord.Color(self.CLIENT.re[8]),
+                                color=nextcord.Color(self.CLIENT.color(ctx.guild)),
                             )
                         )
                         voice.stop()
@@ -874,7 +878,7 @@ class Music(commands.Cog):
                         embed = nextcord.Embed(
                             title="Hmm",
                             description=f"There are only {len(songs)} songs",
-                            color=nextcord.Color(self.CLIENT.re[8]),
+                            color=nextcord.Color(self.CLIENT.color(ctx.guild)),
                         )
                         await ctx.send(embed=embed)
                 else:
@@ -888,7 +892,7 @@ class Music(commands.Cog):
                         await ctx.send(
                             embed=ef.cembed(
                                 description="We couldnt find the song, please try it with a different name, shorter name is prefered",
-                                color=self.CLIENT.re[8],
+                                color=self.CLIENT.color(ctx.guild),
                             )
                         )
                         return
@@ -910,7 +914,7 @@ class Music(commands.Cog):
                         embed=nextcord.Embed(
                             title="Playing",
                             description=name_of_the_song,
-                            color=nextcord.Color(value=self.CLIENT.re[8]),
+                            color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                         )
                     )
 
@@ -919,7 +923,7 @@ class Music(commands.Cog):
                     embed=nextcord.Embed(
                         title="Permission denied",
                         description="Join the voice channel to play the song",
-                        color=nextcord.Color(value=self.CLIENT.re[8]),
+                        color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                     )
                 )
         except Exception as e:
@@ -928,14 +932,14 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Error in play function",
                     description=f"{e}",
-                    color=nextcord.Color(value=self.CLIENT.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                 )
             )
             await channel.send(
                 embed=nextcord.Embed(
                     title="Error in play function",
                     description=f"{traceback.format_exc()}\n{ctx.guild.name}: {ctx.channel.name}",
-                    color=nextcord.Color(value=self.CLIENT.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                 )
             )
 
@@ -958,7 +962,7 @@ class Music(commands.Cog):
             embed = ef.cembed(
                 title=self.CLIENT.da1[songs[index]],
                 description=description,
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 thumbnail=info["thumbnail"],
             )
             await ef.isReaction(ctx, embed)
@@ -966,7 +970,7 @@ class Music(commands.Cog):
             embed = ef.cembed(
                 title="Empty queue",
                 description="Your queue is currently empty",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 footer="check 'q if you have any song",
             )
             await ef.isReaction(ctx, embed)
@@ -990,7 +994,7 @@ class Music(commands.Cog):
                             description="Only "
                             + str(len(self.CLIENT.queue_song[ctx.guild.id]))
                             + " songs in your queue",
-                            color=self.CLIENT.re[8],
+                            color=self.CLIENT.color(ctx.guild),
                         )
                     )
                 song = self.CLIENT.queue_song[ctx.guild.id][
@@ -1001,7 +1005,7 @@ class Music(commands.Cog):
                 embed = ef.cembed(
                     title="Playing",
                     description=self.CLIENT.da1.get(song, "Unavailable"),
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
                 await ef.isReaction(ctx, embed)
                 voice.stop()
@@ -1013,7 +1017,7 @@ class Music(commands.Cog):
                 embed = nextcord.Embed(
                     title="Permission denied",
                     description="Join the voice channel to move to the next song",
-                    color=nextcord.Color(value=self.CLIENT.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                 )
                 await ef.isReaction(ctx, embed)
         except Exception as e:
@@ -1023,7 +1027,7 @@ class Music(commands.Cog):
                     title="Error in next function",
                     description=traceback.format_exc(),
                     footer=f"{ctx.channel.name}:{ctx.guild.name}",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
 
@@ -1128,7 +1132,7 @@ class Music(commands.Cog):
                 embed=nextcord.Embed(
                     title="Queue",
                     description=st + bitrate + length + latency,
-                    color=nextcord.Color(value=self.CLIENT.re[8]),
+                    color=nextcord.Color(value=self.CLIENT.color(ctx.guild)),
                 )
             )
 

@@ -16,7 +16,7 @@ class TicketView(nextcord.ui.View):
     @nextcord.ui.button(
         label="Ticket", emoji="🎫", custom_id="alfred_ticket", style=assets.color
     )
-    async def open_ticket(self, button, inter):
+    async def open_ticket(self, _, inter):
         message = inter.message
         embed = message.embeds[0]
         mess = await inter.channel.send(f"Creating Ticket for {inter.user.name}")
@@ -47,7 +47,10 @@ class Ticket(commands.Cog):
             return
         if ctx.channel.owner == self.client.user:
             confirm = await ef.wait_for_confirm(
-                ctx, self.client, "Do you want to close this ticket?", self.client.re[8]
+                ctx,
+                self.client,
+                "Do you want to close this ticket?",
+                self.client.color(ctx.guild),
             )
             if not confirm:
                 return
@@ -66,7 +69,7 @@ class Ticket(commands.Cog):
             await ctx.send(
                 embed=ef.cembed(
                     description="Deleting the ticket in 5 seconds",
-                    color=self.client.re[8],
+                    color=self.client.color(ctx.guild),
                 )
             )
             await asyncio.sleep(5)
@@ -81,7 +84,7 @@ class Ticket(commands.Cog):
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description=f"{e.animated_wrong}You're not an admin to create a ticket message",
-                    color=self.client.re[8],
+                    color=self.client.color(inter.guild),
                 ),
                 ephemeral=True,
             )
@@ -93,7 +96,7 @@ class Ticket(commands.Cog):
             embed=ef.cembed(
                 title="Ticket",
                 description=description,
-                color=self.client.re[8],
+                color=self.client.color(inter.guild),
                 thumbnail=ef.safe_pfp(inter.guild),
             ),
             view=TicketView(),

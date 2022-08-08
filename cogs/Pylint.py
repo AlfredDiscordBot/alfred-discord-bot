@@ -31,7 +31,7 @@ class Pylint(
     def __init__(self, CLIENT: commands.Bot, DEV_CHANNEL):
         self.CLIENT = CLIENT
         self.DEV_CHANNEL = DEV_CHANNEL
-        self.sample_lint = LintAction(self.CLIENT.re[8])
+        self.sample_lint = LintAction(5160)
         self.lint_in_session = False
 
     @nextcord.slash_command(
@@ -45,7 +45,7 @@ class Pylint(
                 embed=ef.cembed(
                     title="Busy",
                     description="A Lint is in session, please wait till the Lint scan is done",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                 )
             )
             return
@@ -55,12 +55,12 @@ class Pylint(
             embed=ef.cembed(
                 title="Executed Lint Commands",
                 description=f"This was done in {inter.guild} by {inter.user.mention}",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 thumbnail=self.CLIENT.user.avatar,
                 author=inter.user,
             )
         )
-        session = LintAction(self.CLIENT.re[8])
+        session = LintAction(self.CLIENT.color(inter.guild))
         session.lint(file, type)
         while True:
             await asyncio.sleep(3)

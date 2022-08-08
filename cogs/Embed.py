@@ -35,9 +35,9 @@ def get_color(color):
 
     if color is None:
         return default_color
-    elif type(color) is int:
+    if type(color) is int:
         return color
-    elif col := map(int, ef.delete_all(color, "()").split(",")):
+    if col := map(int, ef.delete_all(color, "()").split(",")):
         return nextcord.Color.from_rgb(*col)
 
     return default_color
@@ -56,9 +56,8 @@ def converter(a):
         a["image"] = a["image"]["url"]
     if a.get("color"):
         a["color"] = str(nextcord.Color(a["color"]).to_rgb())
-    if a.get("author"):
-        if a["author"].get("proxy_icon_url"):
-            del a["author"]["proxy_icon_url"]
+    if a.get("author") and a["author"].get("proxy_icon_url"):
+        del a["author"]["proxy_icon_url"]
     return a
 
 
@@ -69,7 +68,7 @@ def preset_change(di, ctx, CLIENT):
         "<author-icon>": ef.safe_pfp(user),
         "<author-color>": str(user.color.to_rgb()),
         "<bot-icon>": CLIENT.user.avatar.url,
-        "<bot-color>": str(nextcord.Color(CLIENT.re[8]).to_rgb()),
+        "<bot-color>": str(nextcord.Color(CLIENT.color(ctx.guild)).to_rgb()),
     }
     if isinstance(di, str):
         di = {"description": di, "color": "<bot-color>"}
@@ -115,7 +114,7 @@ def embed_from_dict(info: dict, ctx, CLIENT) -> nextcord.Embed:
     if info == {}:
         info = {
             "description": "Nothing to Embed",
-            "color": str(nextcord.Color(CLIENT.re[8]).to_rgb()),
+            "color": str(nextcord.Color(CLIENT.color(ctx.guild)).to_rgb()),
         }
     info = preset_change(info, ctx, CLIENT)
     info = {k.lower(): v for k, v in info.items()}  # make it case insensitive
@@ -126,7 +125,7 @@ def embed_from_dict(info: dict, ctx, CLIENT) -> nextcord.Embed:
     try:
         info["color"] = get_color(info.get("color", None))
     except Exception:
-        info["color"] = nextcord.Color(CLIENT.re[8])
+        info["color"] = nextcord.Color.default()
     if info["color"]:
         if isinstance(info["color"], int):
             info["color"] = nextcord.Color(info["color"])
@@ -179,7 +178,7 @@ class MSetup:
         embed = ef.cembed(
             title="MehSetup Instructions",
             description=description,
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(self.ctx.guild),
             thumbnail=self.CLIENT.user.avatar.url,
             footer="Have Fun",
             fields=[
@@ -227,7 +226,7 @@ class MSetup:
             view = assets.Msetup_DropDownView(self.change_setup, user)
             embed = embed_from_dict(self.di, self.ctx, self.CLIENT)
             if isinstance(embed, tuple):
-                embed, view_ = self.special_callback(user.id, *embed)
+                embed, view_ = embed
                 for i in view_.children:
                     view.add_item(i)
             self.EDIT_MESSAGE = await self.ctx.send(
@@ -256,7 +255,7 @@ class MSetup:
             embed=ef.cembed(
                 title=f"Editing {MODE}",
                 description=f"Currently editing {MODE}, please follow the syntax from the instruction page",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
             )
         )
@@ -335,10 +334,11 @@ class MSetup:
         )
 
     def process_button(self, text: str = None):
-        lines = text.split("\n")
+        lines = [i for i in text.split("\n") if i.strip()]
         buttons = []
         for i in lines:
-            e, url, label = *i.split(" ")[:2], " ".join(i.split(" ")[2:])
+            split = (j for j in i.split(" ") if j.strip())
+            e, url, label = *split[:2], " ".join(split[2:])
             if not validate_url(url):
                 continue
             buttons.append({"emoji": e, "url": url, "label": label})
@@ -359,7 +359,7 @@ class MSetup:
                 embed=ef.cembed(
                     title=f"Editing {text}",
                     description=f"Currently editing {text}, please follow the syntax from the instruction page",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(msg.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                 )
             )
@@ -462,7 +462,7 @@ class Embed(
 
                 if any(map(message.content.lower().startswith, scd)):
                     embed = embed_from_dict(session.di, ctx, self.CLIENT)
-                    view = nextcord.utils.MISSING
+                    view: nextcord.ui.View = nextcord.utils.MISSING
                     if isinstance(embed, tuple):
                         embed, view = self.special_callback(user.id, *embed)
                     text = message.content
@@ -472,7 +472,7 @@ class Embed(
                             ctx,
                             self.CLIENT,
                             "Do you want to set this as your mehspace?",
-                            color=self.CLIENT.re[8],
+                            color=self.CLIENT.color(ctx.guild),
                         )
 
                         if confirm:
@@ -496,8 +496,11 @@ class Embed(
                             await ctx.send("Done")
                             continue
                         if self.CLIENT.get_channel(int(text[7:-1])):
+                            for i in view.children:
+                                if not getattr(i, "url", False):
+                                    view.remove_item(i)
+                                    break
                             channel = self.CLIENT.get_channel(int(text[7:-1]))
-                            print(channel)
                             if channel.permissions_for(user).send_messages:
                                 if channel.permissions_for(ctx.guild.me).send_messages:
                                     await channel.send(embed=embed, view=view)
@@ -517,7 +520,7 @@ class Embed(
                     embed=ef.cembed(
                         title="Sorry",
                         description="Timed out, Discord will kill me if i wait longer",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
                 )
@@ -540,7 +543,7 @@ class Embed(
             embed = embed_from_dict(yaml_to_dict(filter_graves(yaml)), ctx, self.CLIENT)
             view = nextcord.utils.MISSING
             if isinstance(embed, tuple):
-                embed, view = self.special_callback(ctx.author.id, *embed)
+                embed, view = embed
             if isinstance(channel, (nextcord.TextChannel, nextcord.threads.Thread)):
                 await channel.send(embed=embed, view=view)
             elif validate_url(channel):
@@ -548,12 +551,13 @@ class Embed(
                 await ef.post_async(channel, json={"embeds": [data]})
             elif channel.lower() == "mehspace":
                 if yaml:
+                    embed, view = self.special_callback(ctx.author.id, embed, view)
                     await ctx.send(embed=embed, view=view)
                     confirm = await ef.wait_for_confirm(
                         ctx,
                         self.CLIENT,
                         "Do you want to use this as your profile?",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                         usr=ctx.author,
                     )
                     if confirm:
@@ -600,7 +604,7 @@ class Embed(
                 embed=ef.cembed(
                     title="Unavailable",
                     description="This user has not set mehspace",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     author=user,
                     thumbnail="https://www.cambridge.org/elt/blog/wp-content/uploads/2019/07/Sad-Face-Emoji-480x480.png.webp",
                 )
@@ -631,7 +635,7 @@ class Embed(
                 embed=ef.cembed(
                     title="Unavailable",
                     description="This user has not set mehspace",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                     thumbnail="https://www.cambridge.org/elt/blog/wp-content/uploads/2019/07/Sad-Face-Emoji-480x480.png.webp",
                     author=user,
                 )
@@ -686,12 +690,13 @@ class Embed(
             await inter.send(embed=embed)
         except:
             print(traceback.format_exc())
-            await inter.send(
+            await inter.response.send_message(
                 embed=ef.cembed(
                     title="Oops",
                     description="Something is wrong",
-                    color=self.CLIENT.re[8],
-                )
+                    color=self.CLIENT.color(inter.guild),
+                ),
+                ephemeral=True,
             )
 
     @nextcord.message_command(name="embedinfo")
@@ -717,7 +722,7 @@ class Embed(
             embed=ef.cembed(
                 title="EmbedInfo",
                 description=f"```yml\n{safe_dump(converter(e))}\n```",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
             ),
             ephemeral=True,
@@ -750,7 +755,7 @@ class Embed(
             embed=ef.cembed(
                 title="EmbedInfo",
                 description=f"```yml\n{safe_dump(converter(e))}\n```",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
             )
         )

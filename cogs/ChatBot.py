@@ -105,7 +105,7 @@ class ChatBot(
             embed=ef.cembed(
                 title="Generated text",
                 description=o,
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
             )
         )
@@ -119,7 +119,7 @@ class ChatBot(
             title="Talk To My hand",
             author=inter.user,
             description="\n".join(texts),
-            color=inter.CLIENT.re[8],
+            color=inter.CLIENT.color(inter.guild),
             thumbnail=inter.CLIENT.user.avatar.url,
         )
         await inter.send(embed=embed)
@@ -142,7 +142,8 @@ class ChatBot(
             mod = models[self.CLIENT.re[10].get(inter.guild.id, 1) - 1]
             await inter.send(
                 embed=ef.cembed(
-                    description=f"Current model is {mod}", color=self.CLIENT.re[8]
+                    description=f"Current model is {mod}",
+                    color=self.CLIENT.color(inter.guild),
                 )
             )
             return
@@ -153,7 +154,7 @@ class ChatBot(
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description=f"{d} You cannot change the model of this server, you need Manage server permissions",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                 ),
             )
@@ -164,7 +165,7 @@ class ChatBot(
             embed=ef.cembed(
                 title="Done",
                 description=message,
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
             )
         )

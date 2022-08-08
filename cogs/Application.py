@@ -19,7 +19,7 @@ class ApplicationButton(ui.View):
         super().__init__(timeout=None)
 
     @ui.button(label="Application", style=assets.color, custom_id="alfred_application")
-    async def open_modal(self, button, inter):
+    async def open_modal(self, _, inter):
         if inter.message.author.id != self.CLIENT.user.id:
             await inter.response.send_message("Not for me", ephemeral=True)
             await inter.delete_original_message()
@@ -47,7 +47,7 @@ class ApplicationModel(ui.Modal):
             setattr(self, f"field{n}", Input)
             self.add_item(getattr(self, f"field{n}"))
 
-    async def callback(self, inter):
+    async def callback(self, interaction):
         channel = self.CLIENT.get_channel(int(self.message.embeds[0].footer.text))
         fields = []
         for attribute in dir(self):
@@ -61,18 +61,18 @@ class ApplicationModel(ui.Modal):
                 )
         await channel.send(
             embed=ef.cembed(
-                title=f"Application By {inter.user.name}",
-                author=inter.user,
-                color=self.CLIENT.re[8],
-                description=f"This was done in the {inter.channel.mention}",
+                title=f"Application By {interaction.user.name}",
+                author=interaction.user,
+                color=interaction.client.color(interaction.guild),
+                description=f"This was done in the {interaction.channel.mention}",
                 footer={
-                    "text": f"UserID: {inter.user.id}",
-                    "icon_url": ef.safe_pfp(inter.user),
+                    "text": f"UserID: {interaction.user.id}",
+                    "icon_url": ef.safe_pfp(interaction.user),
                 },
                 fields=fields,
             )
         )
-        await inter.response.send_message(ephemeral=True, content="Done")
+        await interaction.response.send_message(ephemeral=True, content="Done")
 
 
 class ApplicationCreate(ui.Modal):
@@ -88,9 +88,9 @@ class ApplicationCreate(ui.Modal):
         self.channel = channel
         self.log_channel = log_channel
 
-    async def callback(self, inter):
+    async def callback(self, interaction):
         if len(self.question.value.split("\n")) > 5:
-            await inter.response.send_message(
+            await interaction.response.send_message(
                 "Cannot have more than 5 questions", ephemeral=True
             )
             return
@@ -98,15 +98,17 @@ class ApplicationCreate(ui.Modal):
             embed=ef.cembed(
                 title="Application",
                 description=f"```\n{filter_graves(self.question.value)}\n```",
-                color=inter.CLIENT.re[8],
-                thumbnail=ef.safe_pfp(inter.guild),
+                color=interaction.client.color(interaction.guild),
+                thumbnail=ef.safe_pfp(interaction.guild),
                 footer=str(self.log_channel.id),
             ),
-            view=ApplicationButton(inter.CLIENT),
+            view=ApplicationButton(interaction.client),
         )
-        await inter.response.send_message(
+        await interaction.response.send_message(
             ephemeral=True,
-            embed=ef.cembed(description="Done", color=inter.CLIENT.re[8]),
+            embed=ef.cembed(
+                description="Done", color=interaction.client.color(interaction.guild)
+            ),
         )
 
 
@@ -134,7 +136,7 @@ class Application(
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You do not have manage server permission",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                 ),
             )

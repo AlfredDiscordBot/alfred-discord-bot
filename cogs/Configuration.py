@@ -79,6 +79,37 @@ class Configuration(
     async def prefix_setting(self, inter, prefix: str = None):
         await self.set_prefix(inter, pref=prefix)
 
+    @config.subcommand(name="color", description="Set color (R, G, B)")
+    async def set_color(self, inter, r: int, g: int, b: int):
+        if not inter.user.guild_permissions.administrator:
+            await inter.response.send_message(
+                "You do not have enough permission", ephemeral=True
+            )
+            return
+
+        if not 0 <= r <= 255:
+            await inter.send("Your Red Value must be in the range of (0, 255)")
+            return
+
+        if not 0 <= g <= 255:
+            await inter.send("Your Green Value must be in the range of (0, 255)")
+            return
+
+        if not 0 <= b <= 255:
+            await inter.send("Your Blue Value must be in the range of (0, 255)")
+            return
+
+        self.CLIENT.re[5][inter.guild.id] = nextcord.Color.from_rgb(r, g, b).value
+        await inter.send(
+            embed=ef.cembed(
+                title="Done",
+                description="Set color as ({r}, {g}, {b})".format(r=r, g=g, b=b),
+                color=self.CLIENT.color(inter.guild),
+                thumbnail=inter.guild.icon,
+                author=inter.user,
+            )
+        )
+
     @commands.command(aliases=["prefix", "setprefix"])
     @commands.check(ef.check_command)
     async def set_prefix(self, ctx, *, pref=None):
@@ -87,7 +118,7 @@ class Configuration(
             await ctx.send(
                 embed=ef.cembed(
                     description=f"My Prefix is `{self.CLIENT.prefix_dict.get(ctx.guild.id,default_prefix)}`",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             return
@@ -101,7 +132,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Done",
                     description=f"Prefix set as {pref}",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             if pref == default_prefix:
@@ -112,7 +143,7 @@ class Configuration(
                     title="Permissions Denied",
                     description="You cannot change the prefix, you need to be an admin"
                     + str(assets.Emotes(self.CLIENT).animated_wrong),
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
 
@@ -156,7 +187,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Enabled",
                     description=output,
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                 )
             )
@@ -188,7 +219,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Done",
                     description=f"I've {output} the suicide observer",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
         else:
@@ -238,7 +269,7 @@ class Configuration(
             embed=ef.cembed(
                 title="Done",
                 description=f"Enabled {command} in this server, to disable it, use `/config slash disable`",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 thumbnail=self.CLIENT.user.avatar,
                 author=inter.user,
             )

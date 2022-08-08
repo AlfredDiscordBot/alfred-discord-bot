@@ -273,7 +273,7 @@ async def redd(ctx, account: str = "wholesomememes", number: int = 25):
             image=i["url"],
             url=i["postLink"],
             footer=i["author"] + " | " + str(i["ups"]) + " votes",
-            color=bot.re[8],
+            color=bot.color(ctx.guild),
             thumbnail=bot.user.avatar.url,
         )
         if not ctx.channel.nsfw:
@@ -284,7 +284,7 @@ async def redd(ctx, account: str = "wholesomememes", number: int = 25):
         embed = cembed(
             title="Something seems wrong",
             description="There are no posts in this accounts, or it may be `NSFW`",
-            color=bot.re[8],
+            color=bot.color(ctx.guild),
         )
         embeds.append(embed)
     return embeds
@@ -569,7 +569,7 @@ class SpaceX:
     SpaceX Simple API -> Coded By alvinbengeorge
     """
 
-    def __init__(self, color: Union[int, nextcord.Color]):
+    def __init__(self):
         self.name = None
         self.time = None
         self.fno = None
@@ -578,7 +578,6 @@ class SpaceX:
         self.wikipedia = None
         self.crew = []
         self.id = None
-        self.color = color
 
     async def setup(self):
         js = await get_async(
@@ -593,14 +592,14 @@ class SpaceX:
         self.id = js["id"]
         self.fno = js["flight_number"]
 
-    async def history(self):
+    async def history(self, color: Union[nextcord.Color, int]):
         jso = await get_async("https://api.spacexdata.com/v4/history", kind="json")
         embeds = []
         for i in jso[::-1]:
             embed = cembed(
                 title=i["title"],
                 description=i["details"],
-                color=self.color,
+                color=color,
                 thumbnail="https://www.spacex.com/static/images/share.jpg",
                 footer=i["id"] + " | " + str(timestamp(i["event_date_unix"])),
             )
@@ -1099,9 +1098,12 @@ class Detector:
             except AttributeError:
                 preds = {"result": None}
 
-            if preds.get("result") == "Sucide":
-                self.deathrate[message.author.id] += 1
-            else:
+            try:
+                if preds.get("result") == "Sucide":
+                    self.deathrate[message.author.id] += 1
+                else:
+                    return None
+            except:
                 return None
 
             if self.deathrate.get(message.author.id) >= 10:
@@ -1260,7 +1262,7 @@ class PollGraph:
         return nextcord.File(fp=self.generate_image(), filename="result.png"), cembed(
             title="Poll Results",
             description=dict2str(description),
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(self.INTER.guild),
             author=self.INTER.user,
             image="attachment://result.png",
             thumbnail=safe_pfp(self.INTER.guild),
@@ -1307,3 +1309,10 @@ def check_slash(inter: nextcord.Interaction):
     if inter.guild.id in inter.client.config["slash"][full_command]:
         return False
     return True
+
+
+def color(re: list, guild: nextcord.Guild = None):
+    """
+    Modifiable color server-wise
+    """
+    return re[5].get(getattr(guild, "id", None)) or re[8]

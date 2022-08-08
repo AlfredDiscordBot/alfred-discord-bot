@@ -29,20 +29,20 @@ class Misc(commands.Cog):
     async def yey(self, ctx):
         self.CLIENT.re[0] += 1
         print("yey")
-        em = ef.cembed(title="*yey*", color=self.CLIENT.re[8])
+        em = ef.cembed(title="*yey*", color=self.CLIENT.color(ctx.guild))
         await ctx.send(embed=em)
 
     @commands.command()
     @commands.check(ef.check_command)
     async def lol(self, ctx):
         self.CLIENT.re[0] += 1
-        em = ef.cembed(title="***L😂L***", color=self.CLIENT.re[8])
+        em = ef.cembed(title="***L😂L***", color=self.CLIENT.color(ctx.guild))
         await ctx.send(embed=em)
 
     @commands.command()
     @commands.check(ef.check_command)
     async def f(self, ctx):
-        embed = ef.cembed(color=self.CLIENT.re[8], image=choice(self.urls))
+        embed = ef.cembed(color=self.CLIENT.color(ctx.guild), image=choice(self.urls))
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -53,7 +53,9 @@ class Misc(commands.Cog):
     @commands.check(ef.check_command)
     async def nay(self, ctx):
         await ctx.send(
-            embed=ef.cembed(title="***nay***", description="", color=self.CLIENT.re[8])
+            embed=ef.cembed(
+                title="***nay***", description="", color=self.CLIENT.color(ctx.guild)
+            )
         )
 
     @commands.command()
@@ -73,7 +75,7 @@ class Misc(commands.Cog):
             embed=ef.cembed(
                 title="igpay atinlay",
                 description=str(output),
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
             )
         )
 
@@ -92,7 +94,7 @@ class Misc(commands.Cog):
             embed=ef.cembed(
                 title="English Again",
                 description=str(output),
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
             )
         )
 
@@ -106,7 +108,7 @@ class Misc(commands.Cog):
                 description=text,
                 title="BatSignal",
                 footer=f"This happened in {ctx.guild.name}",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 image="https://c.tenor.com/0GJ-XEcYLfcAAAAM/wongwingchun58.gif",
                 thumbnail=self.CLIENT.user.avatar.url,
             )
@@ -115,7 +117,7 @@ class Misc(commands.Cog):
             embed=ef.cembed(
                 title="BatSignal",
                 author=ctx.author,
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
                 image="https://c.tenor.com/0GJ-XEcYLfcAAAAM/wongwingchun58.gif",
                 thumbnail=self.CLIENT.user.avatar.url,
             )

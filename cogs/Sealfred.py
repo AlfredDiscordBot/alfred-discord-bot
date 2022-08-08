@@ -33,7 +33,7 @@ class Sealfred(commands.Cog):
                         embed=ef.cembed(
                             title=f"Banned",
                             description=f"{latest.user.mention} banned {latest.target.name}",
-                            color=self.CLIENT.re[8],
+                            color=self.CLIENT.color(a),
                             footer="Security alert by Alfred",
                             thumbnail=a.icon,
                         )
@@ -43,7 +43,7 @@ class Sealfred(commands.Cog):
                         embed=ef.cembed(
                             title=f"Kicked",
                             description=f"{latest.user.mention} kicked {latest.target.name}",
-                            color=self.CLIENT.re[8],
+                            color=self.CLIENT.color(a),
                             footer="Security alert by Alfred",
                             thumbnail=a.icon,
                         )
@@ -64,6 +64,7 @@ class Sealfred(commands.Cog):
                     footer="Security alert by Alfred",
                     thumbnail=guild.icon,
                     description=f"{audit_log[0].user.mention} deleted the channel {channel.name}",
+                    color=self.CLIENT.color(guild),
                 )
             )
 
@@ -81,7 +82,7 @@ class Sealfred(commands.Cog):
                         embed=ef.cembed(
                             title="Bot added",
                             description=f"{latest.target.mention} was added by {latest.user.mention}, please be careful while handling bots and try not to provide it with all the permissions as it can be dangerous",
-                            color=self.CLIENT.re[8],
+                            color=self.CLIENT.color(member.guild),
                             author=latest.user,
                             footer="Security alert by Alfred",
                         )
