@@ -56,7 +56,7 @@ def converter(a):
         a["image"] = a["image"]["url"]
     if a.get("color"):
         a["color"] = str(nextcord.Color(a["color"]).to_rgb())
-    if temp := a.get("author") and temp.get("proxy_icon_url"):
+    if a.get("author") and a["author"].get("proxy_icon_url"):
         del a["author"]["proxy_icon_url"]
     return a
 
