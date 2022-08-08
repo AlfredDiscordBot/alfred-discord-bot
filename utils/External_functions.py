@@ -1098,9 +1098,12 @@ class Detector:
             except AttributeError:
                 preds = {"result": None}
 
-            if preds.get("result") == "Sucide":
-                self.deathrate[message.author.id] += 1
-            else:
+            try:
+                if preds.get("result") == "Sucide":
+                    self.deathrate[message.author.id] += 1
+                else:
+                    return None
+            except: 
                 return None
 
             if self.deathrate.get(message.author.id) >= 10:

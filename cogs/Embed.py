@@ -334,10 +334,11 @@ class MSetup:
         )
 
     def process_button(self, text: str = None):
-        lines = text.split("\n")
+        lines = [i for i in text.split("\n") if i.strip()]
         buttons = []
         for i in lines:
-            e, url, label = *i.split(" ")[:2], " ".join(i.split(" ")[2:])
+            split = (j for j in i.split(" ") if j.strip())
+            e, url, label = *split[:2], " ".join(split[2:])
             if not validate_url(url):
                 continue
             buttons.append({"emoji": e, "url": url, "label": label})
@@ -550,6 +551,7 @@ class Embed(
                 await ef.post_async(channel, json={"embeds": [data]})
             elif channel.lower() == "mehspace":
                 if yaml:
+                    embed, view = self.special_callback(ctx.author.id, embed, view)
                     await ctx.send(embed=embed, view=view)
                     confirm = await ef.wait_for_confirm(
                         ctx,
