@@ -1103,7 +1103,7 @@ class Detector:
                     self.deathrate[message.author.id] += 1
                 else:
                     return None
-            except: 
+            except:
                 return None
 
             if self.deathrate.get(message.author.id) >= 10:
