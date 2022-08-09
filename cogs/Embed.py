@@ -762,13 +762,13 @@ class Embed(
 
     @nextcord.message_command()
     async def view_raw(self, inter, message):
-        a = message.clean_content.replace("`", "\\`")
+        a = message.content.replace("`", "\\`")
         await inter.response.send_message(f"```\n{a}\n```", ephemeral=True)
 
     @commands.command(name="view_raw", aliases=["vr"])
     async def raw(self, ctx):
         a = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-        a = a.clean_content.replace("`", "\\`")
+        a = a.content.replace("`", "\\`")
 
         await ctx.send(f"```\n{a}```")
 

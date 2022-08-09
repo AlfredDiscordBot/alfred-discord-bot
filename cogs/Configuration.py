@@ -469,7 +469,7 @@ class Configuration(
         await inter.response.defer()
         self.CLIENT.config["welcome"][inter.guild.id] = {
             "channel": channel.id,
-            "description": description,
+            "description": description.replace("\\n", "\n"),
             "title": title,
             "background": background_url,
             "text1": text1,
