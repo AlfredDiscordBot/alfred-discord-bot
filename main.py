@@ -261,7 +261,7 @@ async def on_ready():
         embed=cembed(
             title="Report",
             description=report,
-            color=cc(re, channel.guild),
+            color=re[8],
             thumbnail=CLIENT.user.avatar.url,
         )
     )

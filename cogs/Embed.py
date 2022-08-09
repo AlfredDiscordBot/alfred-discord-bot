@@ -337,8 +337,8 @@ class MSetup:
         lines = [i for i in text.split("\n") if i.strip()]
         buttons = []
         for i in lines:
-            split = (j for j in i.split(" ") if j.strip())
-            e, url, label = *split[:2], " ".join(split[2:])
+            sp = (j for j in i.split(" ") if j.strip())
+            e, url, label = *sp[:2], " ".join(sp[2:])
             if not validate_url(url):
                 continue
             buttons.append({"emoji": e, "url": url, "label": label})

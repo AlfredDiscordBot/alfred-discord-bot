@@ -79,12 +79,22 @@ class Configuration(
     async def prefix_setting(self, inter, prefix: str = None):
         await self.set_prefix(inter, pref=prefix)
 
-    @config.subcommand(name="color", description="Set color (R, G, B)")
-    async def set_color(self, inter, r: int, g: int, b: int):
+    @config.subcommand(name="color", description="Set color")
+    async def set_color(self, inter):
+        print(inter)
+
+    @set_color.subcommand(name="rgb", description="(R, G, B)")
+    async def set_color_rgb(self, inter, r: int = None, g: int = None, b: int = None):
         if not inter.user.guild_permissions.administrator:
             await inter.response.send_message(
                 "You do not have enough permission", ephemeral=True
             )
+            return
+
+        if r==g==b==None:
+            if self.CLIENT.re[5].get(inter.guild.id):
+                del self.CLIENT.re[5][inter.guild.id]
+            await inter.response.send_message("Reset to default {}".format(nextcord.Color(self.CLIENT.re[8]).to_rgb()))
             return
 
         if not 0 <= r <= 255:
@@ -109,6 +119,38 @@ class Configuration(
                 author=inter.user,
             )
         )
+    
+    @set_color.subcommand(name="hex", description="in hex format")
+    async def hex(self, inter, hex: str = None):
+        if not inter.user.guild_permissions.administrator:
+            await inter.response.send_message("You do not have enough permission", ephemeral=True)
+            return
+        if not hex:
+            if self.CLIENT.re[5].get(inter.guild.id):
+                del self.CLIENT.re[5][inter.guild.id]
+            await inter.response.send_message("Reset to default -> {}".format(nextcord.Color(self.CLIENT.re[8]).to_rgb()))
+            return
+        if 0<=(hex:=int(hex.replace("#", "0x"), base=16))<=16777215:
+            self.CLIENT.re[5][inter.guild.id] = hex
+            await inter.send(
+                embed=ef.cembed(
+                    title="Done",
+                    description="Set the color as {color}".format(color=nextcord.Color(hex).to_rgb()),
+                    color=hex,
+                    thumbnail=inter.guild.icon,
+                    author=inter.user,
+                    footer={
+                        'text': 'If you want to switch back, do not pass anything in hex, it will reset to default color of Alfred',
+                        'icon_url': self.CLIENT.user.avatar
+                    }
+                )
+            )
+        else:
+            await inter.response.send_message(
+                "Seems like the value exceeds it's limit",
+                ephemeral=True
+            )
+
 
     @commands.command(aliases=["prefix", "setprefix"])
     @commands.check(ef.check_command)
