@@ -261,7 +261,7 @@ async def on_ready():
         embed=cembed(
             title="Report",
             description=report,
-            color=cc(re, channel.guild),
+            color=re[8],
             thumbnail=CLIENT.user.avatar.url,
         )
     )
@@ -870,7 +870,7 @@ async def python_shell(ctx, *, text):
                 embed=cembed(
                     title="Python Eval Executed",
                     description=f"```py\n{text}\n```",
-                    color=re[8],
+                    color=cc(re, ctx.guild),
                     author=user,
                     url=getattr(ctx.message, "jump_url", None),
                 )
@@ -880,7 +880,7 @@ async def python_shell(ctx, *, text):
             em = cembed(
                 title=text,
                 description=str(a),
-                color=cc(re[8], ctx.guild),
+                color=cc(re, ctx.guild),
                 thumbnail="https://engineering.fb.com/wp-content/uploads/2016/05/2000px-Python-logo-notext.svg_.png",
             )
             await ctx.send(embed=em)

@@ -273,7 +273,6 @@ class MSetup:
         import from a message
         """
         buttons = []
-        print(msg.components)
         for j in msg.components:
             for i in j.children:
                 print(getattr(i, "url", False))
@@ -337,8 +336,8 @@ class MSetup:
         lines = [i for i in text.split("\n") if i.strip()]
         buttons = []
         for i in lines:
-            split = (j for j in i.split(" ") if j.strip())
-            e, url, label = *split[:2], " ".join(split[2:])
+            sp = [j for j in i.split(" ") if j.strip()]
+            e, url, label = *sp[:2], " ".join(sp[2:])
             if not validate_url(url):
                 continue
             buttons.append({"emoji": e, "url": url, "label": label})
@@ -762,13 +761,13 @@ class Embed(
 
     @nextcord.message_command()
     async def view_raw(self, inter, message):
-        a = message.clean_content.replace("`", "\\`")
+        a = message.content.replace("`", "\\`")
         await inter.response.send_message(f"```\n{a}\n```", ephemeral=True)
 
     @commands.command(name="view_raw", aliases=["vr"])
     async def raw(self, ctx):
         a = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-        a = a.clean_content.replace("`", "\\`")
+        a = a.content.replace("`", "\\`")
 
         await ctx.send(f"```\n{a}```")
 

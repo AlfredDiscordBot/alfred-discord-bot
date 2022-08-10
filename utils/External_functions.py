@@ -1315,4 +1315,7 @@ def color(re: list, guild: nextcord.Guild = None):
     """
     Modifiable color server-wise
     """
-    return re[5].get(getattr(guild, "id", None)) or re[8]
+    result = re[5].get(getattr(guild, "id", None)) or re[8]
+    if result == True:
+        return guild.me.color.value
+    return result

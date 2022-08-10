@@ -79,36 +79,97 @@ class Configuration(
     async def prefix_setting(self, inter, prefix: str = None):
         await self.set_prefix(inter, pref=prefix)
 
-    @config.subcommand(name="color", description="Set color (R, G, B)")
-    async def set_color(self, inter, r: int, g: int, b: int):
+    @config.subcommand(name="color", description="Set color")
+    async def set_color(self, inter, color: str = None):
         if not inter.user.guild_permissions.administrator:
             await inter.response.send_message(
-                "You do not have enough permission", ephemeral=True
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You need admin permission in this server to change the local color of the bot",
+                    color=nextcord.Color.red(),
+                    fields={"Maybe...": "Ask the server admin to do it for you"},
+                    thumbnail=self.CLIENT.user.avatar,
+                    author=inter.user,
+                ),
+                ephemeral=True,
             )
             return
-
-        if not 0 <= r <= 255:
-            await inter.send("Your Red Value must be in the range of (0, 255)")
+        await inter.response.defer()
+        if not color:
+            if self.CLIENT.re[5].get(inter.guild.id):
+                del self.CLIENT.re[5][inter.guild.id]
+            await inter.send("Reset to default color of Alfred")
             return
-
-        if not 0 <= g <= 255:
-            await inter.send("Your Green Value must be in the range of (0, 255)")
-            return
-
-        if not 0 <= b <= 255:
-            await inter.send("Your Blue Value must be in the range of (0, 255)")
-            return
-
-        self.CLIENT.re[5][inter.guild.id] = nextcord.Color.from_rgb(r, g, b).value
-        await inter.send(
-            embed=ef.cembed(
-                title="Done",
-                description="Set color as ({r}, {g}, {b})".format(r=r, g=g, b=b),
-                color=self.CLIENT.color(inter.guild),
-                thumbnail=inter.guild.icon,
-                author=inter.user,
+        if (hex := color.replace("#", "0x")).startswith("0x"):
+            if not 0 <= int(hex, base=16) <= 16777215:
+                await inter.send(
+                    embed=ef.cembed(
+                        title="Hmmmm",
+                        description="Doesn't seem right, the hex you provided is beyond our scope",
+                        color=nextcord.Color.red(),
+                        author=inter.user,
+                        thumbnail=self.CLIENT.user.avatar,
+                    )
+                )
+            else:
+                self.CLIENT.re[5][inter.guild.id] = int(hex, base=16)
+                await inter.send(
+                    embed=ef.cembed(
+                        title="Done",
+                        description="New color is set as {}".format(
+                            nextcord.Color(int(hex, base=16)).to_rgb()
+                        ),
+                        color=int(hex, base=16),
+                        thumbnail=self.CLIENT.user.avatar,
+                        author=inter.user,
+                    )
+                )
+        elif color.count(",") == 2:
+            rgb = [int(i.strip()) for i in ef.delete_all(color, "()").split(",")]
+            if len(rgb) != 3:
+                await inter.send(
+                    embed=ef.cembed(
+                        title="Ummmmm",
+                        description="You did something wrong, you do not have 3 values",
+                        color=nextcord.Color.red(),
+                        author=inter.user,
+                    )
+                )
+                return
+            self.CLIENT.re[5][inter.guild.id] = nextcord.Color.from_rgb(*rgb).value
+            await inter.send(
+                embed=ef.cembed(
+                    title="Done",
+                    description="Set color as `{}`".format(rgb),
+                    color=nextcord.Color.from_rgb(*rgb),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                )
             )
-        )
+        elif color == "<role>":
+            self.CLIENT.re[5][inter.guild.id] = True
+            await inter.send(
+                embed=ef.cembed(
+                    title="Done",
+                    description="Set Color to the role color",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                )
+            )
+
+        else:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Something seems wrong",
+                    description="I dont get it, this format doesn't exist",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    fields={
+                        "Using `Hex`": "It is either `#` or `0x` in the beginning, followed by 3 to 6 characters",
+                        "Using `RGB`": "RGB stands for `Red`, `Green`, `Blue`, and they vary from `[0, 255]` integers",
+                    },
+                )
+            )
 
     @commands.command(aliases=["prefix", "setprefix"])
     @commands.check(ef.check_command)
@@ -419,7 +480,7 @@ class Configuration(
         await inter.response.defer()
         self.CLIENT.config["welcome"][inter.guild.id] = {
             "channel": channel.id,
-            "description": description,
+            "description": description.replace("\\n", "\n"),
             "title": title,
             "background": background_url,
             "text1": text1,
