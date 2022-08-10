@@ -273,7 +273,6 @@ class MSetup:
         import from a message
         """
         buttons = []
-        print(msg.components)
         for j in msg.components:
             for i in j.children:
                 print(getattr(i, "url", False))
@@ -337,7 +336,7 @@ class MSetup:
         lines = [i for i in text.split("\n") if i.strip()]
         buttons = []
         for i in lines:
-            sp = (j for j in i.split(" ") if j.strip())
+            sp = [j for j in i.split(" ") if j.strip()]
             e, url, label = *sp[:2], " ".join(sp[2:])
             if not validate_url(url):
                 continue
