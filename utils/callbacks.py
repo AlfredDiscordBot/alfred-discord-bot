@@ -27,28 +27,24 @@ def get_callback_functions(*args, **kwargs):
 
 async def callback_432801163126243328(inter: nextcord.Interaction):
     """
-    Profile
+    Github Profile
     """
-    confirm = await wait_for_confirm(
-        inter,
-        inter.client,
-        "Do you want to See my Github Profile",
-        inter.client.color(inter.guild),
-        usr=inter.user,
-    )
-    if confirm:
-        await get_all_slash_commands(inter.client)["code"].children["github"].children[
-            "user"
-        ].callback(inter.client.cogs["Code"], inter, "alvinbengeorge")
-    else:
-        await inter.response.send_message("Ok Fine", ephemeral=True)
+    await get_all_slash_commands(inter.client)["code"].children["github"].children[
+        "user"
+    ].callback(inter.client.cogs["Code"], inter, "alvinbengeorge")
 
 
 async def callback_811591623242154046(inter: nextcord.Interaction):
+    '''
+    Msetup
+    '''
     await get_all_slash_commands(inter.client)["msetup"].callback(
         inter.client.cogs["Embed"], inter
     )
 
 
 async def callback_848551732048035860(inter: nextcord.Interaction):
+    '''
+    Msetup
+    '''
     await callback_811591623242154046(inter)
