@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from io import BytesIO
 
 import nextcord
-import requests
 from nextcord import SlashOption
 from nextcord.ext import commands
 
@@ -10,7 +9,7 @@ import datetime
 
 from PIL import Image, ImageDraw, ImageFont
 
-from utils.External_functions import get_async
+from utils.External_functions import get_async, cembed
 
 
 @dataclass
@@ -184,7 +183,7 @@ class Contribution(commands.Cog):
     async def contribution(
         self,
         inter: nextcord.Interaction,
-        username: str = SlashOption(),
+        username: str = SlashOption(description="Github username"),
         theme: str = SlashOption(
             name="theme",
             required=False,
@@ -208,7 +207,19 @@ class Contribution(commands.Cog):
             self.contributions.image.save(img, format="PNG")
             img.seek(0)
             file = nextcord.File(fp=img, filename=f"{username}_contributions.png")
-            await inter.response.send_message(file=file)
+            await inter.response.send_message(
+                embed=cembed(
+                    title="Contributions",
+                    image="attachment://{}_contributions.png".format(username),
+                    color=self.client.color(inter.guild),
+                    footer={
+                        "text": "If you find any issue with this command, please use /feedback",
+                        "icon_url": self.client.user.avatar,
+                    },
+                    author=inter.user
+                ),
+                file=file,
+            )
 
 
 def setup(client, **i):
@@ -236,8 +247,12 @@ class Contributions:
         self.width = 0
         self.image = None
         self.draw = None
-        self.year_font = ImageFont.truetype("SourceCodePro-Semibold.otf", 10)
-        self.username_font = ImageFont.truetype("SourceCodePro-Semibold.otf", 20)
+        self.year_font = ImageFont.truetype(
+            "utils/fonts/SourceCodePro-Semibold.ttf", 10
+        )
+        self.username_font = ImageFont.truetype(
+            "utils/fonts/SourceCodePro-Semibold.ttf", 20
+        )
 
     def new(self, _data, theme: Theme):
         self.data = _data

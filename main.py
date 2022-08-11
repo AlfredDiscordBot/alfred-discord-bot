@@ -1058,6 +1058,7 @@ def load_extension(name):
         return f"[ OK ] Added {name}\n"
     except Exception as e:
         print(f" :{e}")
+        print(traceback.format_exc())
         return f"Error in cog {name}:\n" + str(e) + "\n"
 
 
