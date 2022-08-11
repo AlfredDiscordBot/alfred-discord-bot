@@ -720,7 +720,7 @@ async def restart_program(ctx):
                 embed=cembed(
                     title="Restarted",
                     description="The program is beginning it's restarting process",
-                    color=cc(re[8], ctx.guild),
+                    color=cc(re, ctx.guild),
                     thumbnail=CLIENT.user.avatar.url,
                 )
             )
@@ -729,7 +729,7 @@ async def restart_program(ctx):
                     title="Restart",
                     description=f"Requested by {getattr(ctx, 'author', getattr(ctx, 'user', None)).name}",
                     thumbnail=CLIENT.user.avatar.url,
-                    color=cc(re[8], ctx.guild),
+                    color=cc(re, ctx.guild),
                 )
             )
         except:
@@ -740,14 +740,14 @@ async def restart_program(ctx):
             embed=cembed(
                 title="Permission Denied",
                 description="Only developers can access this function",
-                color=cc(re[8], ctx.guild),
+                color=cc(re, ctx.guild),
                 thumbnail=CLIENT.user.avatar.url,
             )
         )
         await CLIENT.get_channel(DEV_CHANNEL).send(
             embed=cembed(
                 description=f"{getattr(ctx, 'author', getattr(ctx, 'user', None)).name} from {ctx.guild.name} tried to use restart_program command",
-                color=cc(re[8], ctx.guild),
+                color=cc(re, ctx.guild),
             )
         )
 
@@ -889,7 +889,12 @@ async def python_shell(ctx, *, text):
                 embed=cembed(
                     title="Error_message",
                     description=str(e),
-                    color=cc(re[8], ctx.guild),
+                    color=cc(re, ctx.guild),
+                    author=user,
+                    footer={
+                        "text": "A copy of this is send to Wayne Enterprise",
+                        "icon_url": CLIENT.user.avatar,
+                    },
                 )
             )
 
@@ -901,7 +906,7 @@ async def python_shell(ctx, *, text):
         await ctx.send(
             embed=nextcord.Embed(
                 description="Permissions Denied",
-                color=cc(re[8], ctx.guild),
+                color=cc(re, ctx.guild),
             )
         )
 
