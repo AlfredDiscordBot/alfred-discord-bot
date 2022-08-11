@@ -9,7 +9,7 @@
 import sys
 import nextcord
 
-from .External_functions import cembed, get_all_slash_commands
+from .External_functions import get_all_slash_commands, wait_for_confirm
 from .assets import pa
 
 
@@ -29,6 +29,26 @@ async def callback_432801163126243328(inter: nextcord.Interaction):
     """
     Profile
     """
-    await get_all_slash_commands(inter.client)["code"].children["github"].children[
-        "user"
-    ].callback(inter.client.cogs["Code"], inter, "alvinbengeorge")
+    confirm = await wait_for_confirm(
+        inter,
+        inter.client,
+        "Do you want to See my Github Profile",
+        inter.client.color(inter.guild),
+        usr=inter.user,
+    )
+    if confirm:
+        await get_all_slash_commands(inter.client)["code"].children["github"].children[
+            "user"
+        ].callback(inter.client.cogs["Code"], inter, "alvinbengeorge")
+    else:
+        await inter.response.send_message("Ok Fine", ephemeral=True)
+
+
+async def callback_811591623242154046(inter: nextcord.Interaction):
+    await get_all_slash_commands(inter.client)["msetup"].callback(
+        inter.client.cogs["Embed"], inter
+    )
+
+
+async def callback_848551732048035860(inter: nextcord.Interaction):
+    await callback_811591623242154046(inter)

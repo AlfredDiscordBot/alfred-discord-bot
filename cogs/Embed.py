@@ -495,7 +495,7 @@ class Embed(
                             await ctx.send("Done")
                             continue
                         if self.CLIENT.get_channel(int(text[7:-1])):
-                            for i in view.children:
+                            for i in getattr(view, "children", []):
                                 if not getattr(i, "url", False):
                                     view.remove_item(i)
                                     break
@@ -585,12 +585,6 @@ class Embed(
         view = nextcord.utils.MISSING
         if isinstance(embed, tuple):
             embed, view = self.special_callback(member.id, *embed)
-            if member.id == self.CLIENT.user.id:
-                msetup_button = nextcord.ui.Button(
-                    style=assets.color, label="Msetup", emoji="😑"
-                )
-                msetup_button.callback = self.msetup_slash
-                view.add_item(msetup_button)
         await inter.send(embed=embed, view=view)
 
     @commands.command(name="mehspace", aliases=["meh", "myspace"])
@@ -617,12 +611,6 @@ class Embed(
         view = nextcord.utils.MISSING
         if isinstance(embed, tuple):
             embed, view = self.special_callback(user.id, *embed)
-            if user.id == self.CLIENT.user.id:
-                msetup_button = nextcord.ui.Button(
-                    style=assets.color, label="Msetup", emoji="😑"
-                )
-                msetup_button.callback = self.msetup_slash
-                view.add_item(msetup_button)
         await ctx.send(embed=embed, view=view)
 
     @nextcord.slash_command(name="mehspace", description="Show Mehspace of someone")
@@ -648,12 +636,6 @@ class Embed(
         view = nextcord.utils.MISSING
         if isinstance(embed, tuple):
             embed, view = self.special_callback(user.id, *embed)
-            if user.id == self.CLIENT.user.id:
-                msetup_button = nextcord.ui.Button(
-                    style=assets.color, label="Msetup", emoji="😑"
-                )
-                msetup_button.callback = self.msetup_slash
-                view.add_item(msetup_button)
         await inter.response.send_message(embed=embed, view=view)
 
     @nextcord.slash_command(name="embed", description="Create your embed using this")
