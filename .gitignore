@@ -1,3 +1,4 @@
+env
 .env
 *.csv
 commands.txt
