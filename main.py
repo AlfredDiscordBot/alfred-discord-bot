@@ -333,8 +333,10 @@ async def youtube_loop():
 async def dev_loop():
     save_to_file()
     try:
-        a = await get_async("https://suicide-detector-api-1.yashvardhan13.repl.co/")
-        if a != '{"message":"API is running"}':
+        # a = await get_async("https://suicide-detector-api-1.yashvardhan13.repl.co/")
+
+        # if a != '{"message":"API is running"}':
+        if False:
             ch = CLIENT.get_channel(1005831164650594445)
             await ch.send(
                 embed=cembed(
