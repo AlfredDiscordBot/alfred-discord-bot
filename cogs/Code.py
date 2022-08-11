@@ -493,7 +493,8 @@ class Code(
 
     @gh.subcommand(description="User")
     async def user(self, inter, user: str):
-        await inter.response.defer()
+        if not inter.message:
+            await inter.response.defer()
         stats = get_user_stats(user)
         if stats:
             stats_dict = user_stats_dict(stats, self.CLIENT.color(inter.guild), user)

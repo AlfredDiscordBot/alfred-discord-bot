@@ -2,7 +2,7 @@
 ![Typing SVG](https://readme-typing-svg.herokuapp.com/?lines=Hi%20I%20am%20Alfred;A%20powerful%20Discord%20Bot&font=Comfortaa)
 ## All in One Discord bot
 
-It is so great to see that the bot crossed 70,000 users and 90 servers in the past few days, I would like to thank all developers and users of Alfred. 
+It is so great to see that the bot crossed 250,000 users and 260 servers in the past few days, I would like to thank all developers and users of Alfred. 
 
 If you want to contribute to this project, please read through [Contribution page](https://github.com/alvinbengeorge/alfred-discord-bot/blob/replit/CONTRIBUTING.md), Have a great day
 
