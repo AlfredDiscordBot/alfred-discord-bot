@@ -35,16 +35,16 @@ async def callback_432801163126243328(inter: nextcord.Interaction):
 
 
 async def callback_811591623242154046(inter: nextcord.Interaction):
-    '''
+    """
     Msetup
-    '''
+    """
     await get_all_slash_commands(inter.client)["msetup"].callback(
         inter.client.cogs["Embed"], inter
     )
 
 
 async def callback_848551732048035860(inter: nextcord.Interaction):
-    '''
+    """
     Msetup
-    '''
+    """
     await callback_811591623242154046(inter)
