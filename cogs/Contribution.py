@@ -216,7 +216,7 @@ class Contribution(commands.Cog):
                         "text": "If you find any issue with this command, please use /feedback",
                         "icon_url": self.client.user.avatar,
                     },
-                    author=inter.user
+                    author=inter.user,
                 ),
                 file=file,
             )
