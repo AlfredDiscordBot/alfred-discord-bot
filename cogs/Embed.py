@@ -43,7 +43,7 @@ def get_color(color):
     return default_color
 
 
-def converter(a):
+def converter(a: dict):
     if a.get("thumbnail"):
         a["thumbnail"] = a["thumbnail"]["url"]
     del a["type"]
@@ -144,7 +144,9 @@ def yaml_to_dict(yaml):
 
 class MSetup:
     def __init__(
-        self, ctx: Union[commands.context.Context, nextcord.Interaction], CLIENT
+        self,
+        ctx: Union[commands.context.Context, nextcord.Interaction],
+        CLIENT: commands.Bot,
     ):
         self.ctx = ctx
         self.USER = getattr(ctx, "author", getattr(ctx, "user", None))
@@ -366,10 +368,25 @@ class MSetup:
             self.set_preset()
             return self.to_yaml()
 
-        if text.lower() == "import":
+        if text.lower().startswith("import"):
             if msg.reference:
                 impor = await self.ctx.channel.fetch_message(msg.reference.message_id)
                 await self.imp(impor)
+            elif validate_url((url := text.lower()[6:].strip())):
+                channel_id, message_id = int(url.split("/")[-2]), int(
+                    url.split("/")[-1]
+                )
+                channel = self.CLIENT.get_channel(channel_id)
+                if not channel:
+                    await self.ctx.send("I can't see that channel", delete_after=5)
+                    return
+                message = await channel.fetch_message(message_id)
+                if not message.embeds:
+                    await self.ctx.send(
+                        "There are no embeds in this message", delete_after=5
+                    )
+                    return
+                self.di = converter(message.embeds[0].to_dict())
             elif msg.author.id in self.CLIENT.mspace:
                 self.di = safe_load(filter_graves(self.CLIENT.mspace[msg.author.id]))
 
