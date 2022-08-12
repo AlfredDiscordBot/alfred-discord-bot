@@ -55,7 +55,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Done",
                     description=output,
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                 )
             )
@@ -218,7 +218,9 @@ class Configuration(
                 self.CLIENT.prefix_dict.pop(ctx.guild.id)
             await ctx.send(
                 embed=ef.cembed(
-                    title="Done", description=f"Prefix removed", color=self.CLIENT.re[8]
+                    title="Done",
+                    description=f"Prefix removed",
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
         else:
@@ -227,7 +229,7 @@ class Configuration(
                     title="Permissions Denied",
                     description="You cannot change the prefix, you need to be an admin"
                     + str(assets.Emotes(self.CLIENT).animated_wrong),
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
 
@@ -370,7 +372,7 @@ class Configuration(
             embed=ef.cembed(
                 title="Done",
                 description=f"Disabled {command} in this server, to enable it, use `/config slash enable`",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 thumbnail=self.CLIENT.user.avatar,
                 author=inter.user,
             )
@@ -418,7 +420,7 @@ class Configuration(
                     embed=ef.cembed(
                         title="Done",
                         description=f"Enabled {command} in this server",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(inter.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
                 )
@@ -431,7 +433,7 @@ class Configuration(
                     embed=ef.cembed(
                         title="Done",
                         description=f"Disabled {command} in this server",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(inter.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
                 )
@@ -452,7 +454,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Commands",
                     description=enabled_commands + "\n\n" + disabled_commands,
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                     footer="Everything is enabled by default",
                 )
@@ -530,7 +532,7 @@ class Configuration(
                         embed=ef.cembed(
                             title="Huh",
                             description="That's an invalid url form id",
-                            color=self.CLIENT.re[8],
+                            color=self.CLIENT.color(ctx.guild),
                             thumbnail=self.CLIENT.user.avatar.url,
                         )
                     )
@@ -540,7 +542,7 @@ class Configuration(
                     embed=ef.cembed(
                         title="Done",
                         description=f"Added {url} to the list and it'll be displayed in {channel.mention}",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
                 )
@@ -552,7 +554,7 @@ class Configuration(
                     embed=ef.cembed(
                         title="All youtube subscriptions in this channel",
                         description=all_links,
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
                 )
@@ -561,7 +563,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Permission Denied",
                     description="Only an admin can set it",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                 )
             )
@@ -584,7 +586,7 @@ class Configuration(
                     embed=ef.cembed(
                         title="All youtube subscriptions in this channel",
                         description=all_links,
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
                 )
@@ -600,7 +602,7 @@ class Configuration(
                     embed=ef.cembed(
                         title="Done",
                         description=f"Removed {url} from the list",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                         thumbnail=self.CLIENT.user.avatar.url,
                     )
                 )
@@ -610,7 +612,7 @@ class Configuration(
                     embed=ef.cembed(
                         title="Hmm",
                         description=f"The URL provided is not in {channel.name}'s subscriptions",
-                        color=self.CLIENT.re[8],
+                        color=self.CLIENT.color(ctx.guild),
                     )
                 )
         else:
@@ -618,7 +620,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Permission Denied",
                     description="Only an admin can remove subscriptions",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     thumbnail=self.CLIENT.user.avatar.url,
                 )
             )
@@ -642,7 +644,7 @@ class Configuration(
             embed = ef.cembed(
                 title="Features",
                 description="This shows all the extra features in alfred",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 thumbnail=ef.safe_pfp(inter.guild),
                 fields=ef.dict2fields(
                     {
@@ -660,7 +662,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You need to be an admin to toggle settings",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                     thumbnail=ef.safe_pfp(inter.guild),
                     author=inter.user,
                 )
@@ -698,7 +700,9 @@ class Configuration(
                         output = "Disabled Suicide observer"
             await inter.send(
                 embed=ef.cembed(
-                    description=output, title="Done", color=self.CLIENT.re[8]
+                    description=output,
+                    title="Done",
+                    color=self.CLIENT.color(inter.guild),
                 )
             )
         except:
@@ -708,7 +712,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Error in config",
                     description=str(a),
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                     footer=f"{inter.user.name} -> {inter.guild.name}",
                     thumbnail=self.CLIENT.user.avatar.url,
                 )
@@ -736,7 +740,7 @@ class Configuration(
             await inter.send(
                 embed=ef.cembed(
                     description="Removed SEAlfred from this server, this server is now left unprotected",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(inter.guild),
                 )
             )
             return
@@ -746,7 +750,7 @@ class Configuration(
             embed=ef.cembed(
                 title="Done",
                 description=f"Set {log_channel.mention} as the log channel, all the updates will be pushed to this",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
             )
         )
 
@@ -781,7 +785,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You cannot set autoreact, you do not have admin privilege",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     thumbnail=self.CLIENT.user.avatar,
                 )
             )
@@ -793,7 +797,7 @@ class Configuration(
                     description=ef.emoji.emojize(
                         "You need to mention a channel\n'autoreact #channel :one:|:two:|:three:"
                     ),
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     author=getattr(ctx, "author", getattr(ctx, "user", None)),
                     thumbnail=self.CLIENT.user.avatar,
                 )
@@ -804,7 +808,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Hmm",
                     description="You need one or more emojis separated by |",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             return
@@ -820,7 +824,7 @@ class Configuration(
             embed=ef.cembed(
                 title="Done",
                 description=f"For every message in {channel.mention} Alfred will add {Emojis} reaction",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
             )
         )
 
@@ -834,7 +838,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Permissions Denied",
                     description="You cannot remove autoreact, you do not have admin privilege",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     author=getattr(ctx, "author", getattr(ctx, "user", None)),
                 )
             )
@@ -844,7 +848,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="This time",
                     description="Mention a channel, in the `channel` field",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                     thumbnail=self.CLIENT.user.avatar,
                 )
             )
@@ -853,7 +857,7 @@ class Configuration(
                 embed=ef.cembed(
                     title="Hmm",
                     description="This channel does not have any reactions",
-                    color=self.CLIENT.re[8],
+                    color=self.CLIENT.color(ctx.guild),
                 )
             )
             return
@@ -861,7 +865,7 @@ class Configuration(
             ctx,
             self.CLIENT,
             "Do you want to remove every automatic reaction in this channel?",
-            color=self.CLIENT.re[8],
+            color=self.CLIENT.color(ctx.guild),
             usr=getattr(ctx, "author", getattr(ctx, "user", None)),
         )
         if not confirmation:
@@ -871,7 +875,7 @@ class Configuration(
             embed=ef.cembed(
                 title="Done",
                 description=f"Removed every reaction in {channel.mention}",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(ctx.guild),
             )
         )
 
@@ -903,14 +907,13 @@ class Configuration(
             embed=ef.cembed(
                 title="Roles",
                 description="\n".join([role.mention for role in roles]),
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 author={"name": inter.guild.name, "icon_url": inter.guild.icon},
                 footer={
                     "text": "This feature is still Beta",
                     "icon_url": self.CLIENT.user.avatar.url,
                 },
                 thumbnail=inter.guild.icon,
-                image=assets.BLUE_LINE,
             ),
             view=setup_view(roles),
         )
@@ -921,7 +924,7 @@ class Configuration(
             embed=ef.cembed(
                 title="Done",
                 description=f"Completed, the role selection can be seen in {channel.mention}",
-                color=self.CLIENT.re[8],
+                color=self.CLIENT.color(inter.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
                 fields=[
                     {"name": "Roles", "value": "".join([i.mention for i in roles])}
