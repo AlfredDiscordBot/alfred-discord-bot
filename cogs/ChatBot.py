@@ -119,8 +119,8 @@ class ChatBot(
             title="Talk To My hand",
             author=inter.user,
             description="\n".join(texts),
-            color=inter.CLIENT.color(inter.guild),
-            thumbnail=inter.CLIENT.user.avatar.url,
+            color=inter.client.color(inter.guild),
+            thumbnail=inter.client.user.avatar.url,
         )
         await inter.send(embed=embed)
         past_response = [start]
