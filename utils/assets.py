@@ -425,20 +425,29 @@ class Role(nextcord.ui.Select):
         super().__init__(
             placeholder="Select your Role",
             min_values=0,
-            max_values=1,
+            max_values=len(tuple(self.roles)),
             options=options,
             custom_id="alfred_role_application",
         )
 
     async def callback(self, interaction: Interaction):
         await interaction.response.defer()
-        role = interaction.guild.get_role(int(self.values[0]))
-        if role in interaction.user.roles:
-            await interaction.user.remove_roles(role, reason=f"Selection Role")
-            await interaction.send(content=f"Removed {role.mention}", ephemeral=True)
-        else:
-            await interaction.user.add_roles(role)
-            await interaction.send(content=f"Added {role.mention}", ephemeral=True)
+        roles = [interaction.guild.get_role(int(i)) for i in self.values]
+        has, has_not = [], []
+        for i in roles:
+            if i in interaction.user.roles:
+                has.append(i)
+            else:
+                has_not.append(i)
+        await interaction.user.remove_roles(*has, reason="Selection Role")
+        await interaction.user.add_roles(*has_not, reason="Selection Roles")
+        content = ef.dict2str(
+            {
+                "Added": "".join([i.mention for i in has_not]),
+                "Removed": "".join([i.mention for i in has]),
+            }
+        )
+        await interaction.send(content=content, ephemeral=True)
 
 
 class RoleView(nextcord.ui.View):
