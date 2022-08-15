@@ -161,6 +161,10 @@ def cembed(
     if title:
         embed.title = title
     if description:
+        if isinstance(description, dict):
+            description = dict2str(description)
+        if isinstance(description, list):
+            description = list2str(description)
         embed.description = description
     if thumbnail:
         embed.set_thumbnail(url=thumbnail)
@@ -174,6 +178,10 @@ def cembed(
         if isinstance(fields, dict):
             fields = dict2fields(fields, inline=False)
         for i in fields:
+            if isinstance(i.get("value"), dict):
+                i["value"] = dict2str(i["value"])
+            if isinstance(i.get("value"), list):
+                i["value"] = list2str(i["value"])
             embed.add_field(**i)
     if footer:
         if isinstance(footer, str):
@@ -1067,6 +1075,10 @@ def dict2fields(d: dict, inline: bool = True):
 
 def dict2str(d: dict):
     return "\n".join(f"`{i.upper()}: ` {j}" for i, j in d.items())
+
+
+def list2str(l: list):
+    return "• " + "\n• ".join([str(_) for _ in l])
 
 
 def line_strip(text: str):

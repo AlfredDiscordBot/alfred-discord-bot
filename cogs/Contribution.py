@@ -176,6 +176,7 @@ class Contribution(commands.Cog):
     def __init__(self, CLIENT):
         self.client = CLIENT
         self.contributions = Contributions()
+        self.CACHE_DATA = {}
 
     @nextcord.slash_command(
         name="contribution", description="Get GitHub Contribution of a user"
@@ -205,6 +206,13 @@ class Contribution(commands.Cog):
 
         with BytesIO() as img:
             self.contributions.image.save(img, format="PNG")
+            description = []
+            for year in data.get("years"):
+                description.append(
+                    "`{year}: ` {total} contributions".format(
+                        year=year.get("year"), total=year.get("total")
+                    )
+                )
             img.seek(0)
             file = nextcord.File(fp=img, filename=f"{username}_contributions.png")
             await inter.response.send_message(
@@ -217,6 +225,7 @@ class Contribution(commands.Cog):
                         "icon_url": self.client.user.avatar,
                     },
                     author=inter.user,
+                    description=description,
                 ),
                 file=file,
             )
