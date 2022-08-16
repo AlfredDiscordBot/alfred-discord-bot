@@ -29,11 +29,16 @@ class Mod(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if message.guild.id in self.CLIENT.config["commands"].get("snipe", []) or message.author.bot:
+        if (
+            message.guild.id in self.CLIENT.config["commands"].get("snipe", [])
+            or message.author.bot
+        ):
             return
         if message.channel.id not in self.DELETED_MESSAGE:
             self.DELETED_MESSAGE[message.channel.id] = []
-        self.DELETED_MESSAGE[message.channel.id].append((message.author, message.content))
+        self.DELETED_MESSAGE[message.channel.id].append(
+            (message.author, message.content)
+        )
 
     @nextcord.slash_command(
         name="snipe", description="Get the last few deleted messages"
@@ -45,11 +50,14 @@ class Mod(commands.Cog):
     @commands.command(description="Snipe Deleted messages")
     @commands.check(ef.check_command)
     async def snipe(self, ctx, number: int = 50):
-        '''
+        """
         Snipe command, prefix rewritten
-        '''
-        user = getattr(ctx, 'author', getattr(ctx, 'user', None))
-        if not (user.guild_permissions.administrator or ctx.guild.id not in self.CLIENT.config["snipe"]):
+        """
+        user = getattr(ctx, "author", getattr(ctx, "user", None))
+        if not (
+            user.guild_permissions.administrator
+            or ctx.guild.id not in self.CLIENT.config["snipe"]
+        ):
             await ctx.send(
                 embed=ef.cembed(
                     title="Permission Denied",
@@ -58,23 +66,29 @@ class Mod(commands.Cog):
                     author=user,
                     thumbnail=self.CLIENT.user.avatar,
                     footer={
-                        'text': 'If you think something is wrong, please report to our support server',
-                        'icon_url': self.CLIENT.user.avatar
-                    }
+                        "text": "If you think something is wrong, please report to our support server",
+                        "icon_url": self.CLIENT.user.avatar,
+                    },
                 )
             )
             return
-        
+
         embeds, count, strings = [], 0, [[]]
         for m in self.DELETED_MESSAGE.get(ctx.channel.id, [])[::-1]:
             strings[-1].append("**{}:**\n{}".format(*m))
-            if count%5==0 and count != 0: 
-                strings.append([])  
-            if count >= number: break
-            count+=1
+            if count % 5 == 0 and count != 0:
+                strings.append([])
+            if count >= number:
+                break
+            count += 1
 
         if strings == [[]]:
-            strings = [["**Hmmmm:**\nNothing here lol", "**Well Maybe**\nThe bot may have restarted"]]
+            strings = [
+                [
+                    "**Hmmmm:**\nNothing here lol",
+                    "**Well Maybe**\nThe bot may have restarted",
+                ]
+            ]
 
         for description in strings:
             embeds.append(
@@ -85,16 +99,13 @@ class Mod(commands.Cog):
                     thumbnail=ctx.guild.icon,
                     author=user,
                     footer={
-                        'text': 'This message will be deleted in 30 seconds',
-                        'icon_url': self.CLIENT.user.avatar
-                    }
+                        "text": "This message will be deleted in 30 seconds",
+                        "icon_url": self.CLIENT.user.avatar,
+                    },
                 )
             )
 
         await assets.pa(ctx, embeds=embeds, restricted=True, delete_after=30)
-
-
-
 
     @commands.command(aliases=["ban"])
     @commands.check(ef.check_command)

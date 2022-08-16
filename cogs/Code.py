@@ -18,6 +18,7 @@ from typing import Any, List, Dict, Union, Optional
 
 CACHE_USER, CACHE_REPO = {}, {}
 
+
 def requirements():
     return []
 
@@ -510,8 +511,8 @@ class Code(
         if stats:
             stats_dict = user_stats_dict(stats, self.CLIENT.color(inter.guild), user)
             stats_dict["footer"] = {
-                'text': inter.user.name,
-                'icon_url': inter.user.avatar
+                "text": inter.user.name,
+                "icon_url": inter.user.avatar,
             }
             repos = await self.get_repos(user, inter)
         else:

@@ -1158,7 +1158,9 @@ class PyPi:
                     thumbnail=self.DEFAULT_THUMBNAIL,
                     image=self.DEFAULT_IMAGE,
                     author=self.AUTHOR,
-                    fields={"Solutions": "Find if the package exists, this can also happen when the API is down"}
+                    fields={
+                        "Solutions": "Find if the package exists, this can also happen when the API is down"
+                    },
                 )
             ]
         embeds = [self.first_page()]
