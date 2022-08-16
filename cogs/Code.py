@@ -16,6 +16,7 @@ from typing import Any, List, Dict, Union, Optional
 # Coded by Shravan-1908
 # Use nextcord.slash_command()
 
+CACHE_USER, CACHE_REPO = {}, {}
 
 def requirements():
     return []
@@ -141,12 +142,16 @@ class GitHubUserStats:
 
 @lru_cache(maxsize=20)
 def get_user_stats(username: str) -> Union[GitHubUserStats, None]:
-    r = requests.get(f"https://api.github.com/users/{username}")
+    if username not in CACHE_USER:
+        r = requests.get(f"https://api.github.com/users/{username}")
 
-    if r.status_code != 200:
-        return None
+        if r.status_code != 200:
+            return None
 
-    user_stats: dict = r.json()
+        user_stats: dict = r.json()
+        CACHE_USER[username] = user_stats
+    else:
+        user_stats = CACHE_USER[username]
 
     return GitHubUserStats(
         name=user_stats["name"],
@@ -214,11 +219,15 @@ def fetch_image(url: str) -> str:
 
 @lru_cache(maxsize=20)
 async def get_repo_stats(repo: str) -> Union[GitHubRepoStats, None]:
-    repo_stats = await ef.get_async(
-        f"https://api.github.com/repos/{repo}",
-        headers={"Accept": "application/vnd.github.mercy-preview+json"},
-        kind="json",
-    )
+    if repo not in CACHE_REPO:
+        repo_stats = await ef.get_async(
+            f"https://api.github.com/repos/{repo}",
+            headers={"Accept": "application/vnd.github.mercy-preview+json"},
+            kind="json",
+        )
+        CACHE_REPO[repo] = repo_stats
+    else:
+        repo_stats = CACHE_REPO[repo]
     image = fetch_image(repo)
 
     if repo_stats.get("message"):
@@ -326,9 +335,6 @@ def user_stats_dict(stats: GitHubUserStats, color: int = None, uname: str = ""):
         }
     ]
 
-    if email := stats.email:
-        info["footer"] = f"email: {email}"
-
     return info
 
 
@@ -387,6 +393,7 @@ class Code(
         self.CLIENT = CLIENT
         self.rce = CodeExecutor()
         self.ghtrend = GhCacheControl()
+        self.CACHE_USER_REPO = {}
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -401,9 +408,13 @@ class Code(
         return f"+ {runtime['language']} -> {runtime['version']}"
 
     async def get_repos(self, username: str, inter: nextcord.Interaction):
-        j = await ef.get_async(
-            f"https://api.github.com/users/{username}/repos", kind="json"
-        )
+        if username not in self.CACHE_USER_REPO:
+            j = await ef.get_async(
+                f"https://api.github.com/users/{username}/repos", kind="json"
+            )
+            self.CACHE_USER_REPO[username] = j
+        else:
+            j = self.CACHE_USER_REPO[username]
         repo_embeds = []
         for repo_stats in j:
             image = fetch_image(repo_stats.get("full_name"))
@@ -498,6 +509,10 @@ class Code(
         stats = get_user_stats(user)
         if stats:
             stats_dict = user_stats_dict(stats, self.CLIENT.color(inter.guild), user)
+            stats_dict["footer"] = {
+                'text': inter.user.name,
+                'icon_url': inter.user.avatar
+            }
             repos = await self.get_repos(user, inter)
         else:
             stats_dict = {
