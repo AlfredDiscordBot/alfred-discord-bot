@@ -164,10 +164,11 @@ class Intercom(commands.Cog):
             while True:
                 try:
 
-                    def check(m):
+                    def check(m: nextcord.message.Message):
                         return (
                             m.content.lower() in ["accept", "decline"]
                             and m.channel.id == ch.id
+                            and m.author.guild_permissions.manage_guild
                         )
 
                     message = await self.CLIENT.wait_for(

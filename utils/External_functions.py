@@ -161,6 +161,10 @@ def cembed(
     if title:
         embed.title = title
     if description:
+        if isinstance(description, dict):
+            description = dict2str(description)
+        if isinstance(description, list):
+            description = list2str(description)
         embed.description = description
     if thumbnail:
         embed.set_thumbnail(url=thumbnail)
@@ -174,6 +178,10 @@ def cembed(
         if isinstance(fields, dict):
             fields = dict2fields(fields, inline=False)
         for i in fields:
+            if isinstance(i.get("value"), dict):
+                i["value"] = dict2str(i["value"])
+            if isinstance(i.get("value"), list):
+                i["value"] = list2str(i["value"])
             embed.add_field(**i)
     if footer:
         if isinstance(footer, str):
@@ -1069,6 +1077,10 @@ def dict2str(d: dict):
     return "\n".join(f"`{i.upper()}: ` {j}" for i, j in d.items())
 
 
+def list2str(l: list):
+    return "• " + "\n• ".join([str(_) for _ in l])
+
+
 def line_strip(text: str):
     return "\n".join([i.strip() for i in text.split("\n")])
 
@@ -1119,14 +1131,14 @@ async def pypi_call(package: str, ctx):
 
 
 class PyPi:
-    def __init__(self, DICTIONARY, ctx):
-        self.COLOR: int = 5160
+    def __init__(self, DICTIONARY, ctx: commands.context.Context):
+        self.ctx = ctx
         self.AUTHOR: nextcord.Member = None
         if isinstance(ctx, nextcord.Interaction):
-            self.COLOR = ctx.client.re[8]
+            self.BOT = ctx.client
             self.AUTHOR = ctx.user
         else:
-            self.COLOR = (ctx.bot.re[8],)
+            self.BOT = ctx.bot
             self.AUTHOR = ctx.author
         self.DICTIONARY: dict = DICTIONARY
         self.DEFAULT_IMAGE = (
@@ -1146,11 +1158,9 @@ class PyPi:
                     thumbnail=self.DEFAULT_THUMBNAIL,
                     image=self.DEFAULT_IMAGE,
                     author=self.AUTHOR,
-                    fields=dict2fields(
-                        {
-                            "Solutions": "Find if the package exists, this can also happen when the API is down"
-                        }
-                    ),
+                    fields={
+                        "Solutions": "Find if the package exists, this can also happen when the API is down"
+                    },
                 )
             ]
         embeds = [self.first_page()]
@@ -1200,7 +1210,7 @@ class PyPi:
             title=title,
             url=url,
             description=description,
-            color=self.COLOR,
+            color=self.BOT.color(self.ctx.guild),
             author=self.AUTHOR,
             footer=self.footer,
             fields=fields,
