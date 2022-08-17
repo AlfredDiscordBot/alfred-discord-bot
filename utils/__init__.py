@@ -22,7 +22,6 @@ class DEVOP:
             "text": "Only Developers can acces this function\nHave a good day Master Wayne",
             "icon_url": "https://cdn.discordapp.com/avatars/811591623242154046/18736ae6885bad04990795dff7acf2ad.png?width=664&height=664",
         },
-        "image": "attachment://BotInfo.jpg",
     }
 
 
@@ -38,7 +37,5 @@ async def send_devop(CLIENT: ef.commands.Bot, channel: int, functions: dict):
         [i async for i in channel.history(limit=100) if not i.pinned][:100]
     )
     return await channel.send(
-        embed=ef.cembed(**embed),
-        view=assets.DEVOPVIEW(CLIENT, functions=functions),
-        file=ef.nextcord.File("BotInfo.jpg"),
+        embed=ef.cembed(**embed), view=assets.DEVOPVIEW(CLIENT, functions=functions)
     )
