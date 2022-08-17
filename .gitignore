@@ -5,6 +5,7 @@ commands.txt
 *.dat
 .safe.txt
 Files/
+nextcord/
 .google-cookie
 .recover.txt
 .backup.txt
