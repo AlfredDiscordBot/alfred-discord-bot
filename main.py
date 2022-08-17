@@ -1,5 +1,12 @@
 import os, sys
-import temporary_fix as tf
+
+def fix():
+    print(os.getcwd())
+    if not os.getcwd().endswith("alfred-discord-bot"):
+        os.chdir("./alfred-discord-bot")
+        print(os.getcwd())
+
+
 import subprocess
 import aiohttp
 import nextcord
