@@ -5,7 +5,7 @@ def fix():
     if not os.getcwd().endswith("alfred-discord-bot"):
         os.chdir("./alfred-discord-bot")
         print(os.getcwd())
-
+fix()
 
 import subprocess
 import aiohttp
@@ -55,7 +55,6 @@ location_of_file = os.getcwd()
 ydl_copy = ydl_op.copy()
 start_time = time.time()
 load_dotenv()
-tf.fix()
 keep_alive()
 observer: list = []
 mspace: dict = {}
