@@ -1,4 +1,5 @@
 import os, sys
+import temporary_fix as tf
 import subprocess
 import aiohttp
 import nextcord
@@ -47,6 +48,7 @@ location_of_file = os.getcwd()
 ydl_copy = ydl_op.copy()
 start_time = time.time()
 load_dotenv()
+tf.fix()
 keep_alive()
 observer: list = []
 mspace: dict = {}
