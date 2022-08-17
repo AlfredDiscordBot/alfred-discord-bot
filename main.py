@@ -18,7 +18,6 @@ from emoji import emojize
 from nextcord.ext import commands, tasks
 from dotenv import load_dotenv
 from utils.Storage_facility import Variables
-from utils import info_im
 from io import StringIO
 from contextlib import redirect_stdout
 from cogs.Embed import get_color
@@ -249,13 +248,6 @@ async def on_ready():
     dev_loop.start()
     youtube_loop.start()
     send_file_loop.start()
-    info_im.render_information(
-        color=nextcord.Color(cc(re)).to_rgb(),
-        SERVER_COUNT=len(CLIENT.guilds),
-        USER_COUNT=len(CLIENT.users),
-        NEXTCORD_VERSION=len(nextcord.__version__),
-        DISCRIMINATOR=f"#{CLIENT.user.discriminator}",
-    )
     report += "```"
     await channel.send(
         embed=cembed(
