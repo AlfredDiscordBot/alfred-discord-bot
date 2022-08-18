@@ -236,6 +236,8 @@ class IMDB:
         self.genres = list(self.RAW.get("genres", "").split(", "))
         self.misc_data = self.generate_misc_data()
         self.image = self.RAW.get("poster")
+        if not validate_url(self.image):
+            self.image = None
 
     def create_rating(self):
         temp: list = self.RAW.get("ratings", [])
