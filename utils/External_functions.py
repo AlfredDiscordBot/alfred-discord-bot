@@ -272,7 +272,7 @@ class IMDB:
                 "text": "This command is powered by PopCat API",
                 "icon_url": "https://play-lh.googleusercontent.com/ID5wHCs0FsgS018pX0e0My5z3u4cBG7dAYAr2owB9gwylWaNZTJ0pWAKl9It7ys5iEM",
             },
-            image=self.image
+            image=self.image,
         )
 
 
