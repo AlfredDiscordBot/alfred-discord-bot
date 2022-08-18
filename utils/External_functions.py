@@ -17,7 +17,6 @@ import os
 import time
 import nextcord
 import random
-import imdb
 import emoji
 import youtube_dl
 import urllib.parse
@@ -107,6 +106,10 @@ def timestamp(i):
 def convert_to_url(name: str):
     name = urllib.parse.quote(name)
     return name
+
+
+def iso2dtime(iso: str):
+    return f"<t:{int(datetime.fromisoformat(iso[:-1]).timestamp())}>"
 
 
 async def wolf_spoken(wolfram, question):
@@ -220,50 +223,84 @@ def cembed(
     return embed
 
 
-def imdb_embed(movie="", re: list = {8: 5160}):
+class IMDB:
+    def __init__(self, RAW_DATA: dict):
+        self.RAW = RAW_DATA
+        self.ratings = self.create_rating()
+        self.description, self.title = (
+            self.RAW.get("plot", ""),
+            "🎥{} [ {} ]".format(
+                self.RAW.get("title", "Unavailable"), self.RAW.get("rated", "-")
+            ),
+        )
+        self.genres = list(self.RAW.get("genres", "").split(", "))
+        self.misc_data = self.generate_misc_data()
+        self.image = self.RAW.get("poster")
+
+    def create_rating(self):
+        temp: list = self.RAW.get("ratings", [])
+        return {i["source"]: i["value"] for i in temp}
+
+    def generate_misc_data(self):
+        misc_data = {}
+        for _ in (
+            "director",
+            "writer",
+            "runtime",
+            "actors",
+            "votes",
+            "boxoffice",
+            "rating",
+            "type",
+            "awards",
+        ):
+            misc_data[_] = self.RAW.get(_)
+        return misc_data
+
+    def generate_embed(self, color: int):
+        return cembed(
+            title=self.title,
+            description=self.description,
+            color=color,
+            author={
+                "name": "IMDB",
+                "icon_url": "https://ia.media-imdb.com/images/M/MV5BODc4MTA3NjkzNl5BMl5BcG5nXkFtZTgwMDg0MzQ2OTE@._V1_.png",
+            },
+            fields={"`Information`": self.generate_misc_data()},
+            url=self.RAW.get("imdburl"),
+            footer={
+                "text": "This command is powered by PopCat API",
+                "icon_url": "https://play-lh.googleusercontent.com/ID5wHCs0FsgS018pX0e0My5z3u4cBG7dAYAr2owB9gwylWaNZTJ0pWAKl9It7ys5iEM",
+            },
+            image=self.image
+        )
+
+
+async def imdb_embed(movie: str, color: int):
     """
     Returns details about a movie as an embed in discord
     Parameters include movies
     """
-    if movie == "":
+    RAW = await get_async(
+        "https://api.popcat.xyz/imdb?q={query}".format(query=convert_to_url(movie)),
+        kind="json",
+    )
+    if "error" in RAW:
         return cembed(
-            title="Oops",
-            description="You must enter a movie name",
-            color=nextcord.Color.red(),
-        )
-    try:
-        ia = imdb.IMDb()
-        movie = ia.search_movie(movie)
-        title = movie[0]["title"]
-        mov = ia.get_movie(movie[0].getID())
-        di = {
-            "Cast": ", ".join([str(i) for i in mov["cast"]][:5]),
-            "writer": ", ".join([str(j) for j in mov["writer"]]),
-            "Rating": ":star:" * int(mov["rating"]),
-            "Genres": ", ".join(mov["genres"]),
-            "Year": mov["year"],
-            "Director": mov.get("director"),
-        }
-        plot = mov["plot"][0]
-        image = movie[0]["full-size cover url"]
-        return cembed(
-            title=title,
-            description=plot,
-            color=re[8],
-            image=image,
-            fields=di,
+            title="Error",
+            description="Sorry, something went wrong",
+            color=color,
+            author={
+                "name": "IMDB",
+                "icon_url": "https://ia.media-imdb.com/images/M/MV5BODc4MTA3NjkzNl5BMl5BcG5nXkFtZTgwMDg0MzQ2OTE@._V1_.png",
+            },
             footer={
-                "text": "This is taken from IMDB",
+                "text": "Sorry for the inconvenience",
                 "icon_url": "https://ia.media-imdb.com/images/M/MV5BODc4MTA3NjkzNl5BMl5BcG5nXkFtZTgwMDg0MzQ2OTE@._V1_.png",
             },
         )
-    except Exception:
-        print(traceback.format_exc())
-        return cembed(
-            title="Oops",
-            description="Something went wrong, check if the name is correct",
-            color=re[8],
-        )
+    imdb = IMDB(RAW)
+    return imdb.generate_embed(color=color)
 
 
 async def redd(ctx, account: str = "wholesomememes", number: int = 25):
