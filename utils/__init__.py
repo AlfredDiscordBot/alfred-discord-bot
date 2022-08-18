@@ -6,7 +6,6 @@ from . import (
     spotify_client,
     Storage_facility,
     Trend,
-    Info_Image as info_im,
 )
 
 ef = External_functions
