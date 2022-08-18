@@ -55,7 +55,8 @@ class Social(commands.Cog):
     async def imdb_slash(self, inter, movie):
         await inter.response.defer()
         try:
-            await inter.send(embed=ef.imdb_embed(movie, self.CLIENT.re))
+            embed = await ef.imdb_embed(movie, self.CLIENT.color(inter.guild))
+            await inter.send(embed=embed)
         except Exception as e:
             await inter.send(
                 embed=ef.cembed(

@@ -23,10 +23,6 @@ def requirements():
     return []
 
 
-def iso2dtime(iso: str):
-    return f"<t:{int(datetime.fromisoformat(iso[:-1]).timestamp())}>"
-
-
 class CodeExecutor:
     """
     Base class for code executing utilities.
@@ -301,7 +297,7 @@ async def repo_stats_dict(stats: GitHubRepoStats, color: int = None):
         },
         {
             "name": "Dates",
-            "value": f"⌚` Created:` {iso2dtime(stats.created_at)} \n⌚` Updated:` {iso2dtime(stats.created_at)} \n⌚` Pushed:` {iso2dtime(stats.pushed_at)}",
+            "value": f"⌚` Created:` {ef.iso2dtime(stats.created_at)} \n⌚` Updated:` {ef.iso2dtime(stats.created_at)} \n⌚` Pushed:` {ef.iso2dtime(stats.pushed_at)}",
             "inline": False,
         },
     ]
