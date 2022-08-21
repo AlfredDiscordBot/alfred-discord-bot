@@ -192,6 +192,7 @@ class Contribution(commands.Cog):
             choices=dict((k, k) for k in themes.keys()),
         ),
     ):
+        await inter.response.defer()
         theme = theme or "classic"
         data = await get_async(
             f"https://github-contributions.vercel.app/api/v1/{username}", kind="json"
