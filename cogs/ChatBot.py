@@ -73,7 +73,9 @@ class ChatBot(
                 if self.CLIENT.re[10].get(message.guild.id, 4) == 2:
                     API_URL = f"{BASE_URL}/microsoft/DialoGPT-large"
                     payload = {"inputs": input_text}
-                output, type = await ef.post_async(API_URL, header=self.headers, json=payload)
+                output, type = await ef.post_async(
+                    API_URL, header=self.headers, json=payload
+                )
                 print(output)
                 a = output["generated_text"]
                 self.moderate_variables(message.guild.id, input_text, a)
