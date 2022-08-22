@@ -483,7 +483,7 @@ async def post_async(api: str, header: dict = {}, json: dict = {}):
     async with aiohttp.ClientSession() as session:
         async with session.post(api, headers=header, json=json) as resp:
             if resp.headers["Content-Type"] != "application/json":
-                return await resp.read()
+                return await resp.read(), resp.headers["Content-Type"]
             return await resp.json()
 
 
