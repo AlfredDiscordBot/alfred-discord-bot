@@ -119,8 +119,8 @@ class Image(commands.Cog, description="Fun Effects with your Profile Picture"):
             )
         if type == "image/png":
             await ctx.send(file=nextcord.File(BytesIO(byte), "effect.png"))
-        elif type == "image/gif":await ctx.send(file=nextcord.File(BytesIO(byte), "effect.gif"))
-            
+        elif type == "image/gif":
+            await ctx.send(file=nextcord.File(BytesIO(byte), "effect.gif"))
 
     @nextcord.slash_command(name="wordcloud", description="Creates a wordcloud picture")
     async def word(self, inter, user: nextcord.Member = None):
