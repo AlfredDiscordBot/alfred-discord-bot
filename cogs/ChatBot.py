@@ -73,7 +73,9 @@ class ChatBot(
                 if self.CLIENT.re[10].get(message.guild.id, 4) == 2:
                     API_URL = f"{BASE_URL}/microsoft/DialoGPT-large"
                     payload = {"inputs": input_text}
-                output = await ef.post_async(API_URL, header=self.headers, json=payload)
+                output, type = await ef.post_async(
+                    API_URL, header=self.headers, json=payload
+                )
                 print(output)
                 a = output["generated_text"]
                 self.moderate_variables(message.guild.id, input_text, a)
@@ -97,7 +99,7 @@ class ChatBot(
             "parameters": {"max_new_tokens": 100, "return_full_text": True},
         }
 
-        output = await ef.post_async(API_URL2, header2, payload2)
+        output, type = await ef.post_async(API_URL2, header2, payload2)
         print(output)
         o = output[0]["generated_text"]
 
