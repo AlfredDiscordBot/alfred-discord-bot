@@ -69,18 +69,26 @@ def preset_change(di, ctx, CLIENT):
         "<author-color>": str(user.color.to_rgb()),
         "<bot-icon>": CLIENT.user.avatar.url,
         "<bot-color>": str(nextcord.Color(CLIENT.color(ctx.guild)).to_rgb()),
+        "<server-author>": {
+            "name": ctx.guild.name if ctx.guild else "Unavailable",
+            "icon_url": ef.safe_pfp(ctx.guild),
+        },
     }
     if isinstance(di, str):
         di = {"description": di, "color": "<bot-color>"}
+
     if isinstance(di.get("author"), str):
-        di["author"] = {"name": di["author"]}
-    if isinstance(di.get("author"), dict):
+        if di["author"].lower() in presets:
+            di["author"] = presets[di["author"].lower()]
+        else:
+            di["author"] = {"name": di["author"]}
+    elif isinstance(di.get("author"), dict):
         for i in di["author"]:
             if i == "icon_url":
                 if di["author"]["icon_url"] in presets:
                     di["author"]["icon_url"] = presets[di["author"]["icon_url"]]
 
-    if isinstance(di.get("author"), bool):
+    elif isinstance(di.get("author"), bool):
         if di.get("author"):
             di["author"] = {"name": user.name, "icon_url": user.avatar}
 
@@ -163,6 +171,7 @@ class MSetup:
             "<bot-color>",
             "<bot-icon>",
             "<author-color>",
+            "<server-author>",
         ]
 
     def set_preset(self):
@@ -208,14 +217,17 @@ class MSetup:
                     "inline": False,
                 },
                 {
-                    "name": "Fields",
-                    "value": "If you need to make `inline` as False(if you want fields in new line), use `->` instead of `>`",
-                    "inline": False,
-                },
-                {
-                    "name": "Link Buttons",
-                    "value": "Basic syntax is\n`<emoji> <url> <label>`\nEx:🔗https://www.github.com/AlfredDiscordBot/alfred-discord-bot Link\nAll of them must be seperated by space ",
-                    "inline": False,
+                    "name": "Instructions",
+                    "value": ef.dict2str(
+                        {
+                            "Fields": "\nHeading and the value should be seperated by `|>` for inline\nPutting `-|>` makes it not inline\n",
+                            "Button": "\nLink buttons are available for public use, live buttons can only be used by developers"
+                            + "To use link button, the syntax is simple\n`emoji url label`\nFor Example:`🎥 https://www.youtube.com Youtube`\n"
+                            + "The Emoji, URL and the Label(in this case `Youtube`) must be seperated with space\n",
+                            "Presets": "\nWe have a couple of presets, some are limited to certain features only\n"
+                            + ef.list2str([f"`{i}`" for i in self.presets]),
+                        }
+                    ),
                 },
             ],
         )
@@ -314,7 +326,7 @@ class MSetup:
         """
         processes field text to list of dicts
         """
-        f = [i.split(">") for i in text.split("\n\n")]
+        f = [i.split("|>") for i in text.split("\n\n\n")]
         all_fields = []
         for i in f:
             if len(i) != 2:

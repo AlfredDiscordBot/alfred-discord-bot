@@ -43,29 +43,6 @@ class Image(commands.Cog, description="Fun Effects with your Profile Picture"):
         await ctx.send(embed=embed)
 
     @nextcord.slash_command(
-        name="blend", description="Blend your pfp with another picture"
-    )
-    async def blend(
-        self, inter, url_of_picture: str, member: nextcord.Member = None, ratio=0.5
-    ):
-        await inter.response.defer()
-        if not member:
-            url = ef.safe_pfp(inter.user)
-        else:
-            url = ef.safe_pfp(member)
-        json = {
-            "tokenb": os.getenv("tokenb"),
-            "url": url,
-            "url2": url_of_picture,
-            "ratio": ratio,
-        }
-        byte = await ef.post_async(
-            "https://suicide-detector-api-1.yashvardhan13.repl.co/style_predict",
-            json=json,
-        )
-        await inter.send(file=nextcord.File(BytesIO(byte), "blend.png"))
-
-    @nextcord.slash_command(
         name="effects", description="effects with your profile picture"
     )
     async def eff(
@@ -130,18 +107,20 @@ class Image(commands.Cog, description="Fun Effects with your Profile Picture"):
             )
             return
         elif effect in styles:
-            json = {"tokene": os.getenv("tokene"), "url": url, "effect": effect}
-            byte = await ef.post_async(
-                "https://suicide-detector-api-1.yashvardhan13.repl.co/style", json=json
+            json = {"token": os.getenv("tokene"), "url": url, "effect": effect}
+            byte, type = await ef.post_async(
+                "https://alfredapi.yashvardhan13.repl.co/style", json=json
             )
 
         elif effect in effects:
-            json = {"tokene": os.getenv("tokene"), "url": url, "effect": effect}
-            byte = await ef.post_async(
-                "https://suicide-detector-api-1.yashvardhan13.repl.co/cv", json=json
+            json = {"token": os.getenv("tokene"), "url": url, "effect": effect}
+            byte, type = await ef.post_async(
+                "https://alfredapi.yashvardhan13.repl.co/cv", json=json
             )
-
-        await ctx.send(file=nextcord.File(BytesIO(byte), "effect.png"))
+        if type == "image/png":
+            await ctx.send(file=nextcord.File(BytesIO(byte), "effect.png"))
+        elif type == "image/gif":
+            await ctx.send(file=nextcord.File(BytesIO(byte), "effect.gif"))
 
     @nextcord.slash_command(name="wordcloud", description="Creates a wordcloud picture")
     async def word(self, inter, user: nextcord.Member = None):

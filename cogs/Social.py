@@ -71,7 +71,8 @@ class Social(commands.Cog):
     @commands.command()
     @commands.check(ef.check_command)
     async def imdb(self, ctx, *, movie):
-        await ctx.send(embed=ef.imdb_embed(movie, self.CLIENT.re))
+        embed = await ef.imdb_embed(movie, self.CLIENT.color(ctx.guild))
+        await ctx.send(embed)
 
     @social.subcommand(name="wikipedia", description="Get a topic from wikipedia")
     async def wiki_slash(self, inter, text):

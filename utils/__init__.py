@@ -19,7 +19,7 @@ class DEVOP:
             "Instructions": "⭕ for `Stats`\n💾 for `Save`\n❌ for `Exit`\n🔗 for `Invite link`\n📜for `Report`"
         },
         "footer": {
-            "text": "Only Developers can acces this function\nHave a good day Master Wayne",
+            "text": "Only Developers can access this function\nHave a good day Master Wayne",
             "icon_url": "https://cdn.discordapp.com/avatars/811591623242154046/18736ae6885bad04990795dff7acf2ad.png?width=664&height=664",
         },
     }
