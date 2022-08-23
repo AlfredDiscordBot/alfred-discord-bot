@@ -416,14 +416,6 @@ def youtube_download(url: str):
     return URL
 
 
-def youtube_download1(url: str):
-    with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        info = ydl.extract_info(url, download=False)
-        name = info["title"]
-        URL = info["formats"][0]["url"]
-    return (URL, name)
-
-
 def subtract_list(l1: List, l2: List):
     a = []
     for i in l1:
