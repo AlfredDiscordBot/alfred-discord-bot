@@ -630,11 +630,10 @@ class Configuration(
         self,
         inter: Interaction,
         mode=ef.defa(choices=["enable", "disable", "show"], required=True),
-        feature=ef.defa(choices=["snipe", "response", "suicide_detector"]),
+        feature=ef.defa(choices=["snipe", "response"]),
     ):
         await inter.response.defer()
         if mode == "show":
-            su = inter.guild.id in self.CLIENT.observer
             rs = not inter.guild.id in self.CLIENT.config["respond"]
             sn = not inter.guild.id in self.CLIENT.config["snipe"]
             if not sn:
@@ -648,7 +647,6 @@ class Configuration(
                 thumbnail=ef.safe_pfp(inter.guild),
                 fields=ef.dict2fields(
                     {
-                        "Suicide detector": str(su),
                         "Auto Response": str(rs),
                         "Snipe": str(sn),
                     }
@@ -676,28 +674,21 @@ class Configuration(
                     if not inter.guild.id in self.CLIENT.config["snipe"]:
                         self.CLIENT.config["snipe"].append(inter.guild.id)
                     output = "Only admins can use snipe command"
-                elif feature == "response":
+                else:
                     if inter.guild.id in self.CLIENT.config["respond"]:
                         self.CLIENT.config["respond"].remove(inter.guild.id)
                     output = "Enabled Auto response, try saying `Alfred hello`"
-                else:
-                    if not inter.guild.id in self.CLIENT.observer:
-                        self.CLIENT.observer.append(inter.guild.id)
-                    output = "Enabled suicide observer"
 
             elif mode == "disable":
                 if feature == "snipe":
                     if inter.guild.id in self.CLIENT.config["snipe"]:
                         self.CLIENT.config["snipe"].remove(inter.guild.id)
                     output = "All people can use snipe command"
-                elif feature == "response":
+                else:
                     if not inter.guild.id in self.CLIENT.config["respond"]:
                         self.CLIENT.config["respond"].append(inter.guild.id)
                     output = "Disabled Auto Response. You've decided to not talk to Alfred :sob:"
-                else:
-                    if inter.guild.id in self.CLIENT.observer:
-                        self.CLIENT.observer.remove(inter.guild.id)
-                        output = "Disabled Suicide observer"
+
             await inter.send(
                 embed=ef.cembed(
                     description=output,

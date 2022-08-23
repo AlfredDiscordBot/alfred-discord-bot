@@ -155,12 +155,21 @@ def cembed(
     button: Union[dict, nextcord.ui.Button] = None,
     **kwargs,
 ) -> nextcord.Embed:
+    """
+    All in One Embed, which can accept different datatypes to give different results
+    Also returns a view if you pass in [dict | nextcord.ui.Button] through `button`
+    title: str
+    description: str
+    thumbnail: str
+    url: str
+    color: int | nextcord.Color
+    footer: dict | str
+    """
     embed = nextcord.Embed()
     if color != nextcord.Color.dark_theme():
-        if type(color) == int:
-            embed = nextcord.Embed(color=nextcord.Color(value=color))
-        else:
-            embed = nextcord.Embed(color=color)
+        if isinstance(color, str):
+            color = int(color.replace("#", "0x"), base=16)
+        embed = nextcord.Embed(color=color)
     if title:
         embed.title = title
     if description:
@@ -202,7 +211,10 @@ def cembed(
             embed.set_author(name=author)
         elif isinstance(author, dict):
             embed.set_author(**author)
-        elif isinstance(author, (nextcord.member.Member, nextcord.user.ClientUser)):
+        elif isinstance(
+            author,
+            (nextcord.member.Member, nextcord.user.ClientUser, nextcord.guild.Guild),
+        ):
             embed.set_author(name=author.name, icon_url=safe_pfp(author))
 
     if button:
@@ -560,7 +572,7 @@ def safe_pfp(user: Union[nextcord.Member, nextcord.guild.Guild]):
     if user is None:
         return
     if isinstance(user, nextcord.guild.Guild):
-        return user.icon
+        return str(user.icon)
     return user.avatar.url if user.avatar else user.default_avatar.url
 
 
