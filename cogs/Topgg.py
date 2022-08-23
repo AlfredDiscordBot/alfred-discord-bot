@@ -36,7 +36,8 @@ class Topgg(commands.Cog):
     def __init__(self, CLIENT: commands.Bot):
         self.CLIENT = CLIENT
         self.topgg = TopGG_BASE(os.getenv("topgg"))
-        self.loop.start()
+        if os.getenv("REPL_OWNER"):
+            self.loop.start()
 
     @tasks.loop(minutes=30)
     async def loop(self):
