@@ -61,7 +61,7 @@ class Player:
             )
         )
         if urls := regex.findall(r"watch\?v=(\S{11})", html):
-            return "https//youtube.com/watch?v="+urls[0]
+            return "https//youtube.com/watch?v=" + urls[0]
 
     async def get_song(self, url: str):
         value = self.cache.get_value(url)
@@ -123,7 +123,10 @@ class Music(commands.Cog):
     def add(self, guild: nextcord.guild.Guild, url: str):
         if guild.id not in self.CLIENT.queue_song:
             self.CLIENT.queue_song[guild.id] = []
-        if self.CLIENT.queue_song[guild.id] != [] and self.CLIENT.queue_song[guild.id][-1] == url:
+        if (
+            self.CLIENT.queue_song[guild.id] != []
+            and self.CLIENT.queue_song[guild.id][-1] == url
+        ):
             return
         self.CLIENT.queue_song[guild.id].append(url)
 
@@ -178,7 +181,9 @@ class Music(commands.Cog):
                     description="You have an empty queue, and I can't play any song",
                     color=self.CLIENT.color(ctx.guild),
                     author=ctx.guild,
-                    fields={"Maybe...": "Use `'q` or `'p` to add songs to the queue"},
+                    fields={
+                        "Maybe...": "Use `/music play song` to add songs to the queue"
+                    },
                     thumbnail=ctx.guild.icon,
                 )
             )
@@ -303,8 +308,7 @@ class Music(commands.Cog):
             inter.guild.voice_client.resume()
             await inter.send(
                 embed=ef.cembed(
-                    description="Resuming the song",
-                    color=self.CLIENT.color
+                    description="Resuming the song", color=self.CLIENT.color
                 )
             )
         else:
@@ -312,7 +316,7 @@ class Music(commands.Cog):
                 embed=ef.cembed(
                     title="Permission Denied",
                     description="You need to be in the VC to resume the song",
-                    color=self.CLIENT.color(inter.guild)
+                    color=self.CLIENT.color(inter.guild),
                 )
             )
 
@@ -370,7 +374,7 @@ class Music(commands.Cog):
             )
         )
         voice.play(self.player.download(info), after=lambda e: self.after(ctx=inter))
-        
+
     @play.subcommand(name="queue", description="Play song from queue, pass index value")
     async def play_queue(self, inter: nextcord.Interaction, index: int):
         if (not inter.guild.voice_client) and (uservoice := inter.user.voice):
@@ -388,24 +392,28 @@ class Music(commands.Cog):
             )
             return
         await inter.response.defer()
-        if (queue := self.CLIENT.queue_song.get(inter.guild.id)) and len(queue)>index and index>=0:
+        if (
+            (queue := self.CLIENT.queue_song.get(inter.guild.id))
+            and len(queue) > index
+            and index >= 0
+        ):
             info = self.player.info(queue[index])
-            embed=ef.cembed(
+            embed = ef.cembed(
                 title="Playing {} [ {} ]".format(info.get("title"), index),
                 url=queue[index],
                 color=self.CLIENT.color(inter.guild),
                 thumbnail=self.CLIENT.user.avatar,
                 author=inter.guild,
                 footer={
-                    'text': 'Thank you for choosing Alfred',
-                    'icon_url': self.CLIENT.user.avatar
-                }
+                    "text": "Thank you for choosing Alfred",
+                    "icon_url": self.CLIENT.user.avatar,
+                },
             )
             inter.guild.voice_client.play(
                 self.player.download(info), after=lambda e: self.after(inter)
             )
             await inter.send(embed=embed)
-        elif len(queue)<=index:
+        elif len(queue) <= index:
             await inter.response.send_message(
                 embed=ef.cembed(
                     title="I'm sorry but",
@@ -414,21 +422,24 @@ class Music(commands.Cog):
                     thumbnail=self.CLIENT.user.avatar,
                     author=inter.guild,
                     footer={
-                        'text': 'If you see any bugs, DO NOT call ghostbusters\nGet to my support server or use feedback',
-                        'icon_url': self.CLIENT.user.avatar
-                    }
+                        "text": "If you see any bugs, DO NOT call ghostbusters\nGet to my support server or use feedback",
+                        "icon_url": self.CLIENT.user.avatar,
+                    },
                 ),
-                ephemeral=True
+                ephemeral=True,
             )
         else:
             await inter.send(
                 embed=ef.cembed(
                     title="Hmmmm",
                     description="You must've entered a number less than `0`, which is `sus` indeed",
-                    fields={'Anyway the point is...': 'Index value can only be from 0 to {}'.format(len(queue)-1)}
+                    fields={
+                        "Anyway the point is...": "Index value can only be from 0 to {}".format(
+                            len(queue) - 1
+                        )
+                    },
                 )
             )
-            
 
 
 def setup(client, **i):
