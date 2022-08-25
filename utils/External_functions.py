@@ -564,7 +564,11 @@ def safe_pfp(user: Union[nextcord.Member, nextcord.guild.Guild]):
     if user is None:
         return
     if isinstance(user, nextcord.guild.Guild):
-        return str(user.icon)
+        return (
+            str(user.icon)
+            if user.icon
+            else "https://cdn.logojoy.com/wp-content/uploads/20210422095037/discord-mascot.png"
+        )
     return user.avatar.url if user.avatar else user.default_avatar.url
 
 

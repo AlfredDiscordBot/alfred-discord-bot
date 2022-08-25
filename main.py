@@ -68,7 +68,6 @@ config: dict = {
 }
 da: dict = {}
 errors: list = ["```arm"]
-da1: dict = {}
 queue_song: dict = {}
 DEV_CHANNEL: int = int(os.getenv("dev"))
 re: list = [
@@ -131,7 +130,6 @@ def save_to_file():
     store.pass_all(
         da=CLIENT.da,
         mspace=CLIENT.mspace,
-        da1=CLIENT.da1,
         queue_song=CLIENT.queue_song,
         re=re,
         dev_users=dev_users,
@@ -147,7 +145,6 @@ def save_to_file():
 
 def load_from_file(store: Variables):
     global da
-    global da1
     global queue_song
     global re
     global dev_users
@@ -160,7 +157,6 @@ def load_from_file(store: Variables):
 
     v = store.show_data()
     da = v.get("da", {})
-    da1 = v.get("da1", {})
     queue_song = {int(k): v for k, v in v.get("queue_song", {}).items()}
     re = v.get("re", re)
     dev_users = {int(i) for i in v.get("dev_users", dev_users)}
@@ -177,7 +173,6 @@ def load_from_file(store: Variables):
     CLIENT.config = config
     CLIENT.prefix_dict = prefix_dict
     CLIENT.da = da
-    CLIENT.da1 = da1
     CLIENT.queue_song = queue_song
     CLIENT.mspace = mspace
     CLIENT.observer = observer

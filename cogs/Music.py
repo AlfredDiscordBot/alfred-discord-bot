@@ -4,6 +4,7 @@ import re as regex
 import utils.External_functions as ef
 
 from utils.Storage_facility import Variables
+from utils.assets import Button, color
 from nextcord.abc import GuildChannel
 from datetime import datetime
 from nextcord.ext import commands
@@ -21,6 +22,10 @@ class MusicCache:
     def __init__(self):
         self.var = Variables("cogs/__pycache__/YtCache")
         self.data = self.var.show_data()
+        if not self.data:
+            self.data = {"songs": {}}
+            self.var.pass_all(**self.data)
+            self.var.save()
 
     def update(self, key: str, data: dict):
         self.data["songs"][key] = data
@@ -28,7 +33,7 @@ class MusicCache:
         self.var.save()
 
     def get_value(self, key: str):
-        return self.data["songs"].get(key)
+        return self.var.show_data()["songs"].get(key)
 
 
 class Player:
@@ -61,20 +66,21 @@ class Player:
             )
         )
         if urls := regex.findall(r"watch\?v=(\S{11})", html):
-            return "https//youtube.com/watch?v=" + urls[0]
+            return "https://youtube.com/watch?v=" + urls[0]
 
-    async def get_song(self, url: str):
-        value = self.cache.get_value(url)
-        if value is None:
+    def get_song(self, url: str):
+        value = self.cache.data["songs"].get(url)
+        if value == None:
             info = self.info(url=url)
-            self.download(info)
+            self.cache.update(url, self.cache_data(info))
             return self.cache_data(info)
         else:
             return value
 
     def get_info(self, url: str):
-        info = self.temp_cache.get(url, self.info(url))
-        return {
+        if not (info := self.temp_cache.get(url)):
+            info = self.info(url)
+        data = {
             "title": info.get("title"),
             "description": info.get("description", "")[:4000],
             "thumbnail": info.get("thumbnail"),
@@ -82,8 +88,8 @@ class Player:
                 "Info": ef.dict2str(
                     {
                         "Duration": self.duration(info.get("duration", 300)),
-                        "Views": str(info.get("view_count")),
-                        "Likes": str(info.get("like_count")),
+                        "Views": f'{info.get("view_count"):,}',
+                        "Likes": f'{info.get("like_count"):,}',
                     }
                 )
             },
@@ -93,6 +99,8 @@ class Player:
                 "icon_url": "https://w7.pngwing.com/pngs/354/296/png-transparent-youtube-logo-computer-icons-youtube-angle-rectangle-logo.png",
             },
         }
+        self.temp_cache[url] = info
+        return data
 
     def source(self, url: str):
         return nextcord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS)
@@ -120,6 +128,12 @@ class Music(commands.Cog):
         self.FFMPEG_OPTIONS = FFMPEG_OPTIONS
         self.player = Player(self.CLIENT, FFMPEG_OPTIONS, ydl_op)
 
+    def datasetup(self, guild: nextcord.guild.Guild):
+        if guild.id not in self.CLIENT.re[3]:
+            self.CLIENT.re[3][guild.id] = 0
+        if guild.id not in self.CLIENT.queue_song:
+            self.CLIENT.queue_song[guild.id] = []
+
     def add(self, guild: nextcord.guild.Guild, url: str):
         if guild.id not in self.CLIENT.queue_song:
             self.CLIENT.queue_song[guild.id] = []
@@ -130,10 +144,28 @@ class Music(commands.Cog):
             return
         self.CLIENT.queue_song[guild.id].append(url)
 
+    def MusicButtonView(self, inter: nextcord.Interaction):
+        pause, resume, after, before, show, stop, loop, autoplay = (
+            Button(style=color, label="Pause", emoji="⏸️", row=0),
+            Button(style=color, label="Resume", emoji="▶️", row=0),
+            Button(style=color, label="Next", emoji="⏭️", row=0),
+            Button(style=color, label="Previous", emoji="⏮️", row=0),
+            Button(style=color, label="Queue", emoji="*️⃣", row=1),
+            Button(style=color, label="Stop", emoji="⏹️", row=1),
+            Button(style=color, label="Loop", emoji="🔂", row=1),
+            Button(style=color, label="Autoplay", emoji="➡️", row=1),
+        )
+        pause.callback = self.pause(inter)
+        resume.callback = self.resume(inter)
+        view = nextcord.ui.View(timeout=None)
+        for i in (pause, resume, after, before, show, stop, loop, autoplay):
+            view.add_item(i)
+        return view
+
     def get_current(self, guild: nextcord.guild.Guild):
         try:
             if (queue := self.CLIENT.queue_song.get(guild.id)) and (
-                index := self.CLIENT.re[3].get(guild.id) >= 0
+                (index := self.CLIENT.re[3].get(guild.id)) >= 0
             ):
                 return ef.cembed(
                     **self.player.get_info(queue[index]),
@@ -168,10 +200,10 @@ class Music(commands.Cog):
 
     async def repeat(self, ctx: Union[commands.context.Context, nextcord.Interaction]):
         await sleep(1)
-        if not ctx.guild.voice_client:
+        if (not ctx.guild.voice_client) or (ctx.guild.voice_client.is_playing()):
             return
-        index = self.CLIENT.re[3].get(ctx.guild)
-        queue = self.CLIENT.queue_song.get(ctx.guild, [])
+        index = self.CLIENT.re[3].get(ctx.guild.id)
+        queue = self.CLIENT.queue_song.get(ctx.guild.id, [])
         if not queue:
             if index is not None:
                 del self.CLIENT.re[3]
@@ -204,6 +236,60 @@ class Music(commands.Cog):
         await inter.response.defer()
         embed = self.get_current(inter.guild)
         await inter.send(embed=embed)
+
+    @music.subcommand(name="queue", description="Queue")
+    async def queue(self, inter):
+        print(inter.user)
+
+    @music.subcommand(name="add", description="Add a song to the queue")
+    async def addtoqueue(self, inter: nextcord.Interaction, song: str):
+        url = await self.player.search_song(song)
+        self.datasetup(inter.guild)
+        mini_info = self.player.get_song(url)
+        self.CLIENT.queue_song[inter.guild.id].append(url)
+        await inter.send(
+            embed=ef.cembed(
+                title="Added",
+                description=mini_info["name"],
+                color=self.CLIENT.color(inter.guild),
+                author=inter.user,
+                thumbnail=self.CLIENT.user.avatar,
+            ),
+            view=self.MusicButtonView(inter),
+        )
+
+    @queue.subcommand(name="show", description="Shows the song in the server queue")
+    async def show_queue(self, inter: nextcord.Interaction):
+        if not self.CLIENT.queue_song.get(inter.guild.id):
+            await inter.send(
+                embed=ef.cembed(
+                    title="Looks like...",
+                    description="Your queue is empty",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.guild,
+                )
+            )
+            return
+        await inter.response.defer()
+        l = len(self.CLIENT.queue_song.get(inter.guild.id, []))
+        index = self.CLIENT.re[3].get(inter.guild.id, 0)
+        start = 0 if l < 20 else index - 10
+        end = index + 10
+        songs = self.CLIENT.queue_song.get(inter.guild.id, [])[start:end]
+        await inter.send(
+            embed=ef.cembed(
+                title="Queue",
+                description=[
+                    f"`{ind}.` {content}"
+                    for ind, content in enumerate(
+                        [self.player.get_song(i).get("name") for i in songs]
+                    )
+                ],
+                color=self.CLIENT.color(inter.guild),
+                author=inter.guild,
+            ),
+            view=self.MusicButtonView(inter),
+        )
 
     @music.subcommand(name="disconnect", description="Bye")
     async def leave(self, inter: nextcord.Interaction):
@@ -241,6 +327,15 @@ class Music(commands.Cog):
     ):
         if (not channel) and inter.user.voice and (vc := inter.user.voice.channel):
             channel = vc
+        if not channel:
+            await inter.send(
+                embed=ef.cembed(
+                    description="You need to provide a channel, or you need to be in a channel",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                )
+            )
+            return
         await channel.connect()
         await inter.send(
             embed=ef.cembed(
@@ -256,7 +351,8 @@ class Music(commands.Cog):
                     "icon_url": self.CLIENT.user.avatar,
                 },
                 thumbnail=inter.guild.icon,
-            )
+            ),
+            view=self.MusicButtonView(inter),
         )
 
     @music.subcommand(name="stop", description="Stop the music")
@@ -341,6 +437,7 @@ class Music(commands.Cog):
             )
             return
         await inter.response.defer()
+        self.datasetup(inter.guild)
         url = await self.player.search_song(name=song)
         if not url:
             await inter.send(
@@ -373,6 +470,10 @@ class Music(commands.Cog):
                 author=inter.user,
             )
         )
+        self.player.cache.update(url, self.player.cache_data(info))
+        self.CLIENT.re[3][inter.guild.id] = (
+            len(self.CLIENT.queue_song[inter.guild.id]) - 1
+        )
         voice.play(self.player.download(info), after=lambda e: self.after(ctx=inter))
 
     @play.subcommand(name="queue", description="Play song from queue, pass index value")
@@ -393,14 +494,24 @@ class Music(commands.Cog):
             return
         await inter.response.defer()
         if (
-            (queue := self.CLIENT.queue_song.get(inter.guild.id))
+            (queue := self.CLIENT.queue_song.get(inter.guild.id, []))
             and len(queue) > index
             and index >= 0
         ):
+            if (voice := inter.guild.voice_client).is_playing():
+                voice.stop()
             info = self.player.info(queue[index])
             embed = ef.cembed(
                 title="Playing {} [ {} ]".format(info.get("title"), index),
                 url=queue[index],
+                description={
+                    "duration": self.player.duration(info.get("duration", 0)),
+                    "uploader": info.get("uploader"),
+                    "view count": f"{info.get('view_count'):,}",
+                    "Uploaded": "<t:{}:R>".format(
+                        self.player.uploader_date(info.get("upload_date"))
+                    ),
+                },
                 color=self.CLIENT.color(inter.guild),
                 thumbnail=self.CLIENT.user.avatar,
                 author=inter.guild,
@@ -409,12 +520,11 @@ class Music(commands.Cog):
                     "icon_url": self.CLIENT.user.avatar,
                 },
             )
-            inter.guild.voice_client.play(
-                self.player.download(info), after=lambda e: self.after(inter)
-            )
+            self.player.cache.update(queue[index], self.player.cache_data(info))
+            voice.play(self.player.download(info), after=lambda e: self.after(inter))
             await inter.send(embed=embed)
         elif len(queue) <= index:
-            await inter.response.send_message(
+            await inter.send(
                 embed=ef.cembed(
                     title="I'm sorry but",
                     description="Looks like there's not that many songs in your queue",
@@ -440,6 +550,86 @@ class Music(commands.Cog):
                     },
                 )
             )
+
+    @play.subcommand(name="next", description="Play the next song")
+    async def next(self, inter: nextcord.Interaction):
+        await inter.response.defer()
+        if (not inter.guild.voice_client) and (vc := inter.user.voice):
+            await vc.connect()
+        elif not ef.check_voice(inter):
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You cannot change the song, you need to be in the VC",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                )
+            )
+            return
+        self.datasetup(inter.guild)
+        if len(queue := self.CLIENT.queue_song[inter.guild.id]) > (
+            self.CLIENT.re[3][inter.guild.id] + 1
+        ):
+            self.CLIENT.re[3][inter.guild.id] += 1
+        info = self.player.info(url=queue[self.CLIENT.re[3][inter.guild.id]])
+        embed = ef.cembed(
+            title="Playing {}".format(info.get("title")),
+            description={
+                "Current Index": "{}".format(self.CLIENT.re[3][inter.guild.id]),
+                "Duration": self.player.duration(info.get("duration")),
+                "Uploader": info.get("uploader"),
+                "Likes": f"{info.get('like_count', 0):,}👍",
+            },
+            color=self.CLIENT.color(inter.guild),
+            thumbnail=self.CLIENT.user.avatar,
+            author=inter.guild,
+        )
+
+        voice = inter.guild.voice_client
+        if voice.is_playing():
+            voice.stop()
+        voice.play(self.player.download(info), after=lambda e: self.after(inter))
+        await inter.send(embed=embed)
+
+    @play.subcommand(name="previous", description="Play the previous song")
+    async def previous(self, inter: nextcord.Interaction):
+        await inter.response.defer()
+        if (not inter.guild.voice_client) and (vc := inter.user.voice):
+            await vc.connect()
+        elif not ef.check_voice(inter):
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You cannot change the song, you need to be in the VC",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                )
+            )
+            return
+        self.datasetup(inter.guild)
+        if (index := self.CLIENT.re[3][inter.guild.id] - 1) > 0:
+            self.CLIENT.re[3][inter.guild.id] -= 1
+        info = self.player.info(url=self.CLIENT.queue_song[inter.guild.id][index])
+        embed = ef.cembed(
+            title="Playing {}".format(info.get("title")),
+            description={
+                "Current Index": "{}".format(index),
+                "Duration": self.player.duration(info.get("duration")),
+                "Uploader": info.get("uploader"),
+                "Likes": f"{info.get('like_count', 0):,}👍",
+            },
+            color=self.CLIENT.color(inter.guild),
+            thumbnail=self.CLIENT.user.avatar,
+            author=inter.guild,
+        )
+
+        voice = inter.guild.voice_client
+        if voice.is_playing():
+            voice.stop()
+        voice.play(self.player.download(info), after=lambda e: self.after(inter))
+        await inter.send(embed=embed)
 
 
 def setup(client, **i):

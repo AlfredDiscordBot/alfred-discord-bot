@@ -2,6 +2,8 @@ import nextcord
 import utils.External_functions as ef
 import emoji
 import asyncio
+
+from .Music import Player
 from nextcord.ext import commands, tasks
 from random import choice
 
@@ -9,11 +11,11 @@ from random import choice
 
 
 def requirements():
-    return ["FFMPEG_OPTIONS"]
+    return ["FFMPEG_OPTIONS", "ydl_op"]
 
 
 class Games(commands.Cog, description="Very Simple Games"):
-    def __init__(self, CLIENT: commands.Bot, FFMPEG_OPTIONS):
+    def __init__(self, CLIENT: commands.Bot, FFMPEG_OPTIONS, ydl_op):
         self.CLIENT = CLIENT
         self.FFMPEG_OPTIONS = FFMPEG_OPTIONS
         self.choices = [
@@ -27,6 +29,7 @@ class Games(commands.Cog, description="Very Simple Games"):
             self.choices[1]: self.choices[0],
             self.choices[2]: self.choices[1],
         }
+        self.player = Player(CLIENT, FFMPEG_OPTIONS, ydl_op)
 
     @nextcord.slash_command(
         name="rps", description="play some rock paper scissors against me"
@@ -141,8 +144,10 @@ class Games(commands.Cog, description="Very Simple Games"):
         voice = inter.guild.voice_CLIENT
         voice.stop()
         song = choice(songs)
-        URL = ef.youtube_download(song)
-        voice.play(nextcord.FFmpegPCMAudio(URL, **self.FFMPEG_OPTIONS))
+        info = self.player.info(song)
+        voice.play(
+            nextcord.FFmpegPCMAudio(self.player.download(info), **self.FFMPEG_OPTIONS)
+        )
         await inter.send("Guess this Song, you have 30 seconds to tell")
         try:
             message = await self.CLIENT.wait_for(
@@ -156,15 +161,15 @@ class Games(commands.Cog, description="Very Simple Games"):
                 return
             if message.content.lower() in ["lyrics", "official", "video"]:
                 await inter.send(
-                    f"That's cheating, anyway that was {self.CLIENT.da1[song]}"
+                    f"That's cheating, anyway that was {info.get('title')}"
                 )
                 return
-            if message.content.lower() in self.CLIENT.da1[song].lower():
-                await inter.send(f"Correct that was {self.CLIENT.da1[song]}")
+            if message.content.lower() in info.get("title").lower():
+                await inter.send(f"Correct that was {info.get('title')}")
             else:
-                await inter.send(f"Incorrect, that was {self.CLIENT.da1[song]}")
+                await inter.send(f"Incorrect, that was {info.get('title')}")
         except asyncio.TimeoutError:
-            await inter.send(f"Time up, that was {self.CLIENT.da1[song]}")
+            await inter.send(f"Time up, that was {info.get('title')}")
 
 
 def setup(CLIENT, **i):
