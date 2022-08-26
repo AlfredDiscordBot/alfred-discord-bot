@@ -28,6 +28,7 @@ more-itertools==8.12.0
 multidict==5.1.0
 nextcord
 orjson==3.6.3
+lxml==4.7.1
 packaging==21.3
 pluggy==0.13.1
 protobuf==3.17.3
