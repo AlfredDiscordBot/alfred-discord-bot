@@ -143,7 +143,7 @@ class AutoHelpGen:
             else getattr(main, "user", getattr(main, "author", None))
         )
         self.GUILD = getattr(main, "guild", None)
-        self.COLOR = self.CLIENT.color(main.guild)
+        self.COLOR = self.CLIENT.color(self.GUILD)
         self.IGNORE = ["DataCleanup", "Developer", "Sealfred", "Roles"]
         self.COGS = self.generate_cogs()
         self.EMBEDS = [self.first_page(), *extra_embeds, *self.generate_embeds_cog()]
