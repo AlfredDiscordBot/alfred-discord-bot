@@ -134,12 +134,11 @@ class Games(commands.Cog, description="Very Simple Games"):
     @nextcord.slash_command(name="guess", description="guess the song game")
     async def guess(self, inter):
         await inter.response.defer()
-        if not inter.user.voice:
+        if not (voice := inter.user.voice):
             await inter.send("Join a vc and then try again")
             return
         songs = self.CLIENT.da[432801163126243328]
-        voice = inter.user.voice
-        if not inter.guild.voice_CLIENT:
+        if not inter.guild.voice_client:
             await voice.channel.connect()
         voice = inter.guild.voice_CLIENT
         voice.stop()

@@ -4,8 +4,9 @@ import re as regex
 import utils.External_functions as ef
 
 from utils.Storage_facility import Variables
+from utils.spotify_client import fetch_spotify_playlist
 from functools import lru_cache
-from utils.assets import Button, color
+from utils.assets import Button, color, pa
 from nextcord.abc import GuildChannel
 from datetime import datetime
 from nextcord import SelectOption
@@ -69,6 +70,46 @@ class Player:
         )
         if urls := regex.findall(r"watch\?v=(\S{11})", html):
             return "https://youtube.com/watch?v=" + urls[0]
+
+    async def fetch_from_spotify(self, inter: nextcord.Interaction, link: str):
+        songs = await fetch_spotify_playlist(link=link, num=100)
+        count = 0
+        description = [[]]
+        for i in songs:
+            description[-1].append(i)
+            count += 1
+            if count % 10 == 0:
+                description.append([])
+        embeds = []
+        for i in description:
+            embeds.append(
+                ef.cembed(
+                    title="Queue",
+                    description=i,
+                    color=self.CLIENT.color(inter.guild),
+                    thumbnail=self.CLIENT.user.avatar,
+                    footer={
+                        "text": "It only fetches the first 100 songs due to rate limiting issues",
+                        "icon_url": self.CLIENT.user.avatar,
+                    },
+                    author=inter.user,
+                )
+            )
+        await pa(inter, embeds=embeds)
+        confirmation = await ef.wait_for_confirm(
+            inter,
+            self.CLIENT,
+            "Do you want to add this to the queue?",
+            color=self.CLIENT.color(inter.guild),
+            usr=inter.user,
+        )
+        urls = []
+        if confirmation:
+            await inter.send("This will take some time", ephemeral=True)
+            for i in songs:
+                await sleep(1)
+                urls.append(await self.search_song(i))
+        return urls
 
     @lru_cache(maxsize=512)
     def get_song(self, url: str):
@@ -168,6 +209,8 @@ class ControlSelect(nextcord.ui.Select):
 
 
 class Music(commands.Cog):
+    options = ef.defa(choices=["add to queue", "add to playlist", "show", "clear"])
+
     def __init__(self, CLIENT: commands.Bot, DEV_CHANNEL, FFMPEG_OPTIONS, ydl_op):
         self.CLIENT = CLIENT
         self.YDL_OP = ydl_op
@@ -300,6 +343,105 @@ class Music(commands.Cog):
     async def music(self, inter):
         print(inter.user)
 
+    @music.subcommand(
+        name="playlist",
+        description="Shows, adds to queue or adds current queue to playlist",
+    )
+    async def playlist(self, inter: nextcord.Interaction, option=options):
+        choices = ["add to queue", "add to playlist", "show", "clear"]
+        if inter.user.id not in self.CLIENT.da and option != choices[1]:
+            await inter.response.send_message(
+                embed=ef.cembed(
+                    title="Oops",
+                    description="You do not have a playlist in Alfred, if you think this is wrong, please use `/feedback`",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.guild,
+                    thumbnail=self.CLIENT.user.avatar,
+                ),
+                ephemeral=True,
+            )
+            return
+        self.datasetup(inter.guild)
+        await inter.response.defer()
+        if option == choices[0]:
+            confirm = await ef.wait_for_confirm(
+                inter,
+                self.CLIENT,
+                "Are you sure you want to add your songs to queue?",
+                color=self.CLIENT.color(inter.guild),
+                usr=inter.user,
+            )
+            if confirm:
+                self.CLIENT.queue_song[inter.guild.id].extend(
+                    [
+                        _
+                        for _ in self.CLIENT.da.get(inter.user.id, [])
+                        if _ not in self.CLIENT.queue_song[inter.guild.id]
+                    ]
+                )
+                await inter.send("Done")
+
+        elif option == choices[1]:
+            confirm = await ef.wait_for_confirm(
+                inter,
+                self.CLIENT,
+                "Are you sure you want to add the queue to your playlist?",
+                color=self.CLIENT.color(inter.guild),
+                usr=inter.user,
+            )
+            if confirm:
+                if inter.user.id not in self.CLIENT.da:
+                    self.CLIENT.da[inter.user.id] = []
+                self.CLIENT.da[inter.user.id].extend(
+                    [
+                        _
+                        for _ in self.CLIENT.queue_song[inter.guild.id]
+                        if _ not in self.CLIENT.da[inter.user.id]
+                    ]
+                )
+                await inter.send("Done")
+
+        elif option == choices[2]:
+            descriptions = [
+                list(
+                    map(
+                        lambda u: self.player.get_song(u)["name"],
+                        self.CLIENT.da[inter.user.id][j : j + 10],
+                    )
+                )
+                for j in range(0, len(self.CLIENT.da[inter.user.id]), 10)
+            ]
+            embeds = [
+                ef.cembed(
+                    title="`{}'s` Playlist".format(inter.user),
+                    description=description,
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                )
+                for description in descriptions
+            ]
+            await pa(inter, embeds=embeds)
+        elif option == choices[3]:
+            confirm = await ef.wait_for_confirm(
+                inter,
+                self.CLIENT,
+                "Are you sure?",
+                color=self.CLIENT.color(inter.guild),
+                usr=inter.user,
+            )
+            if confirm:
+                self.CLIENT.da[inter.user.id].clear()
+                await inter.send(
+                    embed=ef.cembed(
+                        title="It's Done",
+                        description="I've cleared your Alfred playlist",
+                        color=self.CLIENT.color(inter.guild),
+                        author=inter.user,
+                        thumbnail=self.CLIENT.user.avatar,
+                    )
+                )
+
     @music.subcommand(name="current", description="Show current song")
     async def curr(self, inter: nextcord.Interaction):
         await inter.response.defer()
@@ -309,6 +451,52 @@ class Music(commands.Cog):
     @music.subcommand(name="queue", description="Queue")
     async def queue(self, inter):
         print(inter.user)
+
+    @queue.subcommand(name="clear", description="Empty the queue")
+    async def clear_queue(self, inter: nextcord.Interaction):
+        if not ef.check_voice(inter):
+            await inter.response.send_message(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You cannot clear the queue, you're not in the vc",
+                    color=self.CLIENT.color(inter.guild),
+                    thumbnail=self.CLIENT.user.avatar,
+                    author=inter.user,
+                )
+            )
+            return
+        await inter.response.defer()
+        confirm = await ef.wait_for_confirm(
+            inter,
+            self.CLIENT,
+            "Do you want to clear the queue of {} server".format(inter.guild.name),
+            color=nextcord.Color.red().value,
+            usr=inter.user,
+        )
+        if confirm:
+            self.CLIENT.queue_song[inter.guild.id].clear()
+            await inter.send("Done")
+        else:
+            await inter.send("Aborted")
+
+    @queue.subcommand(name="spotify", description="Put Playlist URL from spotify")
+    async def spotify(self, inter: nextcord.Interaction, url: str):
+        if not ef.check_voice(inter):
+            await inter.response.send_message(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You cannot modify queue as you're not in the vc",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                ),
+                ephemeral=True,
+            )
+            return
+        self.datasetup(inter.guild)
+        self.CLIENT.queue_song[inter.guild.id].extend(
+            await self.player.fetch_from_spotify(inter, url)
+        )
 
     @queue.subcommand(
         name="remove", description="Remove a song from the queue, only index"
