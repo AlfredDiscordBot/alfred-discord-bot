@@ -71,14 +71,14 @@ errors: list = ["```arm"]
 queue_song: dict = {}
 DEV_CHANNEL: int = int(os.getenv("dev"))
 re: list = [
-    0,
-    "OK",
-    {},
-    {},
-    -1,
+    0,  # re[0] is requests
+    "OK",  # re[1] is a password kind of thing
+    {},  # re[2] is song control
+    {},  # re[3] is song index
+    -1,  # re[4] is free
     {},  # re[5] custom color
     "",  # re[6] is free
-    {},
+    {},  # re[7] is free
     5360,  # re[8] -> color
     "",  # re[9] is free
     {},
@@ -363,7 +363,6 @@ async def wait_for_ready():
 
 @CLIENT.slash_command(name="svg2png", description="Convert SVG image to png format")
 async def svg2png_slash(inter, url):
-    req()
     await inter.response.defer()
     img = svg2png(url)
     await inter.send(file=nextcord.File(BytesIO(img), "svg.png"))
@@ -406,7 +405,6 @@ async def color_slash(inter, rgb_color=str(nextcord.Color(re[8]).to_rgb())):
 async def load(ctx):
     user = getattr(ctx, "author", getattr(ctx, "user", None))
     print("Load", user)
-    req()
     try:
         cpu_per = str(int(psutil.cpu_percent()))
         cpu_freq = str(int(psutil.cpu_freq().current))
@@ -444,7 +442,6 @@ async def load(ctx):
 
 @CLIENT.slash_command(name="pr", description="Prints what you ask it to print")
 async def pr_slash(inter, text: str):
-    req()
     await inter.send(text)
 
 
