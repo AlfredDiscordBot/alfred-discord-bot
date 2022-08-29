@@ -12,7 +12,6 @@ import utils.assets as assets
 
 print("Booting up with", nextcord.__version__)
 
-from keep_alive import keep_alive
 from io import BytesIO
 from utils import send_devop
 from requests import post
