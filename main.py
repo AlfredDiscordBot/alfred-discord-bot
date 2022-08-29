@@ -1,3 +1,4 @@
+import setup_alfred
 import os, sys
 
 import subprocess
@@ -55,7 +56,7 @@ def fix():
 
 
 fix()
-keep_alive()
+# keep_alive()
 location_of_file = os.getcwd()
 ydl_copy = ydl_op.copy()
 start_time = time.time()
