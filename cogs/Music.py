@@ -318,8 +318,8 @@ class Music(commands.Cog):
         again.callback = self.again
         current.callback = self.curr
         pages = MusicPages(self, guild=inter.guild)
-        up = pages.previous_page
-        down = pages.next_page
+        up.callback = pages.previous_page
+        down.callback = pages.next_page
         view = nextcord.ui.View(timeout=None)
         for i in (pause, resume, before, after, up, show, stop, again, current, down):
             view.add_item(i)
@@ -1049,13 +1049,13 @@ class Music(commands.Cog):
 
 
 class MusicPages:
-    def __init__(self, cog: Music, guild: nextcord.guild.guild):
+    def __init__(self, cog: Music, guild: nextcord.guild.Guild):
         self.COG = cog
         self.GUILD = guild
         self.current_page = 0
 
     def page_empty_check(self):
-        return not bool(len(self.CLIENT.queue_song.get(self.GUILD, [])))
+        return not bool(len(self.COG.CLIENT.queue_song.get(self.GUILD, [])))
 
     def generate_pages(self):
         descriptions = [[]]
