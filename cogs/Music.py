@@ -4,10 +4,13 @@ import re as regex
 import utils.External_functions as ef
 
 from utils.Storage_facility import Variables
-from utils.assets import Button, color
-from nextcord.abc import GuildChannel
+from utils.spotify_client import fetch_spotify_playlist
+from functools import lru_cache
+from utils.assets import Button, color, pa
+from nextcord.abc import GuildChannel, Connectable
 from datetime import datetime
-from nextcord.ext import commands
+from nextcord import SelectOption
+from nextcord.ext import commands, lava
 from asyncio import run_coroutine_threadsafe, sleep
 from typing import Union
 
@@ -16,6 +19,58 @@ from typing import Union
 
 def requirements():
     return ["DEV_CHANNEL", "FFMPEG_OPTIONS", "ydl_op"]
+
+
+class Lavalink(nextcord.VoiceClient):
+    def __init__(self, client: nextcord.Client, channel: Connectable):
+        self.client = client
+        self.channel = channel
+        if hasattr(self.client, "lavalink"):
+            self.lavalink = self.client.lavalink
+        else:
+            self.client.lavalink = lava.Client(client.user.id)
+            self.client.lavalink.add_node(
+                "host", "port", "youshallnotpass", "region", "default-node"
+            )
+            self.lavalink = self.client.lavalink
+
+    async def on_voice_server_update(self, data):
+        lavalink_data = {"t": "VOICE_SERVER_UPDATE", "d": data}
+        await self.lavalink.voice_update_handler(lavalink_data)
+
+    async def on_voice_state_update(self, data):
+        lavalink_data = {"t": "VOICE_STATE_UPDATE", "d": data}
+        await self.lavalink.voice_update_handler(lavalink_data)
+
+    async def connect(self, *, timeout: float, reconnect: bool) -> None:
+        """
+        Connect the bot to the voice channel and create a player_manager
+        if it doesn't exist yet.
+        """
+        # ensure there is a player_manager when creating a new voice_client
+        self.lavalink.player_manager.create(guild_id=self.channel.guild.id)
+        await self.channel.guild.change_voice_state(channel=self.channel)
+
+    async def disconnect(self, *, force: bool) -> None:
+        """
+        Handles the disconnect.
+        Cleans up running player and leaves the voice client.
+        """
+        player = self.lavalink.player_manager.get(self.channel.guild.id)
+
+        # no need to disconnect if we are not connected
+        if not force and not player.is_connected:
+            return
+
+        # None means disconnect
+        await self.channel.guild.change_voice_state(channel=None)
+
+        # update the channel_id of the player to None
+        # this must be done because the on_voice_state_update that
+        # would set channel_id to None doesn't get dispatched after the
+        # disconnect
+        player.channel_id = None
+        self.cleanup()
 
 
 class MusicCache:
@@ -68,6 +123,47 @@ class Player:
         if urls := regex.findall(r"watch\?v=(\S{11})", html):
             return "https://youtube.com/watch?v=" + urls[0]
 
+    async def fetch_from_spotify(self, inter: nextcord.Interaction, link: str):
+        songs = await fetch_spotify_playlist(link=link, num=100)
+        count = 0
+        description = [[]]
+        for i in songs:
+            description[-1].append(i)
+            count += 1
+            if count % 10 == 0:
+                description.append([])
+        embeds = []
+        for i in description:
+            embeds.append(
+                ef.cembed(
+                    title="Queue",
+                    description=i,
+                    color=self.CLIENT.color(inter.guild),
+                    thumbnail=self.CLIENT.user.avatar,
+                    footer={
+                        "text": "It only fetches the first 100 songs due to rate limiting issues",
+                        "icon_url": self.CLIENT.user.avatar,
+                    },
+                    author=inter.user,
+                )
+            )
+        await pa(inter, embeds=embeds)
+        confirmation = await ef.wait_for_confirm(
+            inter,
+            self.CLIENT,
+            "Do you want to add this to the queue?",
+            color=self.CLIENT.color(inter.guild),
+            usr=inter.user,
+        )
+        urls = []
+        if confirmation:
+            await inter.send("This will take some time", ephemeral=True)
+            for i in songs:
+                await sleep(1)
+                urls.append(await self.search_song(i))
+        return urls
+
+    @lru_cache(maxsize=512)
     def get_song(self, url: str):
         value = self.cache.data["songs"].get(url)
         if value == None:
@@ -120,7 +216,53 @@ class Player:
         return "https://www.youtube.com/watch?v={}".format(data.get("id"))
 
 
+class ControlSelect(nextcord.ui.Select):
+    def __init__(self, CLIENT: commands.Bot, cog: commands.Cog):
+        self.CLIENT = CLIENT
+        self.COG = cog
+        super().__init__(
+            placeholder="Select Control",
+            min_values=1,
+            max_values=1,
+            options=[
+                SelectOption(label="None", emoji="⬛", value="0"),
+                SelectOption(label="loop", emoji="🔂", value="1"),
+                SelectOption(label="autoplay", emoji="▶️", value="2"),
+            ],
+        )
+
+    async def callback(self, interaction: nextcord.Interaction):
+        if not ef.check_voice(interaction):
+            await interaction.response.send_message(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You need to be in the vc to change controls",
+                    color=self.CLIENT.color(interaction.guild),
+                    author=interaction.user,
+                )
+            )
+            return
+        self.CLIENT.re[2][interaction.guild.id] = int(self.values[0])
+        if self.values[0] == "0":
+            text = "Loop and Autoplay Disabled"
+        elif self.values[0] == "1":
+            text = "🔂Loop Enabled"
+        else:
+            text = "▶️Autoplay Enabled"
+        await self.COG.send(
+            inter=interaction,
+            embed=ef.cembed(
+                title="Done",
+                description=text,
+                color=self.CLIENT.color(interaction.guild),
+                author=interaction.user,
+            ),
+        )
+
+
 class Music(commands.Cog):
+    options = ef.defa(choices=["add to queue", "add to playlist", "show", "clear"])
+
     def __init__(self, CLIENT: commands.Bot, DEV_CHANNEL, FFMPEG_OPTIONS, ydl_op):
         self.CLIENT = CLIENT
         self.YDL_OP = ydl_op
@@ -134,9 +276,19 @@ class Music(commands.Cog):
         if guild.id not in self.CLIENT.queue_song:
             self.CLIENT.queue_song[guild.id] = []
 
+    def isButton(self, inter: nextcord.Interaction):
+        if inter.type == nextcord.InteractionType.component:
+            return True
+        return False
+
+    async def send(self, inter: nextcord.Interaction, **kwargs):
+        if self.isButton(inter):
+            await inter.edit(**kwargs)
+        else:
+            await inter.send(**kwargs)
+
     def add(self, guild: nextcord.guild.Guild, url: str):
-        if guild.id not in self.CLIENT.queue_song:
-            self.CLIENT.queue_song[guild.id] = []
+        self.datasetup(guild=guild)
         if (
             self.CLIENT.queue_song[guild.id] != []
             and self.CLIENT.queue_song[guild.id][-1] == url
@@ -145,21 +297,28 @@ class Music(commands.Cog):
         self.CLIENT.queue_song[guild.id].append(url)
 
     def MusicButtonView(self, inter: nextcord.Interaction):
-        pause, resume, after, before, show, stop, loop, autoplay = (
-            Button(style=color, label="Pause", emoji="⏸️", row=0),
-            Button(style=color, label="Resume", emoji="▶️", row=0),
-            Button(style=color, label="Next", emoji="⏭️", row=0),
-            Button(style=color, label="Previous", emoji="⏮️", row=0),
-            Button(style=color, label="Queue", emoji="*️⃣", row=1),
-            Button(style=color, label="Stop", emoji="⏹️", row=1),
-            Button(style=color, label="Loop", emoji="🔂", row=1),
-            Button(style=color, label="Autoplay", emoji="➡️", row=1),
+        pause, resume, before, after, show, stop, again, current = (
+            Button(style=color, emoji="⏸️", row=0),
+            Button(style=color, emoji="▶️", row=0),
+            Button(style=color, emoji="⏮️", row=0),
+            Button(style=color, emoji="⏭️", row=0),
+            Button(style=color, emoji="*️⃣", row=1),
+            Button(style=color, emoji="⏹️", row=1),
+            Button(style=color, emoji="🔁", row=1),
+            Button(style=color, emoji="🎵", row=1),
         )
-        pause.callback = self.pause(inter)
-        resume.callback = self.resume(inter)
+        pause.callback = self.pause
+        resume.callback = self.resume
+        before.callback = self.previous
+        after.callback = self.next
+        show.callback = self.show_queue
+        stop.callback = self.disconnect
+        again.callback = self.again
+        current.callback = self.curr
         view = nextcord.ui.View(timeout=None)
-        for i in (pause, resume, after, before, show, stop, loop, autoplay):
+        for i in (pause, resume, before, after, show, stop, again, current):
             view.add_item(i)
+        view.add_item(ControlSelect(self.CLIENT, self))
         return view
 
     def get_current(self, guild: nextcord.guild.Guild):
@@ -202,7 +361,7 @@ class Music(commands.Cog):
         await sleep(1)
         if (not ctx.guild.voice_client) or (ctx.guild.voice_client.is_playing()):
             return
-        index = self.CLIENT.re[3].get(ctx.guild.id)
+        index = self.CLIENT.re[3].get(ctx.guild.id, 0)
         queue = self.CLIENT.queue_song.get(ctx.guild.id, [])
         if not queue:
             if index is not None:
@@ -220,9 +379,14 @@ class Music(commands.Cog):
                 )
             )
             return
+        if self.CLIENT.re[2].get(ctx.guild.id, 0) == 0:
+            return
+        if self.CLIENT.re[2].get(ctx.guild.id, 0) == 2:
+            index += 1
         if index >= len(queue):
             index = len(queue) - 1
         info = self.player.info(queue[index])
+        self.CLIENT.re[3][ctx.guild.id] = index
         ctx.guild.voice_client.play(
             self.player.download(info), after=lambda e: self.after(ctx=ctx)
         )
@@ -231,18 +395,236 @@ class Music(commands.Cog):
     async def music(self, inter):
         print(inter.user)
 
+    @music.subcommand(
+        name="playlist",
+        description="Shows, adds to queue or adds current queue to playlist",
+    )
+    async def playlist(self, inter: nextcord.Interaction, option=options):
+        choices = ["add to queue", "add to playlist", "show", "clear"]
+        if inter.user.id not in self.CLIENT.da and option != choices[1]:
+            await inter.response.send_message(
+                embed=ef.cembed(
+                    title="Oops",
+                    description="You do not have a playlist in Alfred, if you think this is wrong, please use `/feedback`",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.guild,
+                    thumbnail=self.CLIENT.user.avatar,
+                ),
+                ephemeral=True,
+            )
+            return
+        self.datasetup(inter.guild)
+        await inter.response.defer()
+        if option == choices[0]:
+            confirm = await ef.wait_for_confirm(
+                inter,
+                self.CLIENT,
+                "Are you sure you want to add your songs to queue?",
+                color=self.CLIENT.color(inter.guild),
+                usr=inter.user,
+            )
+            if confirm:
+                self.CLIENT.queue_song[inter.guild.id].extend(
+                    [
+                        _
+                        for _ in self.CLIENT.da.get(inter.user.id, [])
+                        if _ not in self.CLIENT.queue_song[inter.guild.id]
+                    ]
+                )
+                await inter.send("Done")
+
+        elif option == choices[1]:
+            confirm = await ef.wait_for_confirm(
+                inter,
+                self.CLIENT,
+                "Are you sure you want to add the queue to your playlist?",
+                color=self.CLIENT.color(inter.guild),
+                usr=inter.user,
+            )
+            if confirm:
+                if inter.user.id not in self.CLIENT.da:
+                    self.CLIENT.da[inter.user.id] = []
+                self.CLIENT.da[inter.user.id].extend(
+                    [
+                        _
+                        for _ in self.CLIENT.queue_song[inter.guild.id]
+                        if _ not in self.CLIENT.da[inter.user.id]
+                    ]
+                )
+                await inter.send("Done")
+
+        elif option == choices[2]:
+            descriptions = [
+                list(
+                    map(
+                        lambda u: self.player.get_song(u)["name"],
+                        self.CLIENT.da[inter.user.id][j : j + 10],
+                    )
+                )
+                for j in range(0, len(self.CLIENT.da[inter.user.id]), 10)
+            ]
+            embeds = [
+                ef.cembed(
+                    title="`{}'s` Playlist".format(inter.user),
+                    description=description,
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                )
+                for description in descriptions
+            ]
+            await pa(inter, embeds=embeds)
+        elif option == choices[3]:
+            confirm = await ef.wait_for_confirm(
+                inter,
+                self.CLIENT,
+                "Are you sure?",
+                color=self.CLIENT.color(inter.guild),
+                usr=inter.user,
+            )
+            if confirm:
+                self.CLIENT.da[inter.user.id].clear()
+                await inter.send(
+                    embed=ef.cembed(
+                        title="It's Done",
+                        description="I've cleared your Alfred playlist",
+                        color=self.CLIENT.color(inter.guild),
+                        author=inter.user,
+                        thumbnail=self.CLIENT.user.avatar,
+                    )
+                )
+
     @music.subcommand(name="current", description="Show current song")
     async def curr(self, inter: nextcord.Interaction):
         await inter.response.defer()
         embed = self.get_current(inter.guild)
-        await inter.send(embed=embed)
+        await self.send(inter=inter, embed=embed)
 
     @music.subcommand(name="queue", description="Queue")
     async def queue(self, inter):
         print(inter.user)
 
-    @music.subcommand(name="add", description="Add a song to the queue")
+    @queue.subcommand(name="clear", description="Empty the queue")
+    async def clear_queue(self, inter: nextcord.Interaction):
+        if not ef.check_voice(inter):
+            await inter.response.send_message(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You cannot clear the queue, you're not in the vc",
+                    color=self.CLIENT.color(inter.guild),
+                    thumbnail=self.CLIENT.user.avatar,
+                    author=inter.user,
+                )
+            )
+            return
+        await inter.response.defer()
+        confirm = await ef.wait_for_confirm(
+            inter,
+            self.CLIENT,
+            "Do you want to clear the queue of {} server".format(inter.guild.name),
+            color=nextcord.Color.red().value,
+            usr=inter.user,
+        )
+        if confirm:
+            self.CLIENT.queue_song[inter.guild.id].clear()
+            await inter.send("Done")
+        else:
+            await inter.send("Aborted")
+
+    @queue.subcommand(name="spotify", description="Put Playlist URL from spotify")
+    async def spotify(self, inter: nextcord.Interaction, url: str):
+        if not ef.check_voice(inter):
+            await inter.response.send_message(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You cannot modify queue as you're not in the vc",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                ),
+                ephemeral=True,
+            )
+            return
+        self.datasetup(inter.guild)
+        self.CLIENT.queue_song[inter.guild.id].extend(
+            await self.player.fetch_from_spotify(inter, url)
+        )
+
+    @queue.subcommand(
+        name="remove", description="Remove a song from the queue, only index"
+    )
+    async def remove(self, inter: nextcord.Interaction, index: int):
+        self.datasetup(guild=inter.guild)
+        if not ef.check_voice(inter):
+            await inter.response.send_message(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You need to be in the VC to modify queue",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                ),
+                ephemeral=True,
+            )
+            return
+        if len(self.CLIENT.queue_song.get(inter.guild.id)) <= index:
+            await inter.response.send_message(
+                embed=ef.cembed(
+                    title="Hmmmm",
+                    description="That index value is a little higher than I think. The highest index no. should be {}".format(
+                        len(self.CLIENT.queue_song) - 1
+                    ),
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                ),
+                ephemeral=True,
+            )
+            return
+        if index < 0:
+            await inter.response.send_message(
+                embed=ef.cembed(
+                    title="That's below 0",
+                    description="It has to be a whole number, you know\n 0...1...2..3....",
+                    image="https://i.pinimg.com/originals/65/c1/70/65c17057650a7d7fd70cb534671399f8.jpg",
+                    thumbnail=self.CLIENT.user.avatar,
+                    color=self.CLIENT.color(inter.guild),
+                    author=self.CLIENT.user,
+                    fields={
+                        "Maybe": "Use `/music queue show` to see the song you're looking for"
+                    },
+                ),
+                ephemeral=True,
+            )
+            return
+        await inter.response.defer()
+        song = self.CLIENT.queue_song[inter.guild.id].pop(index)
+        if index < self.CLIENT.re[3].get(inter.guild.id, 0):
+            self.CLIENT.re[3][inter.guild.id] -= 1
+        await inter.send(
+            embed=ef.cembed(
+                title="Removed",
+                description="Removed `{}` from the queue".format(
+                    self.player.get_song(song)["name"]
+                ),
+                color=self.CLIENT.color(inter.guild),
+                author=inter.user,
+            )
+        )
+
+    @queue.subcommand(name="add", description="Add a song to the queue")
     async def addtoqueue(self, inter: nextcord.Interaction, song: str):
+        if not ef.check_voice(inter):
+            await inter.send(
+                embed=ef.cembed(
+                    title="Permission Denied",
+                    description="You need to join the voice channel to modify queue",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                )
+            )
+            return
         url = await self.player.search_song(song)
         self.datasetup(inter.guild)
         mini_info = self.player.get_song(url)
@@ -253,6 +635,7 @@ class Music(commands.Cog):
                 description=mini_info["name"],
                 color=self.CLIENT.color(inter.guild),
                 author=inter.user,
+                fields={"Duration": self.player.duration(mini_info["duration"])},
                 thumbnail=self.CLIENT.user.avatar,
             ),
             view=self.MusicButtonView(inter),
@@ -261,13 +644,14 @@ class Music(commands.Cog):
     @queue.subcommand(name="show", description="Shows the song in the server queue")
     async def show_queue(self, inter: nextcord.Interaction):
         if not self.CLIENT.queue_song.get(inter.guild.id):
-            await inter.send(
+            await self.send(
+                inter=inter,
                 embed=ef.cembed(
                     title="Looks like...",
                     description="Your queue is empty",
                     color=self.CLIENT.color(inter.guild),
                     author=inter.guild,
-                )
+                ),
             )
             return
         await inter.response.defer()
@@ -276,7 +660,8 @@ class Music(commands.Cog):
         start = 0 if l < 20 else index - 10
         end = index + 10
         songs = self.CLIENT.queue_song.get(inter.guild.id, [])[start:end]
-        await inter.send(
+        await self.send(
+            inter=inter,
             embed=ef.cembed(
                 title="Queue",
                 description=[
@@ -309,14 +694,15 @@ class Music(commands.Cog):
         voice = inter.guild.voice_client
         voice.stop()
         await voice.disconnect(force=True)
-        await inter.send(
+        await self.send(
+            inter=inter,
             embed=ef.cembed(
                 title="Bye",
                 description="Hope I get to listen to you next time",
                 color=self.CLIENT.color(inter.guild),
                 author=inter.user,
                 thumbnail=self.CLIENT.user.avatar,
-            )
+            ),
         )
 
     @music.subcommand(name="connect", description="Connect to a voice channel")
@@ -357,7 +743,10 @@ class Music(commands.Cog):
 
     @music.subcommand(name="stop", description="Stop the music")
     async def disconnect(self, inter: nextcord.Interaction):
-        if not ef.check_voice(inter):
+        voice = inter.guild.voice_client
+        if voice and len([i for i in voice.channel.members if not i.bot]) > 1:
+            pass
+        elif not ef.check_voice(inter):
             await inter.response.send_message(
                 embed=ef.cembed(
                     title="Permission Denied",
@@ -369,23 +758,31 @@ class Music(commands.Cog):
                 ephemeral=True,
             )
             return
-        voice = inter.guild.voice_client
         voice.stop()
         await voice.disconnect()
+        await self.send(
+            inter=inter,
+            embed=ef.cembed(
+                title="Bye",
+                description="I hope we jam next time",
+                color=self.CLIENT.color(inter.guild),
+            ),
+        )
 
     @music.subcommand(name="pause", description="Pause the music")
     async def pause(self, inter: nextcord.Interaction):
         if ef.check_voice(inter):
             voice = inter.guild.voice_client
             voice.pause()
-            await inter.send(
+            await self.send(
+                inter=inter,
                 embed=ef.cembed(
                     title="Paused",
                     description="Use the command `/music resume` to resume the song",
                     color=self.CLIENT.color(inter.guild),
                     thumbnail=self.CLIENT.user.avatar,
                     author=inter.user,
-                )
+                ),
             )
         else:
             await inter.response.send_message(
@@ -402,23 +799,34 @@ class Music(commands.Cog):
     async def resume(self, inter: nextcord.Interaction):
         if ef.check_voice(inter):
             inter.guild.voice_client.resume()
-            await inter.send(
+            await self.send(
+                inter=inter,
                 embed=ef.cembed(
-                    description="Resuming the song", color=self.CLIENT.color
-                )
+                    description="Resuming the song",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                ),
             )
         else:
-            await inter.send(
+            await inter.response.send_message(
                 embed=ef.cembed(
                     title="Permission Denied",
                     description="You need to be in the VC to resume the song",
                     color=self.CLIENT.color(inter.guild),
-                )
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                ),
+                ephemeral=True,
             )
 
     @music.subcommand(name="play", description="play a song")
     async def play(self, inter):
         print(inter.user)
+
+    @play.subcommand(name="again", description="repeat a song")
+    async def again(self, inter):
+        self.datasetup(inter.guild)
+        await self.play_queue(inter, self.CLIENT.re[3].get(inter.guild.id, 0))
 
     @play.subcommand(name="song", description="play a song from search")
     async def song(self, inter: nextcord.Interaction, song: str):
@@ -493,6 +901,7 @@ class Music(commands.Cog):
             )
             return
         await inter.response.defer()
+        self.datasetup(inter.guild)
         if (
             (queue := self.CLIENT.queue_song.get(inter.guild.id, []))
             and len(queue) > index
@@ -501,6 +910,7 @@ class Music(commands.Cog):
             if (voice := inter.guild.voice_client).is_playing():
                 voice.stop()
             info = self.player.info(queue[index])
+            self.CLIENT.re[3][inter.guild.id] = index
             embed = ef.cembed(
                 title="Playing {} [ {} ]".format(info.get("title"), index),
                 url=queue[index],
@@ -522,7 +932,7 @@ class Music(commands.Cog):
             )
             self.player.cache.update(queue[index], self.player.cache_data(info))
             voice.play(self.player.download(info), after=lambda e: self.after(inter))
-            await inter.send(embed=embed)
+            await self.send(inter=inter, embed=embed, view=self.MusicButtonView(inter))
         elif len(queue) <= index:
             await inter.send(
                 embed=ef.cembed(
@@ -555,7 +965,7 @@ class Music(commands.Cog):
     async def next(self, inter: nextcord.Interaction):
         await inter.response.defer()
         if (not inter.guild.voice_client) and (vc := inter.user.voice):
-            await vc.connect()
+            await vc.channel.connect()
         elif not ef.check_voice(inter):
             await inter.send(
                 embed=ef.cembed(
@@ -590,13 +1000,13 @@ class Music(commands.Cog):
         if voice.is_playing():
             voice.stop()
         voice.play(self.player.download(info), after=lambda e: self.after(inter))
-        await inter.send(embed=embed)
+        await self.send(inter=inter, embed=embed, view=self.MusicButtonView(inter))
 
     @play.subcommand(name="previous", description="Play the previous song")
     async def previous(self, inter: nextcord.Interaction):
         await inter.response.defer()
         if (not inter.guild.voice_client) and (vc := inter.user.voice):
-            await vc.connect()
+            await vc.channel.connect()
         elif not ef.check_voice(inter):
             await inter.send(
                 embed=ef.cembed(
@@ -605,7 +1015,8 @@ class Music(commands.Cog):
                     color=self.CLIENT.color(inter.guild),
                     author=inter.user,
                     thumbnail=self.CLIENT.user.avatar,
-                )
+                ),
+                view=self.MusicButtonView(inter),
             )
             return
         self.datasetup(inter.guild)
@@ -629,7 +1040,7 @@ class Music(commands.Cog):
         if voice.is_playing():
             voice.stop()
         voice.play(self.player.download(info), after=lambda e: self.after(inter))
-        await inter.send(embed=embed)
+        await self.send(inter=inter, embed=embed, view=self.MusicButtonView(inter))
 
 
 def setup(client, **i):

@@ -785,6 +785,7 @@ def audit_check(log):
 
 
 def check_command(ctx):
+    ctx.bot.re[0] += 1
     a = ctx.bot.config["commands"]
     if a.get(str(ctx.command.name)):
         if ctx.guild.id in a[ctx.command.name]:
@@ -1353,6 +1354,7 @@ def slash_and_sub(Client: commands.Bot, cog=None):
 
 
 def check_slash(inter: nextcord.Interaction):
+    inter.client.re[0] += 1
     command: dict = inter.data
     command_name = command.get("name")
     subcommand_name = ""

@@ -143,13 +143,13 @@ async def pa(
     t: str = "b",
 ):
     if len(embeds) > 1:
-        await ctx.send(
+        return await ctx.send(
             embed=embeds[start_from],
             view=Pages(ctx, embeds, restricted, start_from, t),
             delete_after=delete_after,
         )
     else:
-        await ctx.send(embed=embeds[0], delete_after=delete_after)
+        return await ctx.send(embed=embeds[0], delete_after=delete_after)
 
 
 class Emotes:
@@ -224,7 +224,7 @@ button:
 
 # https://top.gg/servers/822445271019421746/vote
 VOTE_MESSAGE = """
-Thank you for voting and supporting us for the past year, We've listened to your suggestions, your needs and this helped us tune Alfred into a perfect bot ||Although I've seen some bugs around, fixing that <:Builder:991565723476447262>||. 
+Thank you for voting and supporting us for the past year, We've listened to your suggestions, your needs and this helped us tune Alfred into a perfect bot ||Although I've seen some bugs around, fixing that ⚒️||. 
 We've uploaded Alfred's source code to [github](https://github.com/alvinbengeorge/alfred-discord-bot) for openness.
 You can find our bot in some of the Discord Bot Listing Sites
 """
