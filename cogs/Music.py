@@ -297,15 +297,17 @@ class Music(commands.Cog):
         self.CLIENT.queue_song[guild.id].append(url)
 
     def MusicButtonView(self, inter: nextcord.Interaction):
-        pause, resume, before, after, show, stop, again, current = (
+        pause, resume, before, after, up, show, stop, again, current, down = (
             Button(style=color, emoji="⏸️", row=0),
             Button(style=color, emoji="▶️", row=0),
             Button(style=color, emoji="⏮️", row=0),
             Button(style=color, emoji="⏭️", row=0),
+            Button(style=color, emoji="🔼", row=0),
             Button(style=color, emoji="*️⃣", row=1),
             Button(style=color, emoji="⏹️", row=1),
             Button(style=color, emoji="🔁", row=1),
             Button(style=color, emoji="🎵", row=1),
+            Button(style=color, emoji="🔽", row=1),
         )
         pause.callback = self.pause
         resume.callback = self.resume
@@ -315,8 +317,11 @@ class Music(commands.Cog):
         stop.callback = self.disconnect
         again.callback = self.again
         current.callback = self.curr
+        pages = MusicPages(self, guild=inter.guild)
+        up = pages.previous_page
+        down = pages.next_page
         view = nextcord.ui.View(timeout=None)
-        for i in (pause, resume, before, after, show, stop, again, current):
+        for i in (pause, resume, before, after, up, show, stop, again, current, down):
             view.add_item(i)
         view.add_item(ControlSelect(self.CLIENT, self))
         return view
@@ -1041,6 +1046,82 @@ class Music(commands.Cog):
             voice.stop()
         voice.play(self.player.download(info), after=lambda e: self.after(inter))
         await self.send(inter=inter, embed=embed, view=self.MusicButtonView(inter))
+
+
+class MusicPages:
+    def __init__(self, cog: Music, guild: nextcord.guild.guild):
+        self.COG = cog
+        self.GUILD = guild
+        self.current_page = 0
+
+    def page_empty_check(self):
+        return not bool(len(self.CLIENT.queue_song.get(self.GUILD, [])))
+
+    def generate_pages(self):
+        descriptions = [[]]
+        count = 0
+        for i in enumerate(self.COG.CLIENT.queue_song.get(self.GUILD, [])):
+            descriptions[-1].append(
+                "`{}.` {}".format(i[0], self.COG.player.get_song(i[1])["name"])
+            )
+            count += 1
+            if count % 20 == 0:
+                descriptions += 1
+        return descriptions
+
+    async def next_page(self, inter: nextcord.Interaction):
+        if self.page_empty_check():
+            await inter.edit(
+                embed=ef.cembed(
+                    title="Empty Queue",
+                    description="Your queue is empty, please add some songs using `/music queue add`",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                )
+            )
+            return
+
+        descriptions = self.generate_pages()
+        self.current_page += 1
+        if (l := len(descriptions)) < self.current_page:
+            self.current_page = l - 1
+        await inter.edit(
+            embed=ef.cembed(
+                title="Queue",
+                description=descriptions[self.current_page],
+                color=self.COG.CLIENT.color(inter.guild),
+                author=inter.user,
+                thumbnail=self.COG.CLIENT.user.avatar,
+            )
+        )
+
+    async def previous_page(self, inter: nextcord.Interaction):
+        if self.page_empty_check():
+            await inter.edit(
+                embed=ef.cembed(
+                    title="Empty Queue",
+                    description="Your queue is empty, please add some songs using `/music queue add`",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                )
+            )
+            return
+
+        descriptions = self.generate_pages()
+        self.current_page -= 1
+        if self.current_page < 0:
+            self.current_page = 0
+        await inter.edit(
+            embed=ef.cembed(
+                title="Queue",
+                description=descriptions[self.current_page],
+                color=self.COG.CLIENT.color(inter.guild),
+                author=inter.user,
+                thumbnail=self.COG.CLIENT.user.avatar,
+            )
+        )
 
 
 def setup(client, **i):
