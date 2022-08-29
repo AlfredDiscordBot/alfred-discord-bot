@@ -216,7 +216,7 @@ class Contribution(commands.Cog):
                 )
             img.seek(0)
             file = nextcord.File(fp=img, filename=f"{username}_contributions.png")
-            await inter.response.send_message(
+            await inter.send(
                 embed=cembed(
                     title="Contributions",
                     image="attachment://{}_contributions.png".format(username),
