@@ -1,4 +1,6 @@
+import setup_alfred
 import os, sys
+
 import subprocess
 import aiohttp
 import nextcord
@@ -42,11 +44,21 @@ from utils.External_functions import (
 )
 
 
+def fix():
+    print(os.getcwd())
+    if not os.getcwd().endswith("alfred-discord-bot"):
+        load_dotenv()
+        os.chdir("./alfred-discord-bot")
+        print(os.getcwd())
+        return
+    load_dotenv()
+
+
+fix()
+# keep_alive()
 location_of_file = os.getcwd()
 ydl_copy = ydl_op.copy()
 start_time = time.time()
-load_dotenv()
-# keep_alive()
 observer: list = []
 mspace: dict = {}
 deathrate: dict = {}
