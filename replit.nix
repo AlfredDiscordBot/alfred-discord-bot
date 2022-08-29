@@ -1,5 +1,6 @@
 { pkgs }: {
-  deps = [
+  deps = [    
+    pkgs.ffmpeg.bin
     pkgs.zulu
     pkgs.busybox
     pkgs.python38Packages.black
@@ -9,6 +10,7 @@
     PYTHON_LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
       # Needed for pandas / numpy
       pkgs.stdenv.cc.cc.lib
+      pkgs.libopus
       pkgs.zlib
       # Needed for pygame
       pkgs.glib
