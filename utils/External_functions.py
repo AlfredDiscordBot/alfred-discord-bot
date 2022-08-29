@@ -1306,43 +1306,55 @@ class PollGraph:
         # _, ax = plt.subplots()
         # ax.pie(values, labels=labels)
         with plt.xkcd():
-            fig = plt.figure(figsize=(6,5))
+            fig = plt.figure(figsize=(6, 5))
             ax = fig.add_axes((0.1, 0.2, 0.8, 0.7))
 
             # plot fig
             wedges, *_ = ax.pie(
-                values,                        # data
-                wedgeprops = dict(width=0.65), # width of the donut
-                startangle = -40,              # starting angle
-                shadow = True,                 # shadow for the donut
-                autopct = '%.1f%%',            # annotations
+                values,  # data
+                wedgeprops=dict(width=0.65),  # width of the donut
+                startangle=-40,  # starting angle
+                shadow=True,  # shadow for the donut
+                autopct="%.1f%%",  # annotations
                 # colors = np.random.permutation(list(XKCD_COLORS.values()))
-                colors = [mcolors.hsv_to_rgb((156/255, 72/100, abs(0.7-v))) for v in (values/np.sum(values))]
+                colors=[
+                    mcolors.hsv_to_rgb((156 / 255, 72 / 100, abs(0.7 - v)))
+                    for v in (values / np.sum(values))
+                ],
             )
 
             bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
-            kw = dict(arrowprops = dict(arrowstyle="->"),
-                      bbox = bbox_props, zorder = 0, va = "center")
-            ax.xaxis.set_ticks_position('bottom')
+            kw = dict(
+                arrowprops=dict(arrowstyle="->"), bbox=bbox_props, zorder=0, va="center"
+            )
+            ax.xaxis.set_ticks_position("bottom")
 
             for i, p in enumerate(wedges):
-                ang = (p.theta2 - p.theta1)/2. + p.theta1
+                ang = (p.theta2 - p.theta1) / 2.0 + p.theta1
 
                 y = np.sin(np.deg2rad(ang))
                 x = np.cos(np.deg2rad(ang))
-                
-                horizontalalignment = "right" if int(np.sign(x) == -1) else "left" # {-1: "right", 1: "left"}[int(np.sign(x))]
+
+                horizontalalignment = (
+                    "right" if int(np.sign(x) == -1) else "left"
+                )  # {-1: "right", 1: "left"}[int(np.sign(x))]
                 connectionstyle = "angle,angleA=0,angleB={}".format(ang)
 
                 kw["arrowprops"].update({"connectionstyle": connectionstyle})
-                
-                ax.annotate(labels[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), horizontalalignment=horizontalalignment, **kw)
-                        
+
+                ax.annotate(
+                    labels[i],
+                    xy=(x, y),
+                    xytext=(1.35 * np.sign(x), 1.4 * y),
+                    horizontalalignment=horizontalalignment,
+                    **kw,
+                )
+
         bt = BytesIO()
         plt.savefig(bt, format="png")
         plt.close()
         bt.seek(0)
-        
+
         return bt
 
     def inverted_dict(self, dictionary: dict):
