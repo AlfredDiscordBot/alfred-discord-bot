@@ -30,7 +30,7 @@ class Lavalink(nextcord.VoiceClient):
         else:
             self.client.lavalink = lava.Client(client.user.id)
             self.client.lavalink.add_node(
-                "host", "port", "youshallnotpass", "region", "default-node"
+                "host", 2333, "youshallnotpass", "na", "lava-node"
             )
             self.lavalink = self.client.lavalink
 
@@ -269,6 +269,15 @@ class Music(commands.Cog):
         self.DEV_CHANNEL = DEV_CHANNEL
         self.FFMPEG_OPTIONS = FFMPEG_OPTIONS
         self.player = Player(self.CLIENT, FFMPEG_OPTIONS, ydl_op)
+        self.CLIENT.lava = lava.Client(self.CLIENT.user.id)
+        lava.add_event_hook(self.track_hook)
+
+    async def track_hook(self, event):
+        print(event)
+        if isinstance(event, lava.events.QueueEndEvent):
+            guild_id = int(event.player.guild_id)
+            guild = self.bot.get_guild(guild_id)
+            await guild.voice_client.disconnect(force=True)
 
     def datasetup(self, guild: nextcord.guild.Guild):
         if guild.id not in self.CLIENT.re[3]:
@@ -1051,6 +1060,7 @@ class Music(commands.Cog):
 class MusicPages:
     def __init__(self, cog: Music, guild: nextcord.guild.Guild):
         self.COG = cog
+        self.CLIENT = self.COG.CLIENT
         self.GUILD = guild
         self.current_page = 0
 
