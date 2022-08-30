@@ -270,9 +270,7 @@ class Music(commands.Cog):
         self.FFMPEG_OPTIONS = FFMPEG_OPTIONS
         self.player = Player(self.CLIENT, FFMPEG_OPTIONS, ydl_op)
         self.CLIENT.lava = lava.Client(848551732048035860)
-        self.CLIENT.lava.add_node(
-            "host", 8080, "youshallnotpass", "na", "lava-node"
-        )
+        self.CLIENT.lava.add_node("host", 8080, "youshallnotpass", "na", "lava-node")
         lava.add_event_hook(self.track_hook)
 
     async def track_hook(self, event):
@@ -746,9 +744,9 @@ class Music(commands.Cog):
                     description="I am already in a voice channel",
                     color=self.CLIENT.color(inter.guild),
                     author=inter.user,
-                    thumbnail=self.CLIENT.user.avatar
+                    thumbnail=self.CLIENT.user.avatar,
                 ),
-                ephemeral=True
+                ephemeral=True,
             )
             return
         player = self.CLIENT.lava.player_manager.create(inter.guild.id)
