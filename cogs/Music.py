@@ -610,6 +610,10 @@ class Music(commands.Cog):
                     fields={
                         "Maybe": "Use `/music queue show` to see the song you're looking for"
                     },
+                    footer={
+                        "text": "Congrats, you've found an easter egg",
+                        "icon_url": self.CLIENT.user.avatar,
+                    },
                 ),
                 ephemeral=True,
             )

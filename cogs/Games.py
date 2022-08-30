@@ -140,7 +140,7 @@ class Games(commands.Cog, description="Very Simple Games"):
         songs = self.CLIENT.da[432801163126243328]
         if not inter.guild.voice_client:
             await voice.channel.connect()
-        voice = inter.guild.voice_CLIENT
+        voice = inter.guild.voice_client
         voice.stop()
         song = choice(songs)
         info = self.player.info(song)

@@ -89,7 +89,7 @@ re: list = [
     -1,  # re[4] is free
     {},  # re[5] custom color
     "",  # re[6] is free
-    {},  # re[7] is free
+    {},  # re[7] is lavalink toggle
     5360,  # re[8] -> color
     "",  # re[9] is free
     {},  # re[10] is model
