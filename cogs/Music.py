@@ -30,7 +30,7 @@ class Lavalink(nextcord.VoiceClient):
         else:
             self.client.lavalink = lava.Client(client.user.id)
             self.client.lavalink.add_node(
-                "host", 2333, "youshallnotpass", "na", "lava-node"
+                "host", 8080, "youshallnotpass", "na", name="lava-node"
             )
             self.lavalink = self.client.lavalink
 
@@ -269,7 +269,8 @@ class Music(commands.Cog):
         self.DEV_CHANNEL = DEV_CHANNEL
         self.FFMPEG_OPTIONS = FFMPEG_OPTIONS
         self.player = Player(self.CLIENT, FFMPEG_OPTIONS, ydl_op)
-        self.CLIENT.lava = lava.Client(self.CLIENT.user.id)
+        self.CLIENT.lava = lava.Client(848551732048035860)
+        self.CLIENT.lava.add_node("host", 8080, "youshallnotpass", "na", "lava-node")
         lava.add_event_hook(self.track_hook)
 
     async def track_hook(self, event):
@@ -736,7 +737,23 @@ class Music(commands.Cog):
                 )
             )
             return
-        await channel.connect()
+        if inter.guild.voice_client:
+            await inter.send(
+                embed=ef.cembed(
+                    title="Already Connected",
+                    description="I am already in a voice channel",
+                    color=self.CLIENT.color(inter.guild),
+                    author=inter.user,
+                    thumbnail=self.CLIENT.user.avatar,
+                ),
+                ephemeral=True,
+            )
+            return
+        player = self.CLIENT.lava.player_manager.create(inter.guild.id)
+        try:
+            await channel.connect(cls=Lavalink)
+        except:
+            await channel.connect()
         await inter.send(
             embed=ef.cembed(
                 description={

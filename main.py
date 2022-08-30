@@ -92,7 +92,7 @@ re: list = [
     {},  # re[7] is free
     5360,  # re[8] -> color
     "",  # re[9] is free
-    {},
+    {},  # re[10] is model
 ]
 youtube: list = []
 autor: dict = {}
