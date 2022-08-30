@@ -30,7 +30,7 @@ class Lavalink(nextcord.VoiceClient):
         else:
             self.client.lavalink = lava.Client(client.user.id)
             self.client.lavalink.add_node(
-                "host", 8080, "youshallnotpass", "na", name="lava-node"
+                "localhost", 2333, "youshallnotpass", "na", name="lava-node"
             )
             self.lavalink = self.client.lavalink
 
@@ -270,7 +270,7 @@ class Music(commands.Cog):
         self.FFMPEG_OPTIONS = FFMPEG_OPTIONS
         self.player = Player(self.CLIENT, FFMPEG_OPTIONS, ydl_op)
         self.CLIENT.lava = lava.Client(848551732048035860)
-        self.CLIENT.lava.add_node("host", 8080, "youshallnotpass", "na", "lava-node")
+        self.CLIENT.lava.add_node("localhost", 2333, "youshallnotpass", "na", "lava-node")
         lava.add_event_hook(self.track_hook)
 
     async def track_hook(self, event):
@@ -749,11 +749,7 @@ class Music(commands.Cog):
                 ephemeral=True,
             )
             return
-        player = self.CLIENT.lava.player_manager.create(inter.guild.id)
-        try:
-            await channel.connect(cls=Lavalink)
-        except:
-            await channel.connect()
+        await channel.connect()
         await inter.send(
             embed=ef.cembed(
                 description={
@@ -1097,6 +1093,7 @@ class MusicPages:
         return descriptions
 
     async def next_page(self, inter: nextcord.Interaction):
+        print(self.page_empty_check())
         if self.page_empty_check():
             await inter.edit(
                 embed=ef.cembed(
@@ -1124,6 +1121,7 @@ class MusicPages:
         )
 
     async def previous_page(self, inter: nextcord.Interaction):
+        print(self.page_empty_check())
         if self.page_empty_check():
             await inter.edit(
                 embed=ef.cembed(

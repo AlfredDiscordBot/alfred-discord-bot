@@ -14,6 +14,4 @@ def run():
 
 
 def keep_alive():
-    t = Thread(target=run)
-    t.setDaemon(True)
-    t.start()
+    pass
