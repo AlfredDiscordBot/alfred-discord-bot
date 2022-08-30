@@ -30,7 +30,7 @@ class Lavalink(nextcord.VoiceClient):
         else:
             self.client.lavalink = lava.Client(client.user.id)
             self.client.lavalink.add_node(
-                "host", 8080, "youshallnotpass", "na", name="lava-node"
+                "localhost", 2333, "youshallnotpass", "na", name="lava-node"
             )
             self.lavalink = self.client.lavalink
 
@@ -270,7 +270,9 @@ class Music(commands.Cog):
         self.FFMPEG_OPTIONS = FFMPEG_OPTIONS
         self.player = Player(self.CLIENT, FFMPEG_OPTIONS, ydl_op)
         self.CLIENT.lava = lava.Client(848551732048035860)
-        self.CLIENT.lava.add_node("host", 8080, "youshallnotpass", "na", "lava-node")
+        self.CLIENT.lava.add_node(
+            "localhost", 2333, "youshallnotpass", "na", "lava-node"
+        )
         lava.add_event_hook(self.track_hook)
 
     async def track_hook(self, event):
@@ -749,11 +751,7 @@ class Music(commands.Cog):
                 ephemeral=True,
             )
             return
-        player = self.CLIENT.lava.player_manager.create(inter.guild.id)
-        try:
-            await channel.connect(cls=Lavalink)
-        except:
-            await channel.connect()
+        await channel.connect()
         await inter.send(
             embed=ef.cembed(
                 description={
@@ -1082,21 +1080,20 @@ class MusicPages:
         self.current_page = 0
 
     def page_empty_check(self):
-        return not bool(len(self.COG.CLIENT.queue_song.get(self.GUILD, [])))
+        return not bool(len(self.COG.CLIENT.queue_song.get(self.GUILD.id, [])))
 
-    def generate_pages(self):
-        descriptions = [[]]
-        count = 0
-        for i in enumerate(self.COG.CLIENT.queue_song.get(self.GUILD, [])):
-            descriptions[-1].append(
-                "`{}.` {}".format(i[0], self.COG.player.get_song(i[1])["name"])
-            )
-            count += 1
-            if count % 20 == 0:
-                descriptions += 1
-        return descriptions
+    def generate_page(self, page: int = 0):
+        songs = self.CLIENT.queue_song.get(self.GUILD.id, [])[
+            page * 10 : page * 10 + 10
+        ]
+        description = []
+        for i in enumerate(songs, start=page * 10):
+            name = self.COG.player.get_song(i[1])["name"]
+            description.append("`{}.` {}".format(i[0], name))
+        return description
 
     async def next_page(self, inter: nextcord.Interaction):
+        print(self.page_empty_check())
         if self.page_empty_check():
             await inter.edit(
                 embed=ef.cembed(
@@ -1108,15 +1105,15 @@ class MusicPages:
                 )
             )
             return
-
-        descriptions = self.generate_pages()
         self.current_page += 1
-        if (l := len(descriptions)) < self.current_page:
-            self.current_page = l - 1
+        if (
+            l := len(self.CLIENT.queue_song.get(inter.guild.id, []))
+        ) // 10 < self.current_page:
+            self.current_page = l // 10 - 1
         await inter.edit(
             embed=ef.cembed(
                 title="Queue",
-                description=descriptions[self.current_page],
+                description=self.generate_page(self.current_page),
                 color=self.COG.CLIENT.color(inter.guild),
                 author=inter.user,
                 thumbnail=self.COG.CLIENT.user.avatar,
@@ -1124,6 +1121,7 @@ class MusicPages:
         )
 
     async def previous_page(self, inter: nextcord.Interaction):
+        print(self.page_empty_check())
         if self.page_empty_check():
             await inter.edit(
                 embed=ef.cembed(
@@ -1136,14 +1134,14 @@ class MusicPages:
             )
             return
 
-        descriptions = self.generate_pages()
         self.current_page -= 1
         if self.current_page < 0:
             self.current_page = 0
+
         await inter.edit(
             embed=ef.cembed(
                 title="Queue",
-                description=descriptions[self.current_page],
+                description=self.generate_page(self.current_page),
                 color=self.COG.CLIENT.color(inter.guild),
                 author=inter.user,
                 thumbnail=self.COG.CLIENT.user.avatar,
