@@ -284,7 +284,7 @@ class Music(commands.Cog):
 
     async def play(self, inter: nextcord.Interaction, info: dict, voice):
         if self.CLIENT.re[7].get(inter.guild.id, 0) == 1:
-            player = self.CLIENT.lava.player_manager.get(ctx.guild.id)
+            player = self.CLIENT.lava.player_manager.get(inter.guild.id)
             results = await player.node.get_tracks(
                 "https://www.youtube.com/watch?v={}".format(info.get("id", ""))
             )
@@ -737,7 +737,7 @@ class Music(commands.Cog):
         voice = inter.guild.voice_client
         voice.stop()
         if self.CLIENT.re[7].get(inter.guild.id, 0) == 1:
-            player = self.CLIENT.lavalink.player_manager.get(ctx.guild.id)
+            player = self.CLIENT.lavalink.player_manager.get(inter.guild.id)
             await player.stop()
         await voice.disconnect(force=True)
         await self.send(
