@@ -581,7 +581,7 @@ def defa(*types, default=None, choices=[], required=False):
     return SlashOption(channel_types=types, required=required)
 
 
-async def ly(song, re: List):
+async def ly(song, color: int):
     """
     Returns lyrics Embed of a song
     """
@@ -591,9 +591,12 @@ async def ly(song, re: List):
     return cembed(
         title=j.get("title", "Couldnt get title"),
         description=j.get("lyrics", "Unavailable"),
-        color=re[8],
+        color=color,
         thumbnail=j.get("image"),
-        footer=j.get("artist", "Unavailable"),
+        author={
+            "name": j.get("artist", "Unavailable"),
+            "icon_url": "https://cdn.iconscout.com/icon/free/png-256/youtube-music-4054283-3352965.png",
+        },
     )
 
 

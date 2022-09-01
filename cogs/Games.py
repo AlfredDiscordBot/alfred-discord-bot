@@ -144,9 +144,7 @@ class Games(commands.Cog, description="Very Simple Games"):
         voice.stop()
         song = choice(songs)
         info = self.player.info(song)
-        voice.play(
-            nextcord.FFmpegPCMAudio(self.player.download(info), **self.FFMPEG_OPTIONS)
-        )
+        voice.play(self.player.download(info))
         await inter.send("Guess this Song, you have 30 seconds to tell")
         try:
             message = await self.CLIENT.wait_for(

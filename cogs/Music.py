@@ -279,8 +279,25 @@ class Music(commands.Cog):
         print(event)
         if isinstance(event, lava.events.QueueEndEvent):
             guild_id = int(event.player.guild_id)
-            guild = self.bot.get_guild(guild_id)
+            guild = self.CLIENT.get_guild(guild_id)
             await guild.voice_client.disconnect(force=True)
+
+    async def play(self, inter: nextcord.Interaction, info: dict, voice):
+        if self.CLIENT.re[7].get(inter.guild.id, 0) == 1:
+            player = self.CLIENT.lava.player_manager.get(ctx.guild.id)
+            results = await player.node.get_tracks(
+                "https://www.youtube.com/watch?v={}".format(info.get("id", ""))
+            )
+            track = lava.models.AudioTrack(
+                results["tracks"][0], inter.user.id, recommended=True
+            )
+            if player.is_playing:
+                await player.stop()
+            await player.play(track)
+        else:
+            voice.play(
+                self.player.download(info), after=lambda e: self.after(ctx=inter)
+            )
 
     def datasetup(self, guild: nextcord.guild.Guild):
         if guild.id not in self.CLIENT.re[3]:
@@ -411,6 +428,11 @@ class Music(commands.Cog):
     @nextcord.slash_command(name="music", description="It's music time")
     async def music(self, inter):
         print(inter.user)
+
+    @music.subcommand(name="lyrics", description="Get lyrics of a song")
+    async def lyrics(self, inter: nextcord.Interaction, song: str):
+        await inter.response.defer()
+        await inter.send(embed=await ef.ly(song, self.CLIENT.color(inter.guild)))
 
     @music.subcommand(
         name="playlist",
@@ -714,6 +736,9 @@ class Music(commands.Cog):
         await inter.response.defer()
         voice = inter.guild.voice_client
         voice.stop()
+        if self.CLIENT.re[7].get(inter.guild.id, 0) == 1:
+            player = self.CLIENT.lavalink.player_manager.get(ctx.guild.id)
+            await player.stop()
         await voice.disconnect(force=True)
         await self.send(
             inter=inter,
@@ -755,7 +780,11 @@ class Music(commands.Cog):
                 ephemeral=True,
             )
             return
-        await channel.connect()
+        await inter.response.defer()
+        if self.CLIENT.re[7].get(inter.guild.id, 0) == 0:
+            await channel.connect()
+        else:
+            await channel.connect(cls=Lavalink)
         await inter.send(
             embed=ef.cembed(
                 description={
@@ -853,15 +882,15 @@ class Music(commands.Cog):
             )
 
     @music.subcommand(name="play", description="play a song")
-    async def play(self, inter):
+    async def play_slash(self, inter):
         print(inter.user)
 
-    @play.subcommand(name="again", description="repeat a song")
+    @play_slash.subcommand(name="again", description="repeat a song")
     async def again(self, inter):
         self.datasetup(inter.guild)
         await self.play_queue(inter, self.CLIENT.re[3].get(inter.guild.id, 0))
 
-    @play.subcommand(name="song", description="play a song from search")
+    @play_slash.subcommand(name="song", description="play a song from search")
     async def song(self, inter: nextcord.Interaction, song: str):
         if (not inter.guild.voice_client) and (uservoice := inter.user.voice):
             await uservoice.channel.connect()
@@ -915,9 +944,11 @@ class Music(commands.Cog):
         self.CLIENT.re[3][inter.guild.id] = (
             len(self.CLIENT.queue_song[inter.guild.id]) - 1
         )
-        voice.play(self.player.download(info), after=lambda e: self.after(ctx=inter))
+        await self.play(inter, info, voice)
 
-    @play.subcommand(name="queue", description="Play song from queue, pass index value")
+    @play_slash.subcommand(
+        name="queue", description="Play song from queue, pass index value"
+    )
     async def play_queue(self, inter: nextcord.Interaction, index: int):
         if (not inter.guild.voice_client) and (uservoice := inter.user.voice):
             await uservoice.channel.connect()
@@ -994,7 +1025,7 @@ class Music(commands.Cog):
                 )
             )
 
-    @play.subcommand(name="next", description="Play the next song")
+    @play_slash.subcommand(name="next", description="Play the next song")
     async def next(self, inter: nextcord.Interaction):
         await inter.response.defer()
         if (not inter.guild.voice_client) and (vc := inter.user.voice):
@@ -1035,7 +1066,7 @@ class Music(commands.Cog):
         voice.play(self.player.download(info), after=lambda e: self.after(inter))
         await self.send(inter=inter, embed=embed, view=self.MusicButtonView(inter))
 
-    @play.subcommand(name="previous", description="Play the previous song")
+    @play_slash.subcommand(name="previous", description="Play the previous song")
     async def previous(self, inter: nextcord.Interaction):
         await inter.response.defer()
         if (not inter.guild.voice_client) and (vc := inter.user.voice):
