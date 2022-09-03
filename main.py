@@ -1,4 +1,6 @@
+import setup_alfred
 import os, sys
+
 import subprocess
 import aiohttp
 import nextcord
@@ -10,7 +12,6 @@ import utils.assets as assets
 
 print("Booting up with", nextcord.__version__)
 
-from keep_alive import keep_alive
 from io import BytesIO
 from utils import send_devop
 from requests import post
@@ -43,11 +44,21 @@ from utils.External_functions import (
 )
 
 
+def fix():
+    print(os.getcwd())
+    if not os.getcwd().endswith("alfred-discord-bot"):
+        load_dotenv()
+        os.chdir("./alfred-discord-bot")
+        print(os.getcwd())
+        return
+    load_dotenv()
+
+
+fix()
+# keep_alive()
 location_of_file = os.getcwd()
 ydl_copy = ydl_op.copy()
 start_time = time.time()
-load_dotenv()
-keep_alive()
 observer: list = []
 mspace: dict = {}
 deathrate: dict = {}
@@ -68,21 +79,20 @@ config: dict = {
 }
 da: dict = {}
 errors: list = ["```arm"]
-da1: dict = {}
 queue_song: dict = {}
 DEV_CHANNEL: int = int(os.getenv("dev"))
 re: list = [
-    0,
-    "OK",
-    {},
-    {},
-    -1,
+    0,  # re[0] is requests
+    "OK",  # re[1] is a password kind of thing
+    {},  # re[2] is song control
+    {},  # re[3] is song index
+    -1,  # re[4] is free
     {},  # re[5] custom color
     "",  # re[6] is free
-    {},
+    {},  # re[7] is lavalink toggle
     5360,  # re[8] -> color
     "",  # re[9] is free
-    {},
+    {},  # re[10] is model
 ]
 youtube: list = []
 autor: dict = {}
@@ -131,7 +141,6 @@ def save_to_file():
     store.pass_all(
         da=CLIENT.da,
         mspace=CLIENT.mspace,
-        da1=CLIENT.da1,
         queue_song=CLIENT.queue_song,
         re=re,
         dev_users=dev_users,
@@ -147,7 +156,6 @@ def save_to_file():
 
 def load_from_file(store: Variables):
     global da
-    global da1
     global queue_song
     global re
     global dev_users
@@ -160,7 +168,6 @@ def load_from_file(store: Variables):
 
     v = store.show_data()
     da = v.get("da", {})
-    da1 = v.get("da1", {})
     queue_song = {int(k): v for k, v in v.get("queue_song", {}).items()}
     re = v.get("re", re)
     dev_users = {int(i) for i in v.get("dev_users", dev_users)}
@@ -177,7 +184,6 @@ def load_from_file(store: Variables):
     CLIENT.config = config
     CLIENT.prefix_dict = prefix_dict
     CLIENT.da = da
-    CLIENT.da1 = da1
     CLIENT.queue_song = queue_song
     CLIENT.mspace = mspace
     CLIENT.observer = observer
@@ -368,7 +374,6 @@ async def wait_for_ready():
 
 @CLIENT.slash_command(name="svg2png", description="Convert SVG image to png format")
 async def svg2png_slash(inter, url):
-    req()
     await inter.response.defer()
     img = svg2png(url)
     await inter.send(file=nextcord.File(BytesIO(img), "svg.png"))
@@ -411,7 +416,6 @@ async def color_slash(inter, rgb_color=str(nextcord.Color(re[8]).to_rgb())):
 async def load(ctx):
     user = getattr(ctx, "author", getattr(ctx, "user", None))
     print("Load", user)
-    req()
     try:
         cpu_per = str(int(psutil.cpu_percent()))
         cpu_freq = str(int(psutil.cpu_freq().current))
@@ -449,7 +453,6 @@ async def load(ctx):
 
 @CLIENT.slash_command(name="pr", description="Prints what you ask it to print")
 async def pr_slash(inter, text: str):
-    req()
     await inter.send(text)
 
 

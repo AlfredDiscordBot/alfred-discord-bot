@@ -162,6 +162,8 @@ async def fetch_spotify_playlist(link, num):
                         success = True
                     except IndexError:
                         pass
+                    except Exception:
+                        print(data)
             offset += 100
     else:
         songs = []
@@ -169,7 +171,7 @@ async def fetch_spotify_playlist(link, num):
         album_names = []
         artist_names = []
         track_names = []
-        data = spotify.playlist(link=link, num=num, offset=0)
+        data = await spotify.playlist(link=link, num=num, offset=0)
         for item in range(num):
             try:
                 track_name = data["items"][item]["track"]["name"]
@@ -184,6 +186,8 @@ async def fetch_spotify_playlist(link, num):
                 success = True
             except IndexError:
                 pass
+            except Exception:
+                print(data)
     # urls = []
     # base = 'https://www.youtube.com'
     # for song in songs:

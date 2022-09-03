@@ -1,34 +1,35 @@
-from io import BytesIO
-from string import ascii_letters
 from bs4 import BeautifulSoup
-from matplotlib import pyplot as plt
-from nextcord import SlashOption
-from nextcord.ext import commands
+from collections import Counter
+from datetime import datetime
 from dotenv import load_dotenv
 from functools import lru_cache
-from datetime import datetime
-from collections import Counter
+from io import BytesIO
+from matplotlib import colors as mcolors, font_manager as fm, pyplot as plt
+from nextcord import SlashOption
+from nextcord.ext import commands
 from requests.models import PreparedRequest
 from requests.exceptions import MissingSchema
+from string import ascii_letters
 from typing import List, Union
 
-import psutil
-import os
-import time
-import nextcord
-import random
-import emoji
-import youtube_dl
-import urllib.parse
-import urllib
-import aiohttp
-import traceback
 import aiofiles
-import utils.assets as assets
-import json
+import aiohttp
+import emoji
 import importlib
+import json
+import nextcord
+import numpy as np
+import os
+import psutil
+import random
 import re as regex
 import requests
+import time
+import traceback
+import urllib
+import urllib.parse
+import utils.assets as assets
+import youtube_dl
 
 ydl_op = {
     "format": "bestaudio/best",
@@ -416,14 +417,6 @@ def youtube_download(url: str):
     return URL
 
 
-def youtube_download1(url: str):
-    with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        info = ydl.extract_info(url, download=False)
-        name = info["title"]
-        URL = info["formats"][0]["url"]
-    return (URL, name)
-
-
 def subtract_list(l1: List, l2: List):
     a = []
     for i in l1:
@@ -572,7 +565,11 @@ def safe_pfp(user: Union[nextcord.Member, nextcord.guild.Guild]):
     if user is None:
         return
     if isinstance(user, nextcord.guild.Guild):
-        return str(user.icon)
+        return (
+            str(user.icon)
+            if user.icon
+            else "https://cdn.logojoy.com/wp-content/uploads/20210422095037/discord-mascot.png"
+        )
     return user.avatar.url if user.avatar else user.default_avatar.url
 
 
@@ -584,7 +581,7 @@ def defa(*types, default=None, choices=[], required=False):
     return SlashOption(channel_types=types, required=required)
 
 
-async def ly(song, re: List):
+async def ly(song, color: int):
     """
     Returns lyrics Embed of a song
     """
@@ -594,9 +591,12 @@ async def ly(song, re: List):
     return cembed(
         title=j.get("title", "Couldnt get title"),
         description=j.get("lyrics", "Unavailable"),
-        color=re[8],
+        color=color,
         thumbnail=j.get("image"),
-        footer=j.get("artist", "Unavailable"),
+        author={
+            "name": j.get("artist", "Unavailable"),
+            "icon_url": "https://cdn.iconscout.com/icon/free/png-256/youtube-music-4054283-3352965.png",
+        },
     )
 
 
@@ -789,6 +789,7 @@ def audit_check(log):
 
 
 def check_command(ctx):
+    ctx.bot.re[0] += 1
     a = ctx.bot.config["commands"]
     if a.get(str(ctx.command.name)):
         if ctx.guild.id in a[ctx.command.name]:
@@ -1276,6 +1277,7 @@ class PollGraph:
         self.d: dict = {}
         self.options: dict = {}
         self.reactions: dict = {}
+        self.font = fm.FontProperties(fname="utils/fonts/xkcd-script.ttf")
         self.question = ""
         self.emojis: List[str] = [
             emoji.emojize(f":keycap_{i+1}:") if i < 10 else Emoji_alphabets[i - 10]
@@ -1295,21 +1297,70 @@ class PollGraph:
         self.CREATOR = message.embeds[0].author
 
     def arrange_data(self):
-        a, b = [], []
+        l, v = [], []
         for i, j in self.reactions.items():
-            a.append(i)
-            b.append(j / (sum(self.reactions.values()) or 1))
-        return a, b
+            l.append(i)
+            v.append(j / (sum(self.reactions.values()) or 1))
+        return l, v
 
     def generate_image(self):
         labels, values = self.arrange_data()
-        _, ax = plt.subplots()
-        ax.pie(values, labels=labels)
+        values = np.array(values)
+        # _, ax = plt.subplots()
+        # ax.pie(values, labels=labels)
+        with plt.xkcd():
+            fig = plt.figure(figsize=(6, 5))
+            ax = fig.add_axes((0.1, 0.2, 0.8, 0.7))
+
+            # plot fig
+            wedges, *_ = ax.pie(
+                values,  # data
+                wedgeprops=dict(width=0.65),  # width of the donut
+                startangle=-40,  # starting angle
+                shadow=True,  # shadow for the donut
+                autopct="%.1f%%",  # annotations
+                # colors = np.random.permutation(list(XKCD_COLORS.values()))
+                colors=[
+                    mcolors.hsv_to_rgb((156 / 255, 72 / 100, abs(0.7 - v)))
+                    for v in (values / np.sum(values))
+                ],
+                textprops={"fontproperties": self.font, "fontsize": 15},
+            )
+
+            bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
+            kw = dict(
+                arrowprops=dict(arrowstyle="->"), bbox=bbox_props, zorder=0, va="center"
+            )
+            ax.xaxis.set_ticks_position("bottom")
+
+            for i, p in enumerate(wedges):
+                ang = (p.theta2 - p.theta1) / 2.0 + p.theta1
+
+                y = np.sin(np.deg2rad(ang))
+                x = np.cos(np.deg2rad(ang))
+
+                horizontalalignment = (
+                    "right" if int(np.sign(x) == -1) else "left"
+                )  # {-1: "right", 1: "left"}[int(np.sign(x))]
+                connectionstyle = "angle,angleA=0,angleB={}".format(ang)
+
+                kw["arrowprops"].update({"connectionstyle": connectionstyle})
+
+                ax.annotate(
+                    labels[i],
+                    xy=(x, y),
+                    xytext=(1.35 * np.sign(x), 1.4 * y),
+                    horizontalalignment=horizontalalignment,
+                    fontproperties=self.font,
+                    size=20,
+                    **kw,
+                )
 
         bt = BytesIO()
         plt.savefig(bt, format="png")
         plt.close()
         bt.seek(0)
+
         return bt
 
     def inverted_dict(self, dictionary: dict):
@@ -1357,6 +1408,7 @@ def slash_and_sub(Client: commands.Bot, cog=None):
 
 
 def check_slash(inter: nextcord.Interaction):
+    inter.client.re[0] += 1
     command: dict = inter.data
     command_name = command.get("name")
     subcommand_name = ""

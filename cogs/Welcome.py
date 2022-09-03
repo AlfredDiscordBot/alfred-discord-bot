@@ -104,7 +104,7 @@ class Welcome(
             content=f"{member.name} left the server",
             embed=ef.cembed(
                 title="GoodBye",
-                description=f"{member.name} left {member.guild.name} at <t:{int(time.time())}:R>\nHope you enjoyed your stay {member.name}",
+                description=f"{member.name} left {member.guild.name} <t:{int(time.time())}:R>\nHope you enjoyed your stay {member.name}",
                 color=self.client.color(member.guild),
                 thumbnail=ef.safe_pfp(member),
             ),
