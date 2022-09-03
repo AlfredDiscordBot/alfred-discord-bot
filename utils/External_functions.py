@@ -4,8 +4,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from functools import lru_cache
 from io import BytesIO
-from matplotlib import colors as mcolors
-from matplotlib import pyplot as plt
+from matplotlib import colors as mcolors, font_manager as fm, pyplot as plt
 from nextcord import SlashOption
 from nextcord.ext import commands
 from requests.models import PreparedRequest
@@ -582,7 +581,7 @@ def defa(*types, default=None, choices=[], required=False):
     return SlashOption(channel_types=types, required=required)
 
 
-async def ly(song, re: List):
+async def ly(song, color: int):
     """
     Returns lyrics Embed of a song
     """
@@ -592,9 +591,12 @@ async def ly(song, re: List):
     return cembed(
         title=j.get("title", "Couldnt get title"),
         description=j.get("lyrics", "Unavailable"),
-        color=re[8],
+        color=color,
         thumbnail=j.get("image"),
-        footer=j.get("artist", "Unavailable"),
+        author={
+            "name": j.get("artist", "Unavailable"),
+            "icon_url": "https://cdn.iconscout.com/icon/free/png-256/youtube-music-4054283-3352965.png",
+        },
     )
 
 
@@ -1275,6 +1277,7 @@ class PollGraph:
         self.d: dict = {}
         self.options: dict = {}
         self.reactions: dict = {}
+        self.font = fm.FontProperties(fname="utils/fonts/xkcd-script.ttf")
         self.question = ""
         self.emojis: List[str] = [
             emoji.emojize(f":keycap_{i+1}:") if i < 10 else Emoji_alphabets[i - 10]
@@ -1321,6 +1324,7 @@ class PollGraph:
                     mcolors.hsv_to_rgb((156 / 255, 72 / 100, abs(0.7 - v)))
                     for v in (values / np.sum(values))
                 ],
+                textprops={"fontproperties": self.font, "fontsize": 15},
             )
 
             bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
@@ -1347,6 +1351,8 @@ class PollGraph:
                     xy=(x, y),
                     xytext=(1.35 * np.sign(x), 1.4 * y),
                     horizontalalignment=horizontalalignment,
+                    fontproperties=self.font,
+                    size=20,
                     **kw,
                 )
 
