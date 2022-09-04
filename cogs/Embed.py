@@ -470,6 +470,8 @@ class Embed(
         f = get_callback_functions().get(member_id)
         button = nextcord.ui.Button(label=f[1], emoji="▶️", style=assets.color)
         button.callback = f[0]
+        if not isinstance(view, nextcord.ui.View):
+            view = nextcord.ui.View(timeout=None)
         view.add_item(button)
         return embed, view
 
