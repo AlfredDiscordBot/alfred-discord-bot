@@ -21,7 +21,6 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
         self.APIs = ef.PublicAPI(self.CLIENT)
         self.minecraft = ef.MineCraft(CLIENT)
         self.WOLFRAM = WOLFRAM
-        self.suicide_detector = ef.Detector(self.CLIENT)
         self.p = ef.Pokemon()
 
     @commands.Cog.listener()
@@ -304,16 +303,6 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
     @poke.on_autocomplete("pokemon")
     async def search_autocomplete(self, inter: nextcord.Interaction, pokemon: str):
         await inter.response.send_autocomplete(self.p.search(pokemon))
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.guild.id in self.CLIENT.observer:
-            result: Union[
-                nextcord.Embed, None
-            ] = await self.suicide_detector.process_message(message=message)
-            if result:
-                print(result)
-                await message.reply(embed=result)
 
 
 def setup(CLIENT, **i):

@@ -710,7 +710,8 @@ class Music(commands.Cog):
                 description=[
                     f"`{ind}.` {content}"
                     for ind, content in enumerate(
-                        [self.player.get_song(i).get("name") for i in songs]
+                        [self.player.get_song(i).get("name") for i in songs],
+                        start=start,
                     )
                 ],
                 color=self.CLIENT.color(inter.guild),
