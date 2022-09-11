@@ -5,7 +5,7 @@ from nextcord.ext import commands
 import nextcord
 from . import External_functions as ef
 
-color = nextcord.ButtonStyle.blurple
+color = nextcord.ButtonStyle.gray
 BLUE_LINE = "https://www.wrberadio.com/home/attachment/blue-line-png-1"
 
 
