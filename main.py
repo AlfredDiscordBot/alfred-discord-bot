@@ -1,4 +1,3 @@
-import setup_alfred
 import os, sys
 
 import subprocess
