@@ -1,7 +1,6 @@
 { pkgs }: {
   deps = [    
     pkgs.ffmpeg.bin
-    pkgs.zulu
     pkgs.busybox
     pkgs.python38Packages.black
     pkgs.python38Full

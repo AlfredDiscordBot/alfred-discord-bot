@@ -1,4 +1,3 @@
-import setup_alfred
 import os, sys
 
 import subprocess
@@ -59,7 +58,6 @@ fix()
 location_of_file = os.getcwd()
 ydl_copy = ydl_op.copy()
 start_time = time.time()
-observer: list = []
 mspace: dict = {}
 deathrate: dict = {}
 old_youtube_vid: dict = {}
@@ -145,7 +143,6 @@ def save_to_file():
         re=re,
         dev_users=dev_users,
         prefix_dict=prefix_dict,
-        observer=observer,
         old_youtube_vid=old_youtube_vid,
         config=config,
         autor=autor,
@@ -160,7 +157,6 @@ def load_from_file(store: Variables):
     global re
     global dev_users
     global prefix_dict
-    global observer
     global old_youtube_vid
     global config
     global mspace
@@ -172,7 +168,6 @@ def load_from_file(store: Variables):
     re = v.get("re", re)
     dev_users = {int(i) for i in v.get("dev_users", dev_users)}
     prefix_dict = v.get("prefix_dict", {})
-    observer = v.get("observer", [])
     old_youtube_vid = v.get("old_youtube_vid", {})
     config = v.get("config", config)
     mspace = v.get("mspace", {})
@@ -186,7 +181,6 @@ def load_from_file(store: Variables):
     CLIENT.da = da
     CLIENT.queue_song = queue_song
     CLIENT.mspace = mspace
-    CLIENT.observer = observer
     CLIENT.autor = autor
 
 
@@ -275,7 +269,6 @@ async def send_file_loop():
 
 @tasks.loop(minutes=30)
 async def youtube_loop():
-    await CLIENT.change_presence()
     print("Youtube_loop")
     for i, l in config["youtube"].items():
         await asyncio.sleep(2)
@@ -331,20 +324,6 @@ async def youtube_loop():
 async def dev_loop():
     save_to_file()
     try:
-        # a = await get_async("https://suicide-detector-api-1.yashvardhan13.repl.co/")
-
-        # if a != '{"message":"API is running"}':
-        if False:
-            ch = CLIENT.get_channel(1005831164650594445)
-            await ch.send(
-                embed=cembed(
-                    title="Fix her",
-                    description="Your server is offline Master Bruce, Go check it out ||plssssss||",
-                    color=cc(re, ch.guild),
-                    footer="Why does this server fall sir?",
-                    thumbnail=CLIENT.user.avatar.url,
-                )
-            )
         await get_async("https://viennabot.declan1529.repl.co")
     except:
         await CLIENT.get_channel(DEV_CHANNEL).send(

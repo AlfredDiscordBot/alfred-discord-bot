@@ -3,15 +3,76 @@ import utils.External_functions as ef
 import emoji
 import asyncio
 
-from .Music import Player
 from nextcord.ext import commands, tasks
-from random import choice
+from nextcord.ui import Button, button, Select, View
+from random import choice, shuffle
+from typing import List
+from utils.assets import color
 
 # Use nextcord.slash_command()
 
 
 def requirements():
     return ["FFMPEG_OPTIONS", "ydl_op"]
+
+
+class OrderButton(Button):
+    def __init__(self, label: str, callback_func):
+        self.callable = callback_func
+        super().__init__(style=color, row=0, label=label)
+
+    async def callback(self, interaction: nextcord.Interaction):
+        await self.callable(interaction, self.label)
+
+
+class OrderView(View):
+    def __init__(self, words: List[str], CLIENT: commands.Bot):
+        super().__init__(timeout=None)
+        self.words = words[:5]
+        self.user_words = []
+        self.display = self.words.copy()
+        shuffle(self.display)
+        self.CLIENT = CLIENT
+        for word in self.display:
+            self.add_item(OrderButton(word, self.called))
+
+    async def edit_message(self, inter: nextcord.Interaction):
+        await inter.edit(
+            embed=ef.cembed(
+                title="Put the words in order",
+                fields={"Words": self.user_words},
+                color=self.CLIENT.color(inter.guild),
+                author=inter.user,
+            )
+        )
+
+    async def called(self, interaction: nextcord.Interaction, label: str):
+        if len(self.user_words) + 1 <= 5 and label not in self.user_words:
+            self.user_words.append(label)
+            await self.edit_message(interaction)
+
+    @button(label="BackSpace", emoji="🔙", row=1)
+    async def backspace(self, button: Button, inter: nextcord.Interaction):
+        if self.user_words.pop() if len(self.user_words) > 0 else False:
+            await self.edit_message(inter=inter)
+
+    @button(label="Confirm", emoji="✅", row=1)
+    async def confirm(self, button: Button, inter: nextcord.Interaction):
+        if self.words == self.user_words:
+            result = "Correct answer, good job"
+        else:
+            result = "Wrong answer, it's fine, try again"
+        await inter.edit(
+            embed=ef.cembed(
+                title="Confirmed",
+                fields={"Words": self.user_words, "Correct Order": self.words},
+                footer={"text": result, "icon_url": self.CLIENT.user.avatar},
+                color=self.CLIENT.color(inter.guild),
+                author=inter.user,
+            )
+        )
+        self.clear_items()
+        self.stop()
 
 
 class Games(commands.Cog, description="Very Simple Games"):
@@ -29,11 +90,14 @@ class Games(commands.Cog, description="Very Simple Games"):
             self.choices[1]: self.choices[0],
             self.choices[2]: self.choices[1],
         }
-        self.player = Player(CLIENT, FFMPEG_OPTIONS, ydl_op)
+        with open("words") as f:
+            self.words = f.read().split("\n")
 
-    @nextcord.slash_command(
-        name="rps", description="play some rock paper scissors against me"
-    )
+    @nextcord.slash_command(name="game")
+    async def game(self, inter):
+        print(inter.user)
+
+    @game.subcommand(name="rps", description="play some rock paper scissors against me")
     async def rp(self, inter):
         await inter.response.defer()
         s = {}
@@ -131,42 +195,35 @@ class Games(commands.Cog, description="Very Simple Games"):
                     )
                 )
 
-    @nextcord.slash_command(name="guess", description="guess the song game")
-    async def guess(self, inter):
-        await inter.response.defer()
-        if not (voice := inter.user.voice):
-            await inter.send("Join a vc and then try again")
-            return
-        songs = self.CLIENT.da[432801163126243328]
-        if not inter.guild.voice_client:
-            await voice.channel.connect()
-        voice = inter.guild.voice_client
-        voice.stop()
-        song = choice(songs)
-        info = self.player.info(song)
-        voice.play(self.player.download(info))
-        await inter.send("Guess this Song, you have 30 seconds to tell")
-        try:
-            message = await self.CLIENT.wait_for(
-                "message",
-                timeout=30,
-                check=lambda m: m.author == inter.user and inter.channel == m.channel,
+    @game.subcommand(name="order", description="Follow the order of words")
+    async def order(self, inter: nextcord.Interaction):
+        shuffle(self.words)
+        words = self.words[:5]
+        message = await inter.response.send_message(
+            embed=ef.cembed(
+                title="Welcome to The game of `ORDER`",
+                description="You should remember the order of the words correctly",
+                color=self.CLIENT.color(inter.guild),
+                author=inter.user,
+                footer={
+                    "text": "This message will be edited in 5 seconds",
+                    "icon_url": self.CLIENT.user.avatar,
+                },
+                fields={"Remember these words": words},
+                thumbnail=self.CLIENT.user.avatar,
             )
-            voice.stop()
-            if len(message.content) < 3:
-                await inter.send("Type more than 3 letters of the song")
-                return
-            if message.content.lower() in ["lyrics", "official", "video"]:
-                await inter.send(
-                    f"That's cheating, anyway that was {info.get('title')}"
-                )
-                return
-            if message.content.lower() in info.get("title").lower():
-                await inter.send(f"Correct that was {info.get('title')}")
-            else:
-                await inter.send(f"Incorrect, that was {info.get('title')}")
-        except asyncio.TimeoutError:
-            await inter.send(f"Time up, that was {info.get('title')}")
+        )
+        await asyncio.sleep(5)
+        await message.edit(
+            embed=ef.cembed(
+                title="Put the words in order",
+                fields={"Words": "Empty"},
+                color=self.CLIENT.color(inter.guild),
+                author=inter.user,
+                thumbnail=self.CLIENT.user.avatar,
+            ),
+            view=OrderView(words=words, CLIENT=self.CLIENT),
+        )
 
 
 def setup(CLIENT, **i):

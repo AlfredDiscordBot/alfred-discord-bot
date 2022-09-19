@@ -1143,40 +1143,6 @@ def nunchaku(var, t):
     return var
 
 
-class Detector:
-    def __init__(self, CLIENT):
-        self.deathrate = {}
-        self.CLIENT = CLIENT
-
-    async def process_message(self, message: nextcord.message.Message):
-        content = "".join([i for i in message.clean_content if i in ascii_letters])
-        if content:
-            if message.author.id not in self.deathrate:
-                self.deathrate[message.author.id] = 0
-
-            try:
-                preds, type = await post_async(
-                    "https://suicide-detector-api-1.yashvardhan13.repl.co/classify",
-                    json={"tokenc": os.getenv("tokenc"), "text": content},
-                )
-            except AttributeError:
-                preds = {"result": None}
-
-            try:
-                if preds.get("result") == "Sucide":
-                    self.deathrate[message.author.id] += 1
-                else:
-                    return None
-            except:
-                return None
-
-            if self.deathrate.get(message.author.id) >= 10:
-                self.deathrate[message.author.id] = 0
-                return suicide_m(self.CLIENT, self.CLIENT.re[8])
-        else:
-            return None
-
-
 async def pypi_call(package: str, ctx):
     j = await get_async(f"https://pypi.org/pypi/{package}/json", kind="json")
     return PyPi(j, ctx).render_embeds()
