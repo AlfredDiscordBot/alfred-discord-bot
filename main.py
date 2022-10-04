@@ -269,6 +269,7 @@ async def send_file_loop():
 
 @tasks.loop(minutes=30)
 async def youtube_loop():
+    return
     print("Youtube_loop")
     for i, l in config["youtube"].items():
         await asyncio.sleep(2)
@@ -322,18 +323,6 @@ async def youtube_loop():
 
 @tasks.loop(seconds=30)
 async def dev_loop():
-    save_to_file()
-    try:
-        await get_async("https://viennabot.declan1529.repl.co")
-    except:
-        await CLIENT.get_channel(DEV_CHANNEL).send(
-            embed=cembed(
-                description=str(traceback.format_exc()),
-                color=re[8],
-                footer="Error in keep alive dev_loop",
-                thumbnail=CLIENT.user.avatar.url,
-            )
-        )
     await CLIENT.change_presence(activity=activities(CLIENT))
 
 
