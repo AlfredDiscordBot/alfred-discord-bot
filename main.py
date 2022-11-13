@@ -236,6 +236,7 @@ async def on_ready():
                 f.write(i.name + "\n")
         report += "[ OK ] Updated commands txt file"
     except Exception as e:
+        traceback.print_exc()
         await channel.send(
             embed=nextcord.Embed(
                 title="Error in the function on_ready",
@@ -321,7 +322,7 @@ async def youtube_loop():
     print("Done")
 
 
-@tasks.loop(seconds=30)
+@tasks.loop(minutes=5)
 async def dev_loop():
     await CLIENT.change_presence(activity=activities(CLIENT))
 

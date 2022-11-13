@@ -98,14 +98,14 @@ class Pages(nextcord.ui.View):
         if t in ["sb", "s"]:
             self.add_item(SelectionPages(ctx, embeds, restricted, self.page_change))
         if t in ["sb", "b"]:
-            left, right = (
+            self.left, self.right = (
                 Button(emoji="◀️", style=color),
                 Button(emoji="▶️", style=color),
             )
-            left.callback = self.previous
-            right.callback = self.next
-            self.add_item(left)
-            self.add_item(right)
+            self.left.callback = self.previous
+            self.right.callback = self.next
+            self.add_item(self.left)
+            self.add_item(self.right)
         self.embeds = embeds
         self.ctx = ctx
         self.restricted = restricted
@@ -117,6 +117,7 @@ class Pages(nextcord.ui.View):
         self.page = page
 
     async def previous(self, inter):
+        print(inter.data)
         if self.restricted:
             if not self.user == inter.user:
                 return

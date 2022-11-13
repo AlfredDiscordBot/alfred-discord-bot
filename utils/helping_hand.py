@@ -180,7 +180,6 @@ class AutoHelpGen:
         FEATURES = line_strip(
             """
         ```yml
-        - MUSIC
         - EMBED
         - CODE
         - FUN
