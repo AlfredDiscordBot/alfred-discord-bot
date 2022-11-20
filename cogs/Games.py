@@ -1,4 +1,5 @@
 import nextcord
+import requests
 import utils.External_functions as ef
 import emoji
 import asyncio
@@ -14,6 +15,101 @@ from utils.assets import color
 
 def requirements():
     return ["FFMPEG_OPTIONS", "ydl_op"]
+
+
+class HangMan:
+    def __init__(self, difficultyLevel: int = 2):
+        self.words = []
+        self.dL = difficultyLevel
+        self.load_words()
+        self.word = choice(self.words)
+        self.display = ["_" for _ in self.word]
+        self.chances = 6
+
+    def load_words(self):
+        with open("words") as f:
+            self.words = list(
+                filter(
+                    lambda a: len(a) <= self.dL + 4 and len(a) >= self.dL - 4,
+                    f.read().split("\n"),
+                )
+            )
+
+    def click(self, letter: str):
+        letter = letter.lower()
+        for i in range(len(self.word)):
+            if self.word[i] == letter:
+                self.display[i] = letter
+        if letter not in self.word:
+            self.chances -= 1
+            return False
+        return True
+
+    def is_over(self):
+        return self.chances == 0 or "_" not in self.display
+
+    def __str__(self):
+        return "Hangman: `" + "".join(self.display) + "`"
+
+
+class HangManButton(Button):
+    def __init__(self, func, label: str = None, style=color):
+        super().__init__(label=label, style=style)
+        self.callback = self.buttonCallback
+        self.func = func
+        self.label = label
+
+    async def buttonCallback(self, interaction):
+        await self.func(interaction, self.label, self)
+
+
+class HangManView(View):
+    def __init__(self, CLIENT: commands.Bot):
+        super().__init__()
+        self.game = HangMan()
+        self.CLIENT = CLIENT
+        self.letters = [
+            HangManButton(func=self.buttonCallback, label=letter, style=color)
+            for letter in "ABCDEFGHIJKLMNOPQRSTUVWYZ"
+        ]
+        self.letters = [self.letters[i : i + 5] for i in range(0, len(self.letters), 5)]
+        for i in range(len(self.letters)):
+            for j in range(len(self.letters[i])):
+                self.letters[i][j].row = i
+                self.add_item(self.letters[i][j])
+
+    async def buttonCallback(self, inter, label: str, button: Button):
+        if self.game.is_over():
+            await inter.edit(
+                embed=ef.cembed(
+                    title="Game Over",
+                    description="You won!" if self.game.chances > 0 else "You lost!",
+                    fields={
+                        "The word was": self.game.word,
+                    },
+                    color=self.CLIENT.color(inter.guild),
+                    thumbnail=self.CLIENT.user.avatar,
+                ),
+                view=None,
+            )
+            return
+        output = self.game.click(label)
+        if output:
+            button.style = nextcord.ButtonStyle.green
+        else:
+            button.style = nextcord.ButtonStyle.red
+        await inter.edit(
+            embed=ef.cembed(
+                title="Hangman",
+                description=str(self.game),
+                fields={
+                    "Chances": self.game.chances,
+                },
+                color=self.CLIENT.color(inter.guild),
+                thumbnail=self.CLIENT.user.avatar,
+            ),
+            view=self,
+        )
 
 
 class OrderButton(Button):
@@ -224,6 +320,17 @@ class Games(commands.Cog, description="Very Simple Games"):
             ),
             view=OrderView(words=words, CLIENT=self.CLIENT),
         )
+
+    @game.subcommand(name="hangman", description="Play some hangman")
+    async def hangman(self, inter: nextcord.Interaction):
+        await inter.response.defer()
+        embed = ef.cembed(
+            title="`Hangman`",
+            description="You will be playing hangman against me, please try not to delay it as discord hates me for waiting",
+            color=self.CLIENT.color(inter.guild),
+            thumbnail=self.CLIENT.user.avatar,
+        )
+        await inter.send(embed=embed, view=HangManView(CLIENT=self.CLIENT))
 
 
 def setup(CLIENT, **i):
