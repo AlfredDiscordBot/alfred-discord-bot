@@ -34,7 +34,7 @@ class HangMan:
                         [
                             len(a) <= self.dL + 4,
                             len(a) >= self.dL - 4,
-                            "x" not in a.lower()
+                            "x" not in a.lower(),
                         ]
                     ),
                     f.read().split("\n"),
@@ -113,7 +113,7 @@ class HangManView(View):
                 },
                 color=self.CLIENT.color(inter.guild),
                 thumbnail=self.CLIENT.user.avatar,
-                author=inter.user
+                author=inter.user,
             ),
             view=self,
         )
@@ -336,7 +336,7 @@ class Games(commands.Cog, description="Very Simple Games"):
             description="You will be playing hangman against me, please try not to delay it as discord hates me for waiting",
             color=self.CLIENT.color(inter.guild),
             thumbnail=self.CLIENT.user.avatar,
-            author=inter.user
+            author=inter.user,
         )
         await inter.send(embed=embed, view=HangManView(CLIENT=self.CLIENT))
 

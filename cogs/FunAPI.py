@@ -317,7 +317,7 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
                     "text": "This is provided by a website called ItnaChota\nWhich was made by shawshankkumar",
                     "icon_url": "https://avatars.githubusercontent.com/u/74819565?v=4",
                 },
-                author=inter.user
+                author=inter.user,
             )
         )
 
