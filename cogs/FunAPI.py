@@ -304,6 +304,23 @@ class FunAPI(commands.Cog, description="Here lies some fun stuff"):
     async def search_autocomplete(self, inter: nextcord.Interaction, pokemon: str):
         await inter.response.send_autocomplete(self.p.search(pokemon))
 
+    @funapi.subcommand(name="itnachota", description="URL Shortener")
+    async def itnachota(self, inter: nextcord.Interaction, url: str):
+        await inter.response.defer()
+        message = await ef.itnaChota(url=url)
+        await inter.send(
+            embed=ef.cembed(
+                description=message,
+                color=self.CLIENT.color(inter.guild),
+                thumbnail=self.CLIENT.user.avatar,
+                footer={
+                    "text": "This is provided by a website called ItnaChota\nWhich was made by shawshankkumar",
+                    "icon_url": "https://avatars.githubusercontent.com/u/74819565?v=4",
+                },
+                author=inter.user,
+            )
+        )
+
 
 def setup(CLIENT, **i):
     CLIENT.add_cog(FunAPI(CLIENT, **i))

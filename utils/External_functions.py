@@ -1398,3 +1398,17 @@ def color(re: list, guild: nextcord.Guild = None):
     if result == True:
         return guild.me.color.value
     return result
+
+
+async def itnaChota(url: str):
+    response = {}
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            "https://itnachota.herokuapp.com/api/create/link",
+            json={"link": url},
+        ) as resp:
+            response = await resp.json()
+    if "code" in response:
+        return "itnachota.shashankkumar.me/" + response["code"]
+    else:
+        return "Sorry, {}".format(response["message"])
