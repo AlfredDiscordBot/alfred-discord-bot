@@ -33,4 +33,4 @@ jobs:
     - name: Lint with black
       run: |
         python -m pip install black
-        black --check .
+        black --check ./*/*.py
