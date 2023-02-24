@@ -30,7 +30,7 @@ from utils.External_functions import (
     datetime,
     get_all_slash_commands,
     line_strip,
-    wait_for_confirm,         
+    wait_for_confirm,
     safe_pfp,
     get_async,
     activities,
@@ -271,60 +271,11 @@ async def send_file_loop():
 @tasks.loop(minutes=30)
 async def youtube_loop():
     return
-    print("Youtube_loop")
-    for i, l in config["youtube"].items():
-        await asyncio.sleep(2)
-        for j in l:
-            try:
-                if j[0] not in youtube_cache:
-                    a = await get_youtube_url(j[0])
-                    youtube_cache[j[0]] = a
-                else:
-                    a = youtube_cache[j[0]]
-                if a[0] in ["https://www.youtube.com/", "https://www.youtube.com"]:
-                    return
-                if not old_youtube_vid.get(i, None):
-                    old_youtube_vid[i] = {}
-                if not old_youtube_vid[i].get(j[0], None):
-                    old_youtube_vid[i][j[0]] = ""
-                if old_youtube_vid[i][j[0]] == a[0]:
-                    continue
-                old_youtube_vid[i][j[0]] = a[0]
-                try:
-                    message = j[1]
-                    send_channel = CLIENT.get_channel(i)
-                    if not send_channel:
-                        del config["youtube"][i]
-                    await send_channel.send(
-                        embed=cembed(
-                            title="New Video out",
-                            description=f"New Video from {j[0]}",
-                            url=a[0],
-                            color=cc(re, send_channel.guild),
-                            thumbnail=send_channel.guild.icon.url,
-                        )
-                    )
-                    await send_channel.send(a[0] + "\n" + message)
-                except Exception:
-                    await CLIENT.get_channel(DEV_CHANNEL).send(
-                        embed=cembed(
-                            title="Error in youtube_loop",
-                            description=f"{str(traceback.format_exc())}\nSomething is wrong with channel no. {i}",
-                            color=re[8],
-                        )
-                    )
-            except Exception as e:
-                if isinstance(e, aiohttp.client_exceptions.InvalidURL):
-                    del config["youtube"][i]
-                print(i)
-                print(traceback.format_exc())
-    youtube_cache.clear()
-    print("Done")
 
 
 @tasks.loop(minutes=5)
 async def dev_loop():
-    await get_async("https://redditAPI.alvinbengeorge.repl.co");
+    await get_async("https://redditAPI.alvinbengeorge.repl.co")
     await CLIENT.change_presence(activity=activities(CLIENT))
 
 
