@@ -29,19 +29,7 @@ import traceback
 import urllib
 import urllib.parse
 import utils.assets as assets
-import youtube_dl
 
-ydl_op = {
-    "format": "bestaudio/best",
-    "postprocessors": [
-        {
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": "mp3",
-            "preferredquality": "384",
-        }
-    ],
-    "noplaylist": "True",
-}
 SVG2PNG_API_URI = os.getenv("svg2pnguri")
 SVG2PNG_API_TOKEN = os.getenv("svg2pngtoken")
 
@@ -91,13 +79,6 @@ def activities(client, FORCED_ACTIVITY=None):
         nextcord.Activity(type=nextcord.ActivityType.watching, name="New Updates"),
     ]
     return random.choice(all_activities)
-
-
-@lru_cache(maxsize=512)
-def youtube_info(url):
-    with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        info = ydl.extract_info(url, download=False)
-    return info
 
 
 def timestamp(i):
@@ -408,13 +389,6 @@ def equalise(all_strings: List[str]):
 def reset_emo(client):
     emo = assets.Emotes(client)
     return emo
-
-
-def youtube_download(url: str):
-    with youtube_dl.YoutubeDL(ydl_op) as ydl:
-        info = ydl.extract_info(url, download=False)
-        URL = info["formats"][0]["url"]
-    return URL
 
 
 def subtract_list(l1: List, l2: List):
