@@ -54,7 +54,7 @@ toml==0.10.2
 typing-extensions==3.10.0.0
 tzlocal==2.1
 urllib3==1.26.6
-Werkzeug==2.0.2
+Werkzeug==2.2.3
 wordcloud==1.8.2.2
 wikipedia==1.4.0
 xmltodict==0.12.0
