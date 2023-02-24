@@ -320,13 +320,13 @@ async def imdb_embed(movie: str, color: int):
 
 async def redd(ctx, account: str = "wholesomememes", number: int = 25):
     a = await get_async(
-        f"https://meme-api.herokuapp.com/gimme/{account}/{number}", kind="json"
+        f"https://redditAPI.alvinbengeorge.repl.co/meme/{account}", kind="json"
     )
     embeds = []
     bot = getattr(ctx, "bot", getattr(ctx, "client", None))
     if "message" in a.keys():
         return [cembed(title="Oops", description=a["message"], color=bot.re[8])]
-    memes = a["memes"]
+    memes = a
     for i in memes:
         embed = cembed(
             title=i["title"],

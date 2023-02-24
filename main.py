@@ -30,7 +30,7 @@ from utils.External_functions import (
     datetime,
     get_all_slash_commands,
     line_strip,
-    wait_for_confirm,
+    wait_for_confirm,         
     safe_pfp,
     get_async,
     activities,
@@ -324,6 +324,7 @@ async def youtube_loop():
 
 @tasks.loop(minutes=5)
 async def dev_loop():
+    await get_async("https://redditAPI.alvinbengeorge.repl.co");
     await CLIENT.change_presence(activity=activities(CLIENT))
 
 
