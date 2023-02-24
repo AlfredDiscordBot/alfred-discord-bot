@@ -41,8 +41,11 @@ class Topgg(commands.Cog):
 
     @tasks.loop(minutes=30)
     async def loop(self):
-        await self.CLIENT.wait_until_ready()
-        await self.topgg.post_stats(self.CLIENT)
+        try:
+            await self.CLIENT.wait_until_ready()
+            await self.topgg.post_stats(self.CLIENT)
+        except:
+            print("TopGG not updated")
 
 
 def setup(client, **i):
