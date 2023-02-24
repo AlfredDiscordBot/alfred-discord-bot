@@ -38,7 +38,6 @@ from utils.External_functions import (
     get_youtube_url,
     svg2png,
     cog_requirements,
-    ydl_op,
     color as cc,
 )
 
@@ -56,7 +55,6 @@ def fix():
 fix()
 # keep_alive()
 location_of_file = os.getcwd()
-ydl_copy = ydl_op.copy()
 start_time = time.time()
 mspace: dict = {}
 deathrate: dict = {}
