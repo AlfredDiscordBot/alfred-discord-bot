@@ -30,7 +30,6 @@ async def getNews(category):
         return newsDictionary
 
     for index, card in enumerate(newsCards):
-
         try:
             title = card.find(class_="news-card-title").find("a").text.strip()
         except AttributeError:

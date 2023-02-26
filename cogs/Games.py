@@ -14,7 +14,7 @@ from utils.assets import color
 
 
 def requirements():
-    return ["FFMPEG_OPTIONS", "ydl_op"]
+    return ["FFMPEG_OPTIONS"]
 
 
 class HangMan:
@@ -179,7 +179,7 @@ class OrderView(View):
 
 
 class Games(commands.Cog, description="Very Simple Games"):
-    def __init__(self, CLIENT: commands.Bot, FFMPEG_OPTIONS, ydl_op):
+    def __init__(self, CLIENT: commands.Bot, FFMPEG_OPTIONS):
         self.CLIENT = CLIENT
         self.FFMPEG_OPTIONS = FFMPEG_OPTIONS
         self.choices = [
