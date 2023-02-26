@@ -30,7 +30,6 @@ class ChatBot(
 
     def moderate_variables(self, guild_id, input_text, output):
         if len(self.past_response[guild_id]) >= 50:
-
             self.past_response[guild_id].pop(0)
             self.generated[guild_id].pop(0)
         self.past_response[guild_id].append(input_text)
