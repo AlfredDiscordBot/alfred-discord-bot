@@ -1,5 +1,4 @@
 import nextcord
-import requests
 import utils.External_functions as ef
 import emoji
 import asyncio

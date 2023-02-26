@@ -1,7 +1,6 @@
 import nextcord
 import time
 import io
-import traceback
 import utils.assets as assets
 import utils.External_functions as ef
 import utils.helping_hand as helping_hand
