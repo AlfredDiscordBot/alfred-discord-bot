@@ -6,7 +6,7 @@ from . import (
     spotify_client,
     Storage_facility,
     Trend,
-    database as db
+    database as db,
 )
 
 ef = External_functions
