@@ -1,7 +1,6 @@
 import os, sys
 
 import subprocess
-import aiohttp
 import nextcord
 import traceback
 import time
@@ -35,7 +34,6 @@ from utils.External_functions import (
     get_async,
     activities,
     cog_creator,
-    get_youtube_url,
     svg2png,
     cog_requirements,
     color as cc,
@@ -245,7 +243,7 @@ async def on_ready():
         sys.exit()
     print("Prepared")
     dev_loop.start()
-    youtube_loop.start()
+    save_loop.start()
     send_file_loop.start()
     report += "```"
     await channel.send(
@@ -267,7 +265,8 @@ async def send_file_loop():
 
 
 @tasks.loop(minutes=30)
-async def youtube_loop():
+async def save_loop():
+    save_to_file()
     return
 
 
@@ -286,7 +285,7 @@ async def svg(ctx, *, url):
 
 @dev_loop.before_loop
 @send_file_loop.before_loop
-@youtube_loop.before_loop
+@save_loop.before_loop
 async def wait_for_ready():
     await CLIENT.wait_until_ready()
 
@@ -932,26 +931,8 @@ async def exe(ctx, *, text):
         )
 
 
-def addt(p1, p2):
-    da[p1] = p2
-    return "Done"
-
-
-def get_elem(k):
-    return da.get(k, "Not assigned yet")
-
-
-def de(k):
-    del da[k]
-    return "Done"
-
-
 def req():
     re[0] = re[0] + 1
-
-
-def g_req():
-    return re[0]
 
 
 def reload_extension(name):
