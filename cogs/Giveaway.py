@@ -87,7 +87,7 @@ class Giveaway(
             return
         message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
         if not message.author == self.CLIENT.user:
-            await ctx.reply("Heyyyyy, wait a minute, that's not my giveaway mesage")
+            await ctx.reply("Heyyyyy, wait a minute, that's not my giveaway message")
             return
         if not message.clean_content.startswith("Giveaway"):
             await ctx.reply(
@@ -95,7 +95,7 @@ class Giveaway(
             )
             return
         if message.embeds[0].title == "Time up":
-            await ctx.reply("That's an old giveaway message")
+            await ctx.reply("That's an old giveaway message!")
             return
         reaction = message.reactions[0]
         users = await reaction.users().flatten()
@@ -112,7 +112,7 @@ class Giveaway(
         await message.edit(
             embed=ef.cembed(
                 title="Time up",
-                description="The giveaway has ended, hope you get it the next time",
+                description="The giveaway has ended, hope you get it the next time!",
                 color=self.CLIENT.color(ctx.guild),
                 thumbnail=self.CLIENT.user.avatar.url,
             )
